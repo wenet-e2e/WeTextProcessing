@@ -11,18 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import pytest
-
-from processors.money import Money
-from test.utils import parse_test_case
-
-
-class TestMoney:
-
-    money = Money()
-    money_cases = parse_test_case('data/money.txt')
-
-    @pytest.mark.parametrize("spoken, written", money_cases)
-    def test_money(self, spoken, written):
-        assert self.money.normalize(spoken) == written

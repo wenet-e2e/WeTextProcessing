@@ -29,8 +29,8 @@ class Math(Processor):
     def build_tagger(self):
         operator = string_file('data/math/operator.tsv')
 
-        cardinal = Cardinal().cardinal
-        tagger = (cardinal + ((delete(' ').ques + operator + delete(' ').ques +
-                               cardinal).plus).ques)
+        number = Cardinal().number
+        tagger = (number + ((delete(' ').ques + operator + delete(' ').ques +
+                             number).plus).ques)
         tagger = insert('value: "') + tagger + insert('"')
         self.tagger = self.add_tokens(tagger)

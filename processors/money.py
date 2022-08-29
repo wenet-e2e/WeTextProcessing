@@ -30,9 +30,9 @@ class Money(Processor):
         code = string_file('data/money/code.tsv')
         symbol = string_file('data/money/symbol.tsv')
 
-        cardinal = Cardinal().cardinal
-        tagger = (insert('currency: "') + (code | symbol) + insert('" ') +
-                  insert('value: "') + cardinal + insert('"'))
+        number = Cardinal().number
+        tagger = (insert('currency: "') + (code | symbol) + delete(' ').ques +
+                  insert('" ') + insert('value: "') + number + insert('"'))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):

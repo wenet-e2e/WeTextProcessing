@@ -30,8 +30,8 @@ class Measure(Processor):
         units_en = string_file('data/measure/units_en.tsv')
         units_zh = string_file('data/measure/units_zh.tsv')
 
-        cardinal = Cardinal().cardinal
-        tagger = (insert('百分之') + cardinal + delete('%')
-                  | cardinal + delete(' ').ques + (units_en | units_zh))
+        number = Cardinal().number
+        tagger = (insert('百分之') + number + delete('%')
+                  | number + delete(' ').ques + (units_en | units_zh))
         tagger = insert('value: "') + tagger + insert('"')
         self.tagger = self.add_tokens(tagger)

@@ -19,7 +19,7 @@ There are 3 components in TN pipeline:
 ##### Char Width Conversion (全角 -> 半角)
 
 ```
-苹果ＣＥＯ宣布发布新ＩＰＨＯＮＥ -> 苹果CEO宣布发布新IPHONE
+苹果ＣＥＯ宣布发布新ＩＰＨＯＮＥ -> 苹果C E O宣布发布新IPHONE
 他说：“我们已经吃过了！”。 -> 他说:"我们已经吃过了!".
 ```
 
@@ -34,7 +34,7 @@ Sometime you may want to remove certain things like interjections/fillers "啊",
 呃这个呃啊我不知道 -> 这个我不知道
 ```
 
-* customizable via `data/blacklist/interjections.tsv`
+* customizable via `data/default/blacklist.tsv`
 
 
 #### 2.2 Non-Standard-Words(NSW) normalization
@@ -77,7 +77,7 @@ Sometime you may want to remove certain things like interjections/fillers "啊",
 8月16号12:00之前 -> 八月十六号十二点之前
 我是5:02开始的 -> 我是五点零二分开始的
 于5:35:36发射 -> 于五点三十五分三十六秒发射
-8:00 a.m. 准时开会 -> 八点 a m 准时开会
+8:00 a.m.准时开会 -> 早上八点准时开会
 ```
 
 ##### Math
@@ -100,7 +100,7 @@ Sometime you may want to remove certain things like interjections/fillers "啊",
 ##### Measure
 
 ```
-重达25kg -> 二十五千克
+重达25kg -> 重达二十五千克
 最高气温38°C -> 最高气温三十八摄氏度
 实际面积120m² -> 实际面积一百二十平方米
 渲染速度10ms一帧 -> 渲染速度十毫秒一帧
@@ -109,8 +109,8 @@ Sometime you may want to remove certain things like interjections/fillers "啊",
 ##### Number series (phone, mobile numbers)
 
 ```
-可以打我手机13501234567 -> 可以打我手机一三五零一二三四五六七
-可以拨打12306来咨询 -> 可以拨打一二三零六来咨询
+可以打我手机13501234567 -> 可以打我手机幺三五零幺二三四五六七
+可以拨打12306来咨询 -> 可以拨打幺二三零六来咨询
 ```
 
 ##### Erhua (儿化音) Removal
@@ -120,6 +120,7 @@ Sometime you may want to remove certain things like interjections/fillers "啊",
 这事儿好办 -> 这事好办
 我儿子喜欢这地儿 -> 我儿子喜欢这地
 ```
+
 * erhua whitelist is customizable via `data/erhua/whitelist.tsv`
 
 ##### Whitelist (Replacement)
@@ -132,17 +133,13 @@ GPU -> G P U
 O2O -> O to O
 B2B -> B to B
 ```
-* customizable via `data/whitelist/default.tsv`
+* customizable via `data/default/whitelist.tsv`
 
 #### 2.3 Post-Processing
 
 ##### Punctuation Removal
 
 If enabled, punctuations are removed.
-
-##### Uppercase or Lowercase Conversion
-
-If enabled, English letters are converted to uppercases / lowercases
 
 ##### Out-Of-Vocabulary (OOV) Tagger
 

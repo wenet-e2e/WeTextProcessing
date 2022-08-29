@@ -26,10 +26,8 @@ from processors.preprocessor import PreProcessor
 from processors.processor import Processor
 from processors.whitelist import Whitelist
 from processors.time import Time
-from token_parser import TokenParser
 
-from pynini import escape, cdrewrite, Far, shortestpath
-from pynini.export import export
+from pynini import Far
 from pynini.lib.pynutil import add_weight, delete, insert
 
 
@@ -39,7 +37,6 @@ class Normalizer(Processor):
         super().__init__(name='normalizer')
         self.cache_dir = cache_dir
         self.overwrite_cache = overwrite_cache
-        self.parser = TokenParser()
 
         far_file = None
         if self.cache_dir:
@@ -67,8 +64,8 @@ class Normalizer(Processor):
                   | add_weight(Math().tagger, 1.08)
                   | add_weight(Char().tagger, 100))
         # insert space between tokens, and remove the last space
-        tagger = cdrewrite(tagger + insert(' '), '', '', self.VCHAR.star)
-        tagger @= cdrewrite(delete(' '), '', '[EOS]', self.VCHAR.star)
+        tagger = self.build_rule(tagger + insert(' '))
+        tagger @= self.build_rule(delete(' '), '[EOS]')
 
         processor = PreProcessor(remove_interjections=True,
                                  full_to_half=True).processor
@@ -86,35 +83,5 @@ class Normalizer(Processor):
                       | Whitelist().verbalizer).optimize()
         verbalizer = (verbalizer + delete(' ').ques).star
 
-        processor = PostProcessor(remove_puncts=False,
-                                  to_upper=False,
-                                  to_lower=False,
-                                  tag_oov=True).processor
+        processor = PostProcessor(remove_puncts=False, tag_oov=True).processor
         self.verbalizer = verbalizer @ processor
-
-    def export(self, file_name):
-        exporter = export.Exporter(file_name)
-        exporter['tagger'] = self.tagger.optimize()
-        exporter['verbalizer'] = self.verbalizer.optimize()
-        exporter.close()
-
-    def tag(self, text):
-        lattice = text @ self.tagger
-        tagged_text = shortestpath(lattice, nshortest=1, unique=True).string()
-        return tagged_text.strip()
-
-    def verbalize(self, text):
-        self.parser(text)
-        for text in self.parser.permute():
-            text = escape(text)
-            lattice = text @ self.verbalizer
-            if lattice.num_states() != 0:
-                break
-        if lattice.num_states() == 0:
-            return ''
-        return shortestpath(lattice, nshortest=1, unique=True).string()
-
-    def normalize(self, text):
-        text = self.tag(text)
-        text = self.verbalize(text)
-        return text

@@ -15,7 +15,15 @@
 import pytest
 
 from processors.postprocessor import PostProcessor
+from test.utils import parse_test_case
 
 
 class TestPostProcessor:
-    pass
+
+    processor = PostProcessor(remove_puncts=True, tag_oov=True).processor
+    processor_cases = parse_test_case('data/postprocessor.txt')
+
+    @pytest.mark.parametrize("spoken, written", processor_cases)
+    def test_processor(self, spoken, written):
+        print((spoken @ self.processor).string())
+        assert (spoken @ self.processor).string() == written

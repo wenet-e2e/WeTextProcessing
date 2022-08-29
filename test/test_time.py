@@ -15,7 +15,13 @@
 import pytest
 
 from processors.time import Time
+from test.utils import parse_test_case
 
 
 class TestTime:
-    pass
+    time = Time()
+    time_cases = parse_test_case('data/time.txt')
+
+    @pytest.mark.parametrize("spoken, written", time_cases)
+    def test_time(self, spoken, written):
+        assert self.time.normalize(spoken) == written

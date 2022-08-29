@@ -15,7 +15,14 @@
 import pytest
 
 from processors.fraction import Fraction
+from test.utils import parse_test_case
 
 
 class TestFraction:
-    pass
+
+    fraction = Fraction()
+    fraction_cases = parse_test_case('data/fraction.txt')
+
+    @pytest.mark.parametrize("spoken, written", fraction_cases)
+    def test_fraction(self, spoken, written):
+        assert self.fraction.normalize(spoken) == written

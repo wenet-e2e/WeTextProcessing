@@ -14,7 +14,7 @@
 
 from processors.processor import Processor
 
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import insert
 
 
 class Char(Processor):

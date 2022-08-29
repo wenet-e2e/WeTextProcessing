@@ -15,7 +15,14 @@
 import pytest
 
 from processors.date import Date
+from test.utils import parse_test_case
 
 
 class TestDate:
-    pass
+
+    date = Date()
+    date_cases = parse_test_case('data/date.txt')
+
+    @pytest.mark.parametrize("spoken, written", date_cases)
+    def test_date(self, spoken, written):
+        assert self.date.normalize(spoken) == written

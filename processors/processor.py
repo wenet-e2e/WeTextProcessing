@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini import difference, cross, union
+from token_parser import TokenParser
+
+from pynini import cdrewrite, cross, difference, escape, shortestpath, union
+from pynini.export import export
 from pynini.lib import byte, utf8
 from pynini.lib.pynutil import delete, insert
 
@@ -32,8 +35,13 @@ class Processor:
         self.SIGMA = (CHAR | cross('\\\\\\', '\\') | cross('\\"', '"')).star
 
         self.name = name
+        self.parser = TokenParser()
         self.tagger = None
         self.verbalizer = None
+
+    def build_rule(self, fst, r=''):
+        rule = cdrewrite(fst, '', r, self.VSIGMA)
+        return rule
 
     def add_tokens(self, tagger):
         tagger = insert(f"{self.name} {{ ") + tagger + insert(' }')
@@ -47,3 +55,30 @@ class Processor:
     def build_verbalizer(self):
         verbalizer = delete('value: "') + self.SIGMA + delete('"')
         self.verbalizer = self.delete_tokens(verbalizer)
+
+    def export(self, file_name):
+        exporter = export.Exporter(file_name)
+        exporter['tagger'] = self.tagger.optimize()
+        exporter['verbalizer'] = self.verbalizer.optimize()
+        exporter.close()
+
+    def tag(self, text):
+        lattice = text @ self.tagger
+        tagged_text = shortestpath(lattice, nshortest=1, unique=True).string()
+        return tagged_text.strip()
+
+    def verbalize(self, text):
+        self.parser(text)
+        for text in self.parser.permute():
+            text = escape(text)
+            lattice = text @ self.verbalizer
+            if lattice.num_states() != 0:
+                break
+        if lattice.num_states() == 0:
+            return ''
+        return shortestpath(lattice, nshortest=1, unique=True).string()
+
+    def normalize(self, text):
+        tagged_text = self.tag(text)
+        normed_text = self.verbalize(tagged_text)
+        return normed_text

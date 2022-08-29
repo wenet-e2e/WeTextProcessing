@@ -14,7 +14,7 @@
 
 from processors.processor import Processor
 
-from pynini import cdrewrite, string_file
+from pynini import string_file
 from pynini.lib.pynutil import delete
 
 
@@ -25,9 +25,9 @@ class PreProcessor(Processor):
         blacklist = string_file('data/default/blacklist.tsv')
         full2half = string_file('data/char/fullwidth_to_halfwidth.tsv')
 
-        processor = self.CHAR.star
+        processor = self.VSIGMA
         if remove_interjections:
-            processor @= cdrewrite(delete(blacklist), '', '', self.VCHAR.star)
+            processor @= self.build_rule(delete(blacklist))
         if full_to_half:
-            processor @= cdrewrite(full2half, '', '', self.VCHAR.star)
+            processor @= self.build_rule(full2half)
         self.processor = processor.optimize()

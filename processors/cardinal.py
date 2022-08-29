@@ -14,7 +14,7 @@
 
 from processors.processor import Processor
 
-from pynini import string_file
+from pynini import cross, string_file
 from pynini.lib.pynutil import delete, insert
 
 
@@ -22,7 +22,7 @@ class Cardinal(Processor):
 
     def __init__(self):
         super().__init__('cardinal')
-        self.cardinal = None
+        self.number = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -32,10 +32,11 @@ class Cardinal(Processor):
         teen = string_file('data/number/teen.tsv')
         sign = string_file('data/number/sign.tsv')
         dot = string_file('data/number/dot.tsv')
-        num = string_file('data/number/num.tsv')
 
         rmzero = delete('0')
         rmpunct = delete(',').ques
+        digits = zero | digit
+        num = digits @ self.build_rule(cross('一', '幺'))
 
         # 11 => 十一
         ten = teen + insert('十') + (digit | rmzero)
@@ -55,12 +56,17 @@ class Cardinal(Processor):
                          | (rmzero + rmpunct + zero + tens)
                          | (rmzero + rmpunct + rmzero + zero + digit)
                          | rmzero**4))
-        # 1.11, 1.01
-        decimal = dot + (zero | digit).plus
-        cardinal = zero | digit | ten | hundred | thousand | ten_thousand
-        self.cardinal = (sign.ques + cardinal + decimal.ques).optimize()
 
-        # cardinal string like 123 or 123.456, used in phone, ID, IP, etc.
-        tagger = insert('value: "') + num.plus + (num |
-                                                  dot).plus.ques + insert('"')
+        # 1.11, 1.01
+        number = digits | ten | hundred | thousand | ten_thousand
+        number = sign.ques + number + (dot + digits.plus).ques
+        number @= self.build_rule(
+            cross('二百', '两百')
+            | cross('二千', '两千')
+            | cross('二万', '两万'))
+        self.number = number.optimize()
+
+        # cardinal string like 110 or 127.0.0.1, used in phone, ID, IP, etc.
+        cardinal = num.plus + (num | dot).plus.ques
+        tagger = insert('value: "') + cardinal + insert('"')
         self.tagger = self.add_tokens(tagger)

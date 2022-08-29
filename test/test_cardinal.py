@@ -15,7 +15,20 @@
 import pytest
 
 from processors.cardinal import Cardinal
+from test.utils import parse_test_case
 
 
 class TestCardinal:
-    pass
+
+    cardinal = Cardinal()
+    number_cases = parse_test_case('data/number.txt')
+    cardinal_cases = parse_test_case('data/cardinal.txt')
+
+    @pytest.mark.parametrize("spoken, written", number_cases)
+    def test_number(self, spoken, written):
+        number = self.cardinal.number
+        assert (spoken @ number).string() == written
+
+    @pytest.mark.parametrize("spoken, written", cardinal_cases)
+    def test_cardinal(self, spoken, written):
+        assert self.cardinal.normalize(spoken) == written

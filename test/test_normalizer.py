@@ -15,7 +15,23 @@
 import pytest
 
 from processors.normalizer import Normalizer
+from test.utils import parse_test_case
 
 
 class TestNormalizer:
-    pass
+
+    normalizer = Normalizer()
+
+    normalizer_cases = (parse_test_case('data/cardinal.txt') +
+                        parse_test_case('data/char.txt') +
+                        parse_test_case('data/date.txt') +
+                        parse_test_case('data/fraction.txt') +
+                        parse_test_case('data/math.txt') +
+                        parse_test_case('data/money.txt') +
+                        parse_test_case('data/time.txt') +
+                        parse_test_case('data/whitelist.txt') +
+                        parse_test_case('data/normalizer.txt'))
+
+    @pytest.mark.parametrize("spoken, written", normalizer_cases)
+    def test_normalizer(self, spoken, written):
+        assert self.normalizer.normalize(spoken) == written

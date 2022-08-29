@@ -26,10 +26,10 @@ class Fraction(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        cardinal = Cardinal().cardinal
-        tagger = (insert('numerator: "') + cardinal + delete(' ').ques +
+        number = Cardinal().number
+        tagger = (insert('numerator: "') + number + delete(' ').ques +
                   delete('/') + delete(' ').ques + insert('" denominator: "') +
-                  cardinal + insert('"')).optimize()
+                  number + insert('"')).optimize()
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):

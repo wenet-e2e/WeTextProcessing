@@ -29,7 +29,6 @@ class Date(Processor):
         digit = string_file('data/number/digit.tsv')
         zero = string_file('data/number/zero.tsv')
 
-        yy = (digit | zero)**2
         yyyy = digit + (digit | zero)**3
         m = string_file('data/date/m.tsv')
         mm = string_file('data/date/mm.tsv')
@@ -37,7 +36,7 @@ class Date(Processor):
         dd = string_file('data/date/dd.tsv')
         rmsign = (delete('/') | delete('-') | delete('.')) + insert(' ')
 
-        year = insert('year: "') + (yy | yyyy) + insert('"')
+        year = insert('year: "') + yyyy + insert('"')
         month = insert('month: "') + (m | mm) + insert('"')
         day = insert('day: "') + (d | dd) + insert('"')
 

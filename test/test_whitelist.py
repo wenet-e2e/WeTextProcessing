@@ -15,7 +15,13 @@
 import pytest
 
 from processors.whitelist import Whitelist
+from test.utils import parse_test_case
 
 
 class TestWhitelist:
-    pass
+    whitelist = Whitelist()
+    whitelist_cases = parse_test_case('data/whitelist.txt')
+
+    @pytest.mark.parametrize("spoken, written", whitelist_cases)
+    def test_whitelist(self, spoken, written):
+        assert self.whitelist.normalize(spoken) == written

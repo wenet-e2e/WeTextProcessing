@@ -15,7 +15,15 @@
 import pytest
 
 from processors.preprocessor import PreProcessor
+from test.utils import parse_test_case
 
 
 class TestPreProcessor:
-    pass
+
+    processor = PreProcessor().processor
+    processor_cases = parse_test_case('data/preprocessor.txt')
+
+    @pytest.mark.parametrize("spoken, written", processor_cases)
+    def test_processor(self, spoken, written):
+        print((spoken @ self.processor).string())
+        assert (spoken @ self.processor).string() == written

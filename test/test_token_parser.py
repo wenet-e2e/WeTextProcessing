@@ -12,10 +12,54 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
-
-from token_parser import TokenParser
+from token_parser import EOS, TokenParser
 
 
 class TestTokenParser:
-    pass
+
+    parser = TokenParser()
+
+    def test_read(self):
+        self.parser(' ')
+        assert self.parser.read() is False
+        assert self.parser.char == EOS
+
+    def test_parse_ws(self):
+        self.parser(' ')
+        assert self.parser.parse_ws() is False
+
+        self.parser('  ')
+        assert self.parser.parse_ws() is False
+
+        self.parser('  test')
+        assert self.parser.parse_ws() is True
+
+    def test_parse_chars(self):
+        self.parser('hello world')
+        assert self.parser.parse_chars('hello') is True
+
+        self.parser('world')
+        assert self.parser.parse_chars('hello') is False
+
+    def test_parse_key(self):
+        self.parser('key')
+        assert self.parser.parse_key() == 'key'
+
+        self.parser('key ')
+        assert self.parser.parse_key() == 'key'
+
+    def test_parse_value(self):
+        self.parser('value"')
+        assert self.parser.parse_value() == 'value'
+
+    def test_parse(self):
+        self.parser('time { hours: "两点" minutes: "零二分" } char { value: "走" } ')
+        assert self.parser.parse() == [
+            ('time', [('hours', '两点'), ('minutes', '零二分')]),
+            ('char', [('value', '走')])]
+
+    def test_permute(self):
+        self.parser('time { hours: "两点" minutes: "零二分" } char { value: "走" }')
+        assert [text for text in self.parser.permute()] == [
+            'time { hours: "两点" minutes: "零二分" } char { value: "走" }',
+            'time { minutes: "零二分" hours: "两点" } char { value: "走" }']
