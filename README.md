@@ -46,7 +46,7 @@ There are 3 components in TN pipeline:
 |                         | 价格是$13.5         | 价格是十三点五美元               |                                |
 | Measure                 | 重达25kg            | 重达二十五千克                   |                                |
 |                         | 最高气温38°C        | 最高气温三十八摄氏度             |                                |
-|                         | 渲染速度10ms一帧    | 渲染速度十毫秒一帧               |                                |
+|                         | 速度是10km/h | 速度是每小时十公里 |                                |
 | Number series           | 可以拨打12306来咨询 | 可以拨打幺二三零六来咨询         |                                |
 | Erhua (儿化音) Removal  | 我儿子喜欢这地儿    | 我儿子喜欢这地                   | via `data/erhua/whitelist.tsv` |
 | Whitelist (Replacement) | CEO                 | C E O                            |                                |

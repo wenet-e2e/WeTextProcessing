@@ -24,6 +24,9 @@ gpa	吉帕斯卡
 gwh	吉瓦时
 gw	吉瓦
 gy	戈瑞
+h	小时
+m	分钟
+s	秒
 ha	公顷
 hz	赫兹
 kbps	千比特每秒
@@ -33,7 +36,7 @@ kg	千克
 khz	千赫兹
 km2	平方千米
 km²	平方千米
-km	千米
+km	公里
 kpa	千帕
 kwh	千瓦时
 kw	千瓦
@@ -49,7 +52,7 @@ mg	毫克
 mhz	兆赫兹
 mi2	平方英里
 mi²	平方英里
-min	分钟哦
+min	分钟
 mi	英里
 ml	毫升
 mm2	平方毫米

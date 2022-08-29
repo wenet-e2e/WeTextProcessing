@@ -29,14 +29,27 @@ class Measure(Processor):
     def build_tagger(self):
         units_en = string_file('data/measure/units_en.tsv')
         units_zh = string_file('data/measure/units_zh.tsv')
+        units = units_en | units_zh
+        rmspace = delete(' ').ques
 
         number = Cardinal().number
         percent = insert('百分之') + number + delete('%')
 
         number @= self.build_rule(cross('二', '两'), '[BOS]', '[EOS]')
-        measure = number + delete(' ').ques + (units_en | units_zh)
-        measure @= self.build_rule(cross('两两', '二两'), '[BOS]', '[EOS]')
-
-        tagger = percent | measure
-        tagger = insert('value: "') + tagger + insert('"')
+        measure = number + rmspace + units
+        measure @= self.build_rule(cross('两两', '二两'), '[BOS]', '')
+        tagger = insert('value: "') + (measure | percent) + insert('"')
+        
+        # 10km/h
+        tagger |= (
+            insert('numerator: "') + measure
+            + rmspace + delete('/') + rmspace
+            + insert('" denominator: "每') + units + insert('"'))
         self.tagger = self.add_tokens(tagger)
+
+    def build_verbalizer(self):
+        super().build_verbalizer()
+        verbalizer = (
+            delete('denominator: "') + self.SIGMA
+            + delete('" numerator: "') + self.SIGMA + delete('"'))
+        self.verbalizer |= self.delete_tokens(verbalizer)

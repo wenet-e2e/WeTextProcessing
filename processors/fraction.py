@@ -26,9 +26,11 @@ class Fraction(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
+        rmspace = delete(' ').ques
         number = Cardinal().number
-        tagger = (insert('numerator: "') + number + delete(' ').ques +
-                  delete('/') + delete(' ').ques + insert('" denominator: "') +
+
+        tagger = (insert('numerator: "') + number + rmspace +
+                  delete('/') + rmspace + insert('" denominator: "') +
                   number + insert('"')).optimize()
         self.tagger = self.add_tokens(tagger)
 
