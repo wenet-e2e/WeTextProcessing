@@ -53,8 +53,8 @@ class Date(Processor):
 
     def build_verbalizer(self):
         year = delete('year: "') + self.SIGMA + insert('年') + delete('"')
-        month = delete('month: "') + self.SIGMA + insert('月') + delete('"')
-        day = delete('day: "') + self.SIGMA + insert('日') + delete('"')
+        month = delete('month: "') + self.SIGMA + delete('"')
+        day = delete('day: "') + self.SIGMA + delete('"')
         verbalizer = ((year + delete(' ')).ques + month +
                       (delete(' ') + day).ques)
         self.verbalizer = self.delete_tokens(verbalizer)

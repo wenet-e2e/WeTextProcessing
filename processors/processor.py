@@ -23,7 +23,7 @@ class Processor:
         self.ALPHA = byte.ALPHA
         self.DIGIT = byte.DIGIT
         self.PUNCT = byte.PUNCT
-        self.SPACE = byte.SPACE
+        self.SPACE = byte.SPACE | u'\u00A0'
         self.VCHAR = utf8.VALID_UTF8_CHAR
         self.VSIGMA = self.VCHAR.star
 

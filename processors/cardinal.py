@@ -32,6 +32,7 @@ class Cardinal(Processor):
         teen = string_file('data/number/teen.tsv')
         sign = string_file('data/number/sign.tsv')
         dot = string_file('data/number/dot.tsv')
+        num = string_file('data/number/num.tsv')
 
         rmzero = delete('0')
         rmpunct = delete(',').ques
@@ -55,11 +56,11 @@ class Cardinal(Processor):
                          | (rmzero + rmpunct + rmzero + zero + digit)
                          | rmzero**4))
         # 1.11, 1.01
-        numstr = (zero | digit).plus
-        decimal = (dot + numstr).ques
+        decimal = dot + (zero | digit).plus
         cardinal = zero | digit | ten | hundred | thousand | ten_thousand
-        self.cardinal = (sign.ques + cardinal + decimal).optimize()
+        self.cardinal = (sign.ques + cardinal + decimal.ques).optimize()
 
-        # cardinal string like 123 or 123.456, used in phone, ID, etc.
-        tagger = insert('value: "') + numstr + decimal + insert('"')
+        # cardinal string like 123 or 123.456, used in phone, ID, IP, etc.
+        tagger = insert('value: "') + num.plus + (num |
+                                                  dot).plus.ques + insert('"')
         self.tagger = self.add_tokens(tagger)

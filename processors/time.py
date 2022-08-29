@@ -27,8 +27,8 @@ class Time(Processor):
 
     def build_tagger(self):
         h = string_file('data/time/hour.tsv')
-        m = string_file('data/time/min_sec.tsv')
-        s = string_file('data/time/min_sec.tsv')
+        m = string_file('data/time/minute.tsv')
+        s = string_file('data/time/second.tsv')
         noon = string_file('data/time/noon.tsv')
 
         tagger = (
@@ -40,9 +40,9 @@ class Time(Processor):
 
     def build_verbalizer(self):
         noon = delete('noon: "') + self.SIGMA + delete('" ')
-        hours = delete('hours: "') + self.SIGMA + insert('点') + delete('"')
-        minutes = delete('minutes: "') + self.SIGMA + insert('分') + delete('"')
-        seconds = delete('seconds: "') + self.SIGMA + insert('秒') + delete('"')
+        hours = delete('hours: "') + self.SIGMA + delete('"')
+        minutes = delete('minutes: "') + self.SIGMA + delete('"')
+        seconds = delete('seconds: "') + self.SIGMA + delete('"')
         verbalizer = (noon.ques + hours + delete(' ') + minutes +
                       (delete(' ') + seconds).ques)
         self.verbalizer = self.delete_tokens(verbalizer)

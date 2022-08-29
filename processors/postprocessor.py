@@ -15,7 +15,7 @@
 from processors.processor import Processor
 
 from pynini import cdrewrite, difference, string_file
-from pynini.lib.pynutil import delete
+from pynini.lib.pynutil import delete, insert
 
 
 class PostProcessor(Processor):
@@ -34,7 +34,6 @@ class PostProcessor(Processor):
         zh_charset_ext = string_file('data/char/charset_extension.tsv')
 
         processor = cdrewrite('', '', '', self.VSIGMA)
-
         if remove_puncts:
             processor @= cdrewrite(delete(puncts | self.PUNCT), '', '',
                                    self.VSIGMA)
@@ -45,14 +44,13 @@ class PostProcessor(Processor):
             processor @= cdrewrite(upper2lower, '', '', self.VSIGMA)
 
         if tag_oov:
-            charset = (zh_charset_std | zh_charset_ext | puncts
-                       | self.DIGIT | self.ALPHA | self.PUNCT
-                       | self.SPACE | u'\u00A0')
+            charset = (zh_charset_std | zh_charset_ext | puncts | self.DIGIT
+                       | self.ALPHA | self.PUNCT | self.SPACE)
             with open('data/char/oov_tags.tsv') as f:
                 tags = f.readline().strip().split('\t')
                 assert len(tags) == 2
                 ltag, rtag = tags
-            tag_oov = (insert(ltag) + difference(self.CHAR, charset) +
+            tag_oov = (insert(ltag) + difference(self.VCHAR, charset) +
                        insert(rtag))
             processor @= cdrewrite(tag_oov, '', '', self.VSIGMA)
 

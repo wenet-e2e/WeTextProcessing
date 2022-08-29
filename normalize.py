@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--input_file', help='input file path')
     args = parser.parse_args()
 
-    normalizer = Normalizer(cache_dir='data', overwrite_cache=False)
+    normalizer = Normalizer(cache_dir='data', overwrite_cache=True)
 
     if args.text:
         print(normalizer.normalize(args.text))
@@ -31,6 +31,7 @@ def main():
         with open(args.input_file) as fin:
             for line in fin:
                 print(normalizer.normalize(line.strip()))
+
 
 if __name__ == '__main__':
     main()

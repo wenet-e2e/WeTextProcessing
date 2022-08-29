@@ -27,13 +27,10 @@ class Math(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        sign = string_file('data/number/sign.tsv')
         operator = string_file('data/math/operator.tsv')
 
         cardinal = Cardinal().cardinal
-        tagger = (
-            sign + cardinal |
-            (sign.ques + cardinal +
-             (delete(' ').ques + operator + delete(' ').ques + cardinal).plus))
+        tagger = (cardinal + ((delete(' ').ques + operator + delete(' ').ques +
+                               cardinal).plus).ques)
         tagger = insert('value: "') + tagger + insert('"')
         self.tagger = self.add_tokens(tagger)

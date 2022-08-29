@@ -59,10 +59,10 @@ class Normalizer(Processor):
     def build_tagger(self):
         tagger = (add_weight(Date().tagger, 1.02)
                   | add_weight(Whitelist().tagger, 1.03)
-                  | add_weight(Time().tagger, 1.05)
-                  | add_weight(Money().tagger, 1.05)
-                  | add_weight(Measure().tagger, 1.05)
                   | add_weight(Fraction().tagger, 1.05)
+                  | add_weight(Measure().tagger, 1.05)
+                  | add_weight(Money().tagger, 1.05)
+                  | add_weight(Time().tagger, 1.05)
                   | add_weight(Cardinal().tagger, 1.06)
                   | add_weight(Math().tagger, 1.08)
                   | add_weight(Char().tagger, 100))
@@ -75,13 +75,13 @@ class Normalizer(Processor):
         self.tagger = processor @ tagger.optimize()
 
     def build_verbalizer(self):
-        verbalizer = (Date().verbalizer
-                      | Cardinal().verbalizer
-                      | Fraction().verbalizer
+        verbalizer = (Cardinal().verbalizer
                       | Char().verbalizer
+                      | Date().verbalizer
+                      | Fraction().verbalizer
                       | Math().verbalizer
-                      | Money().verbalizer
                       | Measure().verbalizer
+                      | Money().verbalizer
                       | Time().verbalizer
                       | Whitelist().verbalizer).optimize()
         verbalizer = (verbalizer + delete(' ').ques).star
@@ -89,7 +89,7 @@ class Normalizer(Processor):
         processor = PostProcessor(remove_puncts=False,
                                   to_upper=False,
                                   to_lower=False,
-                                  tag_oov=False).processor
+                                  tag_oov=True).processor
         self.verbalizer = verbalizer @ processor
 
     def export(self, file_name):

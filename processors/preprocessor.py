@@ -22,12 +22,12 @@ class PreProcessor(Processor):
 
     def __init__(self, remove_interjections=True, full_to_half=True):
         super().__init__(name='preprocessor')
-        deny = string_file('data/blacklist/denylist.tsv')
+        blacklist = string_file('data/default/blacklist.tsv')
         full2half = string_file('data/char/fullwidth_to_halfwidth.tsv')
 
         processor = self.CHAR.star
         if remove_interjections:
-            processor @= cdrewrite(delete(deny), '', '', self.VCHAR.star)
+            processor @= cdrewrite(delete(blacklist), '', '', self.VCHAR.star)
         if full_to_half:
             processor @= cdrewrite(full2half, '', '', self.VCHAR.star)
         self.processor = processor.optimize()

@@ -26,7 +26,7 @@ class Whitelist(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        whitelist = (string_file('data/whitelist/default.tsv')
+        whitelist = (string_file('data/default/whitelist.tsv')
                      | string_file('data/erhua/whitelist.tsv'))
 
         erhua = add_weight(insert('erhua: "') + accep('儿'), 0.1)
