@@ -15,7 +15,7 @@
 from processors.cardinal import Cardinal
 from processors.processor import Processor
 
-from pynini import string_file
+from pynini import cross, string_file
 from pynini.lib.pynutil import delete, insert
 
 
@@ -31,7 +31,12 @@ class Measure(Processor):
         units_zh = string_file('data/measure/units_zh.tsv')
 
         number = Cardinal().number
-        tagger = (insert('百分之') + number + delete('%')
-                  | number + delete(' ').ques + (units_en | units_zh))
+        percent = insert('百分之') + number + delete('%')
+
+        number @= self.build_rule(cross('二', '两'), '[BOS]', '[EOS]')
+        measure = number + delete(' ').ques + (units_en | units_zh)
+        measure @= self.build_rule(cross('两两', '二两'), '[BOS]', '[EOS]')
+
+        tagger = percent | measure
         tagger = insert('value: "') + tagger + insert('"')
         self.tagger = self.add_tokens(tagger)

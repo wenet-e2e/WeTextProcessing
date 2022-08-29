@@ -27,7 +27,7 @@ def parse_test_case(file_name):
             assert 0 < len(arr) <= 2
 
             if len(arr) == 1:
-                spoken = arr[0].replace(' =>', '')
+                spoken = arr[0].rstrip(' =>')
                 written = ''
             else:
                 spoken = arr[0].strip()

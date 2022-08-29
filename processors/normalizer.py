@@ -65,7 +65,7 @@ class Normalizer(Processor):
                   | add_weight(Char().tagger, 100))
         # insert space between tokens, and remove the last space
         tagger = self.build_rule(tagger + insert(' '))
-        tagger @= self.build_rule(delete(' '), '[EOS]')
+        tagger @= self.build_rule(delete(' '), '', '[EOS]')
 
         processor = PreProcessor(remove_interjections=True,
                                  full_to_half=True).processor

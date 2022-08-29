@@ -39,8 +39,8 @@ class Processor:
         self.tagger = None
         self.verbalizer = None
 
-    def build_rule(self, fst, r=''):
-        rule = cdrewrite(fst, '', r, self.VSIGMA)
+    def build_rule(self, fst, l='', r=''):
+        rule = cdrewrite(fst, l, r, self.VSIGMA)
         return rule
 
     def add_tokens(self, tagger):
