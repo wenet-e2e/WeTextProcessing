@@ -67,8 +67,8 @@ class Normalizer(Processor):
                   | add_weight(Math().tagger, 1.08)
                   | add_weight(Char().tagger, 100))
         # insert space between tokens, and remove the last space
-        tagger = cdrewrite(tagger + insert(' '), '', '', self.CHAR.star)
-        tagger @= cdrewrite(delete(' '), '', '[EOS]', self.CHAR.star)
+        tagger = cdrewrite(tagger + insert(' '), '', '', self.VCHAR.star)
+        tagger @= cdrewrite(delete(' '), '', '[EOS]', self.VCHAR.star)
 
         processor = PreProcessor(remove_interjections=True,
                                  full_to_half=True).processor

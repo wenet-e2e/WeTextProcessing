@@ -33,16 +33,16 @@ class PostProcessor(Processor):
             'data/char/charset_national_standard_2013_8105.tsv')
         zh_charset_ext = string_file('data/char/charset_extension.tsv')
 
-        processor = cdrewrite('', '', '', self.SIGMA)
+        processor = cdrewrite('', '', '', self.VSIGMA)
 
         if remove_puncts:
             processor @= cdrewrite(delete(puncts | self.PUNCT), '', '',
-                                   self.SIGMA)
+                                   self.VSIGMA)
 
         if to_upper:
-            processor @= cdrewrite(lower2upper, '', '', self.SIGMA)
+            processor @= cdrewrite(lower2upper, '', '', self.VSIGMA)
         if to_lower:
-            processor @= cdrewrite(upper2lower, '', '', self.SIGMA)
+            processor @= cdrewrite(upper2lower, '', '', self.VSIGMA)
 
         if tag_oov:
             charset = (zh_charset_std | zh_charset_ext | puncts
@@ -54,6 +54,6 @@ class PostProcessor(Processor):
                 ltag, rtag = tags
             tag_oov = (insert(ltag) + difference(self.CHAR, charset) +
                        insert(rtag))
-            processor @= cdrewrite(tag_oov, '', '', self.SIGMA)
+            processor @= cdrewrite(tag_oov, '', '', self.VSIGMA)
 
         self.processor = processor.optimize()

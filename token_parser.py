@@ -65,9 +65,14 @@ class TokenParser:
     def parse_value(self):
         assert self.char != EOS
         chars = []
+        escape = False
         while self.char != '"':
             chars.append(self.char)
+            escape = self.char == '\\' and not escape
             self.read()
+            if escape:
+                chars.append(self.char)
+                self.read()
         return ''.join(chars)
 
     def parse(self):

@@ -27,7 +27,7 @@ class PreProcessor(Processor):
 
         processor = self.CHAR.star
         if remove_interjections:
-            processor @= cdrewrite(delete(deny), '', '', self.CHAR.star)
+            processor @= cdrewrite(delete(deny), '', '', self.VCHAR.star)
         if full_to_half:
-            processor @= cdrewrite(full2half, '', '', self.CHAR.star)
+            processor @= cdrewrite(full2half, '', '', self.VCHAR.star)
         self.processor = processor.optimize()

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini import difference
+from pynini import difference, cross, union
 from pynini.lib import byte, utf8
 from pynini.lib.pynutil import delete, insert
 
@@ -24,8 +24,12 @@ class Processor:
         self.DIGIT = byte.DIGIT
         self.PUNCT = byte.PUNCT
         self.SPACE = byte.SPACE
-        self.CHAR = utf8.VALID_UTF8_CHAR
-        self.SIGMA = difference(self.CHAR, r'"').star
+        self.VCHAR = utf8.VALID_UTF8_CHAR
+        self.VSIGMA = self.VCHAR.star
+
+        CHAR = difference(self.VCHAR, union('\\', '"'))
+        self.CHAR = (CHAR | cross('\\', '\\\\\\') | cross('"', '\\"'))
+        self.SIGMA = (CHAR | cross('\\\\\\', '\\') | cross('\\"', '"')).star
 
         self.name = name
         self.tagger = None
