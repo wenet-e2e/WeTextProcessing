@@ -23,6 +23,6 @@ class TestChar:
     char = Char()
     char_cases = parse_test_case('data/char.txt')
 
-    @pytest.mark.parametrize("spoken, written", char_cases)
-    def test_char(self, spoken, written):
-        assert self.char.normalize(spoken) == written
+    @pytest.mark.parametrize("written, spoken", char_cases)
+    def test_char(self, written, spoken):
+        assert self.char.normalize(written) == spoken

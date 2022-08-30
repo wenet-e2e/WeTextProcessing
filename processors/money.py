@@ -36,6 +36,7 @@ class Money(Processor):
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        verbalizer = (delete('value: "') + self.SIGMA + delete('" ') +
-                      delete('currency: "') + self.SIGMA + delete('"'))
+        value = delete('value: "') + self.SIGMA + delete('" ')
+        currency = delete('currency: "') + self.SIGMA + delete('"')
+        verbalizer = value + currency
         self.verbalizer = self.delete_tokens(verbalizer)

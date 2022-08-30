@@ -14,15 +14,15 @@
 
 import pytest
 
-from processors.measure import Measure
+from processors.math import Math
 from test.utils import parse_test_case
 
 
-class TestMoney:
+class TestMath:
 
-    measure = Measure()
-    measure_cases = parse_test_case('data/measure.txt')
+    math = Math()
+    math_cases = parse_test_case('data/math.txt')
 
-    @pytest.mark.parametrize("spoken, written", measure_cases)
-    def test_measure(self, spoken, written):
-        assert self.measure.normalize(spoken) == written
+    @pytest.mark.parametrize("written, spoken", math_cases)
+    def test_math(self, written, spoken):
+        assert self.math.normalize(written) == spoken

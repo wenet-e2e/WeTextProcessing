@@ -16,15 +16,44 @@ import string
 from itertools import permutations, product
 
 EOS = '<EOS>'
+ORDERS = {
+    'date': ['year', 'month', 'day'],
+    'fraction': ['denominator', 'numerator'],
+    'measure': ['denominator', 'numerator', 'value'],
+    'money': ['value', 'currency'],
+    'time': ['noon', 'hour', 'minute', 'second']}
+
+
+class Token:
+    def __init__(self, name):
+        self.name = name
+        self.order = []
+        self.members = {}
+
+    def append(self, key, value):
+        self.order.append(key)
+        self.members[key] = value
+
+    def string(self):
+        output = self.name + ' {'
+        if self.name in ORDERS.keys():
+            self.order = ORDERS[self.name]
+
+        for key in self.order:
+            if key not in self.members.keys():
+                continue
+            output += ' {}: "{}"'.format(key, self.members[key])
+        return output + ' }'
 
 
 class TokenParser:
 
-    def __call__(self, text):
-        self.text = text
-        assert len(text) > 0
-        self.char = text[0]
+    def load(self, input):
+        assert len(input) > 0
         self.index = 0
+        self.text = input
+        self.char = input[0]
+        self.tokens = []
 
     def read(self):
         if self.index < len(self.text) - 1:
@@ -56,32 +85,33 @@ class TokenParser:
         assert self.char != EOS
         assert self.char not in string.whitespace
 
-        chars = []
+        key = ''
         while self.char in string.ascii_letters + '_':
-            chars.append(self.char)
+            key += self.char
             self.read()
-        return ''.join(chars)
+        return key
 
     def parse_value(self):
         assert self.char != EOS
-        chars = []
         escape = False
+
+        value = ''
         while self.char != '"':
-            chars.append(self.char)
+            value += self.char
             escape = self.char == '\\' and not escape
             self.read()
             if escape:
-                chars.append(self.char)
+                value += self.char
                 self.read()
-        return ''.join(chars)
+        return value
 
-    def parse(self):
-        tokens = []
+    def parse(self, input):
+        self.load(input)
         while self.parse_ws():
             name = self.parse_key()
             self.parse_chars(' { ')
 
-            sub_toks = []
+            token = Token(name)
             while self.parse_ws():
                 if self.char == '}':
                     self.parse_char('}')
@@ -89,23 +119,13 @@ class TokenParser:
                 key = self.parse_key()
                 self.parse_chars(': "')
                 value = self.parse_value()
-                self.parse_chars('"')
-                sub_toks.append((key, value))
-            tokens.append((name, sub_toks))
+                self.parse_char('"')
+                token.append(key, value)
+            self.tokens.append(token)
 
-        return tokens
-
-    def permute(self):
-
-        def helper(key, pairs):
-            text = key + ' {'
-            for k, v in pairs:
-                text += ' {}: "{}"'.format(k, v)
-            return text + ' } '
-
-        tokens = self.parse()
-        prefixes = ['']
-        for k, v in tokens:
-            values = [helper(k, pairs) for pairs in permutations(v)]
-            prefixes = [''.join(x) for x in product(prefixes, values)]
-        return [prefix.strip() for prefix in prefixes]
+    def reorder(self, input):
+        self.parse(input)
+        output = ''
+        for token in self.tokens:
+            output += token.string() + ' '
+        return output.strip()

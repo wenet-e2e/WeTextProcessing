@@ -19,20 +19,14 @@ def parse_test_case(file_name):
     file = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + file_name
 
     delimiter = '=>'
-    test_pairs = []
     with open(file) as fin:
         for line in fin:
             assert delimiter in line
             arr = line.strip().split(delimiter)
             assert 0 < len(arr) <= 2
 
-            if len(arr) == 1:
-                spoken = arr[0].rstrip(' =>')
-                written = ''
-            else:
-                spoken = arr[0].strip()
-                written = arr[1].strip()
-
-            test_pairs.append((spoken, written))
-
-    return test_pairs
+            written = arr[0].strip()
+            spoken = ''
+            if len(arr) > 1:
+                spoken = arr[1].strip()
+            yield (written, spoken)

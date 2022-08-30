@@ -23,6 +23,6 @@ class TestFraction:
     fraction = Fraction()
     fraction_cases = parse_test_case('data/fraction.txt')
 
-    @pytest.mark.parametrize("spoken, written", fraction_cases)
-    def test_fraction(self, spoken, written):
-        assert self.fraction.normalize(spoken) == written
+    @pytest.mark.parametrize("written, spoken", fraction_cases)
+    def test_fraction(self, written, spoken):
+        assert self.fraction.normalize(written) == spoken

@@ -14,15 +14,16 @@
 
 import pytest
 
-from processors.math import Math
+from processors.preprocessor import PreProcessor
 from test.utils import parse_test_case
 
 
-class TestMath:
+class TestPreProcessor:
 
-    math = Math()
-    math_cases = parse_test_case('data/math.txt')
+    processor = PreProcessor().processor
+    processor_cases = parse_test_case('data/preprocessor.txt')
 
-    @pytest.mark.parametrize("spoken, written", math_cases)
-    def test_math(self, spoken, written):
-        assert self.math.normalize(spoken) == written
+    @pytest.mark.parametrize("written, spoken", processor_cases)
+    def test_processor(self, written, spoken):
+        print((written @ self.processor).string())
+        assert (written @ self.processor).string() == spoken

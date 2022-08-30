@@ -14,14 +14,14 @@
 
 import pytest
 
-from processors.time import Time
+from processors.whitelist import Whitelist
 from test.utils import parse_test_case
 
 
-class TestTime:
-    time = Time()
-    time_cases = parse_test_case('data/time.txt')
+class TestWhitelist:
+    whitelist = Whitelist()
+    whitelist_cases = parse_test_case('data/whitelist.txt')
 
-    @pytest.mark.parametrize("spoken, written", time_cases)
-    def test_time(self, spoken, written):
-        assert self.time.normalize(spoken) == written
+    @pytest.mark.parametrize("written, spoken", whitelist_cases)
+    def test_whitelist(self, written, spoken):
+        assert self.whitelist.normalize(written) == spoken

@@ -35,7 +35,7 @@ class Fraction(Processor):
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        verbalizer = (delete('denominator: "') + self.SIGMA + delete('" ') +
-                      insert('分之') + delete('numerator: "') + self.SIGMA +
-                      delete('"'))
+        denominator = delete('denominator: "') + self.SIGMA + delete('" ')
+        numerator = delete('numerator: "') + self.SIGMA + delete('"')
+        verbalizer = denominator + insert('分之') + numerator
         self.verbalizer = self.delete_tokens(verbalizer)

@@ -15,7 +15,8 @@
 from processors.processor import Processor
 
 from pynini import difference, string_file
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import delete
+from pynini.lib.tagger import Tagger
 
 
 class PostProcessor(Processor):
@@ -34,12 +35,8 @@ class PostProcessor(Processor):
         if tag_oov:
             charset = (zh_charset_std | zh_charset_ext | puncts | self.DIGIT
                        | self.ALPHA | self.PUNCT | self.SPACE)
-            with open('data/char/oov_tags.tsv') as f:
-                tags = f.readline().strip().split('\t')
-                assert len(tags) == 2
-                ltag, rtag = tags
-            tag_oov = (insert(ltag) + difference(self.VCHAR, charset) +
-                       insert(rtag))
-            processor @= self.build_rule(tag_oov)
+            oov = difference(self.VCHAR, charset)
+            oov = Tagger('oov', difference(self.VCHAR, charset), self.VSIGMA)
+            processor @= oov._tagger
 
         self.processor = processor.optimize()

@@ -14,14 +14,15 @@
 
 import pytest
 
-from processors.whitelist import Whitelist
+from processors.measure import Measure
 from test.utils import parse_test_case
 
 
-class TestWhitelist:
-    whitelist = Whitelist()
-    whitelist_cases = parse_test_case('data/whitelist.txt')
+class TestMoney:
 
-    @pytest.mark.parametrize("spoken, written", whitelist_cases)
-    def test_whitelist(self, spoken, written):
-        assert self.whitelist.normalize(spoken) == written
+    measure = Measure()
+    measure_cases = parse_test_case('data/measure.txt')
+
+    @pytest.mark.parametrize("written, spoken", measure_cases)
+    def test_measure(self, written, spoken):
+        assert self.measure.normalize(written) == spoken

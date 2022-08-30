@@ -14,15 +14,14 @@
 
 import pytest
 
-from processors.date import Date
+from processors.time import Time
 from test.utils import parse_test_case
 
 
-class TestDate:
+class TestTime:
+    time = Time()
+    time_cases = parse_test_case('data/time.txt')
 
-    date = Date()
-    date_cases = parse_test_case('data/date.txt')
-
-    @pytest.mark.parametrize("spoken, written", date_cases)
-    def test_date(self, spoken, written):
-        assert self.date.normalize(spoken) == written
+    @pytest.mark.parametrize("written, spoken", time_cases)
+    def test_time(self, written, spoken):
+        assert self.time.normalize(written) == spoken

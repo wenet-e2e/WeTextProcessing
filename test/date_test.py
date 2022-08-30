@@ -14,15 +14,15 @@
 
 import pytest
 
-from processors.money import Money
+from processors.date import Date
 from test.utils import parse_test_case
 
 
-class TestMoney:
+class TestDate:
 
-    money = Money()
-    money_cases = parse_test_case('data/money.txt')
+    date = Date()
+    date_cases = parse_test_case('data/date.txt')
 
-    @pytest.mark.parametrize("spoken, written", money_cases)
-    def test_money(self, spoken, written):
-        assert self.money.normalize(spoken) == written
+    @pytest.mark.parametrize("written, spoken", date_cases)
+    def test_date(self, written, spoken):
+        assert self.date.normalize(written) == spoken

@@ -24,11 +24,11 @@ class TestCardinal:
     number_cases = parse_test_case('data/number.txt')
     cardinal_cases = parse_test_case('data/cardinal.txt')
 
-    @pytest.mark.parametrize("spoken, written", number_cases)
-    def test_number(self, spoken, written):
+    @pytest.mark.parametrize("written, spoken", number_cases)
+    def test_number(self, written, spoken):
         number = self.cardinal.number
-        assert (spoken @ number).string() == written
+        assert (written @ number).string() == spoken
 
-    @pytest.mark.parametrize("spoken, written", cardinal_cases)
-    def test_cardinal(self, spoken, written):
-        assert self.cardinal.normalize(spoken) == written
+    @pytest.mark.parametrize("written, spoken", cardinal_cases)
+    def test_cardinal(self, written, spoken):
+        assert self.cardinal.normalize(written) == spoken

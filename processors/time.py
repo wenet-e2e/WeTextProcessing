@@ -32,17 +32,16 @@ class Time(Processor):
         noon = string_file('data/time/noon.tsv')
 
         tagger = (
-            insert('hours: "') + h + insert('" ') + delete(':') +
-            insert('minutes: "') + m + insert('"') +
-            (delete(':') + insert(' seconds: "') + s + insert('"')).ques +
+            insert('hour: "') + h + insert('" ') + delete(':') +
+            insert('minute: "') + m + insert('"') +
+            (delete(':') + insert(' second: "') + s + insert('"')).ques +
             delete(' ').ques + (insert(' noon: "') + noon + insert('"')).ques)
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
         noon = delete('noon: "') + self.SIGMA + delete('" ')
-        hours = delete('hours: "') + self.SIGMA + delete('"')
-        minutes = delete('minutes: "') + self.SIGMA + delete('"')
-        seconds = delete('seconds: "') + self.SIGMA + delete('"')
-        verbalizer = (noon.ques + hours + delete(' ') + minutes +
-                      (delete(' ') + seconds).ques)
+        hour = delete('hour: "') + self.SIGMA + delete('" ')
+        minute = delete('minute: "') + self.SIGMA + delete('"')
+        second = delete(' second: "') + self.SIGMA + delete('"')
+        verbalizer = noon.ques + hour + minute + second.ques
         self.verbalizer = self.delete_tokens(verbalizer)

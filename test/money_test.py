@@ -14,16 +14,15 @@
 
 import pytest
 
-from processors.postprocessor import PostProcessor
+from processors.money import Money
 from test.utils import parse_test_case
 
 
-class TestPostProcessor:
+class TestMoney:
 
-    processor = PostProcessor(remove_puncts=True, tag_oov=True).processor
-    processor_cases = parse_test_case('data/postprocessor.txt')
+    money = Money()
+    money_cases = parse_test_case('data/money.txt')
 
-    @pytest.mark.parametrize("spoken, written", processor_cases)
-    def test_processor(self, spoken, written):
-        print((spoken @ self.processor).string())
-        assert (spoken @ self.processor).string() == written
+    @pytest.mark.parametrize("written, spoken", money_cases)
+    def test_money(self, written, spoken):
+        assert self.money.normalize(written) == spoken

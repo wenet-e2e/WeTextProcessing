@@ -62,23 +62,17 @@ class Processor:
         exporter['verbalizer'] = self.verbalizer.optimize()
         exporter.close()
 
-    def tag(self, text):
-        lattice = text @ self.tagger
-        tagged_text = shortestpath(lattice, nshortest=1, unique=True).string()
-        return tagged_text.strip()
-
-    def verbalize(self, text):
-        self.parser(text)
-        for text in self.parser.permute():
-            text = escape(text)
-            lattice = text @ self.verbalizer
-            if lattice.num_states() != 0:
-                break
-        if lattice.num_states() == 0:
-            return ''
+    def tag(self, input):
+        lattice = input @ self.tagger
         return shortestpath(lattice, nshortest=1, unique=True).string()
 
-    def normalize(self, text):
-        tagged_text = self.tag(text)
-        normed_text = self.verbalize(tagged_text)
-        return normed_text
+    def verbalize(self, input):
+        lattice = input @ self.verbalizer
+        return shortestpath(lattice, nshortest=1, unique=True).string()
+
+    def normalize(self, input):
+        output = escape(input)
+        output = self.tag(output)
+        output = self.parser.reorder(output)
+        output = escape(output)
+        return self.verbalize(output)

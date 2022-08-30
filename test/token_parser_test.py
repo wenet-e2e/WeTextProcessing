@@ -20,46 +20,57 @@ class TestTokenParser:
     parser = TokenParser()
 
     def test_read(self):
-        self.parser(' ')
+        self.parser.load(' ')
         assert self.parser.read() is False
         assert self.parser.char == EOS
 
     def test_parse_ws(self):
-        self.parser(' ')
+        self.parser.load(' ')
         assert self.parser.parse_ws() is False
+        assert self.parser.char == EOS
 
-        self.parser('  ')
+        self.parser.load('  ')
         assert self.parser.parse_ws() is False
+        assert self.parser.char == EOS
 
-        self.parser('  test')
+        self.parser.load('  test')
         assert self.parser.parse_ws() is True
+        assert self.parser.char == 't'
 
     def test_parse_chars(self):
-        self.parser('hello world')
+        self.parser.load('hello world')
         assert self.parser.parse_chars('hello') is True
+        assert self.parser.char == ' '
 
-        self.parser('world')
+        self.parser.load('world')
         assert self.parser.parse_chars('hello') is False
+        assert self.parser.char == 'w'
 
     def test_parse_key(self):
-        self.parser('key')
+        self.parser.load('key')
         assert self.parser.parse_key() == 'key'
 
-        self.parser('key ')
+        self.parser.load('key ')
         assert self.parser.parse_key() == 'key'
 
     def test_parse_value(self):
-        self.parser('value"')
+        self.parser.load('value"')
         assert self.parser.parse_value() == 'value'
 
     def test_parse(self):
-        self.parser('time { hours: "两点" minutes: "零二分" } char { value: "走" } ')
-        assert self.parser.parse() == [
-            ('time', [('hours', '两点'), ('minutes', '零二分')]),
-            ('char', [('value', '走')])]
+        input = 'time { minute: "零二分" hour: "两点" } char { value: "走" }'
+        self.parser.parse(input)
+        tokens = self.parser.tokens
 
-    def test_permute(self):
-        self.parser('time { hours: "两点" minutes: "零二分" } char { value: "走" }')
-        assert [text for text in self.parser.permute()] == [
-            'time { hours: "两点" minutes: "零二分" } char { value: "走" }',
-            'time { minutes: "零二分" hours: "两点" } char { value: "走" }']
+        assert len(tokens) == 2
+        assert tokens[0].name == 'time'
+        assert tokens[1].name == 'char'
+        assert tokens[0].order == ['minute', 'hour']
+        assert tokens[1].order == ['value']
+        assert tokens[0].members == {'minute': '零二分', 'hour': '两点'}
+        assert tokens[1].members == {'value': '走'}
+
+    def test_reorder(self):
+        input = 'time { minute: "零二分" hour: "两点" } char { value: "走" }'
+        expected = 'time { hour: "两点" minute: "零二分" } char { value: "走" }'
+        assert self.parser.reorder(input) == expected

@@ -39,17 +39,17 @@ class Measure(Processor):
         measure = number + rmspace + units
         measure @= self.build_rule(cross('两两', '二两'), '[BOS]', '')
         tagger = insert('value: "') + (measure | percent) + insert('"')
-        
+
         # 10km/h
+        rmsign = rmspace + delete('/') + rmspace
         tagger |= (
-            insert('numerator: "') + measure
-            + rmspace + delete('/') + rmspace
-            + insert('" denominator: "每') + units + insert('"'))
+            insert('numerator: "') + measure + rmsign +
+            insert('" denominator: "') + units + insert('"'))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
         super().build_verbalizer()
-        verbalizer = (
-            delete('denominator: "') + self.SIGMA
-            + delete('" numerator: "') + self.SIGMA + delete('"'))
+        denominator = delete('denominator: "') + self.SIGMA + delete('" ')
+        numerator = delete('numerator: "') + self.SIGMA + delete('"')
+        verbalizer = insert('每') + denominator + numerator
         self.verbalizer |= self.delete_tokens(verbalizer)

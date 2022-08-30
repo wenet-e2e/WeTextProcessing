@@ -36,7 +36,7 @@ class Date(Processor):
         dd = string_file('data/date/dd.tsv')
         rmsign = (delete('/') | delete('-') | delete('.')) + insert(' ')
 
-        year = insert('year: "') + yyyy + insert('"')
+        year = insert('year: "') + yyyy + insert('年"')
         month = insert('month: "') + (m | mm) + insert('"')
         day = insert('day: "') + (d | dd) + insert('"')
 
@@ -51,9 +51,8 @@ class Date(Processor):
         self.tagger = self.add_tokens(date)
 
     def build_verbalizer(self):
-        year = delete('year: "') + self.SIGMA + insert('年') + delete('"')
+        year = delete('year: "') + self.SIGMA + delete('" ')
         month = delete('month: "') + self.SIGMA + delete('"')
-        day = delete('day: "') + self.SIGMA + delete('"')
-        verbalizer = ((year + delete(' ')).ques + month +
-                      (delete(' ') + day).ques)
+        day = delete(' day: "') + self.SIGMA + delete('"')
+        verbalizer = year.ques + month + day.ques
         self.verbalizer = self.delete_tokens(verbalizer)

@@ -14,16 +14,16 @@
 
 import pytest
 
-from processors.preprocessor import PreProcessor
+from processors.postprocessor import PostProcessor
 from test.utils import parse_test_case
 
 
-class TestPreProcessor:
+class TestPostProcessor:
 
-    processor = PreProcessor().processor
-    processor_cases = parse_test_case('data/preprocessor.txt')
+    processor = PostProcessor(remove_puncts=True, tag_oov=True).processor
+    processor_cases = parse_test_case('data/postprocessor.txt')
 
-    @pytest.mark.parametrize("spoken, written", processor_cases)
-    def test_processor(self, spoken, written):
-        print((spoken @ self.processor).string())
-        assert (spoken @ self.processor).string() == written
+    @pytest.mark.parametrize("written, xxx", processor_cases)
+    def test_processor(self, written, xxx):
+        print((written @ self.processor).string())
+        assert (written @ self.processor).string() == xxx

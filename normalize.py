@@ -20,16 +20,18 @@ from processors.normalizer import Normalizer
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--text', help='input string')
-    parser.add_argument('--input_file', help='input file path')
+    parser.add_argument('--file', help='input file path')
     args = parser.parse_args()
 
     normalizer = Normalizer(cache_dir='data', overwrite_cache=True)
 
     if args.text:
+        print(normalizer.tag(args.text))
         print(normalizer.normalize(args.text))
-    elif args.input_file:
-        with open(args.input_file) as fin:
+    elif args.file:
+        with open(args.file) as fin:
             for line in fin:
+                print(normalizer.tag(line.strip()))
                 print(normalizer.normalize(line.strip()))
 
 
