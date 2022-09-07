@@ -60,16 +60,10 @@ There are 3 components in TN pipeline:
 | Out-Of-Vocabulary (OOV) Tagger | 我们안녕 | `我们<oov>안</oov><oov>녕</oov>` | default charset (national standard) [通用规范汉字表](https://zh.wikipedia.org/wiki/通用规范汉字表) |
 |                                | 雪の花   | `雪<oov>の</oov>花`              | extend charset  `data/char/charset_extension.tsv`            |
 
-### 3. Credits
+## Acknowledge
 
-Author: Zhendong Peng @ Tsinghua University
-
-Advisors: [SpeechColab](https://github.com/SpeechColab) organization
-
-Refers: [TN of NeMo](https://github.com/NVIDIA/NeMo/tree/main/nemo_text_processing/text_normalization/zh)
-
-The authors of this work would like to thank:
-
-* The authors of foundational libraries like OpenFst & Pynini
-* NeMo team and NeMo open-source community
-* Zhenxiang MA
+1. Thank the authors of foundational libraries like [OpenFst](https://www.openfst.org/twiki/bin/view/FST/WebHome) & [Pynini](https://www.openfst.org/twiki/bin/view/GRM/Pynini).
+3. Thank [NeMo](https://github.com/NVIDIA/NeMo) team & NeMo open-source community.
+2. Thank [Zhenxiang Ma](https://github.com/mzxcpp), [Jiayu Du](https://github.com/dophist), and [SpeechColab](https://github.com/SpeechColab) organization.
+3. Referred [Pynini](https://github.com/kylebgorman/pynini) for reading the FAR, and printing the shortest path of a lattice in the C++ runtime.
+4. Referred [TN of NeMo](https://github.com/NVIDIA/NeMo/tree/main/nemo_text_processing/text_normalization/zh) for the data to build the tagger graph.
