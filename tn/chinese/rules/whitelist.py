@@ -12,25 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from processors.cardinal import Cardinal
-from processors.processor import Processor
+from tn.processor import Processor
 
-from pynini import string_file
-from pynini.lib.pynutil import delete, insert
+from pynini import accep, string_file
+from pynini.lib.pynutil import add_weight, delete, insert
 
 
-class Math(Processor):
+class Whitelist(Processor):
 
     def __init__(self):
-        super().__init__(name='math')
+        super().__init__(name='whitelist')
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        operator = string_file('data/math/operator.tsv')
+        whitelist = (string_file('tn/chinese/data/default/whitelist.tsv')
+                     | string_file('tn/chinese/data/erhua/whitelist.tsv'))
 
-        number = Cardinal().number
-        tagger = (number + ((delete(' ').ques + operator + delete(' ').ques +
-                             number).plus).ques)
-        tagger = insert('value: "') + tagger + insert('"')
+        erhua = add_weight(insert('erhua: "') + accep('儿'), 0.1)
+        tagger = (erhua | (insert('value: "') + whitelist)) + insert('"')
         self.tagger = self.add_tokens(tagger)
+
+    def build_verbalizer(self):
+        super().build_verbalizer()
+        verbalizer = self.delete_tokens(delete('erhua: "儿"'))
+        self.verbalizer |= verbalizer

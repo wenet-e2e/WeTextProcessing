@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Zhendong Peng (pzd17@tsinghua.org.cn)
+# Copyright (c) 2022 Xingchen Song (sxc19@tsinghua.org.cn)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from processors.processor import Processor
+import argparse
 
-from pynini.lib.pynutil import insert
+# TODO(xcsong): multi-language support
+# from itn.chinese.inverse_normalizer import InverseNormalizer
 
 
-class Char(Processor):
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--text', help='input string')
+    parser.add_argument('--file', help='input file path')
+    args = parser.parse_args()
 
-    def __init__(self):
-        super().__init__(name='char')
-        self.build_tagger()
-        self.build_verbalizer()
 
-    def build_tagger(self):
-        tagger = insert('value: "') + self.CHAR + insert('"')
-        self.tagger = self.add_tokens(tagger)
+if __name__ == '__main__':
+    main()

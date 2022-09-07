@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from processors.processor import Processor
+from tn.processor import Processor
 
 from pynini import cross, string_file
 from pynini.lib.pynutil import delete, insert
@@ -27,11 +27,11 @@ class Cardinal(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        zero = string_file('data/number/zero.tsv')
-        digit = string_file('data/number/digit.tsv')
-        teen = string_file('data/number/teen.tsv')
-        sign = string_file('data/number/sign.tsv')
-        dot = string_file('data/number/dot.tsv')
+        zero = string_file('tn/chinese/data/number/zero.tsv')
+        digit = string_file('tn/chinese/data/number/digit.tsv')
+        teen = string_file('tn/chinese/data/number/teen.tsv')
+        sign = string_file('tn/chinese/data/number/sign.tsv')
+        dot = string_file('tn/chinese/data/number/dot.tsv')
 
         rmzero = delete('0')
         rmpunct = delete(',').ques

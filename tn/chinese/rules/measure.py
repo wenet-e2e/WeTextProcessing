@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from processors.cardinal import Cardinal
-from processors.processor import Processor
+from tn.chinese.rules.cardinal import Cardinal
+from tn.processor import Processor
 
 from pynini import cross, string_file
 from pynini.lib.pynutil import delete, insert
@@ -27,8 +27,8 @@ class Measure(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        units_en = string_file('data/measure/units_en.tsv')
-        units_zh = string_file('data/measure/units_zh.tsv')
+        units_en = string_file('tn/chinese/data/measure/units_en.tsv')
+        units_zh = string_file('tn/chinese/data/measure/units_zh.tsv')
         units = units_en | units_zh
         rmspace = delete(' ').ques
 
