@@ -23,7 +23,7 @@ class TestPostProcessor:
     processor = PostProcessor(remove_puncts=True, tag_oov=True).processor
     processor_cases = parse_test_case('data/postprocessor.txt')
 
-    @pytest.mark.parametrize("written, xxx", processor_cases)
-    def test_processor(self, written, xxx):
+    @pytest.mark.parametrize("written, spoken", processor_cases)
+    def test_processor(self, written, spoken):
         print((written @ self.processor).string())
-        assert (written @ self.processor).string() == xxx
+        assert (written @ self.processor).string() == spoken
