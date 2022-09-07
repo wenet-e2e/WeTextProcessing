@@ -64,6 +64,10 @@ There are 3 components in TN pipeline:
 
 Author: Zhendong Peng @ Tsinghua University
 
+Advisors: [SpeechColab](https://github.com/SpeechColab) organization
+
+Refers: [TN of NeMo](https://github.com/NVIDIA/NeMo/tree/main/nemo_text_processing/text_normalization/zh)
+
 The authors of this work would like to thank:
 
 * The authors of foundational libraries like OpenFst & Pynini
