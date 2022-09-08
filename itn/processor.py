@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Zhendong Peng (sxc19@tsinghua.org.cn)
+# Copyright (c) 2022 Xingchen Song (sxc19@tsinghua.org.cn)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
