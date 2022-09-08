@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from token_parser import TokenParser
+from tn.token_parser import TokenParser
 
 from pynini import cdrewrite, cross, difference, escape, shortestpath, union
 from pynini.export import export

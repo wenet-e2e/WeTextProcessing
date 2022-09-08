@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from processors.processor import Processor
+from tn.processor import Processor
 
 from pynini import difference, string_file
 from pynini.lib.pynutil import delete
@@ -23,10 +23,10 @@ class PostProcessor(Processor):
 
     def __init__(self, remove_puncts=False, tag_oov=False):
         super().__init__(name='postprocessor')
-        puncts = string_file('data/char/punctuations_zh.tsv')
+        puncts = string_file('tn/chinese/data/char/punctuations_zh.tsv')
         zh_charset_std = string_file(
-            'data/char/charset_national_standard_2013_8105.tsv')
-        zh_charset_ext = string_file('data/char/charset_extension.tsv')
+            'tn/chinese/data/char/charset_national_standard_2013_8105.tsv')
+        zh_charset_ext = string_file('tn/chinese/data/char/charset_extension.tsv')
 
         processor = self.build_rule('')
         if remove_puncts:

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from processors.processor import Processor
+from tn.processor import Processor
 
 from pynini import string_file
 from pynini.lib.pynutil import delete
@@ -22,8 +22,8 @@ class PreProcessor(Processor):
 
     def __init__(self, remove_interjections=True, full_to_half=True):
         super().__init__(name='preprocessor')
-        blacklist = string_file('data/default/blacklist.tsv')
-        full2half = string_file('data/char/fullwidth_to_halfwidth.tsv')
+        blacklist = string_file('tn/chinese/data/default/blacklist.tsv')
+        full2half = string_file('tn/chinese/data/char/fullwidth_to_halfwidth.tsv')
 
         processor = self.VSIGMA
         if remove_interjections:

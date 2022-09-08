@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from processors.processor import Processor
+from tn.processor import Processor
 
 from pynini import string_file
 from pynini.lib.pynutil import delete, insert
@@ -26,14 +26,14 @@ class Date(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        digit = string_file('data/number/digit.tsv')
-        zero = string_file('data/number/zero.tsv')
+        digit = string_file('tn/chinese/data/number/digit.tsv')
+        zero = string_file('tn/chinese/data/number/zero.tsv')
 
         yyyy = digit + (digit | zero)**3
-        m = string_file('data/date/m.tsv')
-        mm = string_file('data/date/mm.tsv')
-        d = string_file('data/date/d.tsv')
-        dd = string_file('data/date/dd.tsv')
+        m = string_file('tn/chinese/data/date/m.tsv')
+        mm = string_file('tn/chinese/data/date/mm.tsv')
+        d = string_file('tn/chinese/data/date/d.tsv')
+        dd = string_file('tn/chinese/data/date/dd.tsv')
         rmsign = (delete('/') | delete('-') | delete('.')) + insert(' ')
 
         year = insert('year: "') + yyyy + insert('年"')

@@ -14,7 +14,8 @@
 
 import argparse
 
-from processors.normalizer import Normalizer
+# TODO(pzd17): multi-language support
+from tn.chinese.normalizer import Normalizer
 
 
 def main():

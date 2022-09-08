@@ -12,28 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from processors.processor import Processor
+from tn.processor import Processor
 
-from pynini import accep, string_file
-from pynini.lib.pynutil import add_weight, delete, insert
+from pynini.lib.pynutil import insert
 
 
-class Whitelist(Processor):
+class Char(Processor):
 
     def __init__(self):
-        super().__init__(name='whitelist')
+        super().__init__(name='char')
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        whitelist = (string_file('data/default/whitelist.tsv')
-                     | string_file('data/erhua/whitelist.tsv'))
-
-        erhua = add_weight(insert('erhua: "') + accep('儿'), 0.1)
-        tagger = (erhua | (insert('value: "') + whitelist)) + insert('"')
+        tagger = insert('value: "') + self.CHAR + insert('"')
         self.tagger = self.add_tokens(tagger)
-
-    def build_verbalizer(self):
-        super().build_verbalizer()
-        verbalizer = self.delete_tokens(delete('erhua: "儿"'))
-        self.verbalizer |= verbalizer

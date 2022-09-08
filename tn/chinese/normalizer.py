@@ -14,18 +14,18 @@
 
 import os
 
-from processors.cardinal import Cardinal
-from processors.char import Char
-from processors.date import Date
-from processors.fraction import Fraction
-from processors.math import Math
-from processors.measure import Measure
-from processors.money import Money
-from processors.postprocessor import PostProcessor
-from processors.preprocessor import PreProcessor
-from processors.processor import Processor
-from processors.whitelist import Whitelist
-from processors.time import Time
+from tn.processor import Processor
+from tn.chinese.rules.cardinal import Cardinal
+from tn.chinese.rules.char import Char
+from tn.chinese.rules.date import Date
+from tn.chinese.rules.fraction import Fraction
+from tn.chinese.rules.math import Math
+from tn.chinese.rules.measure import Measure
+from tn.chinese.rules.money import Money
+from tn.chinese.rules.postprocessor import PostProcessor
+from tn.chinese.rules.preprocessor import PreProcessor
+from tn.chinese.rules.whitelist import Whitelist
+from tn.chinese.rules.time import Time
 
 from pynini import Far
 from pynini.lib.pynutil import add_weight, delete, insert
