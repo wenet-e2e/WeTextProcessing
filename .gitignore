@@ -34,3 +34,11 @@ __pycache__/
 # Clangd files
 .cache
 compile_commands.json
+
+
+# Setup files
+WeTextProcessing.egg-info/
+build/
+dist/
+tn/*.far
+itn/*.far

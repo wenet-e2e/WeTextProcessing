@@ -24,7 +24,7 @@ def main():
     parser.add_argument('--file', help='input file path')
     args = parser.parse_args()
 
-    normalizer = Normalizer(cache_dir='data', overwrite_cache=True)
+    normalizer = Normalizer(cache_dir='tn', overwrite_cache=True)
 
     if args.text:
         print(normalizer.tag(args.text))
