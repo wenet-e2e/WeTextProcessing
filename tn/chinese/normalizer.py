@@ -29,6 +29,7 @@ from tn.chinese.rules.time import Time
 
 from pynini import Far
 from pynini.lib.pynutil import add_weight, delete, insert
+from importlib_resources import files
 
 
 class Normalizer(Processor):
@@ -38,12 +39,12 @@ class Normalizer(Processor):
         self.cache_dir = cache_dir
         self.overwrite_cache = overwrite_cache
 
-        far_file = None
+        far_file = files('tn').joinpath('zh_tn_normalizer.far')
         if self.cache_dir:
             os.makedirs(self.cache_dir, exist_ok=True)
             far_file = os.path.join(self.cache_dir, 'zh_tn_normalizer.far')
 
-        if far_file and os.path.exists(far_file):
+        if far_file and os.path.exists(far_file) and not overwrite_cache:
             self.tagger = Far(far_file)['tagger']
             self.verbalizer = Far(far_file)['verbalizer']
         else:

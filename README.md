@@ -3,6 +3,8 @@
 ### 1. How To Use
 
 ``` bash
+$ git clone https://github.com/wenet-e2e/WeTextProcessing.git
+$ cd WeTextProcessing
 $ python normalize.py --text "text to be normalized"
 $ python inverse_normalize.py --text "text to be denormalized"
 ```
