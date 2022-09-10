@@ -36,7 +36,6 @@ class PostProcessor(Processor):
             charset = (zh_charset_std | zh_charset_ext | puncts | self.DIGIT
                        | self.ALPHA | self.PUNCT | self.SPACE)
             oov = difference(self.VCHAR, charset)
-            oov = Tagger('oov', difference(self.VCHAR, charset), self.VSIGMA)
-            processor @= oov._tagger
+            processor @= Tagger('oov', oov, self.VSIGMA)._tagger
 
         self.processor = processor.optimize()
