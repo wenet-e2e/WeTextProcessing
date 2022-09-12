@@ -15,7 +15,7 @@
 import argparse
 
 # TODO(xcsong): multi-language support
-# from itn.chinese.inverse_normalizer import InverseNormalizer
+from itn.chinese.inverse_normalizer import InverseNormalizer
 
 
 def main():
@@ -23,6 +23,17 @@ def main():
     parser.add_argument('--text', help='input string')
     parser.add_argument('--file', help='input file path')
     args = parser.parse_args()
+
+    normalizer = InverseNormalizer(cache_dir='itn', overwrite_cache=True)
+
+    if args.text:
+        print(normalizer.tag(args.text))
+        print(normalizer.normalize(args.text))
+    elif args.file:
+        with open(args.file) as fin:
+            for line in fin:
+                print(normalizer.tag(line.strip()))
+                print(normalizer.normalize(line.strip()))
 
 
 if __name__ == '__main__':

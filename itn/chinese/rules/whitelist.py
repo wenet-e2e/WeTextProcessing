@@ -11,3 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from tn.processor import Processor
+
+from pynini import string_file
+from pynini.lib.pynutil import insert
+
+
+class Whitelist(Processor):
+
+    def __init__(self):
+        super().__init__(name='whitelist')
+        self.build_tagger()
+        self.build_verbalizer()
+
+    def build_tagger(self):
+        whitelist = string_file('itn/chinese/data/default/whitelist.tsv')
+
+        tagger = insert('value: "') + whitelist + insert('"')
+        self.tagger = self.add_tokens(tagger)

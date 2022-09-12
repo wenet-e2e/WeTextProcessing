@@ -22,7 +22,7 @@ from pynini.lib.pynutil import delete, insert
 
 class Processor:
 
-    def __init__(self, name):
+    def __init__(self, name, ordertype="tn"):
         self.ALPHA = byte.ALPHA
         self.DIGIT = byte.DIGIT
         self.PUNCT = byte.PUNCT
@@ -35,7 +35,7 @@ class Processor:
         self.SIGMA = (CHAR | cross('\\\\\\', '\\') | cross('\\"', '"')).star
 
         self.name = name
-        self.parser = TokenParser()
+        self.parser = TokenParser(ordertype)
         self.tagger = None
         self.verbalizer = None
 
