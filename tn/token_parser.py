@@ -16,12 +16,18 @@ import string
 from itertools import permutations, product
 
 EOS = '<EOS>'
-ORDERS = {
+TN_ORDERS = {
     'date': ['year', 'month', 'day'],
     'fraction': ['denominator', 'numerator'],
     'measure': ['denominator', 'numerator', 'value'],
     'money': ['value', 'currency'],
     'time': ['noon', 'hour', 'minute', 'second']}
+ITN_ORDERS = {
+    'date': ['year', 'month', 'day'],
+    'fraction': ['numerator', 'denominator'],
+    'measure': ['numerator', 'denominator', 'value'],
+    'money': ['currency', 'value'],
+    'time': ['hour', 'minute', 'second', 'noon']}
 
 
 class Token:
@@ -34,10 +40,10 @@ class Token:
         self.order.append(key)
         self.members[key] = value
 
-    def string(self):
+    def string(self, orders):
         output = self.name + ' {'
-        if self.name in ORDERS.keys():
-            self.order = ORDERS[self.name]
+        if self.name in orders.keys():
+            self.order = orders[self.name]
 
         for key in self.order:
             if key not in self.members.keys():
@@ -47,6 +53,13 @@ class Token:
 
 
 class TokenParser:
+    def __init__(self, ordertype="tn"):
+        if ordertype == "tn":
+            self.orders = TN_ORDERS
+        elif ordertype == "itn":
+            self.orders = ITN_ORDERS
+        else:
+            raise NotImplementedError()
 
     def load(self, input):
         assert len(input) > 0
@@ -127,5 +140,5 @@ class TokenParser:
         self.parse(input)
         output = ''
         for token in self.tokens:
-            output += token.string() + ' '
+            output += token.string(self.orders) + ' '
         return output.strip()
