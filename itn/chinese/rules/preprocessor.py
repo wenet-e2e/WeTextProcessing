@@ -20,14 +20,11 @@ from pynini.lib.pynutil import delete
 
 class PreProcessor(Processor):
 
-    def __init__(self, remove_interjections=True, half_to_full=False):
+    def __init__(self, remove_interjections=True):
         super().__init__(name='preprocessor')
         blacklist = string_file('itn/chinese/data/default/blacklist.tsv')
-        half2full = string_file('itn/chinese/data/char/halfwidth_to_fullwidth.tsv')
 
         processor = self.VSIGMA
         if remove_interjections:
             processor @= self.build_rule(delete(blacklist))
-        if half_to_full:
-            processor @= self.build_rule(half2full)
         self.processor = processor.optimize()
