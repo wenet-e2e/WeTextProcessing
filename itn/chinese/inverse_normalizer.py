@@ -24,6 +24,7 @@ from itn.chinese.rules.measure import Measure
 from itn.chinese.rules.money import Money
 from itn.chinese.rules.whitelist import Whitelist
 from itn.chinese.rules.time import Time
+from itn.chinese.rules.preprocessor import PreProcessor
 
 from pynini import Far
 from pynini.lib.pynutil import add_weight, delete, insert
@@ -66,7 +67,8 @@ class InverseNormalizer(Processor):
         tagger = self.build_rule(tagger + insert(' '))
         tagger @= self.build_rule(delete(' '), '', '[EOS]')
 
-        self.tagger = tagger.optimize()
+        processor = PreProcessor(remove_interjections=True).processor
+        self.tagger = processor @ tagger.optimize()
 
     def build_verbalizer(self):
         verbalizer = (Cardinal().verbalizer
