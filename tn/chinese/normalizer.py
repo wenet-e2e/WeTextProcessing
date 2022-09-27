@@ -84,5 +84,5 @@ class Normalizer(Processor):
                       | Whitelist().verbalizer).optimize()
         verbalizer = (verbalizer + delete(' ').ques).star
 
-        processor = PostProcessor(remove_puncts=False, tag_oov=True).processor
+        processor = PostProcessor(remove_puncts=False, tag_oov=False).processor
         self.verbalizer = verbalizer @ processor

@@ -24,7 +24,9 @@ def main():
     parser.add_argument('--file', help='input file path')
     args = parser.parse_args()
 
-    normalizer = InverseNormalizer(cache_dir='itn', overwrite_cache=True)
+    normalizer = InverseNormalizer(
+        cache_dir='itn', overwrite_cache=True,
+        enable_standalone_number=True)
 
     if args.text:
         print(normalizer.tag(args.text))
