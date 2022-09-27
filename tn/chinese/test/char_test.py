@@ -14,8 +14,8 @@
 
 import pytest
 
-from processors.char import Char
-from test.utils import parse_test_case
+from tn.chinese.rules.char import Char
+from tn.chinese.test.utils import parse_test_case
 
 
 class TestChar:

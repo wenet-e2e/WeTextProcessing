@@ -14,8 +14,8 @@
 
 import pytest
 
-from processors.cardinal import Cardinal
-from test.utils import parse_test_case
+from tn.chinese.rules.cardinal import Cardinal
+from tn.chinese.test.utils import parse_test_case
 
 
 class TestCardinal:

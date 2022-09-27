@@ -14,8 +14,8 @@
 
 import pytest
 
-from processors.time import Time
-from test.utils import parse_test_case
+from tn.chinese.rules.time import Time
+from tn.chinese.test.utils import parse_test_case
 
 
 class TestTime:

@@ -14,8 +14,8 @@
 
 import pytest
 
-from processors.preprocessor import PreProcessor
-from test.utils import parse_test_case
+from tn.chinese.rules.preprocessor import PreProcessor
+from tn.chinese.test.utils import parse_test_case
 
 
 class TestPreProcessor:
