@@ -24,10 +24,9 @@ class TestNormalizer:
 
     normalizer = InverseNormalizer(
         overwrite_cache=True,
-        enable_standalone_number=True)
+        enable_standalone_number=False)
 
     normalizer_cases = chain(
-        parse_test_case('data/cardinal.txt'),
         parse_test_case('data/char.txt'),
         parse_test_case('data/date.txt'),
         parse_test_case('data/fraction.txt'),
@@ -36,8 +35,7 @@ class TestNormalizer:
         parse_test_case('data/money.txt'),
         parse_test_case('data/time.txt'),
         parse_test_case('data/whitelist.txt'),
-        parse_test_case('data/number.txt'),
-        parse_test_case('data/normalizer.txt'))
+        parse_test_case('data/normalizer_disable_standalone_number.txt'))
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)
     def test_normalizer(self, spoken, written):
