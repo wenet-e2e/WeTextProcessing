@@ -13,7 +13,7 @@ $ python inverse_normalize.py --text "text to be denormalized"
 
 Please refer to [TN.README](tn/README.md)
 
-### 3. ITN Pipeline (Coming soon...)
+### 3. ITN Pipeline
 
 Please refer to [ITN.README](itn/README.md)
 
