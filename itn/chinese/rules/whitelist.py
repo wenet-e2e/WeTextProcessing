@@ -29,4 +29,5 @@ class Whitelist(Processor):
         whitelist = string_file('itn/chinese/data/default/whitelist.tsv')
 
         tagger = insert('value: "') + whitelist + insert('"')
+        tagger = tagger.optimize()
         self.tagger = self.add_tokens(tagger)
