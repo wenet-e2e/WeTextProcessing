@@ -14,8 +14,8 @@
 
 import pytest
 
-from processors.date import Date
-from test.utils import parse_test_case
+from tn.chinese.rules.date import Date
+from tn.chinese.test.utils import parse_test_case
 
 
 class TestDate:

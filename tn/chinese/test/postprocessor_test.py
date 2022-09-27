@@ -14,8 +14,8 @@
 
 import pytest
 
-from processors.postprocessor import PostProcessor
-from test.utils import parse_test_case
+from tn.chinese.rules.postprocessor import PostProcessor
+from tn.chinese.test.utils import parse_test_case
 
 
 class TestPostProcessor:

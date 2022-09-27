@@ -16,13 +16,13 @@ import pytest
 
 from itertools import chain
 
-from processors.normalizer import Normalizer
-from test.utils import parse_test_case
+from tn.chinese.normalizer import Normalizer
+from tn.chinese.test.utils import parse_test_case
 
 
 class TestNormalizer:
 
-    normalizer = Normalizer()
+    normalizer = Normalizer(overwrite_cache=True)
 
     normalizer_cases = chain(parse_test_case('data/cardinal.txt'),
                              parse_test_case('data/char.txt'),

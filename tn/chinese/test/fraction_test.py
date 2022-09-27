@@ -14,8 +14,8 @@
 
 import pytest
 
-from processors.fraction import Fraction
-from test.utils import parse_test_case
+from tn.chinese.rules.fraction import Fraction
+from tn.chinese.test.utils import parse_test_case
 
 
 class TestFraction:

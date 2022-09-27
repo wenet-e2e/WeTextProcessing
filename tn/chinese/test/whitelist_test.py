@@ -14,8 +14,8 @@
 
 import pytest
 
-from processors.whitelist import Whitelist
-from test.utils import parse_test_case
+from tn.chinese.rules.whitelist import Whitelist
+from tn.chinese.test.utils import parse_test_case
 
 
 class TestWhitelist:

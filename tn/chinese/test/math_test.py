@@ -14,8 +14,8 @@
 
 import pytest
 
-from processors.math import Math
-from test.utils import parse_test_case
+from tn.chinese.rules.math import Math
+from tn.chinese.test.utils import parse_test_case
 
 
 class TestMath:

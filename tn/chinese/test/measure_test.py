@@ -14,8 +14,8 @@
 
 import pytest
 
-from processors.measure import Measure
-from test.utils import parse_test_case
+from tn.chinese.rules.measure import Measure
+from tn.chinese.test.utils import parse_test_case
 
 
 class TestMoney:
