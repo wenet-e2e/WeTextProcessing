@@ -20,9 +20,10 @@ from pynini.lib.pynutil import delete, insert
 
 class Cardinal(Processor):
 
-    def __init__(self):
+    def __init__(self, enable_standalone_number=True):
         super().__init__('cardinal')
         self.number = None
+        self.enable_standalone_number = enable_standalone_number
         self.build_tagger()
         self.build_verbalizer()
 
@@ -61,8 +62,17 @@ class Cardinal(Processor):
                   (number + accep('亿') + delete('零').ques).ques + number)
         number = sign.ques + number + (dot + digits.plus).ques
         self.number = number.optimize()
+        self.digits = digits.optimize()
 
-        # cardinal string like 110 or 127.0.0.1, used in phone, ID, IP, etc.
-        cardinal = digits.plus + (dot + digits).plus.ques
+        # cardinal string like 127.0.0.1, used in ID, IP, etc.
+        cardinal = digit.plus + (dot + digits).plus
+        # float number like 1.11
+        cardinal |= (number + dot + digits.plus)
+        # cardinal string like 110 or 12306 or 13125617878, used in phone
+        cardinal |= (digits**3 | digits**5 | digits**11)
+        # cardinal string like 23
+        if self.enable_standalone_number:
+            cardinal |= number
         tagger = insert('value: "') + cardinal + insert('"')
+        tagger = tagger.optimize()
         self.tagger = self.add_tokens(tagger)
