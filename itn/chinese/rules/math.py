@@ -30,6 +30,6 @@ class Math(Processor):
         operator = string_file('itn/chinese/data/math/operator.tsv')
 
         number = Cardinal().number
-        tagger = (number + ((operator + number).plus).ques)
+        tagger = (number + (operator + number).plus)
         tagger = insert('value: "') + tagger + insert('"')
         self.tagger = self.add_tokens(tagger)
