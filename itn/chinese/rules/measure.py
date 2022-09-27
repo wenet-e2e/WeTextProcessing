@@ -15,14 +15,15 @@
 from itn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
 
-from pynini import string_file
-from pynini.lib.pynutil import delete, insert
+from pynini import string_file, accep
+from pynini.lib.pynutil import delete, insert, add_weight
 
 
 class Measure(Processor):
 
-    def __init__(self):
+    def __init__(self, exclude_one=True):
         super().__init__(name='measure')
+        self.exclude_one = exclude_one
         self.build_tagger()
         self.build_verbalizer()
 
@@ -30,20 +31,24 @@ class Measure(Processor):
         units_en = string_file('itn/chinese/data/measure/units_en.tsv')
         units_zh = string_file('itn/chinese/data/measure/units_zh.tsv')
         sign = string_file('itn/chinese/data/number/sign.tsv')    # + -
-        units = units_en | units_zh
+        units = units_en | ((accep('亿') | accep('兆') | accep('万')).ques
+                            + units_zh)
 
-        number = Cardinal().number
+        number = Cardinal().number | Cardinal().digits.plus
         percent = ((sign + delete('的').ques).ques + delete('百分之') +
                    number + insert('%'))
 
         # 十千米每小时 => 10km/h
         measure = number + units
+        if self.exclude_one:
+            measure |= (add_weight(accep('一'), -1.0) + units_zh)
         tagger = insert('value: "') + (measure | percent) + insert('"')
 
         # 每小时十千米 => 10km/h
         tagger |= (
             insert('denominator: "') + delete('每') + units +
             insert('" numerator: "') + measure + insert('"'))
+        tagger = tagger.optimize()
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
