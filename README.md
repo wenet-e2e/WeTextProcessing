@@ -26,8 +26,8 @@ cd WeTextProcessing
 ```
 
 ```bash
-python normalize.py --text "text to be normalized"
-python inverse_normalize.py --text "text to be denormalized"
+python normalize.py --text "2.5平方电线"
+python inverse_normalize.py --text "二点五平方电线"
 ```
 
 ### 2. TN Pipeline
