@@ -40,7 +40,7 @@ class Date(Processor):
         # yyyy/mm/dd | yyyy/mm | mm/dd
         date = ((year + month + day)
                 | (year + month)
-                | (month + day))
+                | (month + day)).optimize()
         self.tagger = self.add_tokens(date)
 
     def build_verbalizer(self):
