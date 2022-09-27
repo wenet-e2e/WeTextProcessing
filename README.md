@@ -2,11 +2,32 @@
 
 ### 1. How To Use
 
+#### 1.1 pip install
+```bash
+pip install WeTextProcessing
+```
+
+```py
+# tn
+from tn.chinese.normalizer import Normalizer
+normalizer = Normalizer()
+normalizer.normalize("2.5平方电线")
+# itn
+from itn.chinese.inverse_normalizer import InverseNormalizer
+invnormalizer = InverseNormalizer()
+invnormalizer.normalize("二点五平方电线")
+```
+
+#### 1.2 source code compilation
+
 ``` bash
-$ git clone https://github.com/wenet-e2e/WeTextProcessing.git
-$ cd WeTextProcessing
-$ python normalize.py --text "text to be normalized"
-$ python inverse_normalize.py --text "text to be denormalized"
+git clone https://github.com/wenet-e2e/WeTextProcessing.git
+cd WeTextProcessing
+```
+
+```bash
+python normalize.py --text "text to be normalized"
+python inverse_normalize.py --text "text to be denormalized"
 ```
 
 ### 2. TN Pipeline
