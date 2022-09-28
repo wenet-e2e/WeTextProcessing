@@ -2,32 +2,47 @@
 
 ### 1. How To Use
 
-#### 1.1 pip install
+#### Usage-1: from pip
 ```bash
+# install
 pip install WeTextProcessing
 ```
 
 ```py
-# tn
+# tn usage
 from tn.chinese.normalizer import Normalizer
 normalizer = Normalizer()
 normalizer.normalize("2.5平方电线")
-# itn
+# itn usage
 from itn.chinese.inverse_normalizer import InverseNormalizer
 invnormalizer = InverseNormalizer()
 invnormalizer.normalize("二点五平方电线")
 ```
 
-#### 1.2 source code compilation
+#### Usage-2: from source code
 
 ``` bash
+# install
 git clone https://github.com/wenet-e2e/WeTextProcessing.git
 cd WeTextProcessing
+wget -P tn https://github.com/wenet-e2e/WeTextProcessing/releases/download/WeTextProcessing/zh_tn_normalizer.far
+wget -P itn https://github.com/wenet-e2e/WeTextProcessing/releases/download/WeTextProcessing/zh_itn_normalizer.far
 ```
 
 ```bash
+# tn usage
 python normalize.py --text "2.5平方电线"
+# itn usage
 python inverse_normalize.py --text "二点五平方电线"
+```
+
+**Advanced usage**: For users who want modifications and adapt tn/itn rules to fix badcase, please try:
+
+```bash
+# overwrite_cache will rebuild all rules according to
+# your modifications on xx/xx/rules/xx.py.
+python normalize.py --text "2.5平方电线" --overwrite_cache
+python inverse_normalize.py --text "二点五平方电线" --overwrite_cache
 ```
 
 ### 2. TN Pipeline
