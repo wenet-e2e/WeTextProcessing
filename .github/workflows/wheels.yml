@@ -1,0 +1,42 @@
+name: Build Wheels
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch WeTextProcessing
+        uses: actions/checkout@v1
+
+      - name: Build Graph
+        run: |
+          pip install -r requirements.txt
+          python normalize.py --text "2.5平方电线" --overwrite_cache
+          python inverse_normalize.py --text "二点五平方电线" --overwrite_cache
+
+      - name: Prepare Graph
+        run: |
+          mkdir graph
+          cp tn/zh_tn_normalizer.far graph
+          cp itn/zh_itn_normalizer.far graph
+
+      - name: Upload Graph
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-graph
+          path: graph
+
+      - name: Publish on pypi.org
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          python setup.py sdist bdist_wheel --version=${{ github.event.inputs.version}}
+          python -m pip install -U twine
+          python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*

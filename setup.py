@@ -11,15 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
 
 from setuptools import setup, find_packages
+
+version = sys.argv[-1].split('=')[1]
+sys.argv = sys.argv[0:len(sys.argv) - 1]
 
 with open("README.md", "r", encoding="utf8") as fh:
     long_description = fh.read()
 
 setup(
     name="WeTextProcessing",
-    version="0.0.1",
+    version=version,
     author="Zhendong Peng, Xingchen Song",
     author_email="pzd17@tsinghua.org.cn, sxc19@tsinghua.org.cn",
     long_description=long_description,
@@ -28,8 +32,8 @@ setup(
     url="https://github.com/wenet-e2e/WeTextProcessing",
     packages=find_packages(),
     package_data={
-        "tn" : ["*.far"],
-        "itn" : ["*.far"],
+        "tn": ["*.far"],
+        "itn": ["*.far"],
     },
     install_requires=['pynini', 'importlib_resources'],
     tests_require=['pytest'],
