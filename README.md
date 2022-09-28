@@ -2,7 +2,7 @@
 
 ### 1. How To Use
 
-#### Quick Start
+#### 1.1 Quick Start:
 ```bash
 # install
 pip install WeTextProcessing
@@ -19,7 +19,9 @@ pip install WeTextProcessing
 >>> invnormalizer.normalize("二点五平方电线")
 ```
 
-#### Advanced Usage: DIY your own rules && Deploy WeTextProcessing with cpp runtime
+#### 1.2 Advanced Usage:
+
+DIY your own rules && Deploy WeTextProcessing with cpp runtime !!
 
 For users who want modifications and adapt tn/itn rules to fix badcase, please try:
 
