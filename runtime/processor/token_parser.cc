@@ -27,12 +27,29 @@ const std::set<std::string> ASCII_LETTERS = {
     "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B",
     "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
     "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "_"};
-const std::unordered_map<std::string, std::vector<std::string>> ORDERS = {
+const std::unordered_map<std::string, std::vector<std::string>> TN_ORDERS = {
     {"date", {"year", "month", "day"}},
     {"fraction", {"denominator", "numerator"}},
     {"measure", {"denominator", "numerator", "value"}},
     {"money", {"value", "currency"}},
     {"time", {"noon", "hour", "minute", "second"}}};
+const std::unordered_map<std::string, std::vector<std::string>> ITN_ORDERS = {
+    {"date", {"year", "month", "day"}},
+    {"fraction", {"numerator", "denominator"}},
+    {"measure", {"numerator", "denominator", "value"}},
+    {"money", {"currency", "value"}},
+    {"time", {"hour", "minute", "second", "noon"}}};
+
+TokenParser::TokenParser(const std::string& far_path) {
+  if (far_path.find("_tn_") != far_path.npos) {
+    orders = TN_ORDERS;
+  } else if (far_path.find("_itn_") != far_path.npos) {
+    orders = ITN_ORDERS;
+  } else {
+    LOG(FATAL) << "Invalid far prefix, prefix should contain"
+               << " either \"_tn_\" or \"_itn_\".";
+  }
+}
 
 void TokenParser::load(const std::string& input) {
   string2chars(input, &text);
@@ -132,7 +149,7 @@ std::string TokenParser::reorder(const std::string& input) {
   parse(input);
   std::string output = "";
   for (auto& token : tokens) {
-    output += token.string() + " ";
+    output += token.string(orders) + " ";
   }
   return trim(output);
 }

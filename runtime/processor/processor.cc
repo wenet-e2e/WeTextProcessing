@@ -30,7 +30,7 @@ Processor::Processor(const std::string& far_path) {
     LOG(FATAL) << "Either tagger or verbalizer is missing from the archives.";
   }
 
-  parser = new TokenParser();
+  parser = new TokenParser(far_path);
   compiler = std::make_shared<StringCompiler<StdArc>>(StringTokenType::BYTE);
 }
 
