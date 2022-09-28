@@ -46,7 +46,8 @@ TokenParser::TokenParser(const std::string& far_path) {
   } else if (far_path.find("_itn_") != far_path.npos) {
     orders = ITN_ORDERS;
   } else {
-    throw std::runtime_error("Invalid prefix.");
+    LOG(FATAL) << "Invalid far prefix, prefix should contain"
+               << " either \"_tn_\" or \"_itn_\".";
   }
 }
 
