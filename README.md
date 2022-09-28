@@ -2,7 +2,7 @@
 
 ### 1. How To Use
 
-#### Usage-1: from pip
+#### Quick Start
 ```bash
 # install
 pip install WeTextProcessing
@@ -10,39 +10,51 @@ pip install WeTextProcessing
 
 ```py
 # tn usage
-from tn.chinese.normalizer import Normalizer
-normalizer = Normalizer()
-normalizer.normalize("2.5平方电线")
+>>> from tn.chinese.normalizer import Normalizer
+>>> normalizer = Normalizer()
+>>> normalizer.normalize("2.5平方电线")
 # itn usage
-from itn.chinese.inverse_normalizer import InverseNormalizer
-invnormalizer = InverseNormalizer()
-invnormalizer.normalize("二点五平方电线")
+>>> from itn.chinese.inverse_normalizer import InverseNormalizer
+>>> invnormalizer = InverseNormalizer()
+>>> invnormalizer.normalize("二点五平方电线")
 ```
 
-#### Usage-2: from source code
+#### Advanced Usage: DIY your own rules && Deploy WeTextProcessing with cpp runtime
+
+For users who want modifications and adapt tn/itn rules to fix badcase, please try:
 
 ``` bash
-# install
 git clone https://github.com/wenet-e2e/WeTextProcessing.git
 cd WeTextProcessing
-wget -P tn https://github.com/wenet-e2e/WeTextProcessing/releases/download/WeTextProcessing/zh_tn_normalizer.far
-wget -P itn https://github.com/wenet-e2e/WeTextProcessing/releases/download/WeTextProcessing/zh_itn_normalizer.far
-```
-
-```bash
-# tn usage
-python normalize.py --text "2.5平方电线"
-# itn usage
-python inverse_normalize.py --text "二点五平方电线"
-```
-
-**Advanced usage**: For users who want modifications and adapt tn/itn rules to fix badcase, please try:
-
-```bash
-# overwrite_cache will rebuild all rules according to
-# your modifications on xx/xx/rules/xx.py.
+# `overwrite_cache` will rebuild all rules according to
+#   your modifications on tn/chinese/rules/xx.py (itn/chinese/rules/xx.py).
+#   After rebuild, you can find new far files at `$PWD/tn` and `$PWD/itn`.
 python normalize.py --text "2.5平方电线" --overwrite_cache
 python inverse_normalize.py --text "二点五平方电线" --overwrite_cache
+```
+
+Once you successfully rebuild your rules, you can deploy them either with your installed pypi packages:
+
+```py
+# tn usage
+>>> from tn.chinese.normalizer import Normalizer
+>>> normalizer = Normalizer(cache_dir="PATH_TO_GIT_CLONED_WETEXTPROCESSING/tn")
+>>> normalizer.normalize("2.5平方电线")
+# itn usage
+>>> from itn.chinese.inverse_normalizer import InverseNormalizer
+>>> invnormalizer = InverseNormalizer(cache_dir="PATH_TO_GIT_CLONED_WETEXTPROCESSING/itn")
+>>> invnormalizer.normalize("二点五平方电线")
+```
+
+Or with cpp runtime:
+
+```bash
+cmake -B build -S runtime -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+# tn usage
+./build/bin/processor_main --far PATH_TO_GIT_CLONED_WETEXTPROCESSING/tn/zh_tn_normalizer.far --text "2.5平方电线"
+# itn usage
+./build/bin/processor_main --far PATH_TO_GIT_CLONED_WETEXTPROCESSING/itn/zh_itn_normalizer.far --text "二点五平方电线"
 ```
 
 ### 2. TN Pipeline
