@@ -73,6 +73,9 @@ class Processor:
     def normalize(self, input):
         output = escape(input)
         output = self.tag(output)
+        # Only words from the blacklist are contained.
+        if len(output) == 0:
+            return ''
         output = self.parser.reorder(output)
         output = escape(output)
         return self.verbalize(output)

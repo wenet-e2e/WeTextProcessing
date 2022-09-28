@@ -63,6 +63,9 @@ std::string Processor::verbalize(const std::string& input) {
 
 std::string Processor::normalize(const std::string& input) {
   std::string output = tag(input);
+  if (output.empty()) {
+    return "";
+  }
   output = parser->reorder(output);
   return verbalize(output);
 }
