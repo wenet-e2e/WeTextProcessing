@@ -1,5 +1,17 @@
 ## Text Normalization & Inverse Text Normalization
 
+### 0. Brief Introduction
+
+[WeTextProcessing: Production First & Production Ready Text Processing Toolkit](https://mp.weixin.qq.com/s/q_11lck78qcjylHCi6wVsQ)
+
+#### 0.1 Text Normalization
+
+<div align=center><img src="https://user-images.githubusercontent.com/13466943/193439861-acfba531-13d1-4fca-b2f2-6e47fc10f195.png" alt="Cover" width="50%"/></div>
+
+#### 0.2 Inverse Text Normalization
+
+<div align=center><img src="https://user-images.githubusercontent.com/13466943/193439870-634c44a3-bd62-4311-bcf2-1427758d5f62.png" alt="Cover" width="50%"/></div>
+
 ### 1. How To Use
 
 #### 1.1 Quick Start:
