@@ -34,10 +34,20 @@ from importlib_resources import files
 
 class Normalizer(Processor):
 
-    def __init__(self, cache_dir=None, overwrite_cache=False):
+    def __init__(self,
+                 cache_dir=None,
+                 overwrite_cache=False,
+                 remove_interjections=True,
+                 full_to_half=True,
+                 remove_puncts=False,
+                 tag_oov=False):
         super().__init__(name='normalizer')
         self.cache_dir = cache_dir
         self.overwrite_cache = overwrite_cache
+        self.remove_interjections = remove_interjections
+        self.full_to_half = full_to_half
+        self.remove_puncts = remove_puncts
+        self.tag_oov = tag_oov
 
         far_file = files('tn').joinpath('zh_tn_normalizer.far')
         if self.cache_dir:
@@ -68,8 +78,9 @@ class Normalizer(Processor):
         tagger = self.build_rule(tagger + insert(' '))
         tagger @= self.build_rule(delete(' '), '', '[EOS]')
 
-        processor = PreProcessor(remove_interjections=True,
-                                 full_to_half=True).processor
+        processor = PreProcessor(
+            remove_interjections=self.remove_interjections,
+            full_to_half=self.full_to_half).processor
         self.tagger = processor @ tagger.optimize()
 
     def build_verbalizer(self):
@@ -84,5 +95,6 @@ class Normalizer(Processor):
                       | Whitelist().verbalizer).optimize()
         verbalizer = (verbalizer + delete(' ').ques).star
 
-        processor = PostProcessor(remove_puncts=False, tag_oov=False).processor
+        processor = PostProcessor(remove_puncts=self.remove_puncts,
+                                  tag_oov=self.tag_oov).processor
         self.verbalizer = verbalizer @ processor

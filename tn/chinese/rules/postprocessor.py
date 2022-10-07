@@ -26,7 +26,8 @@ class PostProcessor(Processor):
         puncts = string_file('tn/chinese/data/char/punctuations_zh.tsv')
         zh_charset_std = string_file(
             'tn/chinese/data/char/charset_national_standard_2013_8105.tsv')
-        zh_charset_ext = string_file('tn/chinese/data/char/charset_extension.tsv')
+        zh_charset_ext = string_file(
+            'tn/chinese/data/char/charset_extension.tsv')
 
         processor = self.build_rule('')
         if remove_puncts:

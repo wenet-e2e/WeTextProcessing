@@ -29,9 +29,9 @@ class Fraction(Processor):
         rmspace = delete(' ').ques
         number = Cardinal().number
 
-        tagger = (insert('numerator: "') + number + rmspace +
-                  delete('/') + rmspace + insert('" denominator: "') +
-                  number + insert('"')).optimize()
+        tagger = (insert('numerator: "') + number + rmspace + delete('/') +
+                  rmspace + insert('" denominator: "') + number +
+                  insert('"')).optimize()
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):

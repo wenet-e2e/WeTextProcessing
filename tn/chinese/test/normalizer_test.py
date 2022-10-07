@@ -22,7 +22,7 @@ from tn.chinese.test.utils import parse_test_case
 
 class TestNormalizer:
 
-    normalizer = Normalizer(overwrite_cache=True)
+    normalizer = Normalizer(overwrite_cache=True, tag_oov=True)
 
     normalizer_cases = chain(parse_test_case('data/cardinal.txt'),
                              parse_test_case('data/char.txt'),

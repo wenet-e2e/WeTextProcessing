@@ -15,7 +15,7 @@
 from tn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
 
-from pynini import cross, string_file
+from pynini import accep, cross, string_file
 from pynini.lib.pynutil import delete, insert
 
 
@@ -36,15 +36,17 @@ class Measure(Processor):
         percent = insert('百分之') + number + delete('%')
 
         number @= self.build_rule(cross('二', '两'), '[BOS]', '[EOS]')
-        measure = number + rmspace + units
+        # 1-11个，1个-11个
+        prefix = (number + (rmspace + units).ques +
+                  (cross('-', '到') | accep('到')))
+        measure = prefix.ques + number + rmspace + units
         measure @= self.build_rule(cross('两两', '二两'), '[BOS]', '')
         tagger = insert('value: "') + (measure | percent) + insert('"')
 
         # 10km/h
         rmsign = rmspace + delete('/') + rmspace
-        tagger |= (
-            insert('numerator: "') + measure + rmsign +
-            insert('" denominator: "') + units + insert('"'))
+        tagger |= (insert('numerator: "') + measure + rmsign +
+                   insert('" denominator: "') + units + insert('"'))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
