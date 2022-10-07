@@ -24,8 +24,9 @@ from tn.chinese.rules.measure import Measure
 from tn.chinese.rules.money import Money
 from tn.chinese.rules.postprocessor import PostProcessor
 from tn.chinese.rules.preprocessor import PreProcessor
-from tn.chinese.rules.whitelist import Whitelist
+from tn.chinese.rules.sport import Sport
 from tn.chinese.rules.time import Time
+from tn.chinese.rules.whitelist import Whitelist
 
 from pynini import Far
 from pynini.lib.pynutil import add_weight, delete, insert
@@ -34,10 +35,20 @@ from importlib_resources import files
 
 class Normalizer(Processor):
 
-    def __init__(self, cache_dir=None, overwrite_cache=False):
+    def __init__(self,
+                 cache_dir=None,
+                 overwrite_cache=False,
+                 remove_interjections=True,
+                 full_to_half=True,
+                 remove_puncts=False,
+                 tag_oov=False):
         super().__init__(name='normalizer')
         self.cache_dir = cache_dir
         self.overwrite_cache = overwrite_cache
+        self.remove_interjections = remove_interjections
+        self.full_to_half = full_to_half
+        self.remove_puncts = remove_puncts
+        self.tag_oov = tag_oov
 
         far_file = files('tn').joinpath('zh_tn_normalizer.far')
         if self.cache_dir:
@@ -62,14 +73,16 @@ class Normalizer(Processor):
                   | add_weight(Money().tagger, 1.05)
                   | add_weight(Time().tagger, 1.05)
                   | add_weight(Cardinal().tagger, 1.06)
+                  | add_weight(Sport().tagger, 1.07)
                   | add_weight(Math().tagger, 1.08)
                   | add_weight(Char().tagger, 100))
         # insert space between tokens, and remove the last space
         tagger = self.build_rule(tagger + insert(' '))
         tagger @= self.build_rule(delete(' '), '', '[EOS]')
 
-        processor = PreProcessor(remove_interjections=True,
-                                 full_to_half=True).processor
+        processor = PreProcessor(
+            remove_interjections=self.remove_interjections,
+            full_to_half=self.full_to_half).processor
         self.tagger = processor @ tagger.optimize()
 
     def build_verbalizer(self):
@@ -80,9 +93,11 @@ class Normalizer(Processor):
                       | Math().verbalizer
                       | Measure().verbalizer
                       | Money().verbalizer
+                      | Sport().verbalizer
                       | Time().verbalizer
                       | Whitelist().verbalizer).optimize()
         verbalizer = (verbalizer + delete(' ').ques).star
 
-        processor = PostProcessor(remove_puncts=False, tag_oov=False).processor
+        processor = PostProcessor(remove_puncts=self.remove_puncts,
+                                  tag_oov=self.tag_oov).processor
         self.verbalizer = verbalizer @ processor

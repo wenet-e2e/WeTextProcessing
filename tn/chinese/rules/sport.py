@@ -15,27 +15,23 @@
 from tn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
 
+from pynini import cross, string_file
 from pynini.lib.pynutil import delete, insert
 
 
-class Fraction(Processor):
+class Sport(Processor):
 
     def __init__(self):
-        super().__init__(name='fraction')
+        super().__init__(name='sport')
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
+        country = string_file('tn/chinese/data/sport/country.tsv')
+        club = string_file('tn/chinese/data/sport/club.tsv')
         rmspace = delete(' ').ques
+
         number = Cardinal().number
-
-        tagger = (insert('numerator: "') + number + rmspace + delete('/') +
-                  rmspace + insert('" denominator: "') + number +
-                  insert('"')).optimize()
+        score = rmspace + number + cross('-', '比') + number + rmspace
+        tagger = insert('value: "') + (country | club) + score + insert('"')
         self.tagger = self.add_tokens(tagger)
-
-    def build_verbalizer(self):
-        denominator = delete('denominator: "') + self.SIGMA + delete('" ')
-        numerator = delete('numerator: "') + self.SIGMA + delete('"')
-        verbalizer = denominator + insert('分之') + numerator
-        self.verbalizer = self.delete_tokens(verbalizer)

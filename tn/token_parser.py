@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import string
-from itertools import permutations, product
 
 EOS = '<EOS>'
 TN_ORDERS = {

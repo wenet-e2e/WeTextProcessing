@@ -23,7 +23,8 @@ class PreProcessor(Processor):
     def __init__(self, remove_interjections=True, full_to_half=True):
         super().__init__(name='preprocessor')
         blacklist = string_file('tn/chinese/data/default/blacklist.tsv')
-        full2half = string_file('tn/chinese/data/char/fullwidth_to_halfwidth.tsv')
+        full2half = string_file(
+            'tn/chinese/data/char/fullwidth_to_halfwidth.tsv')
 
         processor = self.VSIGMA
         if remove_interjections:
