@@ -24,8 +24,9 @@ from tn.chinese.rules.measure import Measure
 from tn.chinese.rules.money import Money
 from tn.chinese.rules.postprocessor import PostProcessor
 from tn.chinese.rules.preprocessor import PreProcessor
-from tn.chinese.rules.whitelist import Whitelist
+from tn.chinese.rules.sport import Sport
 from tn.chinese.rules.time import Time
+from tn.chinese.rules.whitelist import Whitelist
 
 from pynini import Far
 from pynini.lib.pynutil import add_weight, delete, insert
@@ -72,6 +73,7 @@ class Normalizer(Processor):
                   | add_weight(Money().tagger, 1.05)
                   | add_weight(Time().tagger, 1.05)
                   | add_weight(Cardinal().tagger, 1.06)
+                  | add_weight(Sport().tagger, 1.07)
                   | add_weight(Math().tagger, 1.08)
                   | add_weight(Char().tagger, 100))
         # insert space between tokens, and remove the last space
@@ -91,6 +93,7 @@ class Normalizer(Processor):
                       | Math().verbalizer
                       | Measure().verbalizer
                       | Money().verbalizer
+                      | Sport().verbalizer
                       | Time().verbalizer
                       | Whitelist().verbalizer).optimize()
         verbalizer = (verbalizer + delete(' ').ques).star
