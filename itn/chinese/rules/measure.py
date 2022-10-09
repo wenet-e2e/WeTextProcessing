@@ -34,7 +34,6 @@ class Measure(Processor):
         units = units_en | ((accep('亿') | accep('兆') | accep('万')).ques
                             + units_zh)
 
-        # number = Cardinal().number | Cardinal().digits.plus
         number = Cardinal().number
         # 百分之三十, 百分三十, 百分之百
         percent = ((sign + delete('的').ques).ques + delete('百分') +
