@@ -44,12 +44,12 @@ class Processor:
         return rule
 
     def add_tokens(self, tagger):
-        tagger = insert(f"{self.name} {{ ") + tagger + insert(' }')
+        tagger = insert(f"{self.name} {{ ") + tagger + insert(' } ')
         return tagger.optimize()
 
     def delete_tokens(self, verbalizer):
         verbalizer = (delete(f"{self.name}") + delete(' { ') + verbalizer +
-                      delete(' }'))
+                      delete(' }') + delete(' ').ques)
         return verbalizer.optimize()
 
     def build_verbalizer(self):
