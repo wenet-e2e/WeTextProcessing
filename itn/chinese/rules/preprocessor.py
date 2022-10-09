@@ -27,4 +27,4 @@ class PreProcessor(Processor):
         processor = self.VSIGMA
         if remove_interjections:
             processor @= self.build_rule(delete(blacklist))
-        self.processor = processor.optimize()
+        self.processor = processor

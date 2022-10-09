@@ -64,9 +64,8 @@ class InverseNormalizer(Processor):
                   | add_weight(Time().tagger, 1.05)
                   | add_weight(Cardinal(self.convert_number).tagger, 1.06)
                   | add_weight(Math().tagger, 1.10)
-                  | add_weight(Char().tagger, 100))
-        # insert space between tokens, and remove the last space
-        tagger = self.build_rule(tagger + insert(' '))
+                  | add_weight(Char().tagger, 100)).optimize().star
+        # remove the last space
         tagger @= self.build_rule(delete(' '), '', '[EOS]')
 
         processor = PreProcessor(remove_interjections=True).processor
@@ -81,7 +80,6 @@ class InverseNormalizer(Processor):
                       | Measure().verbalizer
                       | Money().verbalizer
                       | Time().verbalizer
-                      | Whitelist().verbalizer).optimize()
-        verbalizer = (verbalizer + delete(' ').ques).star
+                      | Whitelist().verbalizer).optimize().star
 
         self.verbalizer = verbalizer
