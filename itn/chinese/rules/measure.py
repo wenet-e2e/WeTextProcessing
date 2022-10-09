@@ -15,7 +15,7 @@
 from itn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
 
-from pynini import string_file, accep
+from pynini import string_file, accep, cross
 from pynini.lib.pynutil import delete, insert, add_weight
 
 
@@ -34,9 +34,11 @@ class Measure(Processor):
         units = units_en | ((accep('亿') | accep('兆') | accep('万')).ques
                             + units_zh)
 
-        number = Cardinal().number | Cardinal().digits.plus
-        percent = ((sign + delete('的').ques).ques + delete('百分之') +
-                   number + insert('%'))
+        number = Cardinal().number
+        # 百分之三十, 百分三十, 百分之百
+        percent = ((sign + delete('的').ques).ques + delete('百分') +
+                   delete('之').ques + (number | cross('百', '100'))
+                   + insert('%'))
 
         # 十千米每小时 => 10km/h
         measure = number + units

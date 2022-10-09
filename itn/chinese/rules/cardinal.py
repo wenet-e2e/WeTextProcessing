@@ -15,7 +15,7 @@
 from tn.processor import Processor
 
 from pynini import cross, accep, string_file
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import delete, insert, add_weight
 
 
 class Cardinal(Processor):
@@ -40,20 +40,29 @@ class Cardinal(Processor):
         teen = cross('十', '1') + (digit | addzero)
         # 一十一 => 11, 二十一 => 21, 三十 => 30
         tens = digit + delete('十') + (digit | addzero)
-        # 111, 101, 100
-        hundred = (digit + delete('百') + (tens | (zero + digit) | addzero**2))
-        # 1111, 1011, 1001, 1000
-        thousand = (digit + delete('千') + (hundred
-                                           | (zero + tens)
-                                           | (addzero + zero + digit)
-                                           | addzero**3))
+        # 一百一十 => 110, 一百零一 => 101, 一百一 => 110, 一百 => 100
+        hundred = (digit + delete('百') + (tens
+                                          | teen
+                                          | add_weight(zero + digit, 0.1)
+                                          | add_weight(digit + addzero, 0.5)
+                                          | add_weight(addzero**2, 1.0)))
+        # 一千一百一十一 => 1111, 一千零一十一 => 1011, 一千零一 => 1001
+        # 一千一 => 1100, 一千 => 1000
+        thousand = ((hundred | teen | tens | digits) + delete('千') + (
+                    hundred
+                    | add_weight(zero + tens, 0.1)
+                    | add_weight(addzero + zero + digit, 0.5)
+                    | add_weight(digit + addzero**2, 0.8)
+                    | add_weight(addzero**3, 1.0)))
         # 10001111, 1001111, 101111, 11111, 10111, 10011, 10001, 10000
-        ten_thousand = ((thousand | hundred | teen | digit) + delete('万') +
-                        (thousand
-                         | (zero + hundred)
-                         | (addzero + zero + tens)
-                         | (addzero + addzero + zero + digit)
-                         | addzero**4))
+        ten_thousand = ((thousand | hundred | teen | tens | digits)
+                        + delete('万')
+                        + (thousand
+                           | add_weight(zero + hundred, 0.1)
+                           | add_weight(addzero + zero + tens, 0.5)
+                           | add_weight(addzero + addzero + zero + digit, 0.5)
+                           | add_weight(digit + addzero**3, 0.8)
+                           | add_weight(addzero**4, 1.0)))
 
         # 1.11, 1.01
         number = digits | teen | tens | hundred | thousand | ten_thousand
@@ -65,7 +74,7 @@ class Cardinal(Processor):
         self.digits = digits.optimize()
 
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
-        cardinal = digit.plus + (dot + digits).plus
+        cardinal = digit.plus + (dot + digits.plus).plus
         # float number like 1.11
         cardinal |= (number + dot + digits.plus)
         # cardinal string like 110 or 12306 or 13125617878, used in phone
