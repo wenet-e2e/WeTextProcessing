@@ -30,10 +30,11 @@ class Date(Processor):
         zero = string_file('itn/chinese/data/number/zero.tsv')    # 0
 
         yyyy = digit + (digit | zero)**3
+        yy = digit**2
         mm = string_file('itn/chinese/data/date/mm.tsv')
         dd = string_file('itn/chinese/data/date/dd.tsv')
 
-        year = insert('year: "') + yyyy + delete('年') + insert('" ')
+        year = insert('year: "') + (yyyy | yy) + delete('年') + insert('" ')
         month = insert('month: "') + mm + insert('"')
         day = insert(' day: "') + dd + insert('"')
 
