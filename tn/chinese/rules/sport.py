@@ -29,9 +29,18 @@ class Sport(Processor):
     def build_tagger(self):
         country = string_file('tn/chinese/data/sport/country.tsv')
         club = string_file('tn/chinese/data/sport/club.tsv')
+        rmsign = delete('/') | delete('-') | delete(':')
         rmspace = delete(' ').ques
 
         number = Cardinal().number
-        score = rmspace + number + cross('-', '比') + number + rmspace
-        tagger = insert('value: "') + (country | club) + score + insert('"')
+        score = rmspace + number + rmsign + insert('比') + number + rmspace
+        tagger = (insert('team: "') + (country | club) + insert('" score: "') +
+                  score + insert('"'))
         self.tagger = self.add_tokens(tagger)
+
+    def build_verbalizer(self):
+        super().build_verbalizer()
+        team = delete('team: "') + self.SIGMA + delete('" ')
+        score = delete('score: "') + self.SIGMA + delete('"')
+        verbalizer = team + score
+        self.verbalizer |= self.delete_tokens(verbalizer)
