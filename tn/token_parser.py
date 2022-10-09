@@ -16,11 +16,11 @@ import string
 
 EOS = '<EOS>'
 TN_ORDERS = {
-    'date': ['year', 'month', 'day'],
+    'date': ['prefix', 'year', 'month', 'day'],
     'fraction': ['denominator', 'numerator'],
     'measure': ['denominator', 'numerator', 'value'],
     'money': ['value', 'currency'],
-    'time': ['noon', 'hour', 'minute', 'second']}
+    'time': ['prefix', 'noon', 'hour', 'minute', 'second']}
 ITN_ORDERS = {
     'date': ['year', 'month', 'day'],
     'fraction': ['numerator', 'denominator'],

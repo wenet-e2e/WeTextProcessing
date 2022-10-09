@@ -31,7 +31,8 @@ class Time(Processor):
         s = string_file('tn/chinese/data/time/second.tsv')
         noon = string_file('tn/chinese/data/time/noon.tsv')
 
-        tagger = (insert('hour: "') + h + insert('" ') + delete(':') +
+        prefix = ((delete('-') | delete('~')) + insert('prefix: "到" ')).ques
+        tagger = prefix + (insert('hour: "') + h + insert('" ') + delete(':') +
                   insert('minute: "') + m + insert('"') +
                   (delete(':') + insert(' second: "') + s + insert('"')).ques +
                   delete(' ').ques +
@@ -39,9 +40,10 @@ class Time(Processor):
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
+        prefix = delete('prefix: "') + self.SIGMA + delete('" ')
         noon = delete('noon: "') + self.SIGMA + delete('" ')
         hour = delete('hour: "') + self.SIGMA + delete('" ')
         minute = delete('minute: "') + self.SIGMA + delete('"')
         second = delete(' second: "') + self.SIGMA + delete('"')
-        verbalizer = noon.ques + hour + minute + second.ques
+        verbalizer = prefix.ques + noon.ques + hour + minute + second.ques
         self.verbalizer = self.delete_tokens(verbalizer)

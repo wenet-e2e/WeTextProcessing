@@ -36,7 +36,6 @@ class Cardinal(Processor):
         rmzero = delete('0')
         rmpunct = delete(',').ques
         digits = zero | digit
-        num = digits @ self.build_rule(cross('一', '幺'))
 
         # 11 => 十一
         ten = teen + insert('十') + (digit | rmzero)
@@ -67,6 +66,13 @@ class Cardinal(Processor):
         self.number = accep('约').ques + number.optimize()
 
         # cardinal string like 110 or 127.0.0.1, used in phone, ID, IP, etc.
-        cardinal = num.plus + (num | dot).plus.ques + num.plus
+        cardinal = digits.plus + (digits | dot).plus.ques + digits.plus
+        # xxxx-xxx-xxx
+        cardinal |= digits.plus + (delete('-') + digits.plus).closure(2)
+        # -xxxx年, -xx年, ~xxxx年, ~xx年
+        unit = accep('年') | accep('赛季')
+        rmsign = (delete('-') | delete('~')) + insert('到')
+        cardinal |= rmsign + (digits**2 | digits**4) + unit
+
         tagger = insert('value: "') + cardinal + insert('"')
         self.tagger = self.add_tokens(tagger)
