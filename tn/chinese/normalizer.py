@@ -66,19 +66,34 @@ class Normalizer(Processor):
             self.export(far_file)
 
     def build_tagger(self):
-        tagger = (add_weight(Date().tagger, 1.02)
-                  | add_weight(Whitelist().tagger, 1.03)
-                  | add_weight(Fraction().tagger, 1.05)
-                  | add_weight(Measure().tagger, 1.05)
-                  | add_weight(Money().tagger, 1.05)
-                  | add_weight(Time().tagger, 1.05)
-                  | add_weight(Cardinal().tagger, 1.06)
-                  | add_weight(Sport().tagger, 1.07)
-                  | add_weight(Math().tagger, 1.08)
-                  | add_weight(Char().tagger, 100))
+        cardinal = Cardinal().tagger
+        char = Char().tagger
+        date = Date().tagger
+        fraction = Fraction().tagger
+        math = Math().tagger
+        measure = Measure().tagger
+        money = Money().tagger
+        sport = Sport().tagger
+        time = Time().tagger
+        whitelist = Whitelist().tagger
+
+        to = (delete('-') | delete('~')) + insert(' char { value: "到" } ')
+        date = date + (to + date).ques
+        time = time + (to + time).ques
+
+        tagger = (add_weight(date, 1.02)
+                  | add_weight(whitelist, 1.03)
+                  | add_weight(fraction, 1.05)
+                  | add_weight(measure, 1.05)
+                  | add_weight(money, 1.05)
+                  | add_weight(time, 1.05)
+                  | add_weight(cardinal, 1.06)
+                  | add_weight(sport, 1.07)
+                  | add_weight(math, 1.08)
+                  | add_weight(char, 100))
         # insert space between tokens, and remove the last space
         tagger = self.build_rule(tagger + insert(' '))
-        tagger @= self.build_rule(delete(' '), '', '[EOS]')
+        tagger @= self.build_rule(delete(' '), r='[EOS]')
 
         processor = PreProcessor(
             remove_interjections=self.remove_interjections,
@@ -86,16 +101,19 @@ class Normalizer(Processor):
         self.tagger = processor @ tagger.optimize()
 
     def build_verbalizer(self):
-        verbalizer = (Cardinal().verbalizer
-                      | Char().verbalizer
-                      | Date().verbalizer
-                      | Fraction().verbalizer
-                      | Math().verbalizer
-                      | Measure().verbalizer
-                      | Money().verbalizer
-                      | Sport().verbalizer
-                      | Time().verbalizer
-                      | Whitelist().verbalizer).optimize()
+        cardinal = Cardinal().verbalizer
+        char = Char().verbalizer
+        date = Date().verbalizer
+        fraction = Fraction().verbalizer
+        math = Math().verbalizer
+        measure = Measure().verbalizer
+        money = Money().verbalizer
+        sport = Sport().verbalizer
+        time = Time().verbalizer
+        whitelist = Whitelist().verbalizer
+
+        verbalizer = (cardinal | char | date | fraction | math | measure
+                      | money | sport | time | whitelist).optimize()
         verbalizer = (verbalizer + delete(' ').ques).star
 
         processor = PostProcessor(remove_puncts=self.remove_puncts,

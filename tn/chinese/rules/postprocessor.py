@@ -39,4 +39,7 @@ class PostProcessor(Processor):
             oov = difference(self.VCHAR, charset)
             processor @= Tagger('oov', oov, self.VSIGMA)._tagger
 
+        # remove leading and trailing spaces
+        processor @= self.build_rule(delete(' ').star, l='[BOS]')
+        processor @= self.build_rule(delete(' ').star, r='[EOS]')
         self.processor = processor.optimize()
