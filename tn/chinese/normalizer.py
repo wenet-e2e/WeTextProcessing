@@ -83,16 +83,15 @@ class Normalizer(Processor):
 
         tagger = (add_weight(date, 1.02)
                   | add_weight(whitelist, 1.03)
+                  | add_weight(sport, 1.04)
                   | add_weight(fraction, 1.05)
                   | add_weight(measure, 1.05)
                   | add_weight(money, 1.05)
                   | add_weight(time, 1.05)
                   | add_weight(cardinal, 1.06)
-                  | add_weight(sport, 1.07)
                   | add_weight(math, 1.08)
-                  | add_weight(char, 100))
-        # insert space between tokens, and remove the last space
-        tagger = self.build_rule(tagger + insert(' '))
+                  | add_weight(char, 100)).optimize().star
+        # delete the last space
         tagger @= self.build_rule(delete(' '), r='[EOS]')
 
         processor = PreProcessor(
@@ -113,8 +112,7 @@ class Normalizer(Processor):
         whitelist = Whitelist().verbalizer
 
         verbalizer = (cardinal | char | date | fraction | math | measure
-                      | money | sport | time | whitelist).optimize()
-        verbalizer = (verbalizer + delete(' ').ques).star
+                      | money | sport | time | whitelist).optimize().star
 
         processor = PostProcessor(remove_puncts=self.remove_puncts,
                                   tag_oov=self.tag_oov).processor
