@@ -36,7 +36,6 @@ class Date(Processor):
         dd = string_file('tn/chinese/data/date/dd.tsv')
         rmsign = (delete('/') | delete('-') | delete('.')) + insert(' ')
 
-        prefix = ((delete('-') | delete('~')) + insert('prefix: "到" ')).ques
         year = insert('year: "') + yyyy + insert('年"')
         month = insert('month: "') + (m | mm) + insert('"')
         day = insert('day: "') + (d | dd) + insert('"')
@@ -44,7 +43,7 @@ class Date(Processor):
         # yyyy/m/d | yyyy/mm/dd | dd/mm/yyyy
         # yyyy/0m | 0m/yyyy | 0m/dd
         mm = insert('month: "') + mm + insert('"')
-        date = prefix + ((year + rmsign + month + rmsign + day)
+        date = ((year + rmsign + month + rmsign + day)
                 | (day + rmsign + month + rmsign + year)
                 | (year + rmsign + mm)
                 | (mm + rmsign + year)
@@ -52,9 +51,8 @@ class Date(Processor):
         self.tagger = self.add_tokens(date)
 
     def build_verbalizer(self):
-        prefix = delete('prefix: "') + self.SIGMA + delete('" ') 
         year = delete('year: "') + self.SIGMA + delete('" ')
         month = delete('month: "') + self.SIGMA + delete('"')
         day = delete(' day: "') + self.SIGMA + delete('"')
-        verbalizer = prefix.ques + year.ques + month + day.ques
+        verbalizer = year.ques + month + day.ques
         self.verbalizer = self.delete_tokens(verbalizer)

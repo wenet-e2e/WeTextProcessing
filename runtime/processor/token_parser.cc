@@ -28,11 +28,11 @@ const std::set<std::string> ASCII_LETTERS = {
     "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
     "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "_"};
 const std::unordered_map<std::string, std::vector<std::string>> TN_ORDERS = {
-    {"date", {"prefix", "year", "month", "day"}},
+    {"date", {"year", "month", "day"}},
     {"fraction", {"denominator", "numerator"}},
     {"measure", {"denominator", "numerator", "value"}},
     {"money", {"value", "currency"}},
-    {"time", {"prefix", "noon", "hour", "minute", "second"}}};
+    {"time", {"noon", "hour", "minute", "second"}}};
 const std::unordered_map<std::string, std::vector<std::string>> ITN_ORDERS = {
     {"date", {"year", "month", "day"}},
     {"fraction", {"numerator", "denominator"}},
