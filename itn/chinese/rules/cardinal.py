@@ -74,5 +74,4 @@ class Cardinal(Processor):
         if self.enable_standalone_number:
             cardinal |= number
         tagger = insert('value: "') + cardinal + insert('"')
-        tagger = tagger.optimize()
         self.tagger = self.add_tokens(tagger)

@@ -30,7 +30,7 @@ class Fraction(Processor):
 
         tagger = (insert('denominator: "') + number +
                   delete('分之') + insert('" numerator: "') +
-                  number + insert('"')).optimize()
+                  number + insert('"'))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):

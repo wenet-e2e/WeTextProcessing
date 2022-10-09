@@ -48,7 +48,6 @@ class Measure(Processor):
         tagger |= (
             insert('denominator: "') + delete('每') + units +
             insert('" numerator: "') + measure + insert('"'))
-        tagger = tagger.optimize()
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
