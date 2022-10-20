@@ -17,6 +17,14 @@ import argparse
 # TODO(xcsong): multi-language support
 from itn.chinese.inverse_normalizer import InverseNormalizer
 
+def str2bool(s, default=False):
+    s = s.lower()
+    if s == 'true':
+        return True
+    elif s == 'false':
+        return False
+    else:
+        return default
 
 def main():
     parser = argparse.ArgumentParser()
@@ -24,11 +32,18 @@ def main():
     parser.add_argument('--file', help='input file path')
     parser.add_argument('--overwrite_cache', action='store_true',
                         help='rebuild *.far')
+    parser.add_argument('--enable_standalone_number', type=str,
+                        default='True',
+                        help='enable standalone number')
+    parser.add_argument('--enable_0_to_9', type=str,
+                        default='True',
+                        help='enable convert number 0 to 9')
     args = parser.parse_args()
 
     normalizer = InverseNormalizer(
         cache_dir='itn', overwrite_cache=args.overwrite_cache,
-        enable_standalone_number=True)
+        enable_standalone_number=str2bool(args.enable_standalone_number),
+        enable_0_to_9=str2bool(args.enable_0_to_9))
 
     if args.text:
         print(normalizer.tag(args.text))

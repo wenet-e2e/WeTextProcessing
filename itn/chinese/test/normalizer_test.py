@@ -24,7 +24,8 @@ class TestNormalizer:
 
     normalizer = InverseNormalizer(
         overwrite_cache=True,
-        enable_standalone_number=True)
+        enable_standalone_number=True,
+        enable_0_to_9=True)
 
     normalizer_cases = chain(
         parse_test_case('data/cardinal.txt'),

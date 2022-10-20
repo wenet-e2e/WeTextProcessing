@@ -20,10 +20,13 @@ from pynini.lib.pynutil import delete, insert, add_weight
 
 class Cardinal(Processor):
 
-    def __init__(self, enable_standalone_number=True):
+    def __init__(self,
+        enable_standalone_number=True,
+        enable_0_to_9=True):
         super().__init__('cardinal')
         self.number = None
         self.enable_standalone_number = enable_standalone_number
+        self.enable_0_to_9 = enable_0_to_9
         self.build_tagger()
         self.build_verbalizer()
 
@@ -81,6 +84,10 @@ class Cardinal(Processor):
         cardinal |= (digits**3 | digits**5 | digits**11)
         # cardinal string like 23
         if self.enable_standalone_number:
-            cardinal |= number
+            if self.enable_0_to_9:
+                cardinal |= number
+            else:
+                number_two_plus = (digits + digits.plus) | teen | tens | hundred | thousand | ten_thousand
+                cardinal |= number_two_plus
         tagger = insert('value: "') + cardinal + insert('"')
         self.tagger = self.add_tokens(tagger)
