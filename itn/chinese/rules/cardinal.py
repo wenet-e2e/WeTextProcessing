@@ -22,7 +22,7 @@ class Cardinal(Processor):
 
     def __init__(self,
         enable_standalone_number=True,
-        enable_0_to_9=False):
+        enable_0_to_9=True):
         super().__init__('cardinal')
         self.number = None
         self.enable_standalone_number = enable_standalone_number
@@ -84,7 +84,6 @@ class Cardinal(Processor):
         cardinal |= (digits**3 | digits**5 | digits**11)
         # cardinal string like 23
         if self.enable_standalone_number:
-            #  number_two_plus = number + number.plus
             if self.enable_0_to_9:
                 cardinal |= number
             else:

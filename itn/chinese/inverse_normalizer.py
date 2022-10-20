@@ -34,7 +34,8 @@ from importlib_resources import files
 class InverseNormalizer(Processor):
 
     def __init__(self, cache_dir=None, overwrite_cache=False,
-                 enable_standalone_number=True, enable_0_to_9=False):
+                 enable_standalone_number=True,
+                 enable_0_to_9=True):
         super().__init__(name='inverse_normalizer', ordertype='itn')
         self.cache_dir = cache_dir
         self.overwrite_cache = overwrite_cache

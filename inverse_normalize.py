@@ -17,7 +17,7 @@ import argparse
 # TODO(xcsong): multi-language support
 from itn.chinese.inverse_normalizer import InverseNormalizer
 
-def str2bool(s, default=True):
+def str2bool(s, default=False):
     s = s.lower()
     if s == 'true':
         return True
