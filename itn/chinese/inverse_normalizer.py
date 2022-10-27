@@ -34,11 +34,13 @@ from importlib_resources import files
 class InverseNormalizer(Processor):
 
     def __init__(self, cache_dir=None, overwrite_cache=False,
-                 enable_standalone_number=True):
+                 enable_standalone_number=True,
+                 enable_0_to_9=True):
         super().__init__(name='inverse_normalizer', ordertype='itn')
         self.cache_dir = cache_dir
         self.overwrite_cache = overwrite_cache
         self.convert_number = enable_standalone_number
+        self.enable_0_to_9 = enable_0_to_9
 
         far_file = files('itn').joinpath('zh_itn_normalizer.far')
         if self.cache_dir:
@@ -62,7 +64,7 @@ class InverseNormalizer(Processor):
                   | add_weight(Measure().tagger, 1.05)
                   | add_weight(Money().tagger, 1.05)
                   | add_weight(Time().tagger, 1.05)
-                  | add_weight(Cardinal(self.convert_number).tagger, 1.06)
+                  | add_weight(Cardinal(self.convert_number, self.enable_0_to_9).tagger, 1.06)
                   | add_weight(Math().tagger, 1.10)
                   | add_weight(Char().tagger, 100)).optimize().star
         # remove the last space
@@ -72,7 +74,7 @@ class InverseNormalizer(Processor):
         self.tagger = processor @ tagger.optimize()
 
     def build_verbalizer(self):
-        verbalizer = (Cardinal(self.convert_number).verbalizer
+        verbalizer = (Cardinal(self.convert_number, self.enable_0_to_9).verbalizer
                       | Char().verbalizer
                       | Date().verbalizer
                       | Fraction().verbalizer
