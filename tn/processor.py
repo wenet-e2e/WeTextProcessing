@@ -63,6 +63,7 @@ class Processor:
         exporter.close()
 
     def tag(self, input):
+        input = escape(input)
         lattice = input @ self.tagger
         return shortestpath(lattice, nshortest=1, unique=True).string()
 
@@ -71,8 +72,7 @@ class Processor:
         return shortestpath(lattice, nshortest=1, unique=True).string()
 
     def normalize(self, input):
-        output = escape(input)
-        output = self.tag(output)
+        output = self.tag(input)
         # Only words from the blacklist are contained.
         if len(output) == 0:
             return ''
