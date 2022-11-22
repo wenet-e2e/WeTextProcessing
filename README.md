@@ -79,6 +79,17 @@ Please refer to [TN.README](tn/README.md)
 
 Please refer to [ITN.README](itn/README.md)
 
+## Discussion & Communication
+
+For Chinese users, you can aslo scan the QR code on the left to follow our offical account of WeNet.
+We created a WeChat group for better discussion and quicker response.
+Please scan the personal QR code on the right, and the guy is responsible for inviting you to the chat group.
+
+| <img src="https://github.com/robin1001/qr/blob/master/wenet.jpeg" width="250px"> | <img src="https://user-images.githubusercontent.com/13466943/203046432-f637180e-4c87-40cc-be05-ce48c65dd1ef.jpg" width="250px"> |
+| ---- | ---- |
+
+Or you can directly discuss on [Github Issues](https://github.com/wenet-e2e/WeTextProcessing/issues).
+
 ## Acknowledge
 
 1. Thank the authors of foundational libraries like [OpenFst](https://www.openfst.org/twiki/bin/view/FST/WebHome) & [Pynini](https://www.openfst.org/twiki/bin/view/GRM/Pynini).
