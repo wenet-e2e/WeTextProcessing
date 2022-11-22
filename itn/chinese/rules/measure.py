@@ -43,6 +43,7 @@ class Measure(Processor):
         # 十千米每小时 => 10km/h
         measure = number + units
         if self.exclude_one:
+            measure |= number + number.plus + units
             measure |= (add_weight(accep('一'), -1.0) + units_zh)
         tagger = insert('value: "') + (measure | percent) + insert('"')
 
