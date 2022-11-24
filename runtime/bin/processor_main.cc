@@ -24,6 +24,19 @@ DEFINE_string(text, "", "input string");
 DEFINE_string(file, "", "input file");
 DEFINE_string(far, "", "FST archives");
 
+#define NUM_THREADS 1
+
+struct funpara {
+  wenet::Processor* processor;
+  std::string text;
+};
+
+void* thread_func(void* arg) {
+  struct funpara *pstru = (struct funpara*)arg;
+  std::string normalized_text = pstru->processor->normalize(pstru->text);
+  std::cout << normalized_text << std::endl;
+}
+
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, false);
   google::InitGoogleLogging(argv[0]);
@@ -33,11 +46,22 @@ int main(int argc, char* argv[]) {
   }
   wenet::Processor processor(FLAGS_far);
 
+  pthread_t tids[NUM_THREADS];
+  struct funpara fun_para;
+  fun_para.processor = &processor;
+  fun_para.text = FLAGS_text;
+
   if (!FLAGS_text.empty()) {
     std::string tagged_text = processor.tag(FLAGS_text);
     std::cout << tagged_text << std::endl;
-    std::string normalized_text = processor.normalize(FLAGS_text);
-    std::cout << normalized_text << std::endl;
+    for (size_t i = 0; i < NUM_THREADS; i++) {
+      int ret = pthread_create(&tids[i], NULL, thread_func, (void *)&fun_para);
+      if (ret != 0) {
+        LOG(FATAL) << "Thread create error.";
+        exit(-1);
+      }
+    }
+    pthread_exit(NULL);
   }
 
   if (!FLAGS_file.empty()) {
