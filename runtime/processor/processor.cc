@@ -18,47 +18,49 @@
 
 #include "utils/utils.h"
 
-using fst::Fst;
+using fst::FarReader;
 using fst::StdVectorFst;
 using fst::StringTokenType;
 
 namespace wenet {
 
 Processor::Processor(const std::string& far_path) {
-  reader = FarReader<StdArc>::Open(far_path);
-  if (!reader || !reader->Find("tagger") || !reader->Find("verbalizer")) {
-    LOG(FATAL) << "Either tagger or verbalizer is missing from the archives.";
-  }
+  FarReader<StdArc>* reader = FarReader<StdArc>::Open(far_path);
+  CHECK_NOTNULL(reader);
 
-  parser = new TokenParser(far_path);
-  compiler = std::make_shared<StringCompiler<StdArc>>(StringTokenType::BYTE);
+  CHECK_GT(reader->Find("tagger"), 0) << "Tagger is missing.";
+  tagger_ = reader->GetFst()->Copy();
+
+  CHECK_GT(reader->Find("verbalizer"), 0) << "Verbalizer is missing.";
+  verbalizer_ = reader->GetFst()->Copy();
+
+  delete reader;
+
+  parser_.reset(new TokenParser(far_path));
+  compiler_ = std::make_shared<StringCompiler<StdArc>>(StringTokenType::BYTE);
 }
 
 Processor::~Processor() {
-  delete parser;
-  delete reader;
+  delete tagger_;
+  delete verbalizer_;
 }
 
 std::string Processor::compose(const std::string& input,
-                               const std::string& name) {
-  CHECK_GT(reader->Find(name), 0);
-  const Fst<StdArc>* fst(reader->GetFst());
-
+                               const Fst<StdArc>* fst) {
   StdVectorFst input_fst;
-  compiler->operator()(input, &input_fst);
+  compiler_->operator()(input, &input_fst);
 
   StdVectorFst lattice;
   fst::Compose(input_fst, *fst, &lattice);
-
   return shortest_path(lattice);
 }
 
 std::string Processor::tag(const std::string& input) {
-  return compose(input, "tagger");
+  return compose(input, tagger_);
 }
 
 std::string Processor::verbalize(const std::string& input) {
-  return compose(input, "verbalizer");
+  return compose(input, verbalizer_);
 }
 
 std::string Processor::normalize(const std::string& input) {
@@ -66,7 +68,7 @@ std::string Processor::normalize(const std::string& input) {
   if (output.empty()) {
     return "";
   }
-  output = parser->reorder(output);
+  output = parser_->reorder(output);
   return verbalize(output);
 }
 
