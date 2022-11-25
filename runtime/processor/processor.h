@@ -37,10 +37,10 @@ class Processor {
  private:
   std::string compose(const std::string& input, const Fst<StdArc>* fst);
 
-  Fst<StdArc>* tagger = nullptr;
-  Fst<StdArc>* verbalizer = nullptr;
-  std::unique_ptr<TokenParser> parser = nullptr;
-  std::shared_ptr<StringCompiler<StdArc>> compiler = nullptr;
+  Fst<StdArc>* tagger_ = nullptr;
+  Fst<StdArc>* verbalizer_ = nullptr;
+  std::unique_ptr<TokenParser> parser_ = nullptr;
+  std::shared_ptr<StringCompiler<StdArc>> compiler_ = nullptr;
 };
 
 }  // namespace wenet

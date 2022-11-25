@@ -29,26 +29,26 @@ Processor::Processor(const std::string& far_path) {
   CHECK_NOTNULL(reader);
 
   CHECK_GT(reader->Find("tagger"), 0) << "Tagger is missing.";
-  tagger = reader->GetFst()->Copy();
+  tagger_ = reader->GetFst()->Copy();
 
   CHECK_GT(reader->Find("verbalizer"), 0) << "Verbalizer is missing.";
-  verbalizer = reader->GetFst()->Copy();
+  verbalizer_ = reader->GetFst()->Copy();
 
   delete reader;
 
-  parser.reset(new TokenParser(far_path));
-  compiler = std::make_shared<StringCompiler<StdArc>>(StringTokenType::BYTE);
+  parser_.reset(new TokenParser(far_path));
+  compiler_ = std::make_shared<StringCompiler<StdArc>>(StringTokenType::BYTE);
 }
 
 Processor::~Processor() {
-  delete tagger;
-  delete verbalizer;
+  delete tagger_;
+  delete verbalizer_;
 }
 
 std::string Processor::compose(const std::string& input,
                                const Fst<StdArc>* fst) {
   StdVectorFst input_fst;
-  compiler->operator()(input, &input_fst);
+  compiler_->operator()(input, &input_fst);
 
   StdVectorFst lattice;
   fst::Compose(input_fst, *fst, &lattice);
@@ -56,11 +56,11 @@ std::string Processor::compose(const std::string& input,
 }
 
 std::string Processor::tag(const std::string& input) {
-  return compose(input, tagger);
+  return compose(input, tagger_);
 }
 
 std::string Processor::verbalize(const std::string& input) {
-  return compose(input, verbalizer);
+  return compose(input, verbalizer_);
 }
 
 std::string Processor::normalize(const std::string& input) {
@@ -68,7 +68,7 @@ std::string Processor::normalize(const std::string& input) {
   if (output.empty()) {
     return "";
   }
-  output = parser->reorder(output);
+  output = parser_->reorder(output);
   return verbalize(output);
 }
 
