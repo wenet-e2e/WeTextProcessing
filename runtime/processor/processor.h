@@ -20,7 +20,7 @@
 #include "processor/token_parser.h"
 #include "utils/log.h"
 
-using fst::FarReader;
+using fst::Fst;
 using fst::StdArc;
 using fst::StringCompiler;
 
@@ -35,10 +35,11 @@ class Processor {
   std::string normalize(const std::string& input);
 
  private:
-  std::string compose(const std::string& input, const std::string& name);
+  std::string compose(const std::string& input, const Fst<StdArc>* fst);
 
-  TokenParser* parser = nullptr;
-  FarReader<StdArc>* reader = nullptr;
+  Fst<StdArc>* tagger = nullptr;
+  Fst<StdArc>* verbalizer = nullptr;
+  std::unique_ptr<TokenParser> parser = nullptr;
   std::shared_ptr<StringCompiler<StdArc>> compiler = nullptr;
 };
 
