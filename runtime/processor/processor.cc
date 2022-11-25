@@ -36,8 +36,16 @@ Processor::Processor(const std::string& far_path) {
 
   delete reader;
 
-  parser_.reset(new TokenParser(far_path));
   compiler_ = std::make_shared<StringCompiler<StdArc>>(StringTokenType::BYTE);
+
+  if (far_path.find("_tn_") != far_path.npos) {
+    parse_type_ = ParseType::kTN;
+  } else if (far_path.find("_itn_") != far_path.npos) {
+    parse_type_ = ParseType::kITN;
+  } else {
+    LOG(FATAL) << "Invalid far prefix, prefix should contain"
+               << " either \"_tn_\" or \"_itn_\".";
+  }
 }
 
 Processor::~Processor() {
@@ -68,7 +76,8 @@ std::string Processor::normalize(const std::string& input) {
   if (output.empty()) {
     return "";
   }
-  output = parser_->reorder(output);
+  TokenParser parser(parse_type_);
+  output = parser.reorder(output);
   return verbalize(output);
 }
 

@@ -25,10 +25,10 @@ namespace wenet {
 extern const std::string EOS;
 extern const std::set<std::string> UTF8_WHITESPACE;
 extern const std::set<std::string> ASCII_LETTERS;
-extern const std::unordered_map<
-  std::string, std::vector<std::string> > TN_ORDERS;
-extern const std::unordered_map<
-  std::string, std::vector<std::string> > ITN_ORDERS;
+extern const std::unordered_map<std::string, std::vector<std::string>>
+    TN_ORDERS;
+extern const std::unordered_map<std::string, std::vector<std::string>>
+    ITN_ORDERS;
 
 struct Token {
   std::string name;
@@ -43,7 +43,7 @@ struct Token {
   }
 
   std::string string(
-    const std::unordered_map<std::string, std::vector<std::string>>& orders) {
+      const std::unordered_map<std::string, std::vector<std::string>>& orders) {
     std::string output = name + " {";
     if (orders.count(name) > 0) {
       order = orders.at(name);
@@ -59,9 +59,14 @@ struct Token {
   }
 };
 
+enum ParseType {
+  kTN = 0x00,  // Text Normalization
+  kITN = 0x01  // Inverse Text Normalization
+};
+
 class TokenParser {
  public:
-  TokenParser(const std::string& far_path);
+  TokenParser(ParseType type);
   std::string reorder(const std::string& input);
 
  private:

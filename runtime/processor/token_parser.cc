@@ -40,14 +40,11 @@ const std::unordered_map<std::string, std::vector<std::string>> ITN_ORDERS = {
     {"money", {"currency", "value"}},
     {"time", {"hour", "minute", "second", "noon"}}};
 
-TokenParser::TokenParser(const std::string& far_path) {
-  if (far_path.find("_tn_") != far_path.npos) {
+TokenParser::TokenParser(ParseType type) {
+  if (type == ParseType::kTN) {
     orders = TN_ORDERS;
-  } else if (far_path.find("_itn_") != far_path.npos) {
-    orders = ITN_ORDERS;
   } else {
-    LOG(FATAL) << "Invalid far prefix, prefix should contain"
-               << " either \"_tn_\" or \"_itn_\".";
+    orders = ITN_ORDERS;
   }
 }
 

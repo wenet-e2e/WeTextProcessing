@@ -18,7 +18,6 @@
 #include "fst/extensions/far/farlib.h"
 
 #include "processor/token_parser.h"
-#include "utils/log.h"
 
 using fst::Fst;
 using fst::StdArc;
@@ -37,9 +36,9 @@ class Processor {
  private:
   std::string compose(const std::string& input, const Fst<StdArc>* fst);
 
+  ParseType parse_type_;
   Fst<StdArc>* tagger_ = nullptr;
   Fst<StdArc>* verbalizer_ = nullptr;
-  std::unique_ptr<TokenParser> parser_ = nullptr;
   std::shared_ptr<StringCompiler<StdArc>> compiler_ = nullptr;
 };
 
