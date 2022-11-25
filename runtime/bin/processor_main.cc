@@ -24,7 +24,7 @@ DEFINE_string(text, "", "input string");
 DEFINE_string(file, "", "input file");
 DEFINE_string(far, "", "FST archives");
 
-#define NUM_THREADS 2
+#define NUM_THREADS 1
 
 std::shared_ptr<wenet::Processor> processor;
 
