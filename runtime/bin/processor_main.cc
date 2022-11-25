@@ -24,16 +24,13 @@ DEFINE_string(text, "", "input string");
 DEFINE_string(file, "", "input file");
 DEFINE_string(far, "", "FST archives");
 
-#define NUM_THREADS 1
+#define NUM_THREADS 2
 
-struct funpara {
-  wenet::Processor* processor;
-  std::string text;
-};
+std::shared_ptr<wenet::Processor> processor;
 
 void* thread_func(void* arg) {
-  struct funpara *pstru = (struct funpara*)arg;
-  std::string normalized_text = pstru->processor->normalize(pstru->text);
+  std::string text = *(std::string *)arg;
+  std::string normalized_text = processor->normalize(text);
   std::cout << normalized_text << std::endl;
 }
 
@@ -44,18 +41,15 @@ int main(int argc, char* argv[]) {
   if (FLAGS_far.empty()) {
     LOG(FATAL) << "Please provide the FST archives.";
   }
-  wenet::Processor processor(FLAGS_far);
 
   pthread_t tids[NUM_THREADS];
-  struct funpara fun_para;
-  fun_para.processor = &processor;
-  fun_para.text = FLAGS_text;
+  processor.reset(new wenet::Processor(FLAGS_far));
 
   if (!FLAGS_text.empty()) {
-    std::string tagged_text = processor.tag(FLAGS_text);
+    std::string tagged_text = processor->tag(FLAGS_text);
     std::cout << tagged_text << std::endl;
     for (size_t i = 0; i < NUM_THREADS; i++) {
-      int ret = pthread_create(&tids[i], NULL, thread_func, (void *)&fun_para);
+      int ret = pthread_create(&tids[i], NULL, thread_func, (void *)&FLAGS_text);
       if (ret != 0) {
         LOG(FATAL) << "Thread create error.";
         exit(-1);
@@ -68,9 +62,9 @@ int main(int argc, char* argv[]) {
     std::ifstream file(FLAGS_file);
     std::string line;
     while (getline(file, line)) {
-      std::string tagged_text = processor.tag(line);
+      std::string tagged_text = processor->tag(line);
       std::cout << tagged_text << std::endl;
-      std::string normalized_text = processor.normalize(line);
+      std::string normalized_text = processor->normalize(line);
       std::cout << normalized_text << std::endl;
     }
   }
