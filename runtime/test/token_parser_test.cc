@@ -26,7 +26,8 @@ class TokenParserTest : public testing::Test {
   wenet::TokenParser* parser;
 
   virtual void SetUp() {
-    parser = new wenet::TokenParser("zh_tn_normalizer.far"); }
+    parser = new wenet::TokenParser(wenet::ParseType::kTN);
+  }
 
   virtual void TearDown() { delete parser; }
 };
