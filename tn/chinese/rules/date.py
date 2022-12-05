@@ -48,7 +48,10 @@ class Date(Processor):
                 | (year + rmsign + mm)
                 | (mm + rmsign + year)
                 | (mm + rmsign + day))
-        self.tagger = self.add_tokens(date)
+        tagger = self.add_tokens(date)
+
+        to = (delete('-') | delete('~')) + insert(' char { value: "到" } ')
+        self.tagger = tagger + (to + tagger).ques
 
     def build_verbalizer(self):
         year = delete('year: "') + self.SIGMA + delete('" ')

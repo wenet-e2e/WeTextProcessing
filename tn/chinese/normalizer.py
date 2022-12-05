@@ -83,10 +83,6 @@ class Normalizer(Processor):
         math = add_weight(Math().tagger, 1.08)
         char = add_weight(Char().tagger, 100)
 
-        to = (delete('-') | delete('~')) + insert(' char { value: "到" } ')
-        date = date + (to + date).ques
-        time = time + (to + time).ques
-
         tagger = (date | whitelist | sport | fraction | measure | money | time
                   | cardinal | math | char).optimize()
         tagger = (processor @ tagger).star
