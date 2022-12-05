@@ -66,12 +66,12 @@ class InverseNormalizer(Processor):
                   | add_weight(Time().tagger, 1.05)
                   | add_weight(Cardinal(self.convert_number, self.enable_0_to_9).tagger, 1.06)
                   | add_weight(Math().tagger, 1.10)
-                  | add_weight(Char().tagger, 100)).optimize().star
-        # remove the last space
-        tagger @= self.build_rule(delete(' '), '', '[EOS]')
+                  | add_weight(Char().tagger, 100)).optimize()
 
         processor = PreProcessor(remove_interjections=True).processor
-        self.tagger = processor @ tagger.optimize()
+        tagger = (processor @ tagger).star
+        # remove the last space
+        self.tagger = tagger @ self.build_rule(delete(' '), '', '[EOS]')
 
     def build_verbalizer(self):
         verbalizer = (Cardinal(self.convert_number, self.enable_0_to_9).verbalizer
