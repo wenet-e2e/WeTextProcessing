@@ -72,34 +72,26 @@ class Normalizer(Processor):
             remove_interjections=self.remove_interjections,
             traditional_to_simple=self.traditional_to_simple).processor
 
-        cardinal = Cardinal().tagger
-        char = Char().tagger
-        date = Date().tagger
-        fraction = Fraction().tagger
-        math = Math().tagger
-        measure = Measure().tagger
-        money = Money().tagger
-        sport = Sport().tagger
-        time = Time().tagger
-        whitelist = Whitelist().tagger
+        date = add_weight(Date().tagger, 1.02)
+        whitelist = add_weight(Whitelist().tagger, 1.03)
+        sport = add_weight(Sport().tagger, 1.04)
+        fraction = add_weight(Fraction().tagger, 1.05)
+        measure = add_weight(Measure().tagger, 1.05)
+        money = add_weight(Money().tagger, 1.05)
+        time = add_weight(Time().tagger, 1.05)
+        cardinal = add_weight(Cardinal().tagger, 1.06)
+        math = add_weight(Math().tagger, 1.08)
+        char = add_weight(Char().tagger, 100)
 
         to = (delete('-') | delete('~')) + insert(' char { value: "到" } ')
         date = date + (to + date).ques
         time = time + (to + time).ques
 
-        tagger = (add_weight(date, 1.02)
-                  | add_weight(whitelist, 1.03)
-                  | add_weight(sport, 1.04)
-                  | add_weight(fraction, 1.05)
-                  | add_weight(measure, 1.05)
-                  | add_weight(money, 1.05)
-                  | add_weight(time, 1.05)
-                  | add_weight(cardinal, 1.06)
-                  | add_weight(math, 1.08)
-                  | add_weight(char, 100)).optimize().star
+        tagger = (date | whitelist | sport | fraction | measure | money | time
+                  | cardinal | math | char).optimize()
+        tagger = (processor @ tagger).star
         # delete the last space
-        tagger @= self.build_rule(delete(' '), r='[EOS]')
-        self.tagger = processor @ tagger.optimize()
+        self.tagger = tagger @ self.build_rule(delete(' '), r='[EOS]')
 
     def build_verbalizer(self):
         cardinal = Cardinal().verbalizer
@@ -114,9 +106,9 @@ class Normalizer(Processor):
         whitelist = Whitelist().verbalizer
 
         verbalizer = (cardinal | char | date | fraction | math | measure
-                      | money | sport | time | whitelist).optimize().star
+                      | money | sport | time | whitelist).optimize()
 
         processor = PostProcessor(remove_puncts=self.remove_puncts,
                                   full_to_half=self.full_to_half,
                                   tag_oov=self.tag_oov).processor
-        self.verbalizer = verbalizer @ processor
+        self.verbalizer = (verbalizer @ processor).star
