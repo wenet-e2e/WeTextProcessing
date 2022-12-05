@@ -36,7 +36,10 @@ class Time(Processor):
                   (delete(':') + insert(' second: "') + s + insert('"')).ques +
                   delete(' ').ques +
                   (insert(' noon: "') + noon + insert('"')).ques)
-        self.tagger = self.add_tokens(tagger)
+        tagger = self.add_tokens(tagger)
+
+        to = (delete('-') | delete('~')) + insert(' char { value: "到" } ')
+        self.tagger = tagger + (to + tagger).ques
 
     def build_verbalizer(self):
         noon = delete('noon: "') + self.SIGMA + delete('" ')

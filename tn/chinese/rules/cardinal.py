@@ -23,6 +23,7 @@ class Cardinal(Processor):
     def __init__(self):
         super().__init__('cardinal')
         self.number = None
+        self.digits = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -36,6 +37,7 @@ class Cardinal(Processor):
         rmzero = delete('0')
         rmpunct = delete(',').ques
         digits = zero | digit
+        self.digits = digits
 
         # 11 => 十一
         ten = teen + insert('十') + (digit | rmzero)
@@ -69,10 +71,6 @@ class Cardinal(Processor):
         cardinal = digits.plus + (digits | dot).plus.ques + digits.plus
         # xxxx-xxx-xxx
         cardinal |= digits.plus + (delete('-') + digits.plus).closure(2)
-        # -xxxx年, -xx年, ~xxxx年, ~xx年
-        unit = accep('年') | accep('赛季')
-        rmsign = (delete('-') | delete('~')) + insert('到')
-        cardinal |= rmsign + (digits**2 | digits**4) + unit
 
         tagger = insert('value: "') + cardinal + insert('"')
         self.tagger = self.add_tokens(tagger)

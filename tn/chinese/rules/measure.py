@@ -31,17 +31,31 @@ class Measure(Processor):
         units_zh = string_file('tn/chinese/data/measure/units_zh.tsv')
         units = units_en | units_zh
         rmspace = delete(' ').ques
+        to = cross('-', '到') | cross('~', '到') | accep('到')
 
         number = Cardinal().number
         percent = insert('百分之') + number + delete('%')
 
         number @= self.build_rule(cross('二', '两'), '[BOS]', '[EOS]')
         # 1-11个，1个-11个
-        prefix = (number + (rmspace + units).ques +
-                  (cross('-', '到') | accep('到')))
+        prefix = number + (rmspace + units).ques + to
         measure = prefix.ques + number + rmspace + units
-        measure @= self.build_rule(cross('两两', '二两'), '[BOS]', '')
-        tagger = insert('value: "') + (measure | percent) + insert('"')
+
+        for unit in ['两', '月', '号']:
+            measure @= self.build_rule(cross('两' + unit, '二' + unit),
+                                       l='[BOS]')
+            measure @= self.build_rule(cross('到两' + unit, '到二' + unit),
+                                       r='[EOS]')
+
+        # -xxxx年, -xx年
+        digits = Cardinal().digits
+        cardinal = digits**2 | digits**4
+        unit = accep('年') | accep('年度') | accep('赛季')
+        prefix = cardinal + (rmspace + unit).ques + to
+        annual = prefix.ques + cardinal + unit
+
+        tagger = insert('value: "') + (measure | percent
+                                       | annual) + insert('"')
 
         # 10km/h
         rmsign = rmspace + delete('/') + rmspace
