@@ -39,15 +39,17 @@ class Normalizer(Processor):
                  cache_dir=None,
                  overwrite_cache=False,
                  remove_interjections=True,
-                 full_to_half=True,
+                 traditional_to_simple=True,
                  remove_puncts=False,
+                 full_to_half=True,
                  tag_oov=False):
         super().__init__(name='normalizer')
         self.cache_dir = cache_dir
         self.overwrite_cache = overwrite_cache
         self.remove_interjections = remove_interjections
-        self.full_to_half = full_to_half
+        self.traditional_to_simple = traditional_to_simple
         self.remove_puncts = remove_puncts
+        self.full_to_half = full_to_half
         self.tag_oov = tag_oov
 
         far_file = files('tn').joinpath('zh_tn_normalizer.far')
@@ -66,6 +68,10 @@ class Normalizer(Processor):
             self.export(far_file)
 
     def build_tagger(self):
+        processor = PreProcessor(
+            remove_interjections=self.remove_interjections,
+            traditional_to_simple=self.traditional_to_simple).processor
+
         cardinal = Cardinal().tagger
         char = Char().tagger
         date = Date().tagger
@@ -93,10 +99,6 @@ class Normalizer(Processor):
                   | add_weight(char, 100)).optimize().star
         # delete the last space
         tagger @= self.build_rule(delete(' '), r='[EOS]')
-
-        processor = PreProcessor(
-            remove_interjections=self.remove_interjections,
-            full_to_half=self.full_to_half).processor
         self.tagger = processor @ tagger.optimize()
 
     def build_verbalizer(self):
@@ -115,5 +117,6 @@ class Normalizer(Processor):
                       | money | sport | time | whitelist).optimize().star
 
         processor = PostProcessor(remove_puncts=self.remove_puncts,
+                                  full_to_half=self.full_to_half,
                                   tag_oov=self.tag_oov).processor
         self.verbalizer = verbalizer @ processor

@@ -20,7 +20,7 @@ from tn.chinese.test.utils import parse_test_case
 
 class TestPostProcessor:
 
-    processor = PostProcessor(remove_puncts=True, tag_oov=True).processor
+    processor = PostProcessor(tag_oov=True).processor
     processor_cases = parse_test_case('data/postprocessor.txt')
 
     @pytest.mark.parametrize("written, spoken", processor_cases)
