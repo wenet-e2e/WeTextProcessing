@@ -20,9 +20,7 @@ from pynini.lib.pynutil import delete, insert, add_weight
 
 class Cardinal(Processor):
 
-    def __init__(self,
-        enable_standalone_number=True,
-        enable_0_to_9=True):
+    def __init__(self, enable_standalone_number=True, enable_0_to_9=True):
         super().__init__('cardinal')
         self.number = None
         self.enable_standalone_number = enable_standalone_number
