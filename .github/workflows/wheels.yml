@@ -29,7 +29,7 @@ jobs:
       - name: Upload Graph
         uses: actions/upload-artifact@v3
         with:
-          name: release-graph
+          name: release-graph-v${{ github.event.inputs.version}}
           path: graph
 
       - name: Publish on pypi.org
