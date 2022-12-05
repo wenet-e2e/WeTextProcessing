@@ -80,7 +80,7 @@ class Normalizer(Processor):
         money = add_weight(Money().tagger, 1.05)
         time = add_weight(Time().tagger, 1.05)
         cardinal = add_weight(Cardinal().tagger, 1.06)
-        math = add_weight(Math().tagger, 1.08)
+        math = add_weight(Math().tagger, 90)
         char = add_weight(Char().tagger, 100)
 
         tagger = (date | whitelist | sport | fraction | measure | money | time
