@@ -27,7 +27,7 @@ from itn.chinese.rules.time import Time
 from itn.chinese.rules.preprocessor import PreProcessor
 
 from pynini import Far
-from pynini.lib.pynutil import add_weight, delete, insert
+from pynini.lib.pynutil import add_weight, delete
 from importlib_resources import files
 
 
