@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-
 from tn.processor import Processor
 from itn.chinese.rules.cardinal import Cardinal
 from itn.chinese.rules.char import Char
@@ -26,36 +24,19 @@ from itn.chinese.rules.whitelist import Whitelist
 from itn.chinese.rules.time import Time
 from itn.chinese.rules.preprocessor import PreProcessor
 
-from pynini import Far
 from pynini.lib.pynutil import add_weight, delete
 from importlib_resources import files
 
 
 class InverseNormalizer(Processor):
 
-    def __init__(self, cache_dir=None, overwrite_cache=False,
+    def __init__(self, cache_dir='itn', overwrite_cache=False,
                  enable_standalone_number=True,
                  enable_0_to_9=True):
         super().__init__(name='inverse_normalizer', ordertype='itn')
-        self.cache_dir = cache_dir
-        self.overwrite_cache = overwrite_cache
         self.convert_number = enable_standalone_number
         self.enable_0_to_9 = enable_0_to_9
-
-        far_file = files('itn').joinpath('zh_itn_normalizer.far')
-        if self.cache_dir:
-            os.makedirs(self.cache_dir, exist_ok=True)
-            far_file = os.path.join(self.cache_dir, 'zh_itn_normalizer.far')
-
-        if far_file and os.path.exists(far_file) and not overwrite_cache:
-            self.tagger = Far(far_file)['tagger']
-            self.verbalizer = Far(far_file)['verbalizer']
-        else:
-            self.build_tagger()
-            self.build_verbalizer()
-
-        if self.cache_dir and self.overwrite_cache:
-            self.export(far_file)
+        self.build_fst('zh_itn', cache_dir, overwrite_cache)
 
     def build_tagger(self):
         tagger = (add_weight(Date().tagger, 1.02)

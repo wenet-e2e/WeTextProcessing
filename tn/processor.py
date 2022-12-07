@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from tn.token_parser import TokenParser
 
-from pynini import cdrewrite, cross, difference, escape, shortestpath, union
-from pynini.export import export
+from pynini import cdrewrite, cross, difference, escape, Fst, shortestpath, union
 from pynini.lib import byte, utf8
 from pynini.lib.pynutil import delete, insert
 
@@ -35,7 +36,7 @@ class Processor:
         self.SIGMA = (CHAR | cross('\\\\\\', '\\') | cross('\\"', '"')).star
 
         self.name = name
-        self.parser = TokenParser(ordertype)
+        self.ordertype = ordertype
         self.tagger = None
         self.verbalizer = None
 
@@ -56,11 +57,24 @@ class Processor:
         verbalizer = delete('value: "') + self.SIGMA + delete('"')
         self.verbalizer = self.delete_tokens(verbalizer)
 
-    def export(self, file_name):
-        exporter = export.Exporter(file_name)
-        exporter['tagger'] = self.tagger.optimize()
-        exporter['verbalizer'] = self.verbalizer.optimize()
-        exporter.close()
+    def build_fst(self, prefix, cache_dir, overwrite_cache):
+        os.makedirs(cache_dir, exist_ok=True)
+        tagger_name = '{}_tagger.fst'.format(prefix)
+        verbalizer_name = '{}_verbalizer.fst'.format(prefix)
+
+        tagger_path = os.path.join(cache_dir, tagger_name)
+        verbalizer_path = os.path.join(cache_dir, verbalizer_name)
+
+        exists = os.path.exists(tagger_path) and os.path.exists(
+            verbalizer_path)
+        if exists and not overwrite_cache:
+            self.tagger = Fst.read(tagger_path).optimize()
+            self.verbalizer = Fst.read(verbalizer_path).optimize()
+        else:
+            self.build_tagger()
+            self.build_verbalizer()
+            self.tagger.optimize().write(tagger_path)
+            self.verbalizer.optimize().write(verbalizer_path)
 
     def tag(self, input):
         input = escape(input)
@@ -68,14 +82,13 @@ class Processor:
         return shortestpath(lattice, nshortest=1, unique=True).string()
 
     def verbalize(self, input):
-        lattice = input @ self.verbalizer
+        # Only words from the blacklist are contained.
+        if len(input) == 0:
+            return ''
+        output = TokenParser(self.ordertype).reorder(input)
+        # We need escape for pynini to build the fst from string.
+        lattice = escape(output) @ self.verbalizer
         return shortestpath(lattice, nshortest=1, unique=True).string()
 
     def normalize(self, input):
-        output = self.tag(input)
-        # Only words from the blacklist are contained.
-        if len(output) == 0:
-            return ''
-        output = self.parser.reorder(output)
-        output = escape(output)
-        return self.verbalize(output)
+        return self.verbalize(self.tag(input))

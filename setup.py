@@ -32,8 +32,8 @@ setup(
     url="https://github.com/wenet-e2e/WeTextProcessing",
     packages=find_packages(),
     package_data={
-        "tn": ["*.far"],
-        "itn": ["*.far"],
+        "tn": ["*.fst"],
+        "itn": ["*.fst"],
     },
     install_requires=['pynini', 'importlib_resources'],
     tests_require=['pytest'],
