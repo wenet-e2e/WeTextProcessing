@@ -17,8 +17,7 @@
 #include "utils/log.h"
 #include "utils/utf8_string.h"
 
-namespace wenet {
-
+namespace wetext {
 const std::string EOS = "<EOS>";
 const std::set<std::string> UTF8_WHITESPACE = {" ", "\t", "\n", "\r",
                                                "\x0b\x0c"};
@@ -151,4 +150,4 @@ std::string TokenParser::reorder(const std::string& input) {
   return trim(output);
 }
 
-}  // namespace wenet
+}  // namespace wetext

@@ -67,10 +67,10 @@ cmake -B build -S runtime -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 # tn usage
 cache_dir=PATH_TO_GIT_CLONED_WETEXTPROCESSING/tn
-./build/bin/processor_main --tagger $fst_dir/zh_tn_tagger.fst --verbalizer $cache_dir/zh_tn_verbalizer.fst --text "2.5平方电线"
+./build/processor_main --tagger $fst_dir/zh_tn_tagger.fst --verbalizer $cache_dir/zh_tn_verbalizer.fst --text "2.5平方电线"
 # itn usage
 cache_dir=PATH_TO_GIT_CLONED_WETEXTPROCESSING/itn
-./build/bin/processor_main --tagger $fst_dir/zh_itn_tagger.fst --verbalizer $cache_dir/zh_itn_verbalizer.fst --text "二点五平方电线"
+./build/processor_main --tagger $fst_dir/zh_itn_tagger.fst --verbalizer $cache_dir/zh_itn_verbalizer.fst --text "二点五平方电线"
 ```
 
 ### 2. TN Pipeline

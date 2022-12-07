@@ -18,8 +18,7 @@
 #include <string>
 #include <vector>
 
-namespace wenet {
-
+namespace wetext {
 extern const char* WHITESPACE;
 
 int char_length(char ch);
@@ -37,6 +36,6 @@ std::string trim(const std::string& str);
 void split_string(const std::string& str, const std::string& delim,
                   std::vector<std::string>* output);
 
-}  // namespace wenet
+}  // namespace wetext
 
 #endif  // UTILS_UTF8_STRING_H_

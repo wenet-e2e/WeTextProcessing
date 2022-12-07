@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
   if (FLAGS_tagger.empty() || FLAGS_verbalizer.empty()) {
     LOG(FATAL) << "Please provide the tagger and verbalizer fst files.";
   }
-  wenet::Processor processor(FLAGS_tagger, FLAGS_verbalizer);
+  wetext::Processor processor(FLAGS_tagger, FLAGS_verbalizer);
 
   if (!FLAGS_text.empty()) {
     std::string tagged_text = processor.tag(FLAGS_text);

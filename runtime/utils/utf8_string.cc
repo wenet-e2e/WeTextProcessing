@@ -16,8 +16,7 @@
 
 #include "utils/log.h"
 
-namespace wenet {
-
+namespace wetext {
 const char* WHITESPACE = " \n\r\t\f\v";
 
 int char_length(char ch) {
@@ -86,4 +85,4 @@ void split_string(const std::string& str, const std::string& delim,
   output->emplace_back(s);
 }
 
-}  // namespace wenet
+}  // namespace wetext

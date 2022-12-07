@@ -22,9 +22,9 @@
 using fst::StdArc;
 using fst::StdVectorFst;
 using fst::StringCompiler;
+using fst::StringPrinter;
 
-namespace wenet {
-
+namespace wetext {
 class Processor {
  public:
   Processor(const std::string& tagger_path, const std::string& verbalizer_path);
@@ -33,14 +33,16 @@ class Processor {
   std::string normalize(const std::string& input);
 
  private:
+  std::string shortest_path(const StdVectorFst& lattice);
   std::string compose(const std::string& input, const StdVectorFst* fst);
 
   ParseType parse_type_;
   std::shared_ptr<StdVectorFst> tagger_ = nullptr;
   std::shared_ptr<StdVectorFst> verbalizer_ = nullptr;
   std::shared_ptr<StringCompiler<StdArc>> compiler_ = nullptr;
+  std::shared_ptr<StringPrinter<StdArc>> printer_ = nullptr;
 };
 
-}  // namespace wenet
+}  // namespace wetext
 
 #endif  // PROCESSOR_PROCESSOR_H_
