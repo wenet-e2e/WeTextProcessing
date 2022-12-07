@@ -66,9 +66,11 @@ Or with cpp runtime:
 cmake -B build -S runtime -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 # tn usage
-./build/bin/processor_main --far PATH_TO_GIT_CLONED_WETEXTPROCESSING/tn/zh_tn_normalizer.far --text "2.5平方电线"
+cache_dir=PATH_TO_GIT_CLONED_WETEXTPROCESSING/tn
+./build/bin/processor_main --tagger $fst_dir/zh_tn_tagger.fst --verbalizer $cache_dir/zh_tn_verbalizer.fst --text "2.5平方电线"
 # itn usage
-./build/bin/processor_main --far PATH_TO_GIT_CLONED_WETEXTPROCESSING/itn/zh_itn_normalizer.far --text "二点五平方电线"
+cache_dir=PATH_TO_GIT_CLONED_WETEXTPROCESSING/itn
+./build/bin/processor_main --tagger $fst_dir/zh_itn_tagger.fst --verbalizer $cache_dir/zh_itn_verbalizer.fst --text "二点五平方电线"
 ```
 
 ### 2. TN Pipeline
