@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-
 from tn.processor import Processor
 from tn.chinese.rules.cardinal import Cardinal
 from tn.chinese.rules.char import Char
@@ -28,7 +26,6 @@ from tn.chinese.rules.sport import Sport
 from tn.chinese.rules.time import Time
 from tn.chinese.rules.whitelist import Whitelist
 
-from pynini import Far
 from pynini.lib.pynutil import add_weight, delete, insert
 from importlib_resources import files
 
@@ -36,7 +33,7 @@ from importlib_resources import files
 class Normalizer(Processor):
 
     def __init__(self,
-                 cache_dir=None,
+                 cache_dir='tn',
                  overwrite_cache=False,
                  remove_interjections=True,
                  traditional_to_simple=True,
@@ -44,28 +41,12 @@ class Normalizer(Processor):
                  full_to_half=True,
                  tag_oov=False):
         super().__init__(name='normalizer')
-        self.cache_dir = cache_dir
-        self.overwrite_cache = overwrite_cache
         self.remove_interjections = remove_interjections
         self.traditional_to_simple = traditional_to_simple
         self.remove_puncts = remove_puncts
         self.full_to_half = full_to_half
         self.tag_oov = tag_oov
-
-        far_file = files('tn').joinpath('zh_tn_normalizer.far')
-        if self.cache_dir:
-            os.makedirs(self.cache_dir, exist_ok=True)
-            far_file = os.path.join(self.cache_dir, 'zh_tn_normalizer.far')
-
-        if far_file and os.path.exists(far_file) and not overwrite_cache:
-            self.tagger = Far(far_file)['tagger']
-            self.verbalizer = Far(far_file)['verbalizer']
-        else:
-            self.build_tagger()
-            self.build_verbalizer()
-
-        if self.cache_dir and self.overwrite_cache:
-            self.export(far_file)
+        self.build_fst('zh_tn', cache_dir, overwrite_cache)
 
     def build_tagger(self):
         processor = PreProcessor(

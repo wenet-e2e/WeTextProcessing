@@ -148,7 +148,6 @@ std::string TokenParser::reorder(const std::string& input) {
   for (auto& token : tokens) {
     output += token.string(orders) + " ";
   }
-  tokens.clear();
   return trim(output);
 }
 

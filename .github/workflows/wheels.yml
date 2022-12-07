@@ -23,8 +23,8 @@ jobs:
       - name: Prepare Graph
         run: |
           mkdir graph
-          cp tn/zh_tn_normalizer.far graph
-          cp itn/zh_itn_normalizer.far graph
+          cp tn/*.fst graph
+          cp itn/*.fst graph
 
       - name: Upload Graph
         uses: actions/upload-artifact@v3
