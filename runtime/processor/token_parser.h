@@ -20,7 +20,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace wenet {
+namespace wetext {
 
 extern const std::string EOS;
 extern const std::set<std::string> UTF8_WHITESPACE;
@@ -86,6 +86,6 @@ class TokenParser {
   std::unordered_map<std::string, std::vector<std::string>> orders;
 };
 
-}  // namespace wenet
+}  // wetext
 
 #endif  // PROCESSOR_TOKEN_PARSER_H_

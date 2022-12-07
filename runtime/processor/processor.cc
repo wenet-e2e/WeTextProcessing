@@ -14,17 +14,15 @@
 
 #include "processor/processor.h"
 
-#include "utils/utils.h"
-
 using fst::StringTokenType;
 
-namespace wenet {
-
+namespace wetext {
 Processor::Processor(const std::string& tagger_path,
                      const std::string& verbalizer_path) {
   tagger_.reset(StdVectorFst::Read(tagger_path));
   verbalizer_.reset(StdVectorFst::Read(verbalizer_path));
   compiler_ = std::make_shared<StringCompiler<StdArc>>(StringTokenType::BYTE);
+  printer_ = std::make_shared<StringPrinter<StdArc>>(StringTokenType::BYTE);
 
   if (tagger_path.find("_tn_") != tagger_path.npos) {
     parse_type_ = ParseType::kTN;
@@ -34,6 +32,15 @@ Processor::Processor(const std::string& tagger_path,
     LOG(FATAL) << "Invalid fst prefix, prefix should contain"
                << " either \"_tn_\" or \"_itn_\".";
   }
+}
+
+std::string Processor::shortest_path(const StdVectorFst& lattice) {
+  StdVectorFst shortest_path;
+  fst::ShortestPath(lattice, &shortest_path, 1, true);
+
+  std::string output;
+  printer_->operator()(shortest_path, &output);
+  return output;
 }
 
 std::string Processor::compose(const std::string& input,
@@ -63,4 +70,4 @@ std::string Processor::normalize(const std::string& input) {
   return verbalize(tag(input));
 }
 
-}  // namespace wenet
+}  // namespace wetext

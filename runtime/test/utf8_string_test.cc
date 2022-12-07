@@ -19,27 +19,27 @@
 class StringTest : public testing::Test {};
 
 TEST(StringTest, StringLengthTest) {
-  EXPECT_EQ(wenet::string_length("A"), 1);
-  EXPECT_EQ(wenet::string_length("À"), 1);
-  EXPECT_EQ(wenet::string_length("啊"), 1);
-  EXPECT_EQ(wenet::string_length("✐"), 1);
-  EXPECT_EQ(wenet::string_length("你好"), 2);
-  EXPECT_EQ(wenet::string_length("world"), 5);
+  EXPECT_EQ(wetext::string_length("A"), 1);
+  EXPECT_EQ(wetext::string_length("À"), 1);
+  EXPECT_EQ(wetext::string_length("啊"), 1);
+  EXPECT_EQ(wetext::string_length("✐"), 1);
+  EXPECT_EQ(wetext::string_length("你好"), 2);
+  EXPECT_EQ(wetext::string_length("world"), 5);
 }
 
 TEST(StringTest, String2CharsTest) {
   std::vector<std::string> chars;
-  wenet::string2chars("你好world", &chars);
+  wetext::string2chars("你好world", &chars);
   ASSERT_THAT(chars, testing::ElementsAre("你", "好", "w", "o", "r", "l", "d"));
 }
 
 TEST(StringTest, TrimTest) {
-  ASSERT_EQ(wenet::trim("\thello "), "hello");
-  ASSERT_EQ(wenet::trim(" hello\t"), "hello");
+  ASSERT_EQ(wetext::trim("\thello "), "hello");
+  ASSERT_EQ(wetext::trim(" hello\t"), "hello");
 }
 
 TEST(StringTest, SplitStringTest) {
   std::vector<std::string> output;
-  wenet::split_string("written => spoken", " => ", &output);
+  wetext::split_string("written => spoken", " => ", &output);
   ASSERT_THAT(output, testing::ElementsAre("written", "spoken"));
 }

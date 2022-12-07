@@ -23,10 +23,10 @@
 
 class TokenParserTest : public testing::Test {
  protected:
-  wenet::TokenParser* parser;
+  wetext::TokenParser* parser;
 
   virtual void SetUp() {
-    parser = new wenet::TokenParser(wenet::ParseType::kTN);
+    parser = new wetext::TokenParser(wetext::ParseType::kTN);
   }
 
   virtual void TearDown() { delete parser; }
@@ -35,17 +35,17 @@ class TokenParserTest : public testing::Test {
 TEST_F(TokenParserTest, ReadTest) {
   parser->load(" ");
   ASSERT_FALSE(parser->read());
-  ASSERT_EQ(parser->ch, wenet::EOS);
+  ASSERT_EQ(parser->ch, wetext::EOS);
 }
 
 TEST_F(TokenParserTest, ParseWSTest) {
   parser->load(" ");
   ASSERT_FALSE(parser->parse_ws());
-  ASSERT_EQ(parser->ch, wenet::EOS);
+  ASSERT_EQ(parser->ch, wetext::EOS);
 
   parser->load("  ");
   ASSERT_FALSE(parser->parse_ws());
-  ASSERT_EQ(parser->ch, wenet::EOS);
+  ASSERT_EQ(parser->ch, wetext::EOS);
 
   parser->load("  test");
   ASSERT_TRUE(parser->parse_ws());
@@ -83,7 +83,7 @@ TEST_F(TokenParserTest, ParseTest) {
   std::string input =
       "time { minute: \"零二分\" hour: \"两点\" } char { value: \"走\" }";
   parser->parse(input);
-  std::vector<wenet::Token> tokens = parser->tokens;
+  std::vector<wetext::Token> tokens = parser->tokens;
   ASSERT_EQ(tokens.size(), 2);
   ASSERT_EQ(tokens[0].name, "time");
   ASSERT_EQ(tokens[1].name, "char");
