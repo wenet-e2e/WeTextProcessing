@@ -36,7 +36,7 @@ class InverseNormalizer(Processor):
         super().__init__(name='inverse_normalizer', ordertype='itn')
         self.convert_number = enable_standalone_number
         self.enable_0_to_9 = enable_0_to_9
-        self.build_fst('zh_itn', cache_dir, overwrite_cache)
+        self.build_fst('zh_itn', files(cache_dir), overwrite_cache)
 
     def build_tagger(self):
         tagger = (add_weight(Date().tagger, 1.02)
