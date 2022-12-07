@@ -28,7 +28,6 @@ namespace wenet {
 class Processor {
  public:
   Processor(const std::string& tagger_path, const std::string& verbalizer_path);
-  ~Processor();
   std::string tag(const std::string& input);
   std::string verbalize(const std::string& input);
   std::string normalize(const std::string& input);
@@ -37,9 +36,9 @@ class Processor {
   std::string compose(const std::string& input, const StdVectorFst* fst);
 
   ParseType parse_type_;
-  StdVectorFst* tagger_ = nullptr;
-  StdVectorFst* verbalizer_ = nullptr;
-  StringCompiler<StdArc>* compiler_ = nullptr;
+  std::shared_ptr<StdVectorFst> tagger_ = nullptr;
+  std::shared_ptr<StdVectorFst> verbalizer_ = nullptr;
+  std::shared_ptr<StringCompiler<StdArc>> compiler_ = nullptr;
 };
 
 }  // namespace wenet

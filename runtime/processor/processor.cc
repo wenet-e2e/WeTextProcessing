@@ -22,10 +22,9 @@ namespace wenet {
 
 Processor::Processor(const std::string& tagger_path,
                      const std::string& verbalizer_path) {
-  tagger_ = StdVectorFst::Read(tagger_path);
-  verbalizer_ = StdVectorFst::Read(verbalizer_path);
-
-  compiler_ = new StringCompiler<StdArc>(StringTokenType::BYTE);
+  tagger_.reset(StdVectorFst::Read(tagger_path));
+  verbalizer_.reset(StdVectorFst::Read(verbalizer_path));
+  compiler_ = std::make_shared<StringCompiler<StdArc>>(StringTokenType::BYTE);
 
   if (tagger_path.find("_tn_") != tagger_path.npos) {
     parse_type_ = ParseType::kTN;
@@ -35,12 +34,6 @@ Processor::Processor(const std::string& tagger_path,
     LOG(FATAL) << "Invalid fst prefix, prefix should contain"
                << " either \"_tn_\" or \"_itn_\".";
   }
-}
-
-Processor::~Processor() {
-  delete tagger_;
-  delete verbalizer_;
-  delete compiler_;
 }
 
 std::string Processor::compose(const std::string& input,
@@ -54,7 +47,7 @@ std::string Processor::compose(const std::string& input,
 }
 
 std::string Processor::tag(const std::string& input) {
-  return compose(input, tagger_);
+  return compose(input, tagger_.get());
 }
 
 std::string Processor::verbalize(const std::string& input) {
@@ -63,7 +56,7 @@ std::string Processor::verbalize(const std::string& input) {
   }
   TokenParser parser(parse_type_);
   std::string output = parser.reorder(input);
-  return compose(output, verbalizer_);
+  return compose(output, verbalizer_.get());
 }
 
 std::string Processor::normalize(const std::string& input) {
