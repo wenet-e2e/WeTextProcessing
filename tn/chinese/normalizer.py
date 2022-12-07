@@ -46,7 +46,7 @@ class Normalizer(Processor):
         self.remove_puncts = remove_puncts
         self.full_to_half = full_to_half
         self.tag_oov = tag_oov
-        self.build_fst('zh_tn', cache_dir, overwrite_cache)
+        self.build_fst('zh_tn', files(cache_dir), overwrite_cache)
 
     def build_tagger(self):
         processor = PreProcessor(

@@ -10,13 +10,23 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
     steps:
-      - name: Fetch WeTextProcessing
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install wheel
 
       - name: Build Graph
         run: |
-          pip install -r requirements.txt
           python normalize.py --text "2.5平方电线" --overwrite_cache
           python inverse_normalize.py --text "二点五平方电线" --overwrite_cache
 

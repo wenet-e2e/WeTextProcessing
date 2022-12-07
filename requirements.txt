@@ -1,4 +1,3 @@
-cython
 flake8
 importlib_resources
 pynini
