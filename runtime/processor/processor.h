@@ -15,31 +15,31 @@
 #ifndef PROCESSOR_PROCESSOR_H_
 #define PROCESSOR_PROCESSOR_H_
 
-#include "fst/extensions/far/farlib.h"
+#include "fst/fstlib.h"
 
 #include "processor/token_parser.h"
 
-using fst::Fst;
 using fst::StdArc;
+using fst::StdVectorFst;
 using fst::StringCompiler;
 
 namespace wenet {
 
 class Processor {
  public:
-  Processor(const std::string& far_path);
+  Processor(const std::string& tagger_path, const std::string& verbalizer_path);
   ~Processor();
   std::string tag(const std::string& input);
   std::string verbalize(const std::string& input);
   std::string normalize(const std::string& input);
 
  private:
-  std::string compose(const std::string& input, const Fst<StdArc>* fst);
+  std::string compose(const std::string& input, const StdVectorFst* fst);
 
   ParseType parse_type_;
-  Fst<StdArc>* tagger_ = nullptr;
-  Fst<StdArc>* verbalizer_ = nullptr;
-  std::shared_ptr<StringCompiler<StdArc>> compiler_ = nullptr;
+  StdVectorFst* tagger_ = nullptr;
+  StdVectorFst* verbalizer_ = nullptr;
+  StringCompiler<StdArc>* compiler_ = nullptr;
 };
 
 }  // namespace wenet

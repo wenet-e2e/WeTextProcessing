@@ -17,26 +17,26 @@
 #include <string>
 
 #include "processor/processor.h"
-#include "processor/token_parser.h"
 #include "utils/flags.h"
 
 DEFINE_string(text, "", "input string");
 DEFINE_string(file, "", "input file");
-DEFINE_string(far, "", "FST archives");
+DEFINE_string(tagger, "", "tagger fst path");
+DEFINE_string(verbalizer, "", "verbalizer fst path");
 
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, false);
   google::InitGoogleLogging(argv[0]);
 
-  if (FLAGS_far.empty()) {
-    LOG(FATAL) << "Please provide the FST archives.";
+  if (FLAGS_tagger.empty() || FLAGS_verbalizer.empty()) {
+    LOG(FATAL) << "Please provide the tagger and verbalizer fst files.";
   }
-  wenet::Processor processor(FLAGS_far);
+  wenet::Processor processor(FLAGS_tagger, FLAGS_verbalizer);
 
   if (!FLAGS_text.empty()) {
     std::string tagged_text = processor.tag(FLAGS_text);
     std::cout << tagged_text << std::endl;
-    std::string normalized_text = processor.normalize(FLAGS_text);
+    std::string normalized_text = processor.verbalize(tagged_text);
     std::cout << normalized_text << std::endl;
   }
 
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
     while (getline(file, line)) {
       std::string tagged_text = processor.tag(line);
       std::cout << tagged_text << std::endl;
-      std::string normalized_text = processor.normalize(line);
+      std::string normalized_text = processor.verbalize(tagged_text);
       std::cout << normalized_text << std::endl;
     }
   }

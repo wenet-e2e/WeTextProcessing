@@ -14,36 +14,25 @@
 
 #include "processor/processor.h"
 
-#include "fst/fstlib.h"
-
 #include "utils/utils.h"
 
-using fst::FarReader;
-using fst::StdVectorFst;
 using fst::StringTokenType;
 
 namespace wenet {
 
-Processor::Processor(const std::string& far_path) {
-  FarReader<StdArc>* reader = FarReader<StdArc>::Open(far_path);
-  CHECK_NOTNULL(reader);
+Processor::Processor(const std::string& tagger_path,
+                     const std::string& verbalizer_path) {
+  tagger_ = StdVectorFst::Read(tagger_path);
+  verbalizer_ = StdVectorFst::Read(verbalizer_path);
 
-  CHECK_GT(reader->Find("tagger"), 0) << "Tagger is missing.";
-  tagger_ = reader->GetFst()->Copy();
+  compiler_ = new StringCompiler<StdArc>(StringTokenType::BYTE);
 
-  CHECK_GT(reader->Find("verbalizer"), 0) << "Verbalizer is missing.";
-  verbalizer_ = reader->GetFst()->Copy();
-
-  delete reader;
-
-  compiler_ = std::make_shared<StringCompiler<StdArc>>(StringTokenType::BYTE);
-
-  if (far_path.find("_tn_") != far_path.npos) {
+  if (tagger_path.find("_tn_") != tagger_path.npos) {
     parse_type_ = ParseType::kTN;
-  } else if (far_path.find("_itn_") != far_path.npos) {
+  } else if (tagger_path.find("_itn_") != tagger_path.npos) {
     parse_type_ = ParseType::kITN;
   } else {
-    LOG(FATAL) << "Invalid far prefix, prefix should contain"
+    LOG(FATAL) << "Invalid fst prefix, prefix should contain"
                << " either \"_tn_\" or \"_itn_\".";
   }
 }
@@ -51,10 +40,11 @@ Processor::Processor(const std::string& far_path) {
 Processor::~Processor() {
   delete tagger_;
   delete verbalizer_;
+  delete compiler_;
 }
 
 std::string Processor::compose(const std::string& input,
-                               const Fst<StdArc>* fst) {
+                               const StdVectorFst* fst) {
   StdVectorFst input_fst;
   compiler_->operator()(input, &input_fst);
 
@@ -68,17 +58,16 @@ std::string Processor::tag(const std::string& input) {
 }
 
 std::string Processor::verbalize(const std::string& input) {
-  return compose(input, verbalizer_);
-}
-
-std::string Processor::normalize(const std::string& input) {
-  std::string output = tag(input);
-  if (output.empty()) {
+  if (input.empty()) {
     return "";
   }
   TokenParser parser(parse_type_);
-  output = parser.reorder(output);
-  return verbalize(output);
+  std::string output = parser.reorder(input);
+  return compose(output, verbalizer_);
+}
+
+std::string Processor::normalize(const std::string& input) {
+  return verbalize(tag(input));
 }
 
 }  // namespace wenet

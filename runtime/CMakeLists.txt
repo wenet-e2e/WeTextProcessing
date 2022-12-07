@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-project(text_processing VERSION 0.1)
+project(wetextprocessing VERSION 0.1)
 set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
-option(BUILD_TESTING "whether to build unit test" ON)
-option(FST_HAVE_BIN "whether to build fst binaries" OFF)
+option(BUILD_TESTING "whether to build unit test" OFF)
 
 include(FetchContent)
 include(ExternalProject)
@@ -21,9 +20,8 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 endif()
 
 include(openfst)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR})
 add_subdirectory(utils)
-add_dependencies(utils openfst)
 add_subdirectory(processor)
 add_subdirectory(bin)
 
