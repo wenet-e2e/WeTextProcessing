@@ -7,7 +7,6 @@ set(CMAKE_VERBOSE_MAKEFILE OFF)
 option(BUILD_TESTING "whether to build unit test" OFF)
 
 include(FetchContent)
-include(ExternalProject)
 set(FETCHCONTENT_QUIET OFF)
 get_filename_component(fc_base "fc_base" REALPATH BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(FETCHCONTENT_BASE_DIR ${fc_base})
