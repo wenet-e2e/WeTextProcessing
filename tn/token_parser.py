@@ -23,7 +23,7 @@ TN_ORDERS = {
     'time': ['noon', 'hour', 'minute', 'second']}
 ITN_ORDERS = {
     'date': ['year', 'month', 'day'],
-    'fraction': ['numerator', 'denominator'],
+    'fraction': ['sign', 'numerator', 'denominator'],
     'measure': ['numerator', 'denominator', 'value'],
     'money': ['currency', 'value'],
     'time': ['hour', 'minute', 'second', 'noon']}
