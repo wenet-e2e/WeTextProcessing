@@ -34,7 +34,7 @@ const std::unordered_map<std::string, std::vector<std::string>> TN_ORDERS = {
     {"time", {"noon", "hour", "minute", "second"}}};
 const std::unordered_map<std::string, std::vector<std::string>> ITN_ORDERS = {
     {"date", {"year", "month", "day"}},
-    {"fraction", {"numerator", "denominator"}},
+    {"fraction", {"sign", "numerator", "denominator"}},
     {"measure", {"numerator", "denominator", "value"}},
     {"money", {"currency", "value"}},
     {"time", {"hour", "minute", "second", "noon"}}};
