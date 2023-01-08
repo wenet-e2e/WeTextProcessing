@@ -15,7 +15,7 @@
 from tn.processor import Processor
 
 from pynini import accep, cross, string_file
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import add_weight, delete, insert
 
 
 class Cardinal(Processor):
@@ -67,10 +67,14 @@ class Cardinal(Processor):
             | cross('二万', '两万'))
         self.number = accep('约').ques + number.optimize()
 
-        # cardinal string like 110 or 127.0.0.1, used in phone, ID, IP, etc.
+        # cardinal string like 110 or 127.0.0.1, used in ID, IP, etc.
         cardinal = digits.plus + (digits | dot).plus.ques + digits.plus
         # xxxx-xxx-xxx
-        cardinal |= digits.plus + (delete('-') + digits.plus).closure(2)
+        cardinal |= digits.plus + (delete('-') + digits.plus)**2
+        # three or five or eleven phone numbers
+        phone_digits = digits @ self.build_rule(cross('一', '幺'))
+        phone = phone_digits**3 | phone_digits**5 | phone_digits**11
+        cardinal |= add_weight(phone, -1.0)
 
         tagger = insert('value: "') + cardinal + insert('"')
         self.tagger = self.add_tokens(tagger)
