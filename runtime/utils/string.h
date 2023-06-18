@@ -21,20 +21,21 @@
 namespace wetext {
 extern const char* WHITESPACE;
 
-int char_length(char ch);
+int UTF8CharLength(char ch);
 
-int string_length(const std::string& str);
+int UTF8StringLength(const std::string& str);
 
-void string2chars(const std::string& str, std::vector<std::string>* chars);
+void SplitUTF8StringToChars(const std::string& str,
+                            std::vector<std::string>* chars);
 
-std::string ltrim(const std::string& str);
+std::string Ltrim(const std::string& str);
 
-std::string rtrim(const std::string& str);
+std::string Rtrim(const std::string& str);
 
-std::string trim(const std::string& str);
+std::string Trim(const std::string& str);
 
-void split_string(const std::string& str, const std::string& delim,
-                  std::vector<std::string>* output);
+void Split(const std::string& str, const std::string& delim,
+           std::vector<std::string>* output);
 
 }  // namespace wetext
 

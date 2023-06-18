@@ -18,9 +18,9 @@
 #include "gmock/gmock.h"
 
 #include "processor/processor.h"
-#include "utils/utf8_string.h"
+#include "utils/string.h"
 
-std::vector<std::pair<std::string, std::string>> parse_test_case(
+std::vector<std::pair<std::string, std::string>> ParseTestCase(
     const std::string& file_path) {
   const std::string delimiter = "=>";
   std::ifstream file(file_path);
@@ -30,14 +30,14 @@ std::vector<std::pair<std::string, std::string>> parse_test_case(
   while (getline(file, line)) {
     CHECK_NE(line.find(delimiter), string::npos);
     std::vector<std::string> arr;
-    wetext::split_string(line, delimiter, &arr);
+    wetext::Split(line, delimiter, &arr);
     CHECK_GT(arr.size(), 0);
     CHECK_LE(arr.size(), 2);
 
-    std::string written = wetext::trim(arr[0]);
+    std::string written = wetext::Trim(arr[0]);
     std::string spoken = "";
     if (arr.size() == 2) {
-      spoken = wetext::trim(arr[1]);
+      spoken = wetext::Trim(arr[1]);
     }
     test_cases.emplace_back(std::make_pair(written, spoken));
   }
@@ -63,10 +63,10 @@ class ProcessorTest
 };
 
 TEST_P(ProcessorTest, NormalizeTest) {
-  EXPECT_EQ(processor->normalize(written), spoken);
+  EXPECT_EQ(processor->Normalize(written), spoken);
 }
 
 std::vector<std::pair<std::string, std::string>> test_cases =
-    parse_test_case("../tn/chinese/test/data/normalizer.txt");
+    ParseTestCase("../tn/chinese/test/data/normalizer.txt");
 INSTANTIATE_TEST_SUITE_P(NormalizeTest, ProcessorTest,
                          testing::ValuesIn(test_cases));

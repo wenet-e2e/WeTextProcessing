@@ -31,7 +31,7 @@ def main():
     parser.add_argument('--text', help='input string')
     parser.add_argument('--file', help='input file path')
     parser.add_argument('--overwrite_cache', action='store_true',
-                        help='rebuild *.far')
+                        help='rebuild *.fst')
     parser.add_argument('--enable_standalone_number', type=str,
                         default='True',
                         help='enable standalone number')

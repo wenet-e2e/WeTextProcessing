@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--text', help='input string')
     parser.add_argument('--file', help='input file path')
     parser.add_argument('--overwrite_cache', action='store_true',
-                        help='rebuild *.far')
+                        help='rebuild *.fst')
     args = parser.parse_args()
 
     normalizer = Normalizer(cache_dir='tn',
