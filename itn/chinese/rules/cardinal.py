@@ -51,7 +51,7 @@ class Cardinal(Processor):
         # 一千一 => 1100, 一千 => 1000
         thousand = ((hundred | teen | tens | digits) + delete('千') + (
                     hundred
-                    | add_weight(zero + tens, 0.1)
+                    | add_weight(zero + (tens | teen), 0.1)
                     | add_weight(addzero + zero + digit, 0.5)
                     | add_weight(digit + addzero**2, 0.8)
                     | add_weight(addzero**3, 1.0)))
@@ -60,7 +60,7 @@ class Cardinal(Processor):
                         + delete('万')
                         + (thousand
                            | add_weight(zero + hundred, 0.1)
-                           | add_weight(addzero + zero + tens, 0.5)
+                           | add_weight(addzero + zero + (tens | teen), 0.5)
                            | add_weight(addzero + addzero + zero + digit, 0.5)
                            | add_weight(digit + addzero**3, 0.8)
                            | add_weight(addzero**4, 1.0)))
@@ -85,7 +85,7 @@ class Cardinal(Processor):
             if self.enable_0_to_9:
                 cardinal |= number
             else:
-                number_two_plus = (digits + digits.plus) | teen | tens | hundred | thousand | ten_thousand
+                number_two_plus = (digits + digits.plus) | teen | tens | hundred | thousand | ten_thousand  # noqa
                 cardinal |= number_two_plus
         tagger = insert('value: "') + cardinal + insert('"')
         self.tagger = self.add_tokens(tagger)
