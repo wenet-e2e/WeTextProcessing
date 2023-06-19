@@ -33,46 +33,46 @@ class TokenParserTest : public testing::Test {
 };
 
 TEST_F(TokenParserTest, ReadTest) {
-  parser->load(" ");
-  ASSERT_FALSE(parser->read());
-  ASSERT_EQ(parser->ch, wetext::EOS);
+  parser->Load(" ");
+  ASSERT_FALSE(parser->Read());
+  ASSERT_EQ(parser->ch_, wetext::EOS);
 }
 
 TEST_F(TokenParserTest, ParseWSTest) {
-  parser->load(" ");
-  ASSERT_FALSE(parser->parse_ws());
-  ASSERT_EQ(parser->ch, wetext::EOS);
+  parser->Load(" ");
+  ASSERT_FALSE(parser->ParseWs());
+  ASSERT_EQ(parser->ch_, wetext::EOS);
 
-  parser->load("  ");
-  ASSERT_FALSE(parser->parse_ws());
-  ASSERT_EQ(parser->ch, wetext::EOS);
+  parser->Load("  ");
+  ASSERT_FALSE(parser->ParseWs());
+  ASSERT_EQ(parser->ch_, wetext::EOS);
 
-  parser->load("  test");
-  ASSERT_TRUE(parser->parse_ws());
-  ASSERT_EQ(parser->ch, "t");
+  parser->Load("  test");
+  ASSERT_TRUE(parser->ParseWs());
+  ASSERT_EQ(parser->ch_, "t");
 }
 
 TEST_F(TokenParserTest, ParseCharsTest) {
-  parser->load("hello world");
-  ASSERT_TRUE(parser->parse_chars("hello"));
-  ASSERT_EQ(parser->ch, " ");
+  parser->Load("hello world");
+  ASSERT_TRUE(parser->ParseChars("hello"));
+  ASSERT_EQ(parser->ch_, " ");
 
-  parser->load("world");
-  ASSERT_FALSE(parser->parse_chars("hello"));
-  ASSERT_EQ(parser->ch, "w");
+  parser->Load("world");
+  ASSERT_FALSE(parser->ParseChars("hello"));
+  ASSERT_EQ(parser->ch_, "w");
 }
 
 TEST_F(TokenParserTest, ParseKeyTest) {
-  parser->load("key");
-  ASSERT_EQ(parser->parse_key(), "key");
+  parser->Load("key");
+  ASSERT_EQ(parser->ParseKey(), "key");
 
-  parser->load("key ");
-  ASSERT_EQ(parser->parse_key(), "key");
+  parser->Load("key ");
+  ASSERT_EQ(parser->ParseKey(), "key");
 }
 
 TEST_F(TokenParserTest, ParseValueTest) {
-  parser->load("value\"");
-  ASSERT_EQ(parser->parse_value(), "value");
+  parser->Load("value\"");
+  ASSERT_EQ(parser->ParseValue(), "value");
 }
 
 TEST_F(TokenParserTest, ParseTest) {
@@ -82,8 +82,8 @@ TEST_F(TokenParserTest, ParseTest) {
 
   std::string input =
       "time { minute: \"零二分\" hour: \"两点\" } char { value: \"走\" }";
-  parser->parse(input);
-  std::vector<wetext::Token> tokens = parser->tokens;
+  parser->Parse(input);
+  std::vector<wetext::Token> tokens = parser->tokens_;
   ASSERT_EQ(tokens.size(), 2);
   ASSERT_EQ(tokens[0].name, "time");
   ASSERT_EQ(tokens[1].name, "char");
@@ -99,5 +99,5 @@ TEST_F(TokenParserTest, ReorderTest) {
       "time { minute: \"零二分\" hour: \"两点\" } char { value: \"走\" }";
   std::string expected =
       "time { hour: \"两点\" minute: \"零二分\" } char { value: \"走\" }";
-  ASSERT_EQ(parser->reorder(input), expected);
+  ASSERT_EQ(parser->Reorder(input), expected);
 }

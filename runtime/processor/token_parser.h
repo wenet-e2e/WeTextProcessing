@@ -37,12 +37,12 @@ struct Token {
 
   Token(const std::string& name) : name(name) {}
 
-  void append(const std::string& key, const std::string& value) {
+  void Append(const std::string& key, const std::string& value) {
     order.emplace_back(key);
     members[key] = value;
   }
 
-  std::string string(
+  std::string String(
       const std::unordered_map<std::string, std::vector<std::string>>& orders) {
     std::string output = name + " {";
     if (orders.count(name) > 0) {
@@ -67,25 +67,25 @@ enum ParseType {
 class TokenParser {
  public:
   TokenParser(ParseType type);
-  std::string reorder(const std::string& input);
+  std::string Reorder(const std::string& input);
 
  private:
-  void load(const std::string& input);
-  bool read();
-  bool parse_ws();
-  bool parse_char(const std::string& exp);
-  bool parse_chars(const std::string& exp);
-  std::string parse_key();
-  std::string parse_value();
-  void parse(const std::string& input);
+  void Load(const std::string& input);
+  bool Read();
+  bool ParseWs();
+  bool ParseChar(const std::string& exp);
+  bool ParseChars(const std::string& exp);
+  std::string ParseKey();
+  std::string ParseValue();
+  void Parse(const std::string& input);
 
-  int index;
-  std::string ch;
-  std::vector<std::string> text;
-  std::vector<Token> tokens;
-  std::unordered_map<std::string, std::vector<std::string>> orders;
+  int index_;
+  std::string ch_;
+  std::vector<std::string> text_;
+  std::vector<Token> tokens_;
+  std::unordered_map<std::string, std::vector<std::string>> orders_;
 };
 
-}  // wetext
+}  // namespace wetext
 
 #endif  // PROCESSOR_TOKEN_PARSER_H_

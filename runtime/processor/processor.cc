@@ -34,7 +34,7 @@ Processor::Processor(const std::string& tagger_path,
   }
 }
 
-std::string Processor::shortest_path(const StdVectorFst& lattice) {
+std::string Processor::ShortestPath(const StdVectorFst& lattice) {
   StdVectorFst shortest_path;
   fst::ShortestPath(lattice, &shortest_path, 1, true);
 
@@ -43,31 +43,34 @@ std::string Processor::shortest_path(const StdVectorFst& lattice) {
   return output;
 }
 
-std::string Processor::compose(const std::string& input,
+std::string Processor::Compose(const std::string& input,
                                const StdVectorFst* fst) {
   StdVectorFst input_fst;
   compiler_->operator()(input, &input_fst);
 
   StdVectorFst lattice;
   fst::Compose(input_fst, *fst, &lattice);
-  return shortest_path(lattice);
+  return ShortestPath(lattice);
 }
 
-std::string Processor::tag(const std::string& input) {
-  return compose(input, tagger_.get());
+std::string Processor::Tag(const std::string& input) {
+  return Compose(input, tagger_.get());
 }
 
-std::string Processor::verbalize(const std::string& input) {
+std::string Processor::Verbalize(const std::string& input) {
   if (input.empty()) {
     return "";
   }
   TokenParser parser(parse_type_);
-  std::string output = parser.reorder(input);
-  return compose(output, verbalizer_.get());
+  std::string output = parser.Reorder(input);
+
+  output = Compose(output, verbalizer_.get());
+  output.erase(std::remove(output.begin(), output.end(), '\0'), output.end());
+  return output;
 }
 
-std::string Processor::normalize(const std::string& input) {
-  return verbalize(tag(input));
+std::string Processor::Normalize(const std::string& input) {
+  return Verbalize(Tag(input));
 }
 
 }  // namespace wetext

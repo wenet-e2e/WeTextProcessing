@@ -15,7 +15,7 @@
 #include "processor/token_parser.h"
 
 #include "utils/log.h"
-#include "utils/utf8_string.h"
+#include "utils/string.h"
 
 namespace wetext {
 const std::string EOS = "<EOS>";
@@ -41,113 +41,113 @@ const std::unordered_map<std::string, std::vector<std::string>> ITN_ORDERS = {
 
 TokenParser::TokenParser(ParseType type) {
   if (type == ParseType::kTN) {
-    orders = TN_ORDERS;
+    orders_ = TN_ORDERS;
   } else {
-    orders = ITN_ORDERS;
+    orders_ = ITN_ORDERS;
   }
 }
 
-void TokenParser::load(const std::string& input) {
-  string2chars(input, &text);
-  CHECK_GT(text.size(), 0);
-  index = 0;
-  ch = text[0];
+void TokenParser::Load(const std::string& input) {
+  SplitUTF8StringToChars(input, &text_);
+  CHECK_GT(text_.size(), 0);
+  index_ = 0;
+  ch_ = text_[0];
 }
 
-bool TokenParser::read() {
-  if (index < text.size() - 1) {
-    index += 1;
-    ch = text[index];
+bool TokenParser::Read() {
+  if (index_ < text_.size() - 1) {
+    index_ += 1;
+    ch_ = text_[index_];
     return true;
   }
-  ch = EOS;
+  ch_ = EOS;
   return false;
 }
 
-bool TokenParser::parse_ws() {
-  bool not_eos = ch != EOS;
-  while (not_eos && ch == " ") {
-    not_eos = read();
+bool TokenParser::ParseWs() {
+  bool not_eos = ch_ != EOS;
+  while (not_eos && ch_ == " ") {
+    not_eos = Read();
   }
   return not_eos;
 }
 
-bool TokenParser::parse_char(const std::string& exp) {
-  if (ch == exp) {
-    read();
+bool TokenParser::ParseChar(const std::string& exp) {
+  if (ch_ == exp) {
+    Read();
     return true;
   }
   return false;
 }
 
-bool TokenParser::parse_chars(const std::string& exp) {
+bool TokenParser::ParseChars(const std::string& exp) {
   bool ok = false;
   std::vector<std::string> chars;
-  string2chars(exp, &chars);
+  SplitUTF8StringToChars(exp, &chars);
   for (const auto& x : chars) {
-    ok |= parse_char(x);
+    ok |= ParseChar(x);
   }
   return ok;
 }
 
-std::string TokenParser::parse_key() {
-  CHECK_NE(ch, EOS);
-  CHECK_EQ(UTF8_WHITESPACE.count(ch), 0);
+std::string TokenParser::ParseKey() {
+  CHECK_NE(ch_, EOS);
+  CHECK_EQ(UTF8_WHITESPACE.count(ch_), 0);
 
   std::string key = "";
-  while (ASCII_LETTERS.count(ch) > 0) {
-    key += ch;
-    read();
+  while (ASCII_LETTERS.count(ch_) > 0) {
+    key += ch_;
+    Read();
   }
   return key;
 }
 
-std::string TokenParser::parse_value() {
-  CHECK_NE(ch, EOS);
+std::string TokenParser::ParseValue() {
+  CHECK_NE(ch_, EOS);
   bool escape = false;
 
   std::string value = "";
-  while (ch != "\"") {
-    value += ch;
-    escape = ch == "\\" && !escape;
-    read();
+  while (ch_ != "\"") {
+    value += ch_;
+    escape = ch_ == "\\" && !escape;
+    Read();
     if (escape) {
-      value += ch;
-      read();
+      value += ch_;
+      Read();
     }
   }
   return value;
 }
 
-void TokenParser::parse(const std::string& input) {
-  load(input);
-  while (parse_ws()) {
-    std::string name = parse_key();
-    parse_chars(" { ");
+void TokenParser::Parse(const std::string& input) {
+  Load(input);
+  while (ParseWs()) {
+    std::string name = ParseKey();
+    ParseChars(" { ");
 
     Token token(name);
-    while (parse_ws()) {
-      if (ch == "}") {
-        parse_char("}");
+    while (ParseWs()) {
+      if (ch_ == "}") {
+        ParseChar("}");
         break;
       }
-      std::string key = parse_key();
-      parse_chars(": \"");
-      std::string value = parse_value();
-      parse_char("\"");
-      token.append(key, value);
+      std::string key = ParseKey();
+      ParseChars(": \"");
+      std::string value = ParseValue();
+      ParseChar("\"");
+      token.Append(key, value);
     }
-    tokens.emplace_back(token);
+    tokens_.emplace_back(token);
   }
 }
 
-std::string TokenParser::reorder(const std::string& input) {
-  parse(input);
+std::string TokenParser::Reorder(const std::string& input) {
+  Parse(input);
   std::string output = "";
-  for (auto& token : tokens) {
-    output += token.string(orders) + " ";
+  for (auto& token : tokens_) {
+    output += token.String(orders_) + " ";
   }
-  return trim(output);
+  return Trim(output);
 }
 
 }  // namespace wetext

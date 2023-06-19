@@ -29,19 +29,9 @@ endif()
 include(openfst)
 include_directories(${PROJECT_SOURCE_DIR})
 
-add_library(processor STATIC
-  processor/processor.cc
-  processor/token_parser.cc
-  utils/utf8_string.cc
-)
-if(MSVC)
-  target_link_libraries(processor PUBLIC fst)
-else()
-  target_link_libraries(processor PUBLIC dl fst)
-endif()
-
-add_executable(processor_main bin/processor_main.cc)
-target_link_libraries(processor_main PUBLIC processor)
+add_subdirectory(utils)
+add_subdirectory(processor)
+add_subdirectory(bin)
 
 if(BUILD_TESTING)
   include(gtest)

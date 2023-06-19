@@ -34,9 +34,9 @@ int main(int argc, char* argv[]) {
   wetext::Processor processor(FLAGS_tagger, FLAGS_verbalizer);
 
   if (!FLAGS_text.empty()) {
-    std::string tagged_text = processor.tag(FLAGS_text);
+    std::string tagged_text = processor.Tag(FLAGS_text);
     std::cout << tagged_text << std::endl;
-    std::string normalized_text = processor.verbalize(tagged_text);
+    std::string normalized_text = processor.Verbalize(tagged_text);
     std::cout << normalized_text << std::endl;
   }
 
@@ -44,9 +44,9 @@ int main(int argc, char* argv[]) {
     std::ifstream file(FLAGS_file);
     std::string line;
     while (getline(file, line)) {
-      std::string tagged_text = processor.tag(line);
+      std::string tagged_text = processor.Tag(line);
       std::cout << tagged_text << std::endl;
-      std::string normalized_text = processor.verbalize(tagged_text);
+      std::string normalized_text = processor.Verbalize(tagged_text);
       std::cout << normalized_text << std::endl;
     }
   }

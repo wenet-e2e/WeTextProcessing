@@ -2,9 +2,9 @@ enable_testing()
 link_libraries(gtest_main gmock)
 include(GoogleTest)
 
-add_executable(utf8_string_test utf8_string_test.cc)
-target_link_libraries(utf8_string_test PUBLIC utils)
-gtest_discover_tests(utf8_string_test)
+add_executable(string_test string_test.cc)
+target_link_libraries(string_test PUBLIC utils)
+gtest_discover_tests(string_test)
 
 if(NOT MSVC)
   # token_parser_test uses the macro to access the private members

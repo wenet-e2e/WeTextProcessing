@@ -14,32 +14,32 @@
 
 #include "gmock/gmock.h"
 
-#include "utils/utf8_string.h"
+#include "utils/string.h"
 
 class StringTest : public testing::Test {};
 
 TEST(StringTest, StringLengthTest) {
-  EXPECT_EQ(wetext::string_length("A"), 1);
-  EXPECT_EQ(wetext::string_length("À"), 1);
-  EXPECT_EQ(wetext::string_length("啊"), 1);
-  EXPECT_EQ(wetext::string_length("✐"), 1);
-  EXPECT_EQ(wetext::string_length("你好"), 2);
-  EXPECT_EQ(wetext::string_length("world"), 5);
+  EXPECT_EQ(wetext::UTF8StringLength("A"), 1);
+  EXPECT_EQ(wetext::UTF8StringLength("À"), 1);
+  EXPECT_EQ(wetext::UTF8StringLength("啊"), 1);
+  EXPECT_EQ(wetext::UTF8StringLength("✐"), 1);
+  EXPECT_EQ(wetext::UTF8StringLength("你好"), 2);
+  EXPECT_EQ(wetext::UTF8StringLength("world"), 5);
 }
 
-TEST(StringTest, String2CharsTest) {
+TEST(StringTest, SplitUTF8StringToCharsTest) {
   std::vector<std::string> chars;
-  wetext::string2chars("你好world", &chars);
+  wetext::SplitUTF8StringToChars("你好world", &chars);
   ASSERT_THAT(chars, testing::ElementsAre("你", "好", "w", "o", "r", "l", "d"));
 }
 
 TEST(StringTest, TrimTest) {
-  ASSERT_EQ(wetext::trim("\thello "), "hello");
-  ASSERT_EQ(wetext::trim(" hello\t"), "hello");
+  ASSERT_EQ(wetext::Trim("\thello "), "hello");
+  ASSERT_EQ(wetext::Trim(" hello\t"), "hello");
 }
 
-TEST(StringTest, SplitStringTest) {
+TEST(StringTest, SplitTest) {
   std::vector<std::string> output;
-  wetext::split_string("written => spoken", " => ", &output);
+  wetext::Split("written => spoken", " => ", &output);
   ASSERT_THAT(output, testing::ElementsAre("written", "spoken"));
 }

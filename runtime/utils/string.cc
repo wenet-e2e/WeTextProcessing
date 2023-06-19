@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "utils/utf8_string.h"
+#include "utils/string.h"
 
 #include "utils/log.h"
 
 namespace wetext {
 const char* WHITESPACE = " \n\r\t\f\v";
 
-int char_length(char ch) {
+int UTF8CharLength(char ch) {
   int num_bytes = 1;
   CHECK_LE((ch & 0xF8), 0xF0);
   if ((ch & 0x80) == 0x00) {
@@ -43,39 +43,40 @@ int char_length(char ch) {
   return num_bytes;
 }
 
-int string_length(const std::string& str) {
+int UTF8StringLength(const std::string& str) {
   int len = 0;
   int num_bytes = 1;
   for (size_t i = 0; i < str.length(); i += num_bytes) {
-    num_bytes = char_length(str[i]);
+    num_bytes = UTF8CharLength(str[i]);
     ++len;
   }
   return len;
 }
 
-void string2chars(const std::string& str, std::vector<std::string>* chars) {
+void SplitUTF8StringToChars(const std::string& str,
+                            std::vector<std::string>* chars) {
   chars->clear();
   int num_bytes = 1;
   for (size_t i = 0; i < str.length(); i += num_bytes) {
-    num_bytes = char_length(str[i]);
+    num_bytes = UTF8CharLength(str[i]);
     chars->push_back(str.substr(i, num_bytes));
   }
 }
 
-std::string ltrim(const std::string& str) {
+std::string Ltrim(const std::string& str) {
   size_t start = str.find_first_not_of(WHITESPACE);
   return (start == std::string::npos) ? "" : str.substr(start);
 }
 
-std::string rtrim(const std::string& str) {
+std::string Rtrim(const std::string& str) {
   size_t end = str.find_last_not_of(WHITESPACE);
   return end == std::string::npos ? "" : str.substr(0, end + 1);
 }
 
-std::string trim(const std::string& str) { return rtrim(ltrim(str)); }
+std::string Trim(const std::string& str) { return Rtrim(Ltrim(str)); }
 
-void split_string(const std::string& str, const std::string& delim,
-                  std::vector<std::string>* output) {
+void Split(const std::string& str, const std::string& delim,
+           std::vector<std::string>* output) {
   std::string s = str;
   size_t pos = 0;
   while ((pos = s.find(delim)) != std::string::npos) {

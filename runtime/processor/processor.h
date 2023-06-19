@@ -28,13 +28,13 @@ namespace wetext {
 class Processor {
  public:
   Processor(const std::string& tagger_path, const std::string& verbalizer_path);
-  std::string tag(const std::string& input);
-  std::string verbalize(const std::string& input);
-  std::string normalize(const std::string& input);
+  std::string Tag(const std::string& input);
+  std::string Verbalize(const std::string& input);
+  std::string Normalize(const std::string& input);
 
  private:
-  std::string shortest_path(const StdVectorFst& lattice);
-  std::string compose(const std::string& input, const StdVectorFst* fst);
+  std::string ShortestPath(const StdVectorFst& lattice);
+  std::string Compose(const std::string& input, const StdVectorFst* fst);
 
   ParseType parse_type_;
   std::shared_ptr<StdVectorFst> tagger_ = nullptr;
