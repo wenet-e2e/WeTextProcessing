@@ -51,6 +51,7 @@ class Normalizer(Processor):
     def build_tagger(self):
         processor = PreProcessor(
             remove_interjections=self.remove_interjections,
+            full_to_half=self.full_to_half,
             traditional_to_simple=self.traditional_to_simple).processor
 
         date = add_weight(Date().tagger, 1.02)
@@ -86,6 +87,5 @@ class Normalizer(Processor):
                       | money | sport | time | whitelist).optimize()
 
         processor = PostProcessor(remove_puncts=self.remove_puncts,
-                                  full_to_half=self.full_to_half,
                                   tag_oov=self.tag_oov).processor
         self.verbalizer = (verbalizer @ processor).star
