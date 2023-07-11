@@ -33,7 +33,7 @@ from importlib_resources import files
 class Normalizer(Processor):
 
     def __init__(self,
-                 cache_dir='tn',
+                 cache_dir=None,
                  overwrite_cache=False,
                  remove_interjections=True,
                  traditional_to_simple=True,
@@ -46,7 +46,9 @@ class Normalizer(Processor):
         self.remove_puncts = remove_puncts
         self.full_to_half = full_to_half
         self.tag_oov = tag_oov
-        self.build_fst('zh_tn', files(cache_dir), overwrite_cache)
+        if cache_dir is None:
+            cache_dir = files("tn")
+        self.build_fst('zh_tn', cache_dir, overwrite_cache)
 
     def build_tagger(self):
         processor = PreProcessor(
