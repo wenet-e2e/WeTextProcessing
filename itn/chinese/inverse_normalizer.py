@@ -30,13 +30,15 @@ from importlib_resources import files
 
 class InverseNormalizer(Processor):
 
-    def __init__(self, cache_dir='itn', overwrite_cache=False,
+    def __init__(self, cache_dir=None, overwrite_cache=False,
                  enable_standalone_number=True,
                  enable_0_to_9=True):
         super().__init__(name='inverse_normalizer', ordertype='itn')
         self.convert_number = enable_standalone_number
         self.enable_0_to_9 = enable_0_to_9
-        self.build_fst('zh_itn', files(cache_dir), overwrite_cache)
+        if cache_dir is None:
+            cache_dir = files("itn")
+        self.build_fst('zh_itn', cache_dir, overwrite_cache)
 
     def build_tagger(self):
         tagger = (add_weight(Date().tagger, 1.02)
