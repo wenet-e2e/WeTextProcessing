@@ -2,6 +2,10 @@
 
 ### 0. Brief Introduction
 
+```diff
+- **Must Read Doc** (In Chinese): https://mp.weixin.qq.com/s/q_11lck78qcjylHCi6wVsQ
+```
+
 [WeTextProcessing: Production First & Production Ready Text Processing Toolkit](https://mp.weixin.qq.com/s/q_11lck78qcjylHCi6wVsQ)
 
 #### 0.1 Text Normalization
