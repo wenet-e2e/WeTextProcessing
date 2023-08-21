@@ -54,6 +54,9 @@ std::string Processor::Compose(const std::string& input,
 }
 
 std::string Processor::Tag(const std::string& input) {
+  if (input.empty()) {
+    return "";
+  }
   return Compose(input, tagger_.get());
 }
 

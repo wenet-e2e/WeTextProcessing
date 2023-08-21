@@ -21,8 +21,10 @@ from pynini.lib.tagger import Tagger
 
 class PostProcessor(Processor):
 
-    def __init__(self, remove_puncts=False, full_to_half=True, tag_oov=False):
+    def __init__(self, remove_interjections=True, remove_puncts=False,
+                 full_to_half=True, tag_oov=False):
         super().__init__(name='postprocessor')
+        blacklist = string_file('tn/chinese/data/default/blacklist.tsv')
         puncts = string_file('tn/chinese/data/char/punctuations_zh.tsv')
         full2half = string_file(
             'tn/chinese/data/char/fullwidth_to_halfwidth.tsv')
@@ -32,6 +34,9 @@ class PostProcessor(Processor):
             'tn/chinese/data/char/charset_extension.tsv')
 
         processor = self.build_rule('')
+        if remove_interjections:
+            processor @= self.build_rule(delete(blacklist))
+
         if remove_puncts:
             processor @= self.build_rule(delete(puncts | self.PUNCT))
 

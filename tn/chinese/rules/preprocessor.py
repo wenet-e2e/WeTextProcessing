@@ -15,22 +15,17 @@
 from tn.processor import Processor
 
 from pynini import string_file
-from pynini.lib.pynutil import delete
 
 
 class PreProcessor(Processor):
 
-    def __init__(self, remove_interjections=True, traditional_to_simple=True):
+    def __init__(self, traditional_to_simple=True):
         super().__init__(name='preprocessor')
-        blacklist = string_file('tn/chinese/data/default/blacklist.tsv')
         traditional2simple = string_file(
             'tn/chinese/data/char/traditional_to_simple.tsv')
 
         processor = self.build_rule('')
         if traditional_to_simple:
             processor @= self.build_rule(traditional2simple)
-
-        if remove_interjections:
-            processor @= self.build_rule(delete(blacklist))
 
         self.processor = processor.optimize()
