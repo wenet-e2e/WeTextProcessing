@@ -77,6 +77,8 @@ class Processor:
             self.verbalizer.optimize().write(verbalizer_path)
 
     def tag(self, input):
+        if len(input) == 0:
+            return ''
         input = escape(input)
         lattice = input @ self.tagger
         return shortestpath(lattice, nshortest=1, unique=True).string()

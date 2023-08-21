@@ -31,8 +31,8 @@ class Measure(Processor):
         units_en = string_file('itn/chinese/data/measure/units_en.tsv')
         units_zh = string_file('itn/chinese/data/measure/units_zh.tsv')
         sign = string_file('itn/chinese/data/number/sign.tsv')    # + -
-        units = units_en | ((accep('亿') | accep('兆') | accep('万')).ques
-                            + units_zh)
+        units = add_weight(units_en, -1.0) | \
+            ((accep('亿') | accep('兆') | accep('万')).ques + units_zh)
 
         number = Cardinal().number
         # 百分之三十, 百分三十, 百分之百

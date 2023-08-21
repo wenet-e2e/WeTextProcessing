@@ -1,4 +1,5 @@
 # Copyright (c) 2022 Zhendong Peng (pzd17@tsinghua.org.cn)
+# Copyright (c) 2023 Xingchen Song (sxc19@mails.tsinghua.edu.cn)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,10 +19,10 @@ from pynini import string_file
 from pynini.lib.pynutil import delete
 
 
-class PreProcessor(Processor):
+class PostProcessor(Processor):
 
     def __init__(self, remove_interjections=True):
-        super().__init__(name='preprocessor')
+        super().__init__(name='postprocessor')
         blacklist = string_file('itn/chinese/data/default/blacklist.tsv')
 
         processor = self.VSIGMA

@@ -26,7 +26,7 @@ from tn.chinese.rules.sport import Sport
 from tn.chinese.rules.time import Time
 from tn.chinese.rules.whitelist import Whitelist
 
-from pynini.lib.pynutil import add_weight, delete, insert
+from pynini.lib.pynutil import add_weight, delete
 from importlib_resources import files
 
 
@@ -52,7 +52,6 @@ class Normalizer(Processor):
 
     def build_tagger(self):
         processor = PreProcessor(
-            remove_interjections=self.remove_interjections,
             traditional_to_simple=self.traditional_to_simple).processor
 
         date = add_weight(Date().tagger, 1.02)
@@ -87,7 +86,9 @@ class Normalizer(Processor):
         verbalizer = (cardinal | char | date | fraction | math | measure
                       | money | sport | time | whitelist).optimize()
 
-        processor = PostProcessor(remove_puncts=self.remove_puncts,
-                                  full_to_half=self.full_to_half,
-                                  tag_oov=self.tag_oov).processor
+        processor = PostProcessor(
+            remove_interjections=self.remove_interjections,
+            remove_puncts=self.remove_puncts,
+            full_to_half=self.full_to_half,
+            tag_oov=self.tag_oov).processor
         self.verbalizer = (verbalizer @ processor).star
