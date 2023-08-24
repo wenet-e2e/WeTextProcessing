@@ -24,6 +24,15 @@
 pip install WeTextProcessing
 ```
 
+Command-usage:
+
+```bash
+wetn --text "2.5平方电线"
+weitn --text "二点五平方电线"
+```
+
+Python usage:
+
 ```py
 # tn usage
 >>> from tn.chinese.normalizer import Normalizer
