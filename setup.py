@@ -36,6 +36,12 @@ setup(
         "itn": ["*.fst"],
     },
     install_requires=['pynini', 'importlib_resources'],
+    entry_points={
+        "console_scripts": [
+            "wetn = tn.main:main",
+            "weitn = itn.main:main",
+        ]
+    },
     tests_require=['pytest'],
     classifiers=[
         "Programming Language :: Python :: 3",
