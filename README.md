@@ -56,8 +56,8 @@ cd WeTextProcessing
 # `overwrite_cache` will rebuild all rules according to
 #   your modifications on tn/chinese/rules/xx.py (itn/chinese/rules/xx.py).
 #   After rebuild, you can find new far files at `$PWD/tn` and `$PWD/itn`.
-python normalize.py --text "2.5平方电线" --overwrite_cache
-python inverse_normalize.py --text "二点五平方电线" --overwrite_cache
+python -m tn --text "2.5平方电线" --overwrite_cache
+python -m itn --text "二点五平方电线" --overwrite_cache
 ```
 
 Once you successfully rebuild your rules, you can deploy them either with your installed pypi packages:
