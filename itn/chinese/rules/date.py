@@ -14,7 +14,7 @@
 
 from tn.processor import Processor
 
-from pynini import string_file
+from pynini import string_file, accep
 from pynini.lib.pynutil import delete, insert
 
 
@@ -29,25 +29,31 @@ class Date(Processor):
         digit = string_file('itn/chinese/data/number/digit.tsv')  # 1 ~ 9
         zero = string_file('itn/chinese/data/number/zero.tsv')    # 0
 
-        yyyy = digit + (digit | zero)**3
-        yy = digit**2
+        yyyy = digit + (digit | zero)**3  # 二零零八年
+        yyy = digit + (digit | zero)**2   # 公元一六八年
+        yy = (digit | zero)**2            # 零八年奥运会
         mm = string_file('itn/chinese/data/date/mm.tsv')
         dd = string_file('itn/chinese/data/date/dd.tsv')
 
-        year = insert('year: "') + (yyyy | yy) + delete('年') + insert('" ')
+        year = insert('year: "') + (yyyy | yyy | yy) + \
+            delete('年') + insert('" ')
+        year_only = insert('year: "') + (yyyy | yyy | yy) + \
+            accep('年') + insert('"')
         month = insert('month: "') + mm + insert('"')
         day = insert(' day: "') + dd + insert('"')
 
-        # yyyy/mm/dd | yyyy/mm | mm/dd
+        # yyyy/mm/dd | yyyy/mm | mm/dd | yyyy
         date = ((year + month + day)
                 | (year + month)
-                | (month + day))
+                | (month + day)) | year_only
         self.tagger = self.add_tokens(date)
 
     def build_verbalizer(self):
         addsign = insert("/")
         year = delete('year: "') + self.SIGMA + delete('" ')
+        year_only = delete('year: "') + self.SIGMA + delete('"')
         month = delete('month: "') + self.SIGMA + delete('"')
         day = delete(' day: "') + self.SIGMA + delete('"')
         verbalizer = (year + addsign).ques + month + (addsign + day).ques
+        verbalizer |= year_only
         self.verbalizer = self.delete_tokens(verbalizer)

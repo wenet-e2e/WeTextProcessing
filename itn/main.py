@@ -36,7 +36,7 @@ def main():
                         default='True',
                         help='enable standalone number')
     parser.add_argument('--enable_0_to_9', type=str,
-                        default='True',
+                        default='False',
                         help='enable convert number 0 to 9')
     args = parser.parse_args()
 

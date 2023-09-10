@@ -21,9 +21,10 @@ from pynini.lib.pynutil import delete, insert, add_weight
 
 class Measure(Processor):
 
-    def __init__(self, exclude_one=True):
+    def __init__(self, exclude_one=True, enable_0_to_9=True):
         super().__init__(name='measure')
         self.exclude_one = exclude_one
+        self.enable_0_to_9 = enable_0_to_9
         self.build_tagger()
         self.build_verbalizer()
 
@@ -34,17 +35,15 @@ class Measure(Processor):
         units = add_weight(units_en, -1.0) | \
             ((accep('亿') | accep('兆') | accep('万')).ques + units_zh)
 
-        number = Cardinal().number
+        number = Cardinal().number if self.enable_0_to_9 else \
+            Cardinal().number_exclude_0_to_9
         # 百分之三十, 百分三十, 百分之百
         percent = ((sign + delete('的').ques).ques + delete('百分') +
-                   delete('之').ques + (number | cross('百', '100'))
+                   delete('之').ques + (Cardinal().number | cross('百', '100'))
                    + insert('%'))
 
         # 十千米每小时 => 10km/h
         measure = number + units
-        if self.exclude_one:
-            measure |= number + number.plus + units
-            measure |= (add_weight(accep('一'), -1.0) + units_zh)
         tagger = insert('value: "') + (measure | percent) + insert('"')
 
         # 每小时十千米 => 10km/h
