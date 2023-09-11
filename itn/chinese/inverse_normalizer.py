@@ -32,7 +32,7 @@ class InverseNormalizer(Processor):
 
     def __init__(self, cache_dir=None, overwrite_cache=False,
                  enable_standalone_number=True,
-                 enable_0_to_9=True):
+                 enable_0_to_9=False):
         super().__init__(name='inverse_normalizer', ordertype='itn')
         self.convert_number = enable_standalone_number
         self.enable_0_to_9 = enable_0_to_9
@@ -44,10 +44,10 @@ class InverseNormalizer(Processor):
         tagger = (add_weight(Date().tagger, 1.02)
                   | add_weight(Whitelist().tagger, 1.01)
                   | add_weight(Fraction().tagger, 1.05)
-                  | add_weight(Measure().tagger, 1.05)
-                  | add_weight(Money().tagger, 1.04)
+                  | add_weight(Measure(enable_0_to_9=self.enable_0_to_9).tagger, 1.05)  # noqa
+                  | add_weight(Money(enable_0_to_9=self.enable_0_to_9).tagger, 1.04)  # noqa
                   | add_weight(Time().tagger, 1.05)
-                  | add_weight(Cardinal(self.convert_number, self.enable_0_to_9).tagger, 1.06)
+                  | add_weight(Cardinal(self.convert_number, self.enable_0_to_9).tagger, 1.06)  # noqa
                   | add_weight(Math().tagger, 1.10)
                   | add_weight(Char().tagger, 100)).optimize()
 
@@ -56,13 +56,13 @@ class InverseNormalizer(Processor):
         self.tagger = tagger @ self.build_rule(delete(' '), '', '[EOS]')
 
     def build_verbalizer(self):
-        verbalizer = (Cardinal(self.convert_number, self.enable_0_to_9).verbalizer
+        verbalizer = (Cardinal(self.convert_number, self.enable_0_to_9).verbalizer  # noqa
                       | Char().verbalizer
                       | Date().verbalizer
                       | Fraction().verbalizer
                       | Math().verbalizer
-                      | Measure().verbalizer
-                      | Money().verbalizer
+                      | Measure(enable_0_to_9=self.enable_0_to_9).verbalizer
+                      | Money(enable_0_to_9=self.enable_0_to_9).verbalizer
                       | Time().verbalizer
                       | Whitelist().verbalizer).optimize()
         postprocessor = PostProcessor(remove_interjections=True).processor

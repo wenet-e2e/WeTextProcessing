@@ -23,6 +23,7 @@ class Cardinal(Processor):
     def __init__(self, enable_standalone_number=True, enable_0_to_9=True):
         super().__init__('cardinal')
         self.number = None
+        self.number_exclude_0_to_9 = None
         self.enable_standalone_number = enable_standalone_number
         self.enable_0_to_9 = enable_0_to_9
         self.build_tagger()
@@ -64,15 +65,29 @@ class Cardinal(Processor):
                            | add_weight(addzero + addzero + zero + digit, 0.5)
                            | add_weight(digit + addzero**3, 0.8)
                            | add_weight(addzero**4, 1.0)))
-
-        # 1.11, 1.01
+        # 个/十/百/千/万
         number = digits | teen | tens | hundred | thousand | ten_thousand
         # 兆/亿
         number = ((number + accep('兆') + delete('零').ques).ques +
                   (number + accep('亿') + delete('零').ques).ques + number)
+        # 负的xxx 1.11, 1.01
         number = sign.ques + number + (dot + digits.plus).ques
         self.number = number.optimize()
-        self.digits = digits.optimize()
+
+        # 十/百/千/万
+        number_exclude_0_to_9 = teen | tens | hundred | thousand | ten_thousand
+        # 兆/亿
+        number_exclude_0_to_9 = (
+            (number_exclude_0_to_9 + accep('兆') + delete('零').ques).ques +
+            (number_exclude_0_to_9 + accep('亿') + delete('零').ques).ques +
+            number_exclude_0_to_9
+        )
+        # 负的xxx 1.11, 1.01
+        number_exclude_0_to_9 |= (
+            (number_exclude_0_to_9 | digits) +
+            (dot + digits.plus).plus
+        )
+        self.number_exclude_0_to_9 = (sign.ques + number_exclude_0_to_9).optimize()  # noqa
 
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
         cardinal = digit.plus + (dot + digits.plus).plus
@@ -85,7 +100,6 @@ class Cardinal(Processor):
             if self.enable_0_to_9:
                 cardinal |= number
             else:
-                number_two_plus = (digits + digits.plus) | teen | tens | hundred | thousand | ten_thousand  # noqa
-                cardinal |= number_two_plus
+                cardinal |= number_exclude_0_to_9
         tagger = insert('value: "') + cardinal + insert('"')
         self.tagger = self.add_tokens(tagger)

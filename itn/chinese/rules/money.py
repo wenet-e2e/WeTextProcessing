@@ -21,8 +21,9 @@ from pynini.lib.pynutil import delete, insert
 
 class Money(Processor):
 
-    def __init__(self):
+    def __init__(self, enable_0_to_9=True):
         super().__init__(name='money')
+        self.enable_0_to_9 = enable_0_to_9
         self.build_tagger()
         self.build_verbalizer()
 
@@ -30,7 +31,8 @@ class Money(Processor):
         code = string_file('itn/chinese/data/money/code.tsv')
         symbol = string_file('itn/chinese/data/money/symbol.tsv')
 
-        number = Cardinal().number
+        number = Cardinal().number if self.enable_0_to_9 else \
+            Cardinal().number_exclude_0_to_9
         tagger = (insert('value: "') + number + insert('"') +
                   insert(' currency: "') + (code | symbol) + insert('"'))
         self.tagger = self.add_tokens(tagger)
