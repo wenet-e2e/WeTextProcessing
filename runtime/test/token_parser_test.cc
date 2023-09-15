@@ -19,7 +19,7 @@
 
 #define private public
 
-#include "processor/token_parser.h"
+#include "processor/wetext_token_parser.h"
 
 class TokenParserTest : public testing::Test {
  protected:

@@ -1,2 +1,2 @@
 add_executable(processor_main processor_main.cc)
-target_link_libraries(processor_main PUBLIC processor)
+target_link_libraries(processor_main PUBLIC wetext_processor)

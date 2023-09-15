@@ -17,8 +17,8 @@
 
 #include "gmock/gmock.h"
 
-#include "processor/processor.h"
-#include "utils/string.h"
+#include "processor/wetext_processor.h"
+#include "utils/wetext_string.h"
 
 std::vector<std::pair<std::string, std::string>> ParseTestCase(
     const std::string& file_path) {

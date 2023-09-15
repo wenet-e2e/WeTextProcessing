@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UTILS_FLAGS_H_
-#define UTILS_FLAGS_H_
+#ifndef UTILS_WETEXT_FLAGS_H_
+#define UTILS_WETEXT_FLAGS_H_
 
 // Because openfst is a dynamic library compiled with gflags/glog, we must use
 // the gflags/glog from openfst to avoid them linked both statically and
 // dynamically into the executable.
 #include "fst/flags.h"
 
-#endif  // UTILS_FLAGS_H_
+#endif  // UTILS_WETEXT_FLAGS_H_

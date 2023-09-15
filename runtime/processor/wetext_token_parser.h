@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PROCESSOR_TOKEN_PARSER_H_
-#define PROCESSOR_TOKEN_PARSER_H_
+#ifndef PROCESSOR_WETEXT_TOKEN_PARSER_H_
+#define PROCESSOR_WETEXT_TOKEN_PARSER_H_
 
 #include <set>
 #include <string>
@@ -88,4 +88,4 @@ class TokenParser {
 
 }  // namespace wetext
 
-#endif  // PROCESSOR_TOKEN_PARSER_H_
+#endif  // PROCESSOR_WETEXT_TOKEN_PARSER_H_

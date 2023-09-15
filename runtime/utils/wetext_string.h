@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UTILS_UTF8_STRING_H_
-#define UTILS_UTF8_STRING_H_
+#ifndef UTILS_WETEXT_STRING_H_
+#define UTILS_WETEXT_STRING_H_
 
 #include <string>
 #include <vector>
@@ -39,4 +39,4 @@ void Split(const std::string& str, const std::string& delim,
 
 }  // namespace wetext
 
-#endif  // UTILS_UTF8_STRING_H_
+#endif  // UTILS_WETEXT_STRING_H_

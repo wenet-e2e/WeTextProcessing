@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "processor/token_parser.h"
+#include "processor/wetext_token_parser.h"
 
-#include "utils/log.h"
-#include "utils/string.h"
+#include "utils/wetext_log.h"
+#include "utils/wetext_string.h"
 
 namespace wetext {
 const std::string EOS = "<EOS>";
