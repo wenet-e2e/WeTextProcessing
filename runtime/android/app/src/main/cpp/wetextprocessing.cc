@@ -13,9 +13,9 @@
 // limitations under the License.
 #include <jni.h>
 
-#include "processor/processor.h"
-#include "utils/flags.h"
-#include "utils/string.h"
+#include "processor/wetext_processor.h"
+#include "utils/wetext_flags.h"
+#include "utils/wetext_string.h"
 
 namespace wetextprocessing {
 

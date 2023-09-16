@@ -48,7 +48,7 @@ TokenParser::TokenParser(ParseType type) {
 }
 
 void TokenParser::Load(const std::string& input) {
-  SplitUTF8StringToChars(input, &text_);
+  wetext::SplitUTF8StringToChars(input, &text_);
   CHECK_GT(text_.size(), 0);
   index_ = 0;
   ch_ = text_[0];
@@ -83,7 +83,7 @@ bool TokenParser::ParseChar(const std::string& exp) {
 bool TokenParser::ParseChars(const std::string& exp) {
   bool ok = false;
   std::vector<std::string> chars;
-  SplitUTF8StringToChars(exp, &chars);
+  wetext::SplitUTF8StringToChars(exp, &chars);
   for (const auto& x : chars) {
     ok |= ParseChar(x);
   }
