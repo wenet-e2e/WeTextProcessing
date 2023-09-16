@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "utils/string.h"
+#include "utils/wetext_string.h"
 
-#include "utils/log.h"
+#include "utils/wetext_log.h"
 
 namespace wetext {
 const char* WHITESPACE = " \n\r\t\f\v";

@@ -1,3 +1,3 @@
-add_library(utils STATIC string.cc)
+add_library(wetext_utils STATIC wetext_string.cc)
 
-target_link_libraries(utils PUBLIC glog)
+target_link_libraries(wetext_utils PUBLIC glog)

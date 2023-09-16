@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PROCESSOR_PROCESSOR_H_
-#define PROCESSOR_PROCESSOR_H_
+#ifndef PROCESSOR_WETEXT_PROCESSOR_H_
+#define PROCESSOR_WETEXT_PROCESSOR_H_
 
 #include "fst/fstlib.h"
 
-#include "processor/token_parser.h"
+#include "processor/wetext_token_parser.h"
 
 using fst::StdArc;
 using fst::StdVectorFst;
@@ -45,4 +45,4 @@ class Processor {
 
 }  // namespace wetext
 
-#endif  // PROCESSOR_PROCESSOR_H_
+#endif  // PROCESSOR_WETEXT_PROCESSOR_H_

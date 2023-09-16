@@ -16,8 +16,8 @@
 #include <iostream>
 #include <string>
 
-#include "processor/processor.h"
-#include "utils/flags.h"
+#include "processor/wetext_processor.h"
+#include "utils/wetext_flags.h"
 
 DEFINE_string(text, "", "input string");
 DEFINE_string(file, "", "input file");

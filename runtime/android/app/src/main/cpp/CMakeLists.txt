@@ -18,5 +18,5 @@ include_directories(
 add_subdirectory(utils)
 add_subdirectory(processor)
 
-link_libraries(processor android)
+link_libraries(wetext_processor android)
 add_library(${TARGET} SHARED wetextprocessing.cc)

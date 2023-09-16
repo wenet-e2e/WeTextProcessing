@@ -14,7 +14,7 @@
 
 #include "gmock/gmock.h"
 
-#include "utils/string.h"
+#include "utils/wetext_string.h"
 
 class StringTest : public testing::Test {};
 
