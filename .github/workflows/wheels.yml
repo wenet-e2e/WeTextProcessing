@@ -27,8 +27,8 @@ jobs:
 
       - name: Build Graph
         run: |
-          python normalize.py --text "2.5平方电线" --overwrite_cache
-          python inverse_normalize.py --text "二点五平方电线" --overwrite_cache
+          python -m tn --text "2.5平方电线" --overwrite_cache
+          python -m itn --text "二点五平方电线" --overwrite_cache
 
       - name: Prepare Graph
         run: |
