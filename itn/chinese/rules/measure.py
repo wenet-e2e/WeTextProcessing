@@ -32,24 +32,29 @@ class Measure(Processor):
         units_en = string_file('itn/chinese/data/measure/units_en.tsv')
         units_zh = string_file('itn/chinese/data/measure/units_zh.tsv')
         sign = string_file('itn/chinese/data/number/sign.tsv')    # + -
+        to = cross('到', '~') | cross('到百分之', '~')
+
         units = add_weight(units_en, -1.0) | \
             ((accep('亿') | accep('兆') | accep('万')).ques + units_zh)
 
         number = Cardinal().number if self.enable_0_to_9 else \
             Cardinal().number_exclude_0_to_9
-        # 百分之三十, 百分三十, 百分之百
+        # 百分之三十, 百分三十, 百分之百，百分之三十到四十, 百分之三十到百分之五十五
         percent = ((sign + delete('的').ques).ques + delete('百分') +
-                   delete('之').ques + (Cardinal().number | cross('百', '100'))
+                   delete('之').ques +
+                   ((Cardinal().number + (to + Cardinal().number).ques) |
+                    ((Cardinal().number + to).ques + cross('百', '100')))
                    + insert('%'))
 
-        # 十千米每小时 => 10km/h
-        measure = number + units
+        # 十千米每小时 => 10km/h, 十一到一百千米每小时 => 11~100km/h
+        measure = number + (to + number).ques + units
         tagger = insert('value: "') + (measure | percent) + insert('"')
 
-        # 每小时十千米 => 10km/h
+        # 每小时十千米 => 10km/h, 每小时三十到三百一十一千米 => 30~311km/h
         tagger |= (
             insert('denominator: "') + delete('每') + units +
             insert('" numerator: "') + measure + insert('"'))
+
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
