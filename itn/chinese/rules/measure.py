@@ -43,7 +43,7 @@ class Measure(Processor):
         percent = ((sign + delete('的').ques).ques + delete('百分') +
                    delete('之').ques +
                    ((Cardinal().number + (to + Cardinal().number).ques) |
-                    cross('百', '100'))
+                    ((Cardinal().number + to).ques + cross('百', '100')))
                    + insert('%'))
 
         # 十千米每小时 => 10km/h, 十一到一百千米每小时 => 11~100km/h
