@@ -72,6 +72,13 @@ class Cardinal(Processor):
                   (number + accep('亿') + delete('零').ques).ques + number)
         # 负的xxx 1.11, 1.01
         number = sign.ques + number + (dot + digits.plus).ques
+        # 五六万，三五千，六七百，三四十
+        number |= add_weight(
+            (digit + insert("0~") + digit + cross("十", "0")) |
+            (digit + insert("00~") + digit + cross("百", "00")) |
+            (digit + insert("000~") + digit + cross("千", "000")) |
+            (digit + insert("0000~") + digit + cross("万", "0000")), -1.0
+        )
         self.number = number.optimize()
 
         # 十/百/千/万
@@ -86,6 +93,13 @@ class Cardinal(Processor):
         number_exclude_0_to_9 |= (
             (number_exclude_0_to_9 | digits) +
             (dot + digits.plus).plus
+        )
+        # 五六万，三五千，六七百，三四十
+        number_exclude_0_to_9 |= add_weight(
+            (digit + insert("0~") + digit + cross("十", "0")) |
+            (digit + insert("00~") + digit + cross("百", "00")) |
+            (digit + insert("000~") + digit + cross("千", "000")) |
+            (digit + insert("0000~") + digit + cross("万", "0000")), -1.0
         )
         self.number_exclude_0_to_9 = (sign.ques + number_exclude_0_to_9).optimize()  # noqa
 

@@ -31,6 +31,7 @@ class Measure(Processor):
     def build_tagger(self):
         units_en = string_file('itn/chinese/data/measure/units_en.tsv')
         units_zh = string_file('itn/chinese/data/measure/units_zh.tsv')
+        digit = string_file('itn/chinese/data/number/digit.tsv')  # 1 ~ 9
         sign = string_file('itn/chinese/data/number/sign.tsv')    # + -
         to = cross('到', '~') | cross('到百分之', '~')
 
@@ -48,6 +49,8 @@ class Measure(Processor):
 
         # 十千米每小时 => 10km/h, 十一到一百千米每小时 => 11~100km/h
         measure = number + (to + number).ques + units
+        # 七八块钱
+        measure |= add_weight(digit + insert("~") + digit + units, -1.0)
         tagger = insert('value: "') + (measure | percent) + insert('"')
 
         # 每小时十千米 => 10km/h, 每小时三十到三百一十一千米 => 30~311km/h
