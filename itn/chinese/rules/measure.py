@@ -49,8 +49,14 @@ class Measure(Processor):
 
         # 十千米每小时 => 10km/h, 十一到一百千米每小时 => 11~100km/h
         measure = number + (to + number).ques + units
-        # 七八块钱
-        measure |= add_weight(digit + insert("~") + digit + units, -1.0)
+        # 七八块钱 => 7~8块钱, 十七八美元 => $17~18, 四十五六岁 => 45-6岁,
+        # 三百七八公里 => 370-80km, 三百七八十千克 => 370-80kg
+        special_number = digit + insert("~") + digit
+        special_number |= cross('十', '1') + digit + insert("~1") + digit
+        special_number |= digit + delete('十') + digit + insert("-") + digit
+        special_number |= digit + delete('百') + digit + insert("0-") + digit \
+            + (insert("0") | add_weight(cross("十", "0"), -1.0))
+        measure |= add_weight(special_number + units, -1.0)
         tagger = insert('value: "') + (measure | percent) + insert('"')
 
         # 每小时十千米 => 10km/h, 每小时三十到三百一十一千米 => 30~311km/h
