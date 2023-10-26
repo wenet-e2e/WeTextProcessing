@@ -73,13 +73,22 @@ class Cardinal(Processor):
         # 负的xxx 1.11, 1.01
         number = sign.ques + number + (dot + digits.plus).ques
         # 五六万，三五千，六七百，三四十
-        number |= add_weight(
-            (digit + insert("0~") + digit + cross("十", "0")) |
-            (digit + insert("00~") + digit + cross("百", "00")) |
-            (digit + insert("000~") + digit + cross("千", "000")) |
-            (digit + insert("0000~") + digit + cross("万", "0000")), -1.0
-        )
+        special_2number = digit + insert("0~") + digit + cross("十", "0")
+        special_2number |= digit + insert("00~") + digit + cross("百", "00")
+        special_2number |= digit + insert("000~") + digit + cross("千", "000")
+        special_2number |= digit + insert("0000~") + digit + cross("万", "0000")
+        number |= special_2number
+        # 十七八美元 => $17~18, 四十五六岁 => 45-6岁,
+        # 三百七八公里 => 370-80km, 三百七八十千克 => 370-80kg
+        special_3number = cross('十', '1') + digit + insert("~1") + digit
+        special_3number |= digit + delete('十') + digit + insert("-") + digit
+        special_3number |= digit + delete('百') + digit + insert("0-") + digit \
+            + (insert("0") | add_weight(cross("十", "0"), -0.1))
+        number |= add_weight(special_3number, -100.0)
+
         self.number = number.optimize()
+        self.special_2number = special_2number.optimize()
+        self.special_3number = special_3number.optimize()
 
         # 十/百/千/万
         number_exclude_0_to_9 = teen | tens | hundred | thousand | ten_thousand
@@ -95,12 +104,11 @@ class Cardinal(Processor):
             (dot + digits.plus).plus
         )
         # 五六万，三五千，六七百，三四十
-        number_exclude_0_to_9 |= add_weight(
-            (digit + insert("0~") + digit + cross("十", "0")) |
-            (digit + insert("00~") + digit + cross("百", "00")) |
-            (digit + insert("000~") + digit + cross("千", "000")) |
-            (digit + insert("0000~") + digit + cross("万", "0000")), -1.0
-        )
+        # 十七八美元 => $17~18, 四十五六岁 => 45-6岁,
+        # 三百七八公里 => 370-80km, 三百七八十千克 => 370-80kg
+        number_exclude_0_to_9 |= special_2number
+        number_exclude_0_to_9 |= add_weight(special_3number, -100.0)
+
         self.number_exclude_0_to_9 = (sign.ques + number_exclude_0_to_9).optimize()  # noqa
 
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
