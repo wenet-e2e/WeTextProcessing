@@ -23,6 +23,7 @@ from itn.chinese.rules.money import Money
 from itn.chinese.rules.whitelist import Whitelist
 from itn.chinese.rules.time import Time
 from itn.chinese.rules.postprocessor import PostProcessor
+from itn.chinese.rules.license_plate import LicensePlate
 
 from pynini.lib.pynutil import add_weight, delete
 from importlib_resources import files
@@ -49,6 +50,7 @@ class InverseNormalizer(Processor):
                   | add_weight(Time().tagger, 1.05)
                   | add_weight(Cardinal(self.convert_number, self.enable_0_to_9).tagger, 1.06)  # noqa
                   | add_weight(Math().tagger, 1.10)
+                  | add_weight(LicensePlate().tagger, 1.0)
                   | add_weight(Char().tagger, 100)).optimize()
 
         tagger = tagger.star
@@ -64,6 +66,7 @@ class InverseNormalizer(Processor):
                       | Measure(enable_0_to_9=self.enable_0_to_9).verbalizer
                       | Money(enable_0_to_9=self.enable_0_to_9).verbalizer
                       | Time().verbalizer
+                      | LicensePlate().verbalizer
                       | Whitelist().verbalizer).optimize()
         postprocessor = PostProcessor(remove_interjections=True).processor
 

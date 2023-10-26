@@ -38,6 +38,7 @@ class TestNormalizer:
         parse_test_case('data/time.txt'),
         parse_test_case('data/whitelist.txt'),
         parse_test_case('data/number.txt'),
+        parse_test_case('data/license_plate.txt'),
         parse_test_case('data/normalizer.txt'))
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)
@@ -61,6 +62,7 @@ class TestNormalizerDisablestandalonenumberEnable0to9:
         parse_test_case('data/money.txt'),
         parse_test_case('data/time.txt'),
         parse_test_case('data/whitelist.txt'),
+        parse_test_case('data/license_plate.txt'),
         parse_test_case('data/normalizer_disable_standalone_number_enable_0_to_9.txt'))
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)
@@ -83,6 +85,7 @@ class TestNormalizerEnablestandalonenumberDisable0to9:
         parse_test_case('data/money.txt'),
         parse_test_case('data/time.txt'),
         parse_test_case('data/whitelist.txt'),
+        parse_test_case('data/license_plate.txt'),
         parse_test_case('data/normalizer_enable_standalone_number_disable_0_to_9.txt'))
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)
@@ -105,6 +108,7 @@ class TestNormalizerDisablestandalonenumberDisable0to9:
         parse_test_case('data/money.txt'),
         parse_test_case('data/time.txt'),
         parse_test_case('data/whitelist.txt'),
+        parse_test_case('data/license_plate.txt'),
         parse_test_case('data/normalizer_disable_standalone_number_disable_0_to_9.txt'))
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)
