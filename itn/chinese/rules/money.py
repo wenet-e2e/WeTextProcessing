@@ -30,9 +30,12 @@ class Money(Processor):
     def build_tagger(self):
         code = string_file('itn/chinese/data/money/code.tsv')
         symbol = string_file('itn/chinese/data/money/symbol.tsv')
+        digit = string_file('itn/chinese/data/number/digit.tsv')  # 1 ~ 9
 
         number = Cardinal().number if self.enable_0_to_9 else \
             Cardinal().number_exclude_0_to_9
+        # 七八美元 => $7~8
+        number |= digit + insert("~") + digit
         tagger = (insert('value: "') + number + insert('"') +
                   insert(' currency: "') + (code | symbol) + insert('"'))
         self.tagger = self.add_tokens(tagger)

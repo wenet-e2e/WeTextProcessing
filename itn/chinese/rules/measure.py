@@ -36,7 +36,7 @@ class Measure(Processor):
         to = cross('到', '~') | cross('到百分之', '~')
 
         units = add_weight(units_en, -1.0) | \
-            ((accep('亿') | accep('兆') | accep('万')).ques + units_zh)
+            add_weight((accep('亿') | accep('兆') | accep('万')), -0.5).ques + units_zh
 
         number = Cardinal().number if self.enable_0_to_9 else \
             Cardinal().number_exclude_0_to_9
@@ -50,7 +50,7 @@ class Measure(Processor):
         # 十千米每小时 => 10km/h, 十一到一百千米每小时 => 11~100km/h
         measure = number + (to + number).ques + units
         # 七八块钱
-        measure |= add_weight(digit + insert("~") + digit + units, -1.0)
+        measure |= digit + insert("~") + digit + units
         tagger = insert('value: "') + (measure | percent) + insert('"')
 
         # 每小时十千米 => 10km/h, 每小时三十到三百一十一千米 => 30~311km/h
