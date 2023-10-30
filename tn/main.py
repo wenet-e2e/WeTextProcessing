@@ -22,11 +22,14 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--text', help='input string')
     parser.add_argument('--file', help='input file path')
+    parser.add_argument('--cache_dir', type=str,
+                        default=None,
+                        help='cache dir containing *.fst')
     parser.add_argument('--overwrite_cache', action='store_true',
                         help='rebuild *.fst')
     args = parser.parse_args()
 
-    normalizer = Normalizer(cache_dir='tn',
+    normalizer = Normalizer(cache_dir=args.cache_dir,
                             overwrite_cache=args.overwrite_cache)
 
     if args.text:
