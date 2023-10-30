@@ -39,9 +39,9 @@ class Cardinal(Processor):
         digits = zero | digit  # 0 ~ 9
 
         # 十一 => 11, 十二 => 12
-        teen = cross('十', '1') + (digit | addzero)
+        teen = cross('十', '1') + (digit | add_weight(addzero, 0.1))
         # 一十一 => 11, 二十一 => 21, 三十 => 30
-        tens = digit + delete('十') + (digit | addzero)
+        tens = digit + delete('十') + (digit | add_weight(addzero, 0.1))
         # 一百一十 => 110, 一百零一 => 101, 一百一 => 110, 一百 => 100
         hundred = (digit + delete('百') + (tens
                                           | teen
@@ -123,5 +123,6 @@ class Cardinal(Processor):
                 cardinal |= number
             else:
                 cardinal |= number_exclude_0_to_9
-        tagger = insert('value: "') + cardinal + insert('"')
+        tagger = insert('value: "') + cardinal + (insert(" ") + cardinal).star \
+            + insert('"')
         self.tagger = self.add_tokens(tagger)
