@@ -30,6 +30,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--text', help='input string')
     parser.add_argument('--file', help='input file path')
+    parser.add_argument('--cache_dir', type=str,
+                        default=None,
+                        help='cache dir containing *.fst')
     parser.add_argument('--overwrite_cache', action='store_true',
                         help='rebuild *.fst')
     parser.add_argument('--enable_standalone_number', type=str,
@@ -41,7 +44,7 @@ def main():
     args = parser.parse_args()
 
     normalizer = InverseNormalizer(
-        cache_dir='itn', overwrite_cache=args.overwrite_cache,
+        cache_dir=args.cache_dir, overwrite_cache=args.overwrite_cache,
         enable_standalone_number=str2bool(args.enable_standalone_number),
         enable_0_to_9=str2bool(args.enable_0_to_9))
 
