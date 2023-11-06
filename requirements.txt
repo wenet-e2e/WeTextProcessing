@@ -1,4 +1,4 @@
 flake8
 importlib_resources
-pynini
+pynini==2.1.5
 pytest
