@@ -36,12 +36,14 @@ class Normalizer(Processor):
                  cache_dir=None,
                  overwrite_cache=False,
                  remove_interjections=True,
+                 remove_erhua=True,
                  traditional_to_simple=True,
                  remove_puncts=False,
                  full_to_half=True,
                  tag_oov=False):
         super().__init__(name='normalizer')
         self.remove_interjections = remove_interjections
+        self.remove_erhua = remove_erhua
         self.traditional_to_simple = traditional_to_simple
         self.remove_puncts = remove_puncts
         self.full_to_half = full_to_half
@@ -81,7 +83,7 @@ class Normalizer(Processor):
         money = Money().verbalizer
         sport = Sport().verbalizer
         time = Time().verbalizer
-        whitelist = Whitelist().verbalizer
+        whitelist = Whitelist(remove_erhua=self.remove_erhua).verbalizer
 
         verbalizer = (cardinal | char | date | fraction | math | measure
                       | money | sport | time | whitelist).optimize()
