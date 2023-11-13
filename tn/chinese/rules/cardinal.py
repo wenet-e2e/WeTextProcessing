@@ -67,8 +67,8 @@ class Cardinal(Processor):
             | cross('二万', '两万'))
         self.number = accep('约').ques + number.optimize()
 
-        # cardinal string like 110 or 127.0.0.1, used in ID, IP, etc.
-        cardinal = digits.plus + (digits | dot).plus.ques + digits.plus
+        # cardinal string like 127.0.0.1, used in ID, IP, etc.
+        cardinal = digits.plus + (dot + digits.plus)**3
         # xxxx-xxx-xxx
         cardinal |= digits.plus + (delete('-') + digits.plus)**2
         # three or five or eleven phone numbers
