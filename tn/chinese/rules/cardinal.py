@@ -65,7 +65,7 @@ class Cardinal(Processor):
             cross('二百', '两百')
             | cross('二千', '两千')
             | cross('二万', '两万'))
-        self.number = accep('约').ques + number.optimize()
+        self.number = accep('约').ques + accep('人均').ques + number.optimize()
 
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
         cardinal = digits.plus + (dot + digits.plus)**3
