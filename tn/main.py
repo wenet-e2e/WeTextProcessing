@@ -30,7 +30,10 @@ def main():
                         help='rebuild *.fst')
     parser.add_argument('--remove_interjections', type=str,
                         default='True',
-                        help='remove interjections like "啊" and "儿"')
+                        help='remove interjections like "啊"')
+    parser.add_argument('--remove_erhua', type=str,
+                        default='True',
+                        help='remove "儿"')
     parser.add_argument('--traditional_to_simple', type=str,
                         default='True',
                         help='i.e., "喆" -> "哲"')
@@ -48,6 +51,7 @@ def main():
     normalizer = Normalizer(cache_dir=args.cache_dir,
                             overwrite_cache=args.overwrite_cache,
                             remove_interjections=str2bool(args.remove_interjections),
+                            remove_erhua=str2bool(args.remove_erhua),
                             traditional_to_simple=str2bool(args.traditional_to_simple),
                             remove_puncts=str2bool(args.remove_puncts),
                             full_to_half=str2bool(args.full_to_half),

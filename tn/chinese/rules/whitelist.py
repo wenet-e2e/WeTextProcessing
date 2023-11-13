@@ -20,8 +20,9 @@ from pynini.lib.pynutil import add_weight, delete, insert
 
 class Whitelist(Processor):
 
-    def __init__(self):
+    def __init__(self, remove_erhua=True):
         super().__init__(name='whitelist')
+        self.remove_erhua = remove_erhua
         self.build_tagger()
         self.build_verbalizer()
 
@@ -35,5 +36,9 @@ class Whitelist(Processor):
 
     def build_verbalizer(self):
         super().build_verbalizer()
-        verbalizer = self.delete_tokens(delete('erhua: "儿"'))
+        if self.remove_erhua:
+            verbalizer = self.delete_tokens(delete('erhua: "儿"'))
+        else:
+            verbalizer = self.delete_tokens(delete('erhua: \"') +
+                                            accep('儿') + delete('\"'))
         self.verbalizer |= verbalizer
