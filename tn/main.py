@@ -16,6 +16,7 @@ import argparse
 
 # TODO(pzd17): multi-language support
 from tn.chinese.normalizer import Normalizer
+from itn.main import str2bool
 
 
 def main():
@@ -27,10 +28,30 @@ def main():
                         help='cache dir containing *.fst')
     parser.add_argument('--overwrite_cache', action='store_true',
                         help='rebuild *.fst')
+    parser.add_argument('--remove_interjections', type=str,
+                        default='True',
+                        help='remove interjections like "啊" and "儿"')
+    parser.add_argument('--traditional_to_simple', type=str,
+                        default='True',
+                        help='i.e., "喆" -> "哲"')
+    parser.add_argument('--remove_puncts', type=str,
+                        default='False',
+                        help='remove punctuations like "。" and "，"')
+    parser.add_argument('--full_to_half', type=str,
+                        default='True',
+                        help='i.e., "Ａ" -> "A"')
+    parser.add_argument('--tag_oov', type=str,
+                        default='False',
+                        help='tag OOV with "OOV"')
     args = parser.parse_args()
 
     normalizer = Normalizer(cache_dir=args.cache_dir,
-                            overwrite_cache=args.overwrite_cache)
+                            overwrite_cache=args.overwrite_cache,
+                            remove_interjections=str2bool(args.remove_interjections),
+                            traditional_to_simple=str2bool(args.traditional_to_simple),
+                            remove_puncts=str2bool(args.remove_puncts),
+                            full_to_half=str2bool(args.full_to_half),
+                            tag_oov=str2bool(args.tag_oov))
 
     if args.text:
         print(normalizer.tag(args.text))
