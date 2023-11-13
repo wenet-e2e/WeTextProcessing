@@ -71,6 +71,8 @@ class Cardinal(Processor):
         cardinal = digits.plus + (dot + digits.plus)**3
         # xxxx-xxx-xxx
         cardinal |= digits.plus + (delete('-') + digits.plus)**2
+        # xxx-xxxxxxxx
+        cardinal |= digits**3 + delete('-') + digits**8
         # three or five or eleven phone numbers
         phone_digits = digits @ self.build_rule(cross('一', '幺'))
         phone = phone_digits**3 | phone_digits**5 | phone_digits**11
