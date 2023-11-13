@@ -112,7 +112,7 @@ class Cardinal(Processor):
         self.number_exclude_0_to_9 = (sign.ques + number_exclude_0_to_9).optimize()  # noqa
 
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
-        cardinal = digit.plus + (dot + digits.plus).plus
+        cardinal = digits.plus + (dot + digits.plus).plus
         # float number like 1.11
         cardinal |= (number + dot + digits.plus)
         # cardinal string like 110 or 12306 or 13125617878, used in phone
