@@ -16,7 +16,7 @@ from tn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
 
 from pynini import accep, cross, string_file
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import delete, insert, add_weight
 
 
 class Measure(Processor):
@@ -29,7 +29,8 @@ class Measure(Processor):
     def build_tagger(self):
         units_en = string_file('tn/chinese/data/measure/units_en.tsv')
         units_zh = string_file('tn/chinese/data/measure/units_zh.tsv')
-        units = units_en | units_zh
+        units = add_weight((cross("k", "千") | cross("w", "万")), 0.1).ques + \
+            (units_en | units_zh)
         rmspace = delete(' ').ques
         to = cross('-', '到') | cross('~', '到') | accep('到')
 
