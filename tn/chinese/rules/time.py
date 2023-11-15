@@ -30,10 +30,11 @@ class Time(Processor):
         m = string_file('tn/chinese/data/time/minute.tsv')
         s = string_file('tn/chinese/data/time/second.tsv')
         noon = string_file('tn/chinese/data/time/noon.tsv')
+        colon = delete(':') | delete('：')
 
-        tagger = (insert('hour: "') + h + insert('" ') + delete(':') +
+        tagger = (insert('hour: "') + h + insert('" ') + colon +
                   insert('minute: "') + m + insert('"') +
-                  (delete(':') + insert(' second: "') + s + insert('"')).ques +
+                  (colon + insert(' second: "') + s + insert('"')).ques +
                   delete(' ').ques +
                   (insert(' noon: "') + noon + insert('"')).ques)
         tagger = self.add_tokens(tagger)
