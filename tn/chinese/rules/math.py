@@ -32,5 +32,6 @@ class Math(Processor):
         number = Cardinal().number
         tagger = (number + ((delete(' ').ques + operator + delete(' ').ques +
                              number).plus).ques)
+        tagger |= operator
         tagger = insert('value: "') + tagger + insert('"')
         self.tagger = self.add_tokens(tagger)
