@@ -34,7 +34,7 @@ class Cardinal(Processor):
         sign = string_file('tn/chinese/data/number/sign.tsv')
         dot = string_file('tn/chinese/data/number/dot.tsv')
 
-        rmzero = delete('0')
+        rmzero = delete('0') | delete('０')
         rmpunct = delete(',').ques
         digits = zero | digit
         self.digits = digits
