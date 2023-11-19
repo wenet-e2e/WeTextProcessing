@@ -115,8 +115,9 @@ class Cardinal(Processor):
         cardinal = digits.plus + (dot + digits.plus).plus
         # float number like 1.11
         cardinal |= (number + dot + digits.plus)
-        # cardinal string like 110 or 12306 or 13125617878, used in phone
-        cardinal |= (digits**3 | digits**4 | digits**5 | digits**11)
+        # cardinal string like 110 or 12306 or 13125617878, used in phone,
+        #   340621199806051223, used in ID card
+        cardinal |= (digits**3 | digits**4 | digits**5 | digits**11 | digits**18)
         # cardinal string like 23
         if self.enable_standalone_number:
             if self.enable_0_to_9:
