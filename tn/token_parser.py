@@ -25,7 +25,7 @@ ITN_ORDERS = {
     'date': ['year', 'month', 'day'],
     'fraction': ['sign', 'numerator', 'denominator'],
     'measure': ['numerator', 'denominator', 'value'],
-    'money': ['currency', 'value'],
+    'money': ['currency', 'value', 'decimal'],
     'time': ['hour', 'minute', 'second', 'noon']}
 
 

@@ -36,7 +36,7 @@ const std::unordered_map<std::string, std::vector<std::string>> ITN_ORDERS = {
     {"date", {"year", "month", "day"}},
     {"fraction", {"sign", "numerator", "denominator"}},
     {"measure", {"numerator", "denominator", "value"}},
-    {"money", {"currency", "value"}},
+    {"money", {"currency", "value", "decimal"}},
     {"time", {"hour", "minute", "second", "noon"}}};
 
 TokenParser::TokenParser(ParseType type) {

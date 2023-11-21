@@ -36,12 +36,17 @@ class Money(Processor):
             Cardinal().number_exclude_0_to_9
         # 七八美元 => $7~8
         number |= digit + insert("~") + digit
+        # 三千三百八十元五毛八分 => ¥3380.58
         tagger = (insert('value: "') + number + insert('"') +
-                  insert(' currency: "') + (code | symbol) + insert('"'))
+                  insert(' currency: "') + (code | symbol) + insert('"') +
+                  insert(' decimal: "') + (
+                      insert(".") + digit + (delete("毛") | delete("角")) + (digit + delete("分")).ques
+                  ).ques + insert('"'))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
         currency = delete('currency: "') + self.SIGMA + delete('"')
         value = delete(' value: "') + self.SIGMA + delete('"')
-        verbalizer = currency + value
+        decimal = delete(' decimal: "') + self.SIGMA + delete('"')
+        verbalizer = currency + value + decimal
         self.verbalizer = self.delete_tokens(verbalizer)
