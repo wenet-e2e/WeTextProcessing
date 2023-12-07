@@ -2,3 +2,4 @@ flake8
 importlib_resources
 pynini==2.1.5
 pytest
+pre-commit==3.5.0

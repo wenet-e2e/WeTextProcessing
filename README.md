@@ -53,6 +53,8 @@ For users who want modifications and adapt tn/itn rules to fix badcase, please t
 ``` bash
 git clone https://github.com/wenet-e2e/WeTextProcessing.git
 cd WeTextProcessing
+pip install -r requirements.txt
+pre-commit install # for clean and tidy code
 # `overwrite_cache` will rebuild all rules according to
 #   your modifications on tn/chinese/rules/xx.py (itn/chinese/rules/xx.py).
 #   After rebuild, you can find new far files at `$PWD/tn` and `$PWD/itn`.
