@@ -39,9 +39,9 @@ class Money(Processor):
         # 三千三百八十元五毛八分 => ¥3380.58
         tagger = (insert('value: "') + number + insert('"') +
                   insert(' currency: "') + (code | symbol) + insert('"') +
-                  insert(' decimal: "') + (
-                      insert(".") + digit + (delete("毛") | delete("角")) + (digit + delete("分")).ques
-                  ).ques + insert('"'))
+                  insert(' decimal: "') +
+                  (insert(".") + digit + (delete("毛") | delete("角")) +
+                   (digit + delete("分")).ques).ques + insert('"'))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):

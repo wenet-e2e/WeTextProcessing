@@ -32,14 +32,14 @@ class Measure(Processor):
         units_en = string_file('itn/chinese/data/measure/units_en.tsv')
         units_zh = string_file('itn/chinese/data/measure/units_zh.tsv')
         digit = string_file('itn/chinese/data/number/digit.tsv')  # 1 ~ 9
-        sign = string_file('itn/chinese/data/number/sign.tsv')    # + -
+        sign = string_file('itn/chinese/data/number/sign.tsv')  # + -
         to = cross('到', '~') | cross('到百分之', '~')
 
-        units = add_weight((accep('亿') | accep('兆') | accep('万')), -0.5).ques + units_zh
-        units |= add_weight((cross('亿', '00M') | cross('兆', 'T') |
-                             cross('万', 'W')), -0.5).ques + (
-            add_weight(units_en, -1.0)
-        )
+        units = add_weight(
+            (accep('亿') | accep('兆') | accep('万')), -0.5).ques + units_zh
+        units |= add_weight(
+            (cross('亿', '00M') | cross('兆', 'T') | cross('万', 'W')),
+            -0.5).ques + (add_weight(units_en, -1.0))
 
         number = Cardinal().number if self.enable_0_to_9 else \
             Cardinal().number_exclude_0_to_9
@@ -47,8 +47,8 @@ class Measure(Processor):
         percent = ((sign + delete('的').ques).ques + delete('百分') +
                    delete('之').ques +
                    ((Cardinal().number + (to + Cardinal().number).ques) |
-                    ((Cardinal().number + to).ques + cross('百', '100')))
-                   + insert('%'))
+                    ((Cardinal().number + to).ques + cross('百', '100'))) +
+                   insert('%'))
 
         # 十千米每小时 => 10km/h, 十一到一百千米每小时 => 11~100km/h
         measure = number + (to + number).ques + units
@@ -57,9 +57,8 @@ class Measure(Processor):
         tagger = insert('value: "') + (measure | percent) + insert('"')
 
         # 每小时十千米 => 10km/h, 每小时三十到三百一十一千米 => 30~311km/h
-        tagger |= (
-            insert('denominator: "') + delete('每') + units +
-            insert('" numerator: "') + measure + insert('"'))
+        tagger |= (insert('denominator: "') + delete('每') + units +
+                   insert('" numerator: "') + measure + insert('"'))
 
         self.tagger = self.add_tokens(tagger)
 

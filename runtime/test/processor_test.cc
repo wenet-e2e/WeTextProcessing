@@ -57,7 +57,7 @@ class ProcessorTest
     processor = new wetext::Processor(tagger_path, verbalizer_path);
     written = GetParam().first;
     spoken = GetParam().second;
-  };
+  }
 
   virtual void TearDown() { delete processor; }
 };

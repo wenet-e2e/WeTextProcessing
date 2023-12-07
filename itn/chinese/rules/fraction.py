@@ -28,16 +28,15 @@ class Fraction(Processor):
 
     def build_tagger(self):
         number = Cardinal().number
-        sign = string_file('itn/chinese/data/number/sign.tsv')    # + -
+        sign = string_file('itn/chinese/data/number/sign.tsv')  # + -
 
         # NOTE(xcsong): default weight = 1.0,  set to -1.0 means higher priority
         #   For example,
         #       1.0, 负二分之三 -> { sign: "" denominator: "-2" numerator: "3" }
         #       -1.0,负二分之三 -> { sign: "-" denominator: "2" numerator: "3" }
         tagger = (insert('sign: "') + add_weight(sign, -1.0).ques +
-                  insert('" denominator: "') + number +
-                  delete('分之') + insert('" numerator: "') +
-                  number + insert('"'))
+                  insert('" denominator: "') + number + delete('分之') +
+                  insert('" numerator: "') + number + insert('"'))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):

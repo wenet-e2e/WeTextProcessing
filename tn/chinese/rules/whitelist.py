@@ -39,6 +39,6 @@ class Whitelist(Processor):
         if self.remove_erhua:
             verbalizer = self.delete_tokens(delete('erhua: "儿"'))
         else:
-            verbalizer = self.delete_tokens(delete('erhua: \"') +
-                                            accep('儿') + delete('\"'))
+            verbalizer = self.delete_tokens(
+                delete('erhua: \"') + accep('儿') + delete('\"'))
         self.verbalizer |= verbalizer

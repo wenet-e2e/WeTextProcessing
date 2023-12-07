@@ -34,7 +34,7 @@ void init(JNIEnv* env, jobject, jstring jModelDir) {
   processorITN = std::make_shared<wetext::Processor>(itnTagger, itnVerbalizer);
 }
 
-jstring normalize(JNIEnv *env, jobject, jstring input) {
+jstring normalize(JNIEnv* env, jobject, jstring input) {
   std::string input_text = std::string(env->GetStringUTFChars(input, nullptr));
   std::string tagged_text = processorTN->Tag(input_text);
   std::string normalized_text = processorTN->Verbalize(tagged_text);
@@ -42,7 +42,7 @@ jstring normalize(JNIEnv *env, jobject, jstring input) {
   return env->NewStringUTF(normalized_text.c_str());
 }
 
-jstring inverse_normalize(JNIEnv *env, jobject, jstring input) {
+jstring inverse_normalize(JNIEnv* env, jobject, jstring input) {
   std::string input_text = std::string(env->GetStringUTFChars(input, nullptr));
   std::string tagged_text = processorITN->Tag(input_text);
   std::string normalized_text = processorITN->Verbalize(tagged_text);
@@ -51,9 +51,9 @@ jstring inverse_normalize(JNIEnv *env, jobject, jstring input) {
 }
 }  // namespace wetextprocessing
 
-JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *) {
-  JNIEnv *env;
-  if (vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_6) != JNI_OK) {
+JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void*) {
+  JNIEnv* env;
+  if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
     return JNI_ERR;
   }
 
@@ -63,12 +63,12 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *) {
   }
 
   static const JNINativeMethod methods[] = {
-    {"init", "(Ljava/lang/String;)V", reinterpret_cast<void*>(wetextprocessing::init)},
-    {"normalize", "(Ljava/lang/String;)Ljava/lang/String;",
-            reinterpret_cast<void *>(wetextprocessing::normalize)},
-    {"inverse_normalize", "(Ljava/lang/String;)Ljava/lang/String;",
-            reinterpret_cast<void *>(wetextprocessing::inverse_normalize)}
-  };
+      {"init", "(Ljava/lang/String;)V",
+       reinterpret_cast<void*>(wetextprocessing::init)},
+      {"normalize", "(Ljava/lang/String;)Ljava/lang/String;",
+       reinterpret_cast<void*>(wetextprocessing::normalize)},
+      {"inverse_normalize", "(Ljava/lang/String;)Ljava/lang/String;",
+       reinterpret_cast<void*>(wetextprocessing::inverse_normalize)}};
   int rc = env->RegisterNatives(c, methods,
                                 sizeof(methods) / sizeof(JNINativeMethod));
 
