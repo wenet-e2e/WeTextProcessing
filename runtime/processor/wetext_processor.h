@@ -15,6 +15,9 @@
 #ifndef PROCESSOR_WETEXT_PROCESSOR_H_
 #define PROCESSOR_WETEXT_PROCESSOR_H_
 
+#include <memory>
+#include <string>
+
 #include "fst/fstlib.h"
 
 #include "processor/wetext_token_parser.h"

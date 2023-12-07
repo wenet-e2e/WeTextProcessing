@@ -22,7 +22,7 @@
 
 namespace wetext {
 
-extern const std::string EOS;
+extern const char EOS[];
 extern const std::set<std::string> UTF8_WHITESPACE;
 extern const std::set<std::string> ASCII_LETTERS;
 extern const std::unordered_map<std::string, std::vector<std::string>>
@@ -35,7 +35,7 @@ struct Token {
   std::vector<std::string> order;
   std::unordered_map<std::string, std::string> members;
 
-  Token(const std::string& name) : name(name) {}
+  explicit Token(const std::string& name) : name(name) {}
 
   void Append(const std::string& key, const std::string& value) {
     order.emplace_back(key);
@@ -66,7 +66,7 @@ enum ParseType {
 
 class TokenParser {
  public:
-  TokenParser(ParseType type);
+  explicit TokenParser(ParseType type);
   std::string Reorder(const std::string& input);
 
  private:

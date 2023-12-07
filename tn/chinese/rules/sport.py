@@ -15,7 +15,7 @@
 from tn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
 
-from pynini import cross, string_file
+from pynini import string_file
 from pynini.lib.pynutil import delete, insert
 
 
