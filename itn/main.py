@@ -42,11 +42,11 @@ def main():
     parser.add_argument('--enable_standalone_number',
                         type=str,
                         default='True',
-                        help='enable standalone number')
+                        help='一百 = 100 if True else 一百')
     parser.add_argument('--enable_0_to_9',
                         type=str,
                         default='False',
-                        help='enable convert number 0 to 9')
+                        help='零和九 = 0和9 if True else 零和九')
     parser.add_argument('--enable_million',
                         type=str,
                         default='False',
