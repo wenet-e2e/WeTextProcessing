@@ -39,9 +39,9 @@ class Cardinal(Processor):
         sign = string_file('itn/chinese/data/number/sign.tsv')  # + -
         dot = string_file('itn/chinese/data/number/dot.tsv')  # .
 
+        # 0. 基础数字
         addzero = insert('0')
         digits = zero | digit  # 0 ~ 9
-
         # 十一 => 11, 十二 => 12
         teen = cross('十', '1') + (digit | add_weight(addzero, 0.1))
         # 一十一 => 11, 二十一 => 21, 三十 => 30
@@ -81,6 +81,8 @@ class Cardinal(Processor):
                  | add_weight(addzero**4, 1.0)))
             ten_thousand |= (thousand | hundred) + accep("万") + delete(
                 "零").ques + (thousand | hundred | tens | teen | digits).ques
+
+        # 1. 利用基础数字所构建的包含0~9的完整数字
         # 个/十/百/千/万
         number = digits | teen | tens | hundred | thousand | ten_thousand
         # 兆/亿
@@ -106,6 +108,7 @@ class Cardinal(Processor):
         self.special_2number = special_2number.optimize()
         self.special_3number = special_3number.optimize()
 
+        # 2. 利用基础数字所构建的不包含0~9的完整数字
         # 十/百/千/万
         number_exclude_0_to_9 = teen | tens | hundred | thousand | ten_thousand
         # 兆/亿
@@ -124,8 +127,9 @@ class Cardinal(Processor):
         number_exclude_0_to_9 |= add_weight(special_3number, -100.0)
 
         self.number_exclude_0_to_9 = (sign.ques +
-                                      number_exclude_0_to_9).optimize()  # noqa
+                                      number_exclude_0_to_9).optimize()
 
+        # 3. 特殊格式的数字
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
         cardinal = digits.plus + (dot + digits.plus).plus
         # float number like 1.11
@@ -134,6 +138,8 @@ class Cardinal(Processor):
         #   340621199806051223, used in ID card
         cardinal |= (digits**3 | digits**4 | digits**5 | digits**11
                      | digits**18)
+
+        # 4. 特殊格式的数字 + 包含或不包含0~9的完整数字
         # cardinal string like 23
         if self.enable_standalone_number:
             if self.enable_0_to_9:
