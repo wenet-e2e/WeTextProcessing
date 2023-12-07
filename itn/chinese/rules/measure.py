@@ -35,8 +35,11 @@ class Measure(Processor):
         sign = string_file('itn/chinese/data/number/sign.tsv')    # + -
         to = cross('到', '~') | cross('到百分之', '~')
 
-        units = add_weight(units_en, -1.0) | \
-            add_weight((accep('亿') | accep('兆') | accep('万')), -0.5).ques + units_zh
+        units = add_weight((accep('亿') | accep('兆') | accep('万')), -0.5).ques + units_zh
+        units |= add_weight((cross('亿', '00M') | cross('兆', 'T') |
+                             cross('万', 'W')), -0.5).ques + (
+            add_weight(units_en, -1.0)
+        )
 
         number = Cardinal().number if self.enable_0_to_9 else \
             Cardinal().number_exclude_0_to_9

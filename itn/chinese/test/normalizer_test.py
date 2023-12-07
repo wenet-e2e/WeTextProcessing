@@ -25,7 +25,8 @@ class TestNormalizer:
     normalizer = InverseNormalizer(
         overwrite_cache=True,
         enable_standalone_number=True,
-        enable_0_to_9=True)
+        enable_0_to_9=True,
+        enable_million=False)
 
     normalizer_cases = chain(
         parse_test_case('data/cardinal.txt'),
@@ -51,7 +52,8 @@ class TestNormalizerDisablestandalonenumberEnable0to9:
     normalizer = InverseNormalizer(
         overwrite_cache=True,
         enable_standalone_number=False,
-        enable_0_to_9=True)
+        enable_0_to_9=True,
+        enable_million=False)
 
     normalizer_cases = chain(
         parse_test_case('data/char.txt'),
@@ -75,7 +77,8 @@ class TestNormalizerEnablestandalonenumberDisable0to9:
     normalizer = InverseNormalizer(
         overwrite_cache=True,
         enable_standalone_number=True,
-        enable_0_to_9=False)
+        enable_0_to_9=False,
+        enable_million=False)
 
     normalizer_cases = chain(
         parse_test_case('data/char.txt'),
@@ -98,7 +101,8 @@ class TestNormalizerDisablestandalonenumberDisable0to9:
     normalizer = InverseNormalizer(
         overwrite_cache=True,
         enable_standalone_number=False,
-        enable_0_to_9=False)
+        enable_0_to_9=False,
+        enable_million=False)
 
     normalizer_cases = chain(
         parse_test_case('data/char.txt'),
