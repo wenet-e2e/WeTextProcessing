@@ -27,11 +27,11 @@ class Date(Processor):
 
     def build_tagger(self):
         digit = string_file('itn/chinese/data/number/digit.tsv')  # 1 ~ 9
-        zero = string_file('itn/chinese/data/number/zero.tsv')    # 0
+        zero = string_file('itn/chinese/data/number/zero.tsv')  # 0
 
         yyyy = digit + (digit | zero)**3  # 二零零八年
-        yyy = digit + (digit | zero)**2   # 公元一六八年
-        yy = (digit | zero)**2            # 零八年奥运会
+        yyy = digit + (digit | zero)**2  # 公元一六八年
+        yy = (digit | zero)**2  # 零八年奥运会
         mm = string_file('itn/chinese/data/date/mm.tsv')
         dd = string_file('itn/chinese/data/date/dd.tsv')
 

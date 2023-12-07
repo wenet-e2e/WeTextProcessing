@@ -20,16 +20,19 @@ TN_ORDERS = {
     'fraction': ['denominator', 'numerator'],
     'measure': ['denominator', 'numerator', 'value'],
     'money': ['value', 'currency'],
-    'time': ['noon', 'hour', 'minute', 'second']}
+    'time': ['noon', 'hour', 'minute', 'second']
+}
 ITN_ORDERS = {
     'date': ['year', 'month', 'day'],
     'fraction': ['sign', 'numerator', 'denominator'],
     'measure': ['numerator', 'denominator', 'value'],
     'money': ['currency', 'value', 'decimal'],
-    'time': ['hour', 'minute', 'second', 'noon']}
+    'time': ['hour', 'minute', 'second', 'noon']
+}
 
 
 class Token:
+
     def __init__(self, name):
         self.name = name
         self.order = []
@@ -52,6 +55,7 @@ class Token:
 
 
 class TokenParser:
+
     def __init__(self, ordertype="tn"):
         if ordertype == "tn":
             self.orders = TN_ORDERS

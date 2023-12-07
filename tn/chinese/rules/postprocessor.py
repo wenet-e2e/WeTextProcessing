@@ -21,8 +21,11 @@ from pynini.lib.tagger import Tagger
 
 class PostProcessor(Processor):
 
-    def __init__(self, remove_interjections=True, remove_puncts=False,
-                 full_to_half=True, tag_oov=False):
+    def __init__(self,
+                 remove_interjections=True,
+                 remove_puncts=False,
+                 full_to_half=True,
+                 tag_oov=False):
         super().__init__(name='postprocessor')
         blacklist = string_file('tn/chinese/data/default/blacklist.tsv')
         puncts = string_file('tn/chinese/data/char/punctuations_zh.tsv')

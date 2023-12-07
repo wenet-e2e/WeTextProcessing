@@ -20,7 +20,9 @@ from pynini.lib.pynutil import delete, insert, add_weight
 
 class Cardinal(Processor):
 
-    def __init__(self, enable_standalone_number=True, enable_0_to_9=True,
+    def __init__(self,
+                 enable_standalone_number=True,
+                 enable_0_to_9=True,
                  enable_million=False):
         super().__init__('cardinal')
         self.number = None
@@ -32,10 +34,10 @@ class Cardinal(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        zero = string_file('itn/chinese/data/number/zero.tsv')    # 0
+        zero = string_file('itn/chinese/data/number/zero.tsv')  # 0
         digit = string_file('itn/chinese/data/number/digit.tsv')  # 1 ~ 9
-        sign = string_file('itn/chinese/data/number/sign.tsv')    # + -
-        dot = string_file('itn/chinese/data/number/dot.tsv')      # .
+        sign = string_file('itn/chinese/data/number/sign.tsv')  # + -
+        dot = string_file('itn/chinese/data/number/dot.tsv')  # .
 
         addzero = insert('0')
         digits = zero | digit  # 0 ~ 9
@@ -52,33 +54,33 @@ class Cardinal(Processor):
                                           | add_weight(addzero**2, 1.0)))
         # 一千一百一十一 => 1111, 一千零一十一 => 1011, 一千零一 => 1001
         # 一千一 => 1100, 一千 => 1000
-        thousand = ((hundred | teen | tens | digits) + delete('千') + (
-                    hundred
-                    | add_weight(zero + (tens | teen), 0.1)
-                    | add_weight(addzero + zero + digit, 0.5)
-                    | add_weight(digit + addzero**2, 0.8)
-                    | add_weight(addzero**3, 1.0)))
+        thousand = ((hundred | teen | tens | digits) + delete('千') +
+                    (hundred
+                     | add_weight(zero + (tens | teen), 0.1)
+                     | add_weight(addzero + zero + digit, 0.5)
+                     | add_weight(digit + addzero**2, 0.8)
+                     | add_weight(addzero**3, 1.0)))
         # 10001111, 1001111, 101111, 11111, 10111, 10011, 10001, 10000
         if self.enable_million:
-            ten_thousand = ((thousand | hundred | teen | tens | digits)
-                            + delete('万')
-                            + (thousand
-                               | add_weight(zero + hundred, 0.1)
-                               | add_weight(addzero + zero + (tens | teen), 0.5)
-                               | add_weight(addzero + addzero + zero + digit, 0.5)
-                               | add_weight(digit + addzero**3, 0.8)
-                               | add_weight(addzero**4, 1.0)))
+            ten_thousand = (
+                (thousand | hundred | teen | tens | digits) + delete('万') +
+                (thousand
+                 | add_weight(zero + hundred, 0.1)
+                 | add_weight(addzero + zero + (tens | teen), 0.5)
+                 | add_weight(addzero + addzero + zero + digit, 0.5)
+                 | add_weight(digit + addzero**3, 0.8)
+                 | add_weight(addzero**4, 1.0)))
         else:
-            ten_thousand = ((teen | tens | digits)
-                            + delete('万')
-                            + (thousand
-                               | add_weight(zero + hundred, 0.1)
-                               | add_weight(addzero + zero + (tens | teen), 0.5)
-                               | add_weight(addzero + addzero + zero + digit, 0.5)
-                               | add_weight(digit + addzero**3, 0.8)
-                               | add_weight(addzero**4, 1.0)))
-            ten_thousand |= (thousand | hundred) + accep("万") + delete("零").ques + (
-                thousand | hundred | tens | teen | digits).ques
+            ten_thousand = (
+                (teen | tens | digits) + delete('万') +
+                (thousand
+                 | add_weight(zero + hundred, 0.1)
+                 | add_weight(addzero + zero + (tens | teen), 0.5)
+                 | add_weight(addzero + addzero + zero + digit, 0.5)
+                 | add_weight(digit + addzero**3, 0.8)
+                 | add_weight(addzero**4, 1.0)))
+            ten_thousand |= (thousand | hundred) + accep("万") + delete(
+                "零").ques + (thousand | hundred | tens | teen | digits).ques
         # 个/十/百/千/万
         number = digits | teen | tens | hundred | thousand | ten_thousand
         # 兆/亿
@@ -107,23 +109,22 @@ class Cardinal(Processor):
         # 十/百/千/万
         number_exclude_0_to_9 = teen | tens | hundred | thousand | ten_thousand
         # 兆/亿
-        number_exclude_0_to_9 = (
-            ((number_exclude_0_to_9 | digits) + accep('兆') + delete('零').ques).ques +
-            ((number_exclude_0_to_9 | digits) + accep('亿') + delete('零').ques).ques +
-            number_exclude_0_to_9
-        )
+        number_exclude_0_to_9 = (((number_exclude_0_to_9 | digits) +
+                                  accep('兆') + delete('零').ques).ques +
+                                 ((number_exclude_0_to_9 | digits) +
+                                  accep('亿') + delete('零').ques).ques +
+                                 number_exclude_0_to_9)
         # 负的xxx 1.11, 1.01
-        number_exclude_0_to_9 |= (
-            (number_exclude_0_to_9 | digits) +
-            (dot + digits.plus).plus
-        )
+        number_exclude_0_to_9 |= ((number_exclude_0_to_9 | digits) +
+                                  (dot + digits.plus).plus)
         # 五六万，三五千，六七百，三四十
         # 十七八美元 => $17~18, 四十五六岁 => 45-6岁,
         # 三百七八公里 => 370-80km, 三百七八十千克 => 370-80kg
         number_exclude_0_to_9 |= special_2number
         number_exclude_0_to_9 |= add_weight(special_3number, -100.0)
 
-        self.number_exclude_0_to_9 = (sign.ques + number_exclude_0_to_9).optimize()  # noqa
+        self.number_exclude_0_to_9 = (sign.ques +
+                                      number_exclude_0_to_9).optimize()  # noqa
 
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
         cardinal = digits.plus + (dot + digits.plus).plus
@@ -131,7 +132,8 @@ class Cardinal(Processor):
         cardinal |= (number + dot + digits.plus)
         # cardinal string like 110 or 12306 or 13125617878, used in phone,
         #   340621199806051223, used in ID card
-        cardinal |= (digits**3 | digits**4 | digits**5 | digits**11 | digits**18)
+        cardinal |= (digits**3 | digits**4 | digits**5 | digits**11
+                     | digits**18)
         # cardinal string like 23
         if self.enable_standalone_number:
             if self.enable_0_to_9:
