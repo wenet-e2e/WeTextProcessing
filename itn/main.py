@@ -41,12 +41,16 @@ def main():
     parser.add_argument('--enable_0_to_9', type=str,
                         default='False',
                         help='enable convert number 0 to 9')
+    parser.add_argument('--enable_million', type=str,
+                        default='False',
+                        help='六百万 = 6000000 if True else 600万')
     args = parser.parse_args()
 
     normalizer = InverseNormalizer(
         cache_dir=args.cache_dir, overwrite_cache=args.overwrite_cache,
         enable_standalone_number=str2bool(args.enable_standalone_number),
-        enable_0_to_9=str2bool(args.enable_0_to_9))
+        enable_0_to_9=str2bool(args.enable_0_to_9),
+        enable_million=str2bool(args.enable_million))
 
     if args.text:
         print(normalizer.tag(args.text))

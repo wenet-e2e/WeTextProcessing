@@ -20,12 +20,14 @@ from pynini.lib.pynutil import delete, insert, add_weight
 
 class Cardinal(Processor):
 
-    def __init__(self, enable_standalone_number=True, enable_0_to_9=True):
+    def __init__(self, enable_standalone_number=True, enable_0_to_9=True,
+                 enable_million=False):
         super().__init__('cardinal')
         self.number = None
         self.number_exclude_0_to_9 = None
         self.enable_standalone_number = enable_standalone_number
         self.enable_0_to_9 = enable_0_to_9
+        self.enable_million = enable_million
         self.build_tagger()
         self.build_verbalizer()
 
@@ -57,14 +59,26 @@ class Cardinal(Processor):
                     | add_weight(digit + addzero**2, 0.8)
                     | add_weight(addzero**3, 1.0)))
         # 10001111, 1001111, 101111, 11111, 10111, 10011, 10001, 10000
-        ten_thousand = ((thousand | hundred | teen | tens | digits)
-                        + delete('万')
-                        + (thousand
-                           | add_weight(zero + hundred, 0.1)
-                           | add_weight(addzero + zero + (tens | teen), 0.5)
-                           | add_weight(addzero + addzero + zero + digit, 0.5)
-                           | add_weight(digit + addzero**3, 0.8)
-                           | add_weight(addzero**4, 1.0)))
+        if self.enable_million:
+            ten_thousand = ((thousand | hundred | teen | tens | digits)
+                            + delete('万')
+                            + (thousand
+                               | add_weight(zero + hundred, 0.1)
+                               | add_weight(addzero + zero + (tens | teen), 0.5)
+                               | add_weight(addzero + addzero + zero + digit, 0.5)
+                               | add_weight(digit + addzero**3, 0.8)
+                               | add_weight(addzero**4, 1.0)))
+        else:
+            ten_thousand = ((teen | tens | digits)
+                            + delete('万')
+                            + (thousand
+                               | add_weight(zero + hundred, 0.1)
+                               | add_weight(addzero + zero + (tens | teen), 0.5)
+                               | add_weight(addzero + addzero + zero + digit, 0.5)
+                               | add_weight(digit + addzero**3, 0.8)
+                               | add_weight(addzero**4, 1.0)))
+            ten_thousand |= (thousand | hundred) + accep("万") + delete("零").ques + (
+                thousand | hundred | tens | teen | digits).ques
         # 个/十/百/千/万
         number = digits | teen | tens | hundred | thousand | ten_thousand
         # 兆/亿
@@ -94,8 +108,8 @@ class Cardinal(Processor):
         number_exclude_0_to_9 = teen | tens | hundred | thousand | ten_thousand
         # 兆/亿
         number_exclude_0_to_9 = (
-            (number_exclude_0_to_9 + accep('兆') + delete('零').ques).ques +
-            (number_exclude_0_to_9 + accep('亿') + delete('零').ques).ques +
+            ((number_exclude_0_to_9 | digits) + accep('兆') + delete('零').ques).ques +
+            ((number_exclude_0_to_9 | digits) + accep('亿') + delete('零').ques).ques +
             number_exclude_0_to_9
         )
         # 负的xxx 1.11, 1.01
