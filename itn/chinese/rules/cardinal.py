@@ -36,6 +36,10 @@ class Cardinal(Processor):
     def build_tagger(self):
         zero = string_file('itn/chinese/data/number/zero.tsv')  # 0
         digit = string_file('itn/chinese/data/number/digit.tsv')  # 1 ~ 9
+        special_tilde = string_file(
+            'itn/chinese//data/number/special_tilde.tsv')  # 七八十->70~80
+        special_dash = string_file(
+            'itn/chinese//data/number/special_dash.tsv')  # 七八十->70-80
         sign = string_file('itn/chinese/data/number/sign.tsv')  # + -
         dot = string_file('itn/chinese/data/number/dot.tsv')  # .
 
@@ -90,23 +94,17 @@ class Cardinal(Processor):
                   (number + accep('亿') + delete('零').ques).ques + number)
         # 负的xxx 1.11, 1.01
         number = sign.ques + number + (dot + digits.plus).ques
-        # 五六万，三五千，六七百，三四十
-        special_2number = digit + insert("0~") + digit + cross("十", "0")
-        special_2number |= digit + insert("00~") + digit + cross("百", "00")
-        special_2number |= digit + insert("000~") + digit + cross("千", "000")
-        special_2number |= digit + insert("0000~") + digit + cross("万", "0000")
-        number |= special_2number
-        # 十七八美元 => $17~18, 四十五六岁 => 45-6岁,
-        # 三百七八公里 => 370-80km, 三百七八十千克 => 370-80kg
-        special_3number = cross('十', '1') + digit + insert("~1") + digit
-        special_3number |= digit + delete('十') + digit + insert("-") + digit
-        special_3number |= digit + delete('百') + digit + insert("0-") + digit \
-            + (insert("0") | add_weight(cross("十", "0"), -0.1))
-        number |= add_weight(special_3number, -100.0)
+        # 五六万 => 5~6万，三五千 => 3000~5000，六七百 => 600~700，三四十 => 30~40
+        number |= special_tilde
+        # 十七八 => 17-8, 四十五六 => 45-6, 三百七八十 => 370-80
+        _special_dash = cross('十', '1') + special_dash
+        _special_dash |= digit + delete('十') + special_dash
+        _special_dash |= digit + delete('百') + special_dash
+        number |= add_weight(_special_dash, -100.0)
 
         self.number = number.optimize()
-        self.special_2number = special_2number.optimize()
-        self.special_3number = special_3number.optimize()
+        self.special_tilde = special_tilde.optimize()
+        self.special_dash = _special_dash.optimize()
 
         # 2. 利用基础数字所构建的不包含0~9的完整数字
         # 十/百/千/万
@@ -123,8 +121,8 @@ class Cardinal(Processor):
         # 五六万，三五千，六七百，三四十
         # 十七八美元 => $17~18, 四十五六岁 => 45-6岁,
         # 三百七八公里 => 370-80km, 三百七八十千克 => 370-80kg
-        number_exclude_0_to_9 |= special_2number
-        number_exclude_0_to_9 |= add_weight(special_3number, -100.0)
+        number_exclude_0_to_9 |= special_tilde
+        number_exclude_0_to_9 |= add_weight(_special_dash, -100.0)
 
         self.number_exclude_0_to_9 = (sign.ques +
                                       number_exclude_0_to_9).optimize()
