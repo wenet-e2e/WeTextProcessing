@@ -19,4 +19,4 @@ add_subdirectory(utils)
 add_subdirectory(processor)
 
 link_libraries(wetext_processor android)
-add_library(${TARGET} STATIC wetextprocessing.cc)
+add_library(${TARGET} SHARED wetextprocessing.cc)
