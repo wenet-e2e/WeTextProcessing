@@ -76,6 +76,7 @@ class Cardinal(Processor):
         # three or five or eleven phone numbers
         phone_digits = digits @ self.build_rule(cross('一', '幺'))
         phone = phone_digits**3 | phone_digits**5 | phone_digits**11
+        phone |= accep("尾号") + (accep("是") | accep("为")).ques + phone_digits**4
         cardinal |= add_weight(phone, -1.0)
 
         tagger = insert('value: "') + cardinal + insert('"')
