@@ -86,7 +86,7 @@ class Cardinal(Processor):
             ten_thousand |= (thousand | hundred) + accep("万") + delete(
                 "零").ques + (thousand | hundred | tens | teen | digits).ques
 
-        # 1. 利用基础数字所构建的包含0~9的完整数字
+        # 1. 利用基础数字所构建的包含0~9的标准数字
         # 个/十/百/千/万
         number = digits | teen | tens | hundred | thousand | ten_thousand
         # 兆/亿
@@ -100,13 +100,13 @@ class Cardinal(Processor):
         _special_dash = cross('十', '1') + special_dash
         _special_dash |= digit + delete('十') + special_dash
         _special_dash |= digit + delete('百') + special_dash
-        number |= add_weight(_special_dash, -100.0)
+        number |= _special_dash
 
         self.number = number.optimize()
         self.special_tilde = special_tilde.optimize()
         self.special_dash = _special_dash.optimize()
 
-        # 2. 利用基础数字所构建的不包含0~9的完整数字
+        # 2. 利用基础数字所构建的不包含0~9的标准数字
         # 十/百/千/万
         number_exclude_0_to_9 = teen | tens | hundred | thousand | ten_thousand
         # 兆/亿
@@ -137,13 +137,15 @@ class Cardinal(Processor):
         cardinal |= (digits**3 | digits**4 | digits**5 | digits**11
                      | digits**18)
 
-        # 4. 特殊格式的数字 + 包含或不包含0~9的完整数字
+        # 4. 特殊格式的数字 + 标准数字
         # cardinal string like 23
         if self.enable_standalone_number:
             if self.enable_0_to_9:
-                cardinal |= number
+                # 特殊格式数字为第一优先级, 标准数字为第二优先级, 如 "一二三四"
+                # 优先转译为 "1234" 而非 "1~2 3~4"
+                cardinal |= add_weight(number, 0.1)
             else:
-                cardinal |= number_exclude_0_to_9
+                cardinal |= add_weight(number_exclude_0_to_9, 0.1)
         tagger = insert('value: "') + cardinal + (insert(" ") + cardinal).star \
             + insert('"')
         self.tagger = self.add_tokens(tagger)
