@@ -35,8 +35,6 @@ class Measure(Processor):
         to = cross('-', '到') | cross('~', '到') | accep('到')
 
         number = Cardinal().number
-        percent = insert('百分之') + number + delete('%')
-
         number @= self.build_rule(cross('二', '两'), '[BOS]', '[EOS]')
         # 1-11个，1个-11个
         prefix = number + (rmspace + units).ques + to
@@ -55,8 +53,7 @@ class Measure(Processor):
         prefix = cardinal + (rmspace + unit).ques + to
         annual = prefix.ques + cardinal + unit
 
-        tagger = insert('value: "') + (measure | percent
-                                       | annual) + insert('"')
+        tagger = insert('value: "') + (measure | annual) + insert('"')
 
         # 10km/h
         rmsign = rmspace + delete('/') + rmspace
