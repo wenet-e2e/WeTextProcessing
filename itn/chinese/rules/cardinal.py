@@ -134,8 +134,9 @@ class Cardinal(Processor):
         cardinal |= (number + dot + digits.plus)
         # cardinal string like 110 or 12306 or 13125617878, used in phone,
         #   340621199806051223, used in ID card
+        idcard_last_char = digits | 'X' | 'x'
         cardinal |= (digits**3 | digits**4 | digits**5 | digits**11
-                     | digits**18)
+                     | (digits**17 + idcard_last_char) | digits**18)
 
         # 4. 特殊格式的数字 + 标准数字
         # cardinal string like 23
