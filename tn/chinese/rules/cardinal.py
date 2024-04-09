@@ -64,11 +64,13 @@ class Cardinal(Processor):
         number @= self.build_rule(
             cross('二百', '两百')
             | cross('二千', '两千')
-            | cross('二万', '两万'))
-        self.number = accep('约').ques + accep('人均').ques + number.optimize()
+            | cross('二万', '两万')).optimize()
+        percent = insert('百分之') + number + delete('%')
+        self.number = accep('约').ques + accep('人均').ques + (number | percent)
 
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
         cardinal = digits.plus + (dot + digits.plus)**3
+        cardinal |= percent
         # xxxx-xxx-xxx
         cardinal |= digits.plus + (delete('-') + digits.plus)**2
         # xxx-xxxxxxxx
