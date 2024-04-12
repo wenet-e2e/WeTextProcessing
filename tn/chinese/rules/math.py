@@ -15,23 +15,32 @@
 from tn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
 
-from pynini import string_file
+from pynini import cross, string_file
 from pynini.lib.pynutil import delete, insert
 
 
 class Math(Processor):
 
     def __init__(self):
-        super().__init__(name='math')
+        super().__init__(name="math")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        operator = string_file('tn/chinese/data/math/operator.tsv')
+        operator = string_file("tn/chinese/data/math/operator.tsv")
+        # When it appears alone, it is treated as punctuation
+        symbols = (
+            cross("~", "到")
+            | cross(":", "比")
+            | cross("<", "小于")
+            | cross(">", "大于")
+        )
 
         number = Cardinal().number
-        tagger = (number + ((delete(' ').ques + operator + delete(' ').ques +
-                             number).plus).ques)
+        tagger = (
+            number
+            + (delete(" ").ques + (operator | symbols) + delete(" ").ques + number).star
+        )
         tagger |= operator
         tagger = insert('value: "') + tagger + insert('"')
         self.tagger = self.add_tokens(tagger)
