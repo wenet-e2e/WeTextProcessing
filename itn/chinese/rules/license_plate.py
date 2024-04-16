@@ -27,8 +27,11 @@ class LicensePlate(Processor):
 
     def build_tagger(self):
         digit = string_file('itn/chinese/data/number/digit.tsv')  # 1 ~ 9
+        zero = string_file('itn/chinese/data/number/zero.tsv')  # 0
+        digits = zero | digit
         province = string_file(
             'itn/chinese/data/license_plate/province.tsv')  # 皖
-        license_plate = province + self.ALPHA + (self.ALPHA | digit)**5
+        license_plate = province + self.ALPHA + (self.ALPHA | digits)**5
+        license_plate |= province + self.ALPHA + (self.ALPHA | digits)**6
         tagger = insert('value: "') + license_plate + insert('"')
         self.tagger = self.add_tokens(tagger)
