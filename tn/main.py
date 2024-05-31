@@ -14,8 +14,9 @@
 
 import argparse
 
-# TODO(pzd17): multi-language support
-from tn.chinese.normalizer import Normalizer
+# TODO(pzd17 & sxc19): multi-language support
+from tn.chinese.normalizer import Normalizer as ZhNormalizer
+from tn.english.normalizer import Normalizer as EnNormalizer
 from itn.main import str2bool
 
 
@@ -54,17 +55,27 @@ def main():
                         type=str,
                         default='False',
                         help='tag OOV with "OOV"')
+    parser.add_argument('--language',
+                        type=str,
+                        default='zh',
+                        choices=["zh", "en"],
+                        help='valid languages')
     args = parser.parse_args()
 
-    normalizer = Normalizer(
-        cache_dir=args.cache_dir,
-        overwrite_cache=args.overwrite_cache,
-        remove_interjections=str2bool(args.remove_interjections),
-        remove_erhua=str2bool(args.remove_erhua),
-        traditional_to_simple=str2bool(args.traditional_to_simple),
-        remove_puncts=str2bool(args.remove_puncts),
-        full_to_half=str2bool(args.full_to_half),
-        tag_oov=str2bool(args.tag_oov))
+    if args.language == "zh":
+        normalizer = ZhNormalizer(
+            cache_dir=args.cache_dir,
+            overwrite_cache=args.overwrite_cache,
+            remove_interjections=str2bool(args.remove_interjections),
+            remove_erhua=str2bool(args.remove_erhua),
+            traditional_to_simple=str2bool(args.traditional_to_simple),
+            remove_puncts=str2bool(args.remove_puncts),
+            full_to_half=str2bool(args.full_to_half),
+            tag_oov=str2bool(args.tag_oov))
+    elif args.language == "en":
+        normalizer = EnNormalizer(
+            cache_dir=args.cache_dir,
+            overwrite_cache=args.overwrite_cache)
 
     if args.text:
         print(normalizer.tag(args.text))
