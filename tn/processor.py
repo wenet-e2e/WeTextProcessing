@@ -13,10 +13,14 @@
 # limitations under the License.
 
 import os
+import string
 
 from tn.token_parser import TokenParser
 
-from pynini import cdrewrite, cross, difference, escape, Fst, shortestpath, union
+from pynini import (
+    cdrewrite, cross, difference, escape,
+    Fst, shortestpath, union, closure
+)
 from pynini.lib import byte, utf8
 from pynini.lib.pynutil import delete, insert
 
@@ -30,10 +34,18 @@ class Processor:
         self.SPACE = byte.SPACE | u'\u00A0'
         self.VCHAR = utf8.VALID_UTF8_CHAR
         self.VSIGMA = self.VCHAR.star
+        self.LOWER = byte.LOWER
 
         CHAR = difference(self.VCHAR, union('\\', '"'))
         self.CHAR = (CHAR | cross('\\', '\\\\\\') | cross('"', '\\"'))
         self.SIGMA = (CHAR | cross('\\\\\\', '\\') | cross('\\"', '"')).star
+        self.NOT_QUOTE = difference(self.VCHAR, r'"').optimize()
+        self.NOT_SPACE = difference(self.VCHAR, self.SPACE).optimize()
+        self.INSERT_SPACE = insert(" ")
+        self.DELETE_SPACE = delete(self.SPACE).star
+        self.DELETE_EXTRA_SPACE = cross(closure(self.SPACE, 1), " ")
+        self.MIN_NEG_WEIGHT = -0.0001
+        self.TO_LOWER = union(*[cross(x, y) for x, y in zip(string.ascii_uppercase, string.ascii_lowercase)])
 
         self.name = name
         self.ordertype = ordertype
