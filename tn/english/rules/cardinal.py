@@ -172,11 +172,15 @@ class Cardinal(Processor):
             optional_sign |= pynini.cross("negative: \"true\"", "negative ")
             optional_sign |= pynini.cross("negative: \"true\"", "dash ")
 
-        optional_sign = pynini.closure(optional_sign + self.DELETE_SPACE, 0, 1)
+        self.optional_sign = pynini.closure(optional_sign + self.DELETE_SPACE,
+                                            0, 1)
 
-        integer = pynutil.delete("integer:") + self.DELETE_SPACE + \
-            pynutil.delete("\"") + pynini.closure(self.NOT_QUOTE) + pynutil.delete("\"")
+        integer = pynini.closure(self.NOT_QUOTE)
 
-        numbers = optional_sign + integer
-        delete_tokens = self.delete_tokens(numbers)
+        self.integer = self.DELETE_SPACE + pynutil.delete(
+            "\"") + integer + pynutil.delete("\"")
+        integer = pynutil.delete("integer:") + self.integer
+
+        self.numbers = self.optional_sign + integer
+        delete_tokens = self.delete_tokens(self.numbers)
         self.verbalizer = delete_tokens.optimize()

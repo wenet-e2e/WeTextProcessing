@@ -1,0 +1,3 @@
+-12.5006 billion => minus twelve point five oh oh six billion
+1 billion => one billion
+1.5 million => one point five million
