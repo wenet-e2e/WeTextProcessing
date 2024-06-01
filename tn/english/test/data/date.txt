@@ -1,0 +1,14 @@
+1219 => twelve nineteen
+2999 => twenty nine ninety nine
+'70s => seventies
+2024 B.C => twenty twenty four BC
+1H23 => the first half of twenty three
+3Q22 => the third quarter of twenty two
+jan. 5, 2012 => the fifth of january , twenty twelve
+jan. 5 => the fifth of january
+5 january 2012 => the fifth of january twenty twelve
+2012-01-05 => the fifth of january twenty twelve
+2012.01.05 => the fifth of january twenty twelve
+2012/01/05 => the fifth of january twenty twelve
+2012 => twenty twelve
+2024-05-06 => the sixth of may twenty twenty four
