@@ -17,10 +17,8 @@ import string
 
 from tn.token_parser import TokenParser
 
-from pynini import (
-    cdrewrite, cross, difference, escape,
-    Fst, shortestpath, union, closure
-)
+from pynini import (cdrewrite, cross, difference, escape, Fst, shortestpath,
+                    union, closure, invert)
 from pynini.lib import byte, utf8
 from pynini.lib.pynutil import delete, insert
 
@@ -45,7 +43,11 @@ class Processor:
         self.DELETE_SPACE = delete(self.SPACE).star
         self.DELETE_EXTRA_SPACE = cross(closure(self.SPACE, 1), " ")
         self.MIN_NEG_WEIGHT = -0.0001
-        self.TO_LOWER = union(*[cross(x, y) for x, y in zip(string.ascii_uppercase, string.ascii_lowercase)])
+        self.TO_LOWER = union(*[
+            cross(x, y)
+            for x, y in zip(string.ascii_uppercase, string.ascii_lowercase)
+        ])
+        self.TO_UPPER = invert(self.TO_LOWER)
 
         self.name = name
         self.ordertype = ordertype
