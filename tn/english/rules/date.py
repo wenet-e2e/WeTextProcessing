@@ -301,7 +301,7 @@ class Date(Processor):
             "text: \"") + _get_financial_period_graph() + pynutil.insert("\"")
         graph_fy = period_fy + self.INSERT_SPACE + two_digit_year
 
-        final_graph |= year_graph | graph_fy
+        final_graph |= graph_ymd | year_graph | graph_fy
 
         ymd_to_mdy_graph = None
         ymd_to_dmy_graph = None
@@ -369,9 +369,8 @@ class Date(Processor):
                         md_to_dm_curr, md_to_dm_graph).optimize()).optimize()
 
         if not self.deterministic:
-            final_graph |= mdy_to_dmy_graph | md_to_dm_graph | ymd_to_dmy_graph
-        else:
-            final_graph |= ymd_to_mdy_graph
+            final_graph |= pynutil.add_weight(
+                mdy_to_dmy_graph | md_to_dm_graph | ymd_to_dmy_graph, -0.1)
 
         final_graph = self.add_tokens(final_graph)
         self.tagger = final_graph.optimize()
@@ -425,9 +424,8 @@ class Date(Processor):
             pynutil.delete("\"") + self.NOT_QUOTE + pynutil.delete("\"") +
             self.DELETE_SPACE)
 
-        final_graph = ((plurals._priority_union(
-            graph_mdy, pynutil.add_weight(graph_dmy, 0.0001),
-            pynini.closure(self.VCHAR)) | year | graph_fy) +
-                       self.DELETE_SPACE + optional_preserve_order)  # noqa
+        final_graph = (
+            (graph_dmy | pynutil.add_weight(graph_mdy, 0.0001) | year
+             | graph_fy) + self.DELETE_SPACE + optional_preserve_order)  # noqa
         delete_tokens = self.delete_tokens(final_graph)
         self.verbalizer = delete_tokens.optimize()
