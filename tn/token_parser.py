@@ -22,6 +22,7 @@ TN_ORDERS = {
     'money': ['value', 'currency'],
     'time': ['noon', 'hour', 'minute', 'second']
 }
+EN_TN_ORDERS = {}
 ITN_ORDERS = {
     'date': ['year', 'month', 'day'],
     'fraction': ['sign', 'numerator', 'denominator'],
@@ -45,7 +46,9 @@ class Token:
     def string(self, orders):
         output = self.name + ' {'
         if self.name in orders.keys():
-            self.order = orders[self.name]
+            if "preserve_order" not in self.members.keys() or \
+                    self.members["preserve_order"] != "true":
+                self.order = orders[self.name]
 
         for key in self.order:
             if key not in self.members.keys():
@@ -61,6 +64,8 @@ class TokenParser:
             self.orders = TN_ORDERS
         elif ordertype == "itn":
             self.orders = ITN_ORDERS
+        elif ordertype == "en_tn":
+            self.orders = EN_TN_ORDERS
         else:
             raise NotImplementedError()
 

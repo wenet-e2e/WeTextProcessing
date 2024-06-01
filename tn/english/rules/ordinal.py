@@ -29,7 +29,7 @@ class Ordinal(Processor):
             deterministic: if True will provide a single transduction option,
                 for False multiple transduction are generated (used for audio-based normalization)
         """
-        super().__init__("ordinal", ordertype="tn")
+        super().__init__("ordinal", ordertype="en_tn")
         self.deterministic = deterministic
         self.build_tagger()
         self.build_verbalizer()
