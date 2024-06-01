@@ -1,0 +1,11 @@
+1st => first
+2nd => second
+3rd => third
+5th => fifth
+11th => eleventh
+13th => thirteenth
+20th => twentieth
+21st => twenty first
+30th => thirtieth
+100th => one hundredth
+1000th => one thousandth

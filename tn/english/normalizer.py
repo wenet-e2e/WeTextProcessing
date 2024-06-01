@@ -15,6 +15,7 @@
 
 from tn.processor import Processor
 from tn.english.rules.cardinal import Cardinal
+from tn.english.rules.ordinal import Ordinal
 from tn.english.rules.word import Word
 
 from pynini.lib.pynutil import add_weight, delete
@@ -23,23 +24,23 @@ from importlib_resources import files
 
 class Normalizer(Processor):
 
-    def __init__(self,
-                 cache_dir=None,
-                 overwrite_cache=False):
+    def __init__(self, cache_dir=None, overwrite_cache=False):
         super().__init__(name='en_normalizer')
         if cache_dir is None:
             cache_dir = files("tn")
         self.build_fst('en_tn', cache_dir, overwrite_cache)
 
     def build_tagger(self):
-        cardinal = add_weight(Cardinal().tagger, 1.06)
+        cardinal = add_weight(Cardinal().tagger, 1.0)
+        ordinal = add_weight(Ordinal().tagger, 1.0)
         word = add_weight(Word().tagger, 100)
-        tagger = (cardinal | word).optimize() + self.DELETE_SPACE
+        tagger = (cardinal | ordinal | word).optimize() + self.DELETE_SPACE
         # delete the last space
         self.tagger = tagger.star @ self.build_rule(delete(' '), r='[EOS]')
 
     def build_verbalizer(self):
         cardinal = Cardinal().verbalizer
+        ordinal = Ordinal().verbalizer
         word = Word().verbalizer
-        verbalizer = (cardinal | word).optimize() + self.INSERT_SPACE
+        verbalizer = (cardinal | ordinal | word).optimize() + self.INSERT_SPACE
         self.verbalizer = verbalizer.star
