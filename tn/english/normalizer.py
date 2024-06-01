@@ -19,6 +19,7 @@ from tn.english.rules.ordinal import Ordinal
 from tn.english.rules.decimal import Decimal
 from tn.english.rules.word import Word
 from tn.english.rules.date import Date
+from tn.english.rules.white_list import Whitelist
 
 from pynini.lib.pynutil import add_weight, delete
 from importlib_resources import files
@@ -26,7 +27,7 @@ from importlib_resources import files
 
 class Normalizer(Processor):
 
-    def __init__(self, cache_dir=None, overwrite_cache=False):
+    def __init__(self, cache_dir=None, overwrite_cache=False, asr=False, tts=False):
         super().__init__(name='en_normalizer', ordertype="en_tn")
         if cache_dir is None:
             cache_dir = files("tn")
@@ -36,10 +37,11 @@ class Normalizer(Processor):
         cardinal = add_weight(Cardinal().tagger, 1.0)
         ordinal = add_weight(Ordinal().tagger, 1.0)
         decimal = add_weight(Decimal().tagger, 1.0)
+        whitelist = add_weight(Whitelist().tagger, 1.0)
         date = add_weight(Date().tagger, 0.99)
         word = add_weight(Word().tagger, 100)
         tagger = (cardinal | ordinal | word
-                  | date | decimal).optimize() + self.DELETE_SPACE
+                  | date | decimal | whitelist).optimize() + self.DELETE_SPACE
         # delete the last space
         self.tagger = tagger.star @ self.build_rule(delete(' '), r='[EOS]')
 
@@ -50,5 +52,5 @@ class Normalizer(Processor):
         word = Word().verbalizer
         date = Date().verbalizer
         verbalizer = (cardinal | ordinal | word
-                      | date | decimal).optimize() + self.INSERT_SPACE
+                      | date | decimal | whitelist).optimize() + self.INSERT_SPACE
         self.verbalizer = verbalizer.star
