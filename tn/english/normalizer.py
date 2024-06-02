@@ -50,7 +50,6 @@ class Normalizer(Processor):
         money = add_weight(Money().tagger, 1.00)
         telephone = add_weight(Telephone().tagger, 1.00)
         electronic = add_weight(Electronic().tagger, 1.00)
-        roman = add_weight(Roman().tagger, 100)
         word = add_weight(Word().tagger, 100)
         whitelist = add_weight(WhiteList().tagger, -100)
         # TODO(xcsong): add roman
@@ -74,7 +73,6 @@ class Normalizer(Processor):
         money = Money().verbalizer
         telephone = Telephone().verbalizer
         electronic = Electronic().verbalizer
-        roman = Roman().verbalizer
         whitelist = WhiteList().verbalizer
         verbalizer = (cardinal | ordinal | word
                       | date | decimal
