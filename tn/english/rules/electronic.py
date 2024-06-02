@@ -37,7 +37,7 @@ class Electronic(Processor):
     def build_tagger(self):
         """
         Finite state transducer for classifying electronic: as URLs, email addresses, etc.
-            e.g. cdf1@abc.edu -> tokens { electronic { username: "cdf one" domain: "ABC.EDU" } }
+            e.g. cdf1@abc.edu -> tokens { electronic { username: "cdf one" domain: "abc.edu" } }
         """
         cardinal = Cardinal(self.deterministic)
         if self.deterministic:
@@ -62,13 +62,11 @@ class Electronic(Processor):
         dict_words_graph = dict_words_without_delimiter | dict_words
 
         all_accepted_symbols_start = (dict_words_graph
-                                      | pynini.closure(self.TO_UPPER)
-                                      | pynini.closure(self.UPPER)
+                                      | pynini.closure(self.ALPHA)
                                       | accepted_symbols).optimize()
 
         all_accepted_symbols_end = (dict_words_graph | numbers
-                                    | pynini.closure(self.TO_UPPER)
-                                    | pynini.closure(self.UPPER)
+                                    | pynini.closure(self.ALPHA)
                                     | accepted_symbols).optimize()
 
         graph_symbols = pynini.string_file(
@@ -131,7 +129,7 @@ class Electronic(Processor):
     def build_verbalizer(self):
         """
         Finite state transducer for verbalizing electronic
-            e.g. electronic { username: "cdf1" domain: "abc.edu" } -> c d f one at a b c dot e d u
+            e.g. electronic { username: "cdf one" domain: "abc.edu" } -> cdf one at abc dot edu
         """
         graph_digit_no_zero = pynini.invert(
             pynini.string_file(
@@ -183,7 +181,7 @@ class Electronic(Processor):
         # this will be used for a safe fallback
         domain_all = pynini.compose(
             default_chars_symbols,
-            pynini.closure(self.TO_LOWER | self.LOWER | " "
+            pynini.closure(self.ALPHA | " "
                            | pynutil.add_weight(dict_words, -0.0001)),
         )
 

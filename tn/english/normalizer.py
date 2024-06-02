@@ -24,6 +24,7 @@ from tn.english.rules.time import Time
 from tn.english.rules.measure import Measure
 from tn.english.rules.money import Money
 from tn.english.rules.telephone import Telephone
+from tn.english.rules.electronic import Electronic
 
 from pynini.lib.pynutil import add_weight, delete
 from importlib_resources import files
@@ -47,11 +48,12 @@ class Normalizer(Processor):
         measure = add_weight(Measure().tagger, 1.00)
         money = add_weight(Money().tagger, 1.00)
         telephone = add_weight(Telephone().tagger, 1.00)
+        electronic = add_weight(Electronic().tagger, 1.00)
         word = add_weight(Word().tagger, 100)
         tagger = (cardinal | ordinal | word
                   | date | decimal | fraction
                   | time | measure | money
-                  | telephone).optimize() + self.DELETE_SPACE
+                  | telephone | electronic).optimize() + self.DELETE_SPACE
         # delete the last space
         self.tagger = tagger.star @ self.build_rule(delete(' '), r='[EOS]')
 
@@ -66,9 +68,11 @@ class Normalizer(Processor):
         measure = Measure().verbalizer
         money = Money().verbalizer
         telephone = Telephone().verbalizer
+        electronic = Electronic().verbalizer
         verbalizer = (cardinal | ordinal | word
                       | date | decimal
                       | fraction | time
                       | measure | money
-                      | telephone).optimize() + self.INSERT_SPACE
+                      | telephone
+                      | electronic).optimize() + self.INSERT_SPACE
         self.verbalizer = verbalizer.star
