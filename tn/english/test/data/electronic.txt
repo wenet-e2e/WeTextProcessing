@@ -1,1 +1,1 @@
-cdf1@abc.edu => c d f one at a b c dot e d u
+cdf1@abc.edu => cdf one at abc dot edu
