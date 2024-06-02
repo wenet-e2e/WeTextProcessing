@@ -200,7 +200,8 @@ class Money(Processor):
         final_graph |= pynutil.add_weight(decimal_graph_with_minor, -0.0001)
 
         if not self.deterministic:
-            final_graph |= integer_graph_reordered | decimal_default_reordered
+            final_graph |= pynutil.add_weight(
+                integer_graph_reordered | decimal_default_reordered, -0.1)
             # to handle "$2.00" cases
             final_graph |= pynini.compose(
                 pynini.closure(self.VCHAR) + pynutil.delete(".") +
