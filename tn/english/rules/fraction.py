@@ -134,6 +134,6 @@ class Fraction(Processor):
             | pynini.cross("over ones", "over one"), "", "[EOS]",
             pynini.closure(self.VCHAR))
 
-        self.graph = graph
-        delete_tokens = self.delete_tokens(self.graph)
+        self.graph_v = graph
+        delete_tokens = self.delete_tokens(self.graph_v)
         self.verbalizer = delete_tokens.optimize()

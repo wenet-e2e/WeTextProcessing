@@ -18,7 +18,7 @@ from tn.english.rules.measure import Measure
 from tn.english.test.utils import parse_test_case
 
 
-class Testmeasure:
+class TestMeasure:
 
     measure = Measure(deterministic=False)
     measure_cases = parse_test_case('data/measure.txt')

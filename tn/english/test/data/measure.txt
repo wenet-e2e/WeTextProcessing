@@ -1,3 +1,7 @@
 -12kg => negative twelve kilograms
 1kg => one kilogram
 .5kg => point five kilograms
+3.5 cm² => three point five square centimeters
+2788 San Tomas Expy, Santa Clara, CA 95051 => twenty seven eighty eight San Tomas Expressway, Santa Clara, California nine five oh five one
+2-3 °C => two to three degrees Celsius
+2 * 10 μm => two times ten micrometers
