@@ -1,0 +1,9 @@
+12:30 a.m. est => twelve thirty AM EST
+2.30 a.m. => two thirty AM
+02.30 a.m. => two thirty AM
+2.00 a.m. => two AM
+2 a.m. => two AM
+02:00 => two o'clock
+02:30 => two thirty
+2:00 => two o'clock
+10:00:05 a.m. => ten hours zero minutes and five seconds AM
