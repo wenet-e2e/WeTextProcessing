@@ -21,6 +21,7 @@ from tn.english.rules.fraction import Fraction
 from tn.english.rules.word import Word
 from tn.english.rules.date import Date
 from tn.english.rules.time import Time
+from tn.english.rules.measure import Measure
 
 from pynini.lib.pynutil import add_weight, delete
 from importlib_resources import files
@@ -41,10 +42,11 @@ class Normalizer(Processor):
         fraction = add_weight(Fraction().tagger, 1.0)
         date = add_weight(Date().tagger, 0.99)
         time = add_weight(Time().tagger, 1.00)
+        measure = add_weight(Measure().tagger, 1.00)
         word = add_weight(Word().tagger, 100)
         tagger = (cardinal | ordinal | word
                   | date | decimal | fraction
-                  | time).optimize() + self.DELETE_SPACE
+                  | time | measure).optimize() + self.DELETE_SPACE
         # delete the last space
         self.tagger = tagger.star @ self.build_rule(delete(' '), r='[EOS]')
 
@@ -56,7 +58,9 @@ class Normalizer(Processor):
         word = Word().verbalizer
         date = Date().verbalizer
         time = Time().verbalizer
+        measure = Measure().verbalizer
         verbalizer = (cardinal | ordinal | word
                       | date | decimal
-                      | fraction | time).optimize() + self.INSERT_SPACE
+                      | fraction | time
+                      | measure).optimize() + self.INSERT_SPACE
         self.verbalizer = verbalizer.star
