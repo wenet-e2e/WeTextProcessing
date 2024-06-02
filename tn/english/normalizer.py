@@ -51,7 +51,7 @@ class Normalizer(Processor):
         telephone = add_weight(Telephone().tagger, 1.00)
         electronic = add_weight(Electronic().tagger, 1.00)
         word = add_weight(Word().tagger, 100)
-        whitelist = add_weight(WhiteList().tagger, -100)
+        whitelist = add_weight(WhiteList().tagger, 1.00)
         # TODO(xcsong): add roman
         tagger = (cardinal | ordinal | word
                   | date | decimal | fraction
