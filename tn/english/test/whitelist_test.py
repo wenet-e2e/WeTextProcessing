@@ -14,13 +14,13 @@
 
 import pytest
 
-from tn.english.rules.whitelist import Whitelist
+from tn.english.rules.whitelist import WhiteList
 from tn.english.test.utils import parse_test_case
 
 
-class TestWhitelist:
+class TestWhiteList:
 
-    whitelist = Whitelist(deterministic=False)
+    whitelist = WhiteList(deterministic=False)
     whitelist_cases = parse_test_case('data/whitelist.txt')
 
     @pytest.mark.parametrize("written, spoken", whitelist_cases)
