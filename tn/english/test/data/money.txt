@@ -1,0 +1,8 @@
+$12.05 => twelve dollars five cents
+$12.0500 => twelve dollars five cents
+$1 => one dollar
+$1.00 => one dollar
+$0.05 => five cents
+$1 million => one million dollars
+$1.2 million => one point two million dollars
+$1.2320 => one point two three two dollars
