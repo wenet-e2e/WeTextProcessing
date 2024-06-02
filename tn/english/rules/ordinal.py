@@ -90,7 +90,7 @@ class Ordinal(Processor):
             "[EOS]",
             pynini.closure(self.VCHAR),
         ).optimize()
-        self.graph = pynini.compose(graph, suffix)
+        self.graph_v = pynini.compose(graph, suffix)
         self.suffix = suffix
-        delete_tokens = self.delete_tokens(self.graph)
+        delete_tokens = self.delete_tokens(self.graph_v)
         self.verbalizer = delete_tokens.optimize()
