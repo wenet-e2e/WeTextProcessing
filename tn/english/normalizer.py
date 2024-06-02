@@ -17,6 +17,7 @@ from tn.processor import Processor
 from tn.english.rules.cardinal import Cardinal
 from tn.english.rules.ordinal import Ordinal
 from tn.english.rules.decimal import Decimal
+from tn.english.rules.fraction import Fraction
 from tn.english.rules.word import Word
 from tn.english.rules.date import Date
 
@@ -36,10 +37,11 @@ class Normalizer(Processor):
         cardinal = add_weight(Cardinal().tagger, 1.0)
         ordinal = add_weight(Ordinal().tagger, 1.0)
         decimal = add_weight(Decimal().tagger, 1.0)
+        fraction = add_weight(Fraction().tagger, 1.0)
         date = add_weight(Date().tagger, 0.99)
         word = add_weight(Word().tagger, 100)
         tagger = (cardinal | ordinal | word
-                  | date | decimal).optimize() + self.DELETE_SPACE
+                  | date | decimal | fraction).optimize() + self.DELETE_SPACE
         # delete the last space
         self.tagger = tagger.star @ self.build_rule(delete(' '), r='[EOS]')
 
@@ -47,8 +49,10 @@ class Normalizer(Processor):
         cardinal = Cardinal().verbalizer
         ordinal = Ordinal().verbalizer
         decimal = Decimal().verbalizer
+        fraction = Fraction().verbalizer
         word = Word().verbalizer
         date = Date().verbalizer
         verbalizer = (cardinal | ordinal | word
-                      | date | decimal).optimize() + self.INSERT_SPACE
+                      | date | decimal
+                      | fraction).optimize() + self.INSERT_SPACE
         self.verbalizer = verbalizer.star
