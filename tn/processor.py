@@ -33,6 +33,7 @@ class Processor:
         self.VCHAR = utf8.VALID_UTF8_CHAR
         self.VSIGMA = self.VCHAR.star
         self.LOWER = byte.LOWER
+        self.UPPER = byte.UPPER
 
         CHAR = difference(self.VCHAR, union('\\', '"'))
         self.CHAR = (CHAR | cross('\\', '\\\\\\') | cross('"', '\\"'))
@@ -42,6 +43,7 @@ class Processor:
         self.INSERT_SPACE = insert(" ")
         self.DELETE_SPACE = delete(self.SPACE).star
         self.DELETE_EXTRA_SPACE = cross(closure(self.SPACE, 1), " ")
+        self.DELETE_ZERO_OR_ONE_SPACE = delete(closure(self.SPACE, 0, 1))
         self.MIN_NEG_WEIGHT = -0.0001
         self.TO_LOWER = union(*[
             cross(x, y)

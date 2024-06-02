@@ -1,0 +1,3 @@
+-12kg => negative twelve kilograms
+1kg => one kilogram
+.5kg => point five kilograms
