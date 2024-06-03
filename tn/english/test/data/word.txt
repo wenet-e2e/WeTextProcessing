@@ -4,3 +4,5 @@ smile => smile
 国 => 国
 A => A
 a => a
+"HAHAH" => "HAHAH"
+"HAHAH," => "HAHAH,"

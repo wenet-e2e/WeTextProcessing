@@ -97,11 +97,11 @@ class Measure(Processor):
         unit_plural = (
             pynutil.insert(" units: \"") +
             (graph_unit_plural + optional_graph_unit2 | graph_unit2) +
-            pynutil.insert("\""))
+            self.PUNCT.ques + pynutil.insert("\""))
 
         unit_singular = (pynutil.insert(" units: \"") +
                          (graph_unit + optional_graph_unit2 | graph_unit2) +
-                         pynutil.insert("\""))
+                         self.PUNCT.ques + pynutil.insert("\""))
 
         decimal = Decimal(self.deterministic)
         subgraph_decimal = (optional_graph_negative +
@@ -112,7 +112,8 @@ class Measure(Processor):
         subgraph_decimal |= (decimal.final_graph_wo_negative +
                              pynini.accep(' ').ques +
                              pynutil.insert(" units: \"") +
-                             pynini.union("AM", "FM") + pynutil.insert("\""))
+                             pynini.union("AM", "FM") + self.PUNCT.ques +
+                             pynutil.insert("\""))
 
         subgraph_cardinal = (
             optional_graph_negative + pynutil.insert("integer: \"") +
@@ -128,26 +129,25 @@ class Measure(Processor):
             pynutil.insert("integer: \"-\" units: \"") +
             ((pynini.cross("/", "per") + self.DELETE_ZERO_OR_ONE_SPACE) |
              (pynini.accep("per") + pynutil.delete(" "))) +
-            pynutil.insert(" ") + graph_unit +
-            pynutil.insert("\" preserve_order: \"true\""))  # noqa
+            pynutil.insert(" ") + graph_unit + self.PUNCT.ques +  # noqa
+            pynutil.insert("\""))  # noqa
 
         decimal_dash_alpha = (decimal.final_graph_wo_negative +
                               pynini.cross('-', '') +
                               pynutil.insert(" units: \"") +
-                              pynini.closure(self.ALPHA, 1) +
+                              pynini.closure(self.ALPHA, 1) + self.PUNCT.ques +
                               pynutil.insert("\""))
 
         decimal_times = (decimal.final_graph_wo_negative +
                          pynutil.insert(" units: \"") +
                          (pynini.cross(pynini.union('x', "X"), 'x')
                           | pynini.cross(pynini.union('x', "X"), ' times')) +
-                         pynutil.insert("\""))
+                         self.PUNCT.ques + pynutil.insert("\""))
 
         alpha_dash_decimal = (pynutil.insert("units: \"") +
                               pynini.closure(self.ALPHA, 1) +
                               pynini.accep('-') + pynutil.insert("\"") +
-                              decimal.final_graph_wo_negative +
-                              pynutil.insert(" preserve_order: \"true\""))
+                              decimal.final_graph_wo_negative)
 
         fraction = Fraction(self.deterministic)
         subgraph_fraction = (fraction.graph + pynini.accep(' ').ques +
@@ -155,7 +155,7 @@ class Measure(Processor):
 
         address = self.get_address_graph(cardinal)
         address = (pynutil.insert("units: \"address\" integer: \"") + address +
-                   pynutil.insert("\" preserve_order: \"true\""))
+                   self.PUNCT.ques + pynutil.insert("\""))
 
         math_operations = pynini.string_file(
             get_abs_path("english/data/measure/math_operation.tsv"))
@@ -172,7 +172,7 @@ class Measure(Processor):
                  delimiter + cardinal_graph)
 
         math = (pynutil.insert("units: \"math\" integer: \"") + math +
-                pynutil.insert("\" preserve_order: \"true\""))
+                pynutil.insert("\""))
         final_graph = (subgraph_decimal
                        | subgraph_cardinal
                        | unit_graph
@@ -211,7 +211,7 @@ class Measure(Processor):
         Finite state transducer for classifying serial.
             The serial is a combination of digits, letters and dashes, e.g.:
             2788 San Tomas Expy, Santa Clara, CA 95051 ->
-                units: "address" integer: "two seven eight eight San Tomas Expressway Santa Clara California nine five zero five one" preserve_order: \"true\"
+                units: "address" integer: "two seven eight eight San Tomas Expressway Santa Clara California nine five zero five one"
         """
         ordinal = Ordinal(self.deterministic)
         ordinal_verbalizer = ordinal.graph_v
@@ -315,22 +315,14 @@ class Measure(Processor):
         graph = (graph_cardinal | graph_decimal
                  | graph_fraction) + pynini.accep(" ") + unit
 
-        # SH adds "preserve_order: \"true\"" by default
-        preserve_order = pynutil.delete(
-            "preserve_order:") + self.DELETE_SPACE + pynutil.delete(
-                "\"true\"") + self.DELETE_SPACE
-        graph |= unit + self.INSERT_SPACE + (
-            graph_cardinal |
-            graph_decimal) + self.DELETE_SPACE + pynini.closure(preserve_order)
+        graph |= unit + self.INSERT_SPACE + (graph_cardinal |
+                                             graph_decimal) + self.DELETE_SPACE
         # for only unit
-        graph |= (pynutil.delete("integer: \"-\"") + self.DELETE_SPACE + unit +
-                  pynini.closure(preserve_order))
+        graph |= (pynutil.delete("integer: \"-\"") + self.DELETE_SPACE + unit)
         address = (pynutil.delete("units: \"address\" ") + self.DELETE_SPACE +
-                   graph_cardinal + self.DELETE_SPACE +
-                   pynini.closure(preserve_order))
+                   graph_cardinal + self.DELETE_SPACE)
         math = (pynutil.delete("units: \"math\" ") + self.DELETE_SPACE +
-                graph_cardinal + self.DELETE_SPACE +
-                pynini.closure(preserve_order))
+                graph_cardinal + self.DELETE_SPACE)
         graph |= address | math
 
         delete_tokens = self.delete_tokens(graph)

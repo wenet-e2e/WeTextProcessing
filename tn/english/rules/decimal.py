@@ -55,7 +55,8 @@ def get_quantity(decimal: 'pynini.FstLike',
     else:
         quantity = quantities
     res |= (decimal + pynini.closure(pynutil.delete(" "), 0, 1) +
-            pynutil.insert(" quantity: \"") + quantity + pynutil.insert("\""))
+            pynutil.insert(" quantity: \"") + quantity +
+            Processor("tmp").PUNCT.ques + pynutil.insert("\""))
     return res
 
 
@@ -94,9 +95,11 @@ class Decimal(Processor):
             1)
 
         self.graph_fractional = pynutil.insert(
-            "fractional_part: \"") + self.graph + pynutil.insert("\"")
+            "fractional_part: \""
+        ) + self.graph + self.PUNCT.ques + pynutil.insert("\"")
         self.graph_integer = pynutil.insert(
-            "integer_part: \"") + cardinal_graph + pynutil.insert("\"")
+            "integer_part: \""
+        ) + cardinal_graph + self.PUNCT.ques + pynutil.insert("\"")
         final_graph_wo_sign = (
             pynini.closure(self.graph_integer + pynutil.insert(" "), 0, 1) +
             point + pynutil.insert(" ") + self.graph_fractional)

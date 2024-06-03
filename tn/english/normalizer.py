@@ -81,4 +81,5 @@ class Normalizer(Processor):
                       | telephone
                       | electronic
                       | whitelist).optimize() + self.INSERT_SPACE
-        self.verbalizer = verbalizer.star
+        self.verbalizer = verbalizer.star @ self.build_rule(delete(' '),
+                                                            r='[EOS]')

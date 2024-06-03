@@ -22,7 +22,10 @@ TN_ORDERS = {
     'money': ['value', 'currency'],
     'time': ['noon', 'hour', 'minute', 'second']
 }
-EN_TN_ORDERS = {'date': ['preserve_order', 'text', 'day', 'month', 'year']}
+EN_TN_ORDERS = {
+    'date': ['preserve_order', 'text', 'day', 'month', 'year'],
+    'money': ['integer_part', 'fractional_part', 'quantity', 'currency_maj'],
+}
 ITN_ORDERS = {
     'date': ['year', 'month', 'day'],
     'fraction': ['sign', 'numerator', 'denominator'],
