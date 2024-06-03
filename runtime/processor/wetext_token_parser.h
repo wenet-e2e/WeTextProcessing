@@ -26,9 +26,11 @@ extern const char EOS[];
 extern const std::set<std::string> UTF8_WHITESPACE;
 extern const std::set<std::string> ASCII_LETTERS;
 extern const std::unordered_map<std::string, std::vector<std::string>>
-    TN_ORDERS;
+    ZH_TN_ORDERS;
 extern const std::unordered_map<std::string, std::vector<std::string>>
-    ITN_ORDERS;
+    ZH_ITN_ORDERS;
+extern const std::unordered_map<std::string, std::vector<std::string>>
+    EN_TN_ORDERS;
 
 struct Token {
   std::string name;
