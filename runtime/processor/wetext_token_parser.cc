@@ -33,7 +33,8 @@ const std::unordered_map<std::string, std::vector<std::string>> ZH_TN_ORDERS = {
     {"money", {"value", "currency"}},
     {"time", {"noon", "hour", "minute", "second"}}};
 const std::unordered_map<std::string, std::vector<std::string>> EN_TN_ORDERS = {
-    {"date", {"preserve_order", "text", "day", "month", "year"}}};
+    {"date", {"preserve_order", "text", "day", "month", "year"}},
+    {"money", {"integer_part", "fractional_part", "quantity", "currency_maj"}}};
 const std::unordered_map<std::string, std::vector<std::string>> ZH_ITN_ORDERS =
     {{"date", {"year", "month", "day"}},
      {"fraction", {"sign", "numerator", "denominator"}},
