@@ -45,11 +45,11 @@ TokenParser::TokenParser(ParseType type) {
   if (type == ParseType::kZH_TN) {
     orders_ = ZH_TN_ORDERS;
   } else if (type == ParseType::kZH_ITN) {
-    orders_ = ZH_TN_ORDERS;
+    orders_ = ZH_ITN_ORDERS;
   } else if (type == ParseType::kEN_TN) {
     orders_ = EN_TN_ORDERS;
   } else {
-    orders_ = ZH_ITN_ORDERS;
+    LOG(FATAL) << "Invalid order";
   }
 }
 
