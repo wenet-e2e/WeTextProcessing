@@ -174,38 +174,26 @@ class Date(Processor):
     def build_tagger(self):
         """
         Finite state transducer for classifying date, e.g.
-            jan. 5, 2012 -> date { month: "january" day: "five" year: ", twenty twelve" preserve_order: "true" }
-            jan. 5 -> date { month: "january" day: "five" preserve_order: "true" }
-            5 january 2012 -> date { day: "five" month: "january" year: "twenty twelve" preserve_order: "true" }
+            jan. 5, 2012 -> date { month: "january" day: "five" year: ", twenty twelve" }
+            jan. 5 -> date { month: "january" day: "five" }
+            5 january 2012 -> date { day: "five" month: "january" year: "twenty twelve" }
             2012-01-05 -> date { year: "twenty twelve" month: "january" day: "five" }
             2012.01.05 -> date { year: "twenty twelve" month: "january" day: "five" }
             2012/01/05 -> date { year: "twenty twelve" month: "january" day: "five" }
             2012 -> date { year: "twenty twelve" }
         """
         cardinal = Cardinal(self.deterministic)
-        # january
+        # january, January, JANUARY
         month_graph = pynini.string_file(
-            get_abs_path("english/data/date/month_name.tsv")).optimize()
-        # January, JANUARY
-        month_graph |= pynini.compose(
-            self.TO_LOWER + pynini.closure(self.VCHAR),
-            month_graph) | pynini.compose(self.TO_LOWER**(2, ...), month_graph)
-
-        # jan
-        month_abbr_graph = pynini.string_file(
-            get_abs_path("english/data/date/month_abbr.tsv")).optimize()
+            get_abs_path("english/data/date/month_name.tsv"))
         # jan, Jan, JAN
-        month_abbr_graph = (
-            month_abbr_graph
-            | pynini.compose(self.TO_LOWER + pynini.closure(self.LOWER, 1),
-                             month_abbr_graph).optimize()
-            | pynini.compose(self.TO_LOWER**(2, ...),
-                             month_abbr_graph).optimize()) + pynini.closure(
-                                 pynutil.delete("."), 0, 1)
-        month_graph |= month_abbr_graph.optimize()
+        month_abbr_graph = pynini.string_file(
+            get_abs_path("english/data/date/month_abbr.tsv"))
+        month_graph |= month_abbr_graph
+        month_graph += pynutil.delete(self.PUNCT).ques
 
         month_numbers_labels = pynini.string_file(
-            get_abs_path("english/data/date/month_number.tsv")).optimize()
+            get_abs_path("english/data/date/month_number.tsv"))
         cardinal_graph = cardinal.graph_hundred_component_at_least_one_none_zero_digit
 
         year_graph = _get_year_graph(cardinal_graph=cardinal_graph,
@@ -235,13 +223,14 @@ class Date(Processor):
             cardinal_graph=cardinal_graph,
             single_digits_graph=cardinal.single_digits_graph)
         two_digit_year = pynutil.insert(
-            "year: \"") + two_digit_year + pynutil.insert("\"")
+            "year: \"") + two_digit_year + self.PUNCT.ques + pynutil.insert(
+                "\"")
 
         graph_year = pynutil.insert(" year: \"") + pynutil.delete(
-            " ") + year_graph + pynutil.insert("\"")
+            " ") + year_graph + self.PUNCT.ques + pynutil.insert("\"")
         graph_year |= (pynutil.insert(" year: \"") + pynini.accep(",") +
                        pynini.closure(pynini.accep(" "), 0, 1) + year_graph +
-                       pynutil.insert("\""))
+                       self.PUNCT.ques + pynutil.insert("\""))
         optional_graph_year = pynini.closure(graph_year, 0, 1)
 
         year_graph = pynutil.insert("year: \"") + year_graph + pynutil.insert(
@@ -252,134 +241,53 @@ class Date(Processor):
             | (pynini.accep(" ") + day_graph)
             | graph_year
             | (self.DELETE_EXTRA_SPACE + day_graph + graph_year))
-
         graph_mdy |= (month_graph + pynini.cross("-", " ") + day_graph +
                       pynini.closure(
                           ((pynini.cross("-", " ") +
                             pynini.closure(self.VCHAR)) @ graph_year), 0, 1))
-
         for x in ["-", "/", "."]:
             delete_sep = pynutil.delete(x)
             graph_mdy |= (month_numbers_graph + delete_sep +
                           self.INSERT_SPACE +
                           pynini.closure(pynutil.delete("0"), 0, 1) +
                           day_graph + delete_sep + self.INSERT_SPACE +
-                          (year_graph | two_digit_year))
+                          (pynutil.add_weight(year_graph, -1.0)))
 
-        graph_dmy = day_graph + self.DELETE_EXTRA_SPACE + month_graph + optional_graph_year
+        graph_dmy = day_graph + self.DELETE_EXTRA_SPACE + self.INSERT_SPACE + month_graph + optional_graph_year
         day_ex_month = (self.DIGIT**2 - pynini.project(month_numbers_graph,
                                                        "input")) @ day_graph
         for x in ["-", "/", "."]:
             delete_sep = pynutil.delete(x)
             graph_dmy |= (day_ex_month + delete_sep + self.INSERT_SPACE +
                           month_numbers_graph + delete_sep +
-                          self.INSERT_SPACE + (year_graph | two_digit_year))
+                          self.INSERT_SPACE +
+                          (pynutil.add_weight(year_graph, -1.0)))
 
-        graph_ymd = pynini.accep("")
+        graph_ymd = year_graph + self.DELETE_EXTRA_SPACE + self.INSERT_SPACE + month_graph + self.DELETE_EXTRA_SPACE + self.INSERT_SPACE + day_graph
         for x in ["-", "/", "."]:
             delete_sep = pynutil.delete(x)
-            graph_ymd |= ((year_graph | two_digit_year) + delete_sep +
+            graph_ymd |= ((pynutil.add_weight(year_graph, -1.0)) + delete_sep +
                           self.INSERT_SPACE + month_numbers_graph +
                           delete_sep + self.INSERT_SPACE +
                           pynini.closure(pynutil.delete("0"), 0, 1) +
                           day_graph)
 
-        final_graph = graph_mdy | graph_dmy
-
-        if not self.deterministic:
-            final_graph += pynini.closure(
-                pynutil.insert(" preserve_order: \"true\""), 0, 1)
-            m_sep_d = (month_numbers_graph +
-                       pynutil.delete(pynini.union("-", "/")) +
-                       self.INSERT_SPACE +
-                       pynini.closure(pynutil.delete("0"), 0, 1) + day_graph)
-            final_graph |= m_sep_d
-        else:
-            final_graph += pynutil.insert(" preserve_order: \"true\"")
+        final_graph = pynutil.add_weight(graph_mdy | graph_dmy | graph_ymd,
+                                         -0.1) | year_graph
 
         period_fy = pynutil.insert(
             "text: \"") + _get_financial_period_graph() + pynutil.insert("\"")
         graph_fy = period_fy + self.INSERT_SPACE + two_digit_year
 
-        final_graph |= graph_ymd | year_graph | graph_fy
+        final_graph |= graph_fy
 
-        ymd_to_mdy_graph = None
-        ymd_to_dmy_graph = None
-        mdy_to_dmy_graph = None
-        md_to_dm_graph = None
-
-        for month in [
-                x[0] for x in load_labels(
-                    get_abs_path("english/data/date/month_name.tsv"))
-        ]:
-            for day in [
-                    x[0] for x in load_labels(
-                        get_abs_path("english/data/date/day.tsv"))
-            ]:
-                ymd_to_mdy_curr = (pynutil.insert("month: \"" + month +
-                                                  "\" day: \"" + day + "\" ") +
-                                   pynini.accep('year:') +
-                                   pynini.closure(self.VCHAR) +
-                                   pynutil.delete(" month: \"" + month +
-                                                  "\" day: \"" + day + "\""))
-
-                # YY-MM-DD -> MM-DD-YY
-                ymd_to_mdy_curr = pynini.compose(graph_ymd, ymd_to_mdy_curr)
-                ymd_to_mdy_graph = (ymd_to_mdy_curr if
-                                    ymd_to_mdy_graph is None else pynini.union(
-                                        ymd_to_mdy_curr, ymd_to_mdy_graph))
-
-                ymd_to_dmy_curr = (
-                    pynutil.insert("day: \"" + day + "\" month: \"" + month +
-                                   "\" ") + pynini.accep('year:') +
-                    pynini.closure(self.VCHAR) +
-                    pynutil.delete(" month: \"" + month + "\" day: \"" + day +
-                                   "\""))
-
-                # YY-MM-DD -> MM-DD-YY
-                ymd_to_dmy_curr = pynini.compose(graph_ymd,
-                                                 ymd_to_dmy_curr).optimize()
-                ymd_to_dmy_graph = (ymd_to_dmy_curr if
-                                    ymd_to_dmy_graph is None else pynini.union(
-                                        ymd_to_dmy_curr, ymd_to_dmy_graph))
-
-                mdy_to_dmy_curr = (
-                    pynutil.insert("day: \"" + day + "\" month: \"" + month +
-                                   "\" ") +
-                    pynutil.delete("month: \"" + month + "\" day: \"" + day +
-                                   "\" ") + pynini.accep('year:') +
-                    pynini.closure(self.VCHAR)).optimize()
-                # MM-DD-YY -> verbalize as MM-DD-YY (February fourth 1991) or DD-MM-YY (the fourth of February 1991)
-                mdy_to_dmy_curr = pynini.compose(graph_mdy,
-                                                 mdy_to_dmy_curr).optimize()
-                mdy_to_dmy_graph = (
-                    mdy_to_dmy_curr if mdy_to_dmy_graph is None else
-                    pynini.union(mdy_to_dmy_curr,
-                                 mdy_to_dmy_graph).optimize()).optimize()
-
-                md_to_dm_curr = pynutil.insert(
-                    "day: \"" + day + "\" month: \"" + month +
-                    "\"") + pynutil.delete("month: \"" + month + "\" day: \"" +
-                                           day + "\"")
-                md_to_dm_curr = pynini.compose(m_sep_d,
-                                               md_to_dm_curr).optimize()
-
-                md_to_dm_graph = (
-                    md_to_dm_curr if md_to_dm_graph is None else pynini.union(
-                        md_to_dm_curr, md_to_dm_graph).optimize()).optimize()
-
-        if not self.deterministic:
-            final_graph |= pynutil.add_weight(
-                mdy_to_dmy_graph | md_to_dm_graph | ymd_to_dmy_graph, -0.1)
-
-        final_graph = self.add_tokens(final_graph)
-        self.tagger = final_graph.optimize()
+        self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
         """
         Finite state transducer for verbalizing date, e.g.
-            date { month: "february" day: "five" year: "twenty twelve" preserve_order: "true" } -> february fifth twenty twelve
-            date { day: "five" month: "february" year: "twenty twelve" preserve_order: "true" } -> the fifth of february twenty twelve
+            date { month: "february" day: "five" year: "twenty twelve" } -> the fifth of february twenty twelve
+            date { day: "five" month: "february" year: "twenty twelve" } -> the fifth of february twenty twelve
         """
         ordinal = Ordinal(self.deterministic)
         phrase = pynini.closure(self.NOT_QUOTE, 1)
@@ -401,31 +309,10 @@ class Date(Processor):
         graph_fy = (pynutil.insert("the ") + period + pynutil.insert(" of") +
                     pynini.closure(self.DELETE_EXTRA_SPACE + year, 0, 1))
 
-        # month (day) year
-        graph_mdy = (month +
-                     pynini.closure(self.DELETE_EXTRA_SPACE + day, 0, 1) +
-                     pynini.closure(self.DELETE_EXTRA_SPACE + year, 0, 1))
-        # may 5 -> may five
-        if not self.deterministic:
-            graph_mdy |= (
-                month +
-                pynini.closure(self.DELETE_EXTRA_SPACE + day_cardinal, 0, 1) +
-                pynini.closure(self.DELETE_EXTRA_SPACE + year, 0, 1))
-
         # day month year
         graph_dmy = (pynutil.insert("the ") + day + self.DELETE_EXTRA_SPACE +
                      pynutil.insert("of ") + month +
                      pynini.closure(self.DELETE_EXTRA_SPACE + year, 0, 1))
 
-        optional_preserve_order = pynini.closure(
-            pynutil.delete("preserve_order:") + self.DELETE_SPACE +
-            pynutil.delete("\"true\"") + self.DELETE_SPACE
-            | pynutil.delete("field_order:") + self.DELETE_SPACE +
-            pynutil.delete("\"") + self.NOT_QUOTE + pynutil.delete("\"") +
-            self.DELETE_SPACE)
-
-        final_graph = (
-            (graph_dmy | pynutil.add_weight(graph_mdy, 0.0001) | year
-             | graph_fy) + self.DELETE_SPACE + optional_preserve_order)  # noqa
-        delete_tokens = self.delete_tokens(final_graph)
-        self.verbalizer = delete_tokens.optimize()
+        final_graph = ((graph_dmy | year | graph_fy) + self.DELETE_SPACE)
+        self.verbalizer = self.delete_tokens(final_graph)
