@@ -26,24 +26,30 @@ const std::set<std::string> ASCII_LETTERS = {
     "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B",
     "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
     "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "_"};
-const std::unordered_map<std::string, std::vector<std::string>> TN_ORDERS = {
+const std::unordered_map<std::string, std::vector<std::string>> ZH_TN_ORDERS = {
     {"date", {"year", "month", "day"}},
     {"fraction", {"denominator", "numerator"}},
     {"measure", {"denominator", "numerator", "value"}},
     {"money", {"value", "currency"}},
     {"time", {"noon", "hour", "minute", "second"}}};
-const std::unordered_map<std::string, std::vector<std::string>> ITN_ORDERS = {
-    {"date", {"year", "month", "day"}},
-    {"fraction", {"sign", "numerator", "denominator"}},
-    {"measure", {"numerator", "denominator", "value"}},
-    {"money", {"currency", "value", "decimal"}},
-    {"time", {"hour", "minute", "second", "noon"}}};
+const std::unordered_map<std::string, std::vector<std::string>> EN_TN_ORDERS = {
+    {"date", {"preserve_order", "text", "day", "month", "year"}}};
+const std::unordered_map<std::string, std::vector<std::string>> ZH_ITN_ORDERS =
+    {{"date", {"year", "month", "day"}},
+     {"fraction", {"sign", "numerator", "denominator"}},
+     {"measure", {"numerator", "denominator", "value"}},
+     {"money", {"currency", "value", "decimal"}},
+     {"time", {"hour", "minute", "second", "noon"}}};
 
 TokenParser::TokenParser(ParseType type) {
-  if (type == ParseType::kTN) {
-    orders_ = TN_ORDERS;
+  if (type == ParseType::kZH_TN) {
+    orders_ = ZH_TN_ORDERS;
+  } else if (type == ParseType::kZH_ITN) {
+    orders_ = ZH_TN_ORDERS;
+  } else if (type == ParseType::kEN_TN) {
+    orders_ = EN_TN_ORDERS;
   } else {
-    orders_ = ITN_ORDERS;
+    orders_ = ZH_ITN_ORDERS;
   }
 }
 
