@@ -24,10 +24,12 @@ Processor::Processor(const std::string& tagger_path,
   compiler_ = std::make_shared<StringCompiler<StdArc>>(StringTokenType::BYTE);
   printer_ = std::make_shared<StringPrinter<StdArc>>(StringTokenType::BYTE);
 
-  if (tagger_path.find("_tn_") != tagger_path.npos) {
-    parse_type_ = ParseType::kTN;
-  } else if (tagger_path.find("_itn_") != tagger_path.npos) {
-    parse_type_ = ParseType::kITN;
+  if (tagger_path.find("zh_tn_") != tagger_path.npos) {
+    parse_type_ = ParseType::kZH_TN;
+  } else if (tagger_path.find("zh_itn_") != tagger_path.npos) {
+    parse_type_ = ParseType::kZH_ITN;
+  } else if (tagger_path.find("en_tn_") != tagger_path.npos) {
+    parse_type_ = ParseType::kEN_TN;
   } else {
     LOG(FATAL) << "Invalid fst prefix, prefix should contain"
                << " either \"_tn_\" or \"_itn_\".";

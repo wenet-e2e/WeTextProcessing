@@ -60,8 +60,9 @@ struct Token {
 };
 
 enum ParseType {
-  kTN = 0x00,  // Text Normalization
-  kITN = 0x01  // Inverse Text Normalization
+  kZH_TN = 0x00,   // Chinese Text Normalization
+  kZH_ITN = 0x01,  // Chinese Inverse Text Normalization
+  kEN_TN = 0x02    // English Text Normalization
 };
 
 class TokenParser {
