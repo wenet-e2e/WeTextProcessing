@@ -14,9 +14,10 @@
 # limitations under the License.
 
 from pynini.lib import pynutil
-from pynini import cross, difference, union
+from pynini import difference, union
 
 from tn.processor import Processor
+from tn.english.rules.punctuation import Punctuation
 
 
 class Word(Processor):
@@ -27,7 +28,7 @@ class Word(Processor):
             deterministic: if True will provide a single transduction option,
                 for False multiple transduction are generated (used for audio-based normalization)
         """
-        super().__init__("word", ordertype="en_tn")
+        super().__init__("w", ordertype="en_tn")
         self.deterministic = deterministic
         self.build_tagger()
         self.build_verbalizer()
@@ -35,11 +36,14 @@ class Word(Processor):
     def build_tagger(self):
         """
         Finite state transducer for classifying word. Considers sentence boundary exceptions.
-            e.g. sleep -> word { value: "sleep" }
+            e.g. sleep -> w { v: "sleep" }
         """
-        self.char = difference(self.VCHAR, union('\\', '"', self.SPACE))
-        chars = (self.char | cross('\\', '\\\\\\') | cross('"', '\\"')).plus
-        graph = (pynutil.insert("value: \"") + chars +
+        punct = Punctuation(self.deterministic).graph
+        default_graph = difference(self.NOT_SPACE, punct.project("input"))
+        symbols_to_exclude = union("$", "€", "₩", "£", "¥", "#",
+                                   "%") | self.DIGIT
+        self.char = difference(default_graph, symbols_to_exclude)
+        graph = (pynutil.insert("v: \"") + self.char.plus +
                  pynutil.insert("\"")).optimize()
         final_graph = self.add_tokens(graph)
         self.tagger = final_graph.optimize()
@@ -47,10 +51,9 @@ class Word(Processor):
     def build_verbalizer(self):
         """
         Finite state transducer for verbalizing word
-            e.g. word { value: "sleep" } -> sleep
+            e.g. w { v: "sleep" } -> sleep
         """
-        chars = (self.char | cross('\\\\\\', '\\') | cross('\\"', '"')).plus
-        graph = pynutil.delete("value: ") + pynutil.delete(
-            "\"") + chars + pynutil.delete("\"")
+        graph = pynutil.delete("v: ") + pynutil.delete(
+            "\"") + self.char.plus + pynutil.delete("\"")
         final_graph = self.delete_tokens(graph)
         self.verbalizer = final_graph.optimize()
