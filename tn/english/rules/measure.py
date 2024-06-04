@@ -97,11 +97,11 @@ class Measure(Processor):
         unit_plural = (
             pynutil.insert(" units: \"") +
             (graph_unit_plural + optional_graph_unit2 | graph_unit2) +
-            self.PUNCT.ques + pynutil.insert("\""))
+            pynutil.insert("\""))
 
         unit_singular = (pynutil.insert(" units: \"") +
                          (graph_unit + optional_graph_unit2 | graph_unit2) +
-                         self.PUNCT.ques + pynutil.insert("\""))
+                         pynutil.insert("\""))
 
         decimal = Decimal(self.deterministic)
         subgraph_decimal = (optional_graph_negative +
@@ -112,8 +112,7 @@ class Measure(Processor):
         subgraph_decimal |= (decimal.final_graph_wo_negative +
                              pynini.accep(' ').ques +
                              pynutil.insert(" units: \"") +
-                             pynini.union("AM", "FM") + self.PUNCT.ques +
-                             pynutil.insert("\""))
+                             pynini.union("AM", "FM") + pynutil.insert("\""))
 
         subgraph_cardinal = (
             optional_graph_negative + pynutil.insert("integer: \"") +
@@ -129,20 +128,19 @@ class Measure(Processor):
             pynutil.insert("integer: \"-\" units: \"") +
             ((pynini.cross("/", "per") + self.DELETE_ZERO_OR_ONE_SPACE) |
              (pynini.accep("per") + pynutil.delete(" "))) +
-            pynutil.insert(" ") + graph_unit + self.PUNCT.ques +  # noqa
-            pynutil.insert("\""))  # noqa
+            pynutil.insert(" ") + graph_unit + pynutil.insert("\""))  # noqa
 
         decimal_dash_alpha = (decimal.final_graph_wo_negative +
                               pynini.cross('-', '') +
                               pynutil.insert(" units: \"") +
-                              pynini.closure(self.ALPHA, 1) + self.PUNCT.ques +
+                              pynini.closure(self.ALPHA, 1) +
                               pynutil.insert("\""))
 
         decimal_times = (decimal.final_graph_wo_negative +
                          pynutil.insert(" units: \"") +
                          (pynini.cross(pynini.union('x', "X"), 'x')
                           | pynini.cross(pynini.union('x', "X"), ' times')) +
-                         self.PUNCT.ques + pynutil.insert("\""))
+                         pynutil.insert("\""))
 
         alpha_dash_decimal = (pynutil.insert("units: \"") +
                               pynini.closure(self.ALPHA, 1) +
@@ -155,7 +153,7 @@ class Measure(Processor):
 
         address = self.get_address_graph(cardinal)
         address = (pynutil.insert("units: \"address\" integer: \"") + address +
-                   self.PUNCT.ques + pynutil.insert("\""))
+                   pynutil.insert("\""))
 
         math_operations = pynini.string_file(
             get_abs_path("english/data/measure/math_operation.tsv"))
