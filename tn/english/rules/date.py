@@ -223,14 +223,15 @@ class Date(Processor):
             cardinal_graph=cardinal_graph,
             single_digits_graph=cardinal.single_digits_graph)
         two_digit_year = pynutil.insert(
-            "year: \"") + two_digit_year + self.PUNCT.ques + pynutil.insert(
-                "\"")
+            "year: \"") + two_digit_year + pynini.union(
+                ",", ".").ques + pynutil.insert("\"")
 
-        graph_year = pynutil.insert(" year: \"") + pynutil.delete(
-            " ") + year_graph + self.PUNCT.ques + pynutil.insert("\"")
+        graph_year = pynutil.insert(
+            " year: \"") + pynutil.delete(" ") + year_graph + pynini.union(
+                ",", ".").ques + pynutil.insert("\"")
         graph_year |= (pynutil.insert(" year: \"") + pynini.accep(",") +
                        pynini.closure(pynini.accep(" "), 0, 1) + year_graph +
-                       self.PUNCT.ques + pynutil.insert("\""))
+                       pynini.union(",", ".").ques + pynutil.insert("\""))
         optional_graph_year = pynini.closure(graph_year, 0, 1)
 
         year_graph = pynutil.insert("year: \"") + year_graph + pynutil.insert(
@@ -281,6 +282,12 @@ class Date(Processor):
 
         final_graph |= graph_fy
 
+        prefix = pynutil.delete(pynini.union("{", "(", "<", "\"",
+                                             "'")).ques + self.DELETE_SPACE
+        suffix = self.DELETE_SPACE + pynutil.delete(
+            pynini.union("}", ")", ">", "\"", "'")).ques
+        final_graph = pynutil.add_weight(
+            prefix, -0.1) + final_graph + pynutil.add_weight(suffix, -0.1)
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
@@ -309,9 +316,9 @@ class Date(Processor):
         graph_fy = (pynutil.insert("the ") + period + pynutil.insert(" of") +
                     pynini.closure(self.DELETE_EXTRA_SPACE + year, 0, 1))
 
-        # day month year
-        graph_dmy = (pynutil.insert("the ") + day + self.DELETE_EXTRA_SPACE +
-                     pynutil.insert("of ") + month +
+        # day month year, month year
+        graph_dmy = ((pynutil.insert("the ") + day + self.DELETE_EXTRA_SPACE +
+                      pynutil.insert("of ")).ques + month +
                      pynini.closure(self.DELETE_EXTRA_SPACE + year, 0, 1))
 
         final_graph = ((graph_dmy | year | graph_fy) + self.DELETE_SPACE)
