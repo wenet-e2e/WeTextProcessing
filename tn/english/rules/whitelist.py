@@ -21,7 +21,6 @@ INPUT_LOWER_CASED = "lower_cased"
 
 from tn.processor import Processor
 from tn.utils import get_abs_path, load_labels, augment_labels_with_punct_at_end
-from tn.english.rules.measure import SINGULAR_TO_PLURAL
 from tn.english.rules.roman import get_names
 
 
@@ -93,21 +92,6 @@ class WhiteList(Processor):
                       pynini.closure(pynutil.delete(x) + self.UPPER, 2) +
                       pynini.closure(pynutil.delete("."), 0, 1))
 
-        if not self.deterministic:
-            multiple_forms_whitelist_graph = get_formats(
-                get_abs_path(
-                    "english/data/whitelist/alternatives_all_format.tsv"))
-            graph |= multiple_forms_whitelist_graph
-
-            graph_unit = pynini.string_file(
-                get_abs_path("english/data/measure/unit.tsv")
-            ) | pynini.string_file(
-                get_abs_path("english/data/measure/unit_alternatives.tsv"))
-            graph_unit_plural = graph_unit @ SINGULAR_TO_PLURAL
-            units_graph = pynini.compose(self.VCHAR**(3, ...),
-                                         graph_unit | graph_unit_plural)
-            graph |= units_graph
-
         # convert to states only if comma is present before the abbreviation to avoid converting all caps words,
         # e.g. "IN", "OH", "OK"
         # TODO or only exclude above?
@@ -133,7 +117,7 @@ class WhiteList(Processor):
 
     def build_verbalizer(self):
         graph = (pynutil.delete("name:") + self.DELETE_SPACE +
-                 pynutil.delete("\"") + pynini.closure(self.VCHAR - " ", 1) +
+                 pynutil.delete("\"") + pynini.closure(self.NOT_QUOTE, 1) +
                  pynutil.delete("\""))
         final_graph = graph.optimize()
         self.verbalizer = self.delete_tokens(final_graph)

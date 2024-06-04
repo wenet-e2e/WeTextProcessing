@@ -122,9 +122,10 @@ class TokenParser:
         value = ''
         while self.char != '"':
             value += self.char
-            escape = self.char == '\\' and not escape
+            escape = self.char == '\\'
             self.read()
             if escape:
+                escape = False
                 value += self.char
                 self.read()
         return value

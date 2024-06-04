@@ -116,9 +116,10 @@ std::string TokenParser::ParseValue() {
   std::string value = "";
   while (ch_ != "\"") {
     value += ch_;
-    escape = ch_ == "\\" && !escape;
+    escape = ch_ == "\\";
     Read();
     if (escape) {
+      escape = false;
       value += ch_;
       Read();
     }
