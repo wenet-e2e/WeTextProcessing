@@ -282,12 +282,6 @@ class Date(Processor):
 
         final_graph |= graph_fy
 
-        prefix = pynutil.delete(pynini.union("{", "(", "<", "\"",
-                                             "'")).ques + self.DELETE_SPACE
-        suffix = self.DELETE_SPACE + pynutil.delete(
-            pynini.union("}", ")", ">", "\"", "'")).ques
-        final_graph = pynutil.add_weight(
-            prefix, -0.1) + final_graph + pynutil.add_weight(suffix, -0.1)
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
