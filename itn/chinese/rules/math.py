@@ -14,6 +14,7 @@
 
 from itn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import string_file
 from pynini.lib.pynutil import insert
@@ -27,7 +28,8 @@ class Math(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        operator = string_file('itn/chinese/data/math/operator.tsv')
+        operator = string_file(
+            get_abs_path('../itn/chinese/data/math/operator.tsv'))
 
         number = Cardinal().number
         tagger = (number + (operator + number).plus)

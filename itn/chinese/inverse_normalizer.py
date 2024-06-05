@@ -37,7 +37,7 @@ class InverseNormalizer(Processor):
                  enable_standalone_number=True,
                  enable_0_to_9=False,
                  enable_million=False):
-        super().__init__(name='inverse_normalizer', ordertype='itn')
+        super().__init__(name='zh_inverse_normalizer', ordertype='itn')
         self.convert_number = enable_standalone_number
         self.enable_0_to_9 = enable_0_to_9
         self.enable_million = enable_million

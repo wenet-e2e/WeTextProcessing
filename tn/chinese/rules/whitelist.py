@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import accep, string_file
 from pynini.lib.pynutil import add_weight, delete, insert
@@ -27,8 +28,9 @@ class Whitelist(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        whitelist = (string_file('tn/chinese/data/default/whitelist.tsv')
-                     | string_file('tn/chinese/data/erhua/whitelist.tsv'))
+        whitelist = (
+            string_file(get_abs_path('chinese/data/default/whitelist.tsv'))
+            | string_file(get_abs_path('chinese/data/erhua/whitelist.tsv')))
 
         erhua = add_weight(insert('erhua: "') + accep('儿'), 0.1)
         tagger = (erhua | (insert('value: "') + whitelist)) + insert('"')

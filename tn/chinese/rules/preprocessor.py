@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import string_file
 
@@ -22,7 +23,7 @@ class PreProcessor(Processor):
     def __init__(self, traditional_to_simple=True):
         super().__init__(name='preprocessor')
         traditional2simple = string_file(
-            'tn/chinese/data/char/traditional_to_simple.tsv')
+            get_abs_path('chinese/data/char/traditional_to_simple.tsv'))
 
         processor = self.build_rule('')
         if traditional_to_simple:

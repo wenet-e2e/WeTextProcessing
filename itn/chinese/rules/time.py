@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import string_file
 from pynini.lib.pynutil import delete, insert
@@ -26,10 +27,10 @@ class Time(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        h = string_file('itn/chinese/data/time/hour.tsv')
-        m = string_file('itn/chinese/data/time/minute.tsv')
-        s = string_file('itn/chinese/data/time/second.tsv')
-        noon = string_file('itn/chinese/data/time/noon.tsv')
+        h = string_file(get_abs_path('../itn/chinese/data/time/hour.tsv'))
+        m = string_file(get_abs_path('../itn/chinese/data/time/minute.tsv'))
+        s = string_file(get_abs_path('../itn/chinese/data/time/second.tsv'))
+        noon = string_file(get_abs_path('../itn/chinese/data/time/noon.tsv'))
 
         tagger = ((insert('noon: "') + noon + insert('" ')).ques +
                   insert('hour: "') + h + insert('"') + insert(' minute: "') +

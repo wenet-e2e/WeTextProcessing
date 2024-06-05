@@ -41,7 +41,7 @@ class Normalizer(Processor):
                  remove_puncts=False,
                  full_to_half=True,
                  tag_oov=False):
-        super().__init__(name='normalizer')
+        super().__init__(name='zh_normalizer')
         self.remove_interjections = remove_interjections
         self.remove_erhua = remove_erhua
         self.traditional_to_simple = traditional_to_simple

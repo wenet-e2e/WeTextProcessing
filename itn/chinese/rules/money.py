@@ -14,6 +14,7 @@
 
 from itn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import string_file
 from pynini.lib.pynutil import delete, insert
@@ -28,9 +29,11 @@ class Money(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        code = string_file('itn/chinese/data/money/code.tsv')
-        symbol = string_file('itn/chinese/data/money/symbol.tsv')
-        digit = string_file('itn/chinese/data/number/digit.tsv')  # 1 ~ 9
+        code = string_file(get_abs_path('../itn/chinese/data/money/code.tsv'))
+        symbol = string_file(
+            get_abs_path('../itn/chinese/data/money/symbol.tsv'))
+        digit = string_file(
+            get_abs_path('../itn/chinese/data/number/digit.tsv'))  # 1 ~ 9
 
         number = Cardinal().number if self.enable_0_to_9 else \
             Cardinal().number_exclude_0_to_9

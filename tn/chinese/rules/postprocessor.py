@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import difference, string_file
 from pynini.lib.pynutil import delete
@@ -27,14 +28,17 @@ class PostProcessor(Processor):
                  full_to_half=True,
                  tag_oov=False):
         super().__init__(name='postprocessor')
-        blacklist = string_file('tn/chinese/data/default/blacklist.tsv')
-        puncts = string_file('tn/chinese/data/char/punctuations_zh.tsv')
+        blacklist = string_file(
+            get_abs_path('chinese/data/default/blacklist.tsv'))
+        puncts = string_file(
+            get_abs_path('chinese/data/char/punctuations_zh.tsv'))
         full2half = string_file(
-            'tn/chinese/data/char/fullwidth_to_halfwidth.tsv')
+            get_abs_path('chinese/data/char/fullwidth_to_halfwidth.tsv'))
         zh_charset_std = string_file(
-            'tn/chinese/data/char/charset_national_standard_2013_8105.tsv')
+            get_abs_path(
+                'chinese/data/char/charset_national_standard_2013_8105.tsv'))
         zh_charset_ext = string_file(
-            'tn/chinese/data/char/charset_extension.tsv')
+            get_abs_path('chinese/data/char/charset_extension.tsv'))
 
         processor = self.build_rule('')
         if remove_interjections:

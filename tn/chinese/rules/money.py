@@ -14,6 +14,7 @@
 
 from tn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import string_file
 from pynini.lib.pynutil import delete, insert
@@ -27,8 +28,8 @@ class Money(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        code = string_file('tn/chinese/data/money/code.tsv')
-        symbol = string_file('tn/chinese/data/money/symbol.tsv')
+        code = string_file(get_abs_path('chinese/data/money/code.tsv'))
+        symbol = string_file(get_abs_path('chinese/data/money/symbol.tsv'))
 
         number = Cardinal().number
         tagger = (insert('currency: "') + (code | symbol) + delete(' ').ques +
