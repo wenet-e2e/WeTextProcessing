@@ -101,7 +101,7 @@ class Processor:
             self.verbalizer.optimize().write(verbalizer_path)
             logging.info("done")
             logging.info("fst path: {}".format(tagger_path))
-            logging.info("          {}".format(tagger_path))
+            logging.info("          {}".format(verbalizer_path))
 
     def tag(self, input):
         if len(input) == 0:
