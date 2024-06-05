@@ -27,6 +27,7 @@ from tn.english.rules.telephone import Telephone
 from tn.english.rules.electronic import Electronic
 from tn.english.rules.whitelist import WhiteList
 from tn.english.rules.punctuation import Punctuation
+from tn.english.rules.range import Range
 
 from pynini.lib.pynutil import add_weight, delete
 from importlib_resources import files
@@ -54,6 +55,7 @@ class Normalizer(Processor):
         word = add_weight(Word().tagger, 100)
         whitelist = add_weight(WhiteList().tagger, 1.00)
         punct = add_weight(Punctuation().tagger, 2.00)
+        rang = add_weight(Range().tagger, 1.01)
         # TODO(xcsong): add roman
         tagger = punct.star + \
             (cardinal | ordinal | word
@@ -61,7 +63,8 @@ class Normalizer(Processor):
              | time | measure | money
              | telephone | electronic
              | whitelist
-             | punct).optimize() + (punct.plus | self.DELETE_SPACE)
+             | punct
+             | rang).optimize() + (punct.plus | self.DELETE_SPACE)
         # delete the last space
         self.tagger = tagger.star @ self.build_rule(delete(' '), r='[EOS]')
 
@@ -79,6 +82,7 @@ class Normalizer(Processor):
         electronic = Electronic().verbalizer
         whitelist = WhiteList().verbalizer
         punct = Punctuation().verbalizer
+        rang = Range().verbalizer
         verbalizer = \
             (cardinal | ordinal | word
              | date | decimal
@@ -87,6 +91,7 @@ class Normalizer(Processor):
              | telephone
              | electronic
              | whitelist
-             | punct).optimize() + punct.ques + self.INSERT_SPACE
+             | punct
+             | rang).optimize() + punct.ques + self.INSERT_SPACE
         self.verbalizer = verbalizer.star @ self.build_rule(delete(' '),
                                                             r='[EOS]')
