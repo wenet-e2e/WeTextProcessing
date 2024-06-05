@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import string_file
 from pynini.lib.pynutil import delete, insert
@@ -26,14 +27,14 @@ class Date(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        digit = string_file('tn/chinese/data/number/digit.tsv')
-        zero = string_file('tn/chinese/data/number/zero.tsv')
+        digit = string_file(get_abs_path('chinese/data/number/digit.tsv'))
+        zero = string_file(get_abs_path('chinese/data/number/zero.tsv'))
 
         yyyy = digit + (digit | zero)**3
-        m = string_file('tn/chinese/data/date/m.tsv')
-        mm = string_file('tn/chinese/data/date/mm.tsv')
-        d = string_file('tn/chinese/data/date/d.tsv')
-        dd = string_file('tn/chinese/data/date/dd.tsv')
+        m = string_file(get_abs_path('chinese/data/date/m.tsv'))
+        mm = string_file(get_abs_path('chinese/data/date/mm.tsv'))
+        d = string_file(get_abs_path('chinese/data/date/d.tsv'))
+        dd = string_file(get_abs_path('chinese/data/date/dd.tsv'))
         rmsign = (delete('/') | delete('-') | delete('.')) + insert(' ')
 
         year = insert('year: "') + yyyy + insert('年"')

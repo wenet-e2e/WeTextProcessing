@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import string_file
 from pynini.lib.pynutil import delete
@@ -23,7 +24,8 @@ class PostProcessor(Processor):
 
     def __init__(self, remove_interjections=True):
         super().__init__(name='postprocessor')
-        blacklist = string_file('itn/chinese/data/default/blacklist.tsv')
+        blacklist = string_file(
+            get_abs_path('../itn/chinese/data/default/blacklist.tsv'))
 
         processor = self.VSIGMA
         if remove_interjections:

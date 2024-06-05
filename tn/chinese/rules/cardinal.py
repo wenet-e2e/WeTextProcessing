@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import accep, cross, string_file
 from pynini.lib.pynutil import add_weight, delete, insert
@@ -28,11 +29,11 @@ class Cardinal(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        zero = string_file('tn/chinese/data/number/zero.tsv')
-        digit = string_file('tn/chinese/data/number/digit.tsv')
-        teen = string_file('tn/chinese/data/number/teen.tsv')
-        sign = string_file('tn/chinese/data/number/sign.tsv')
-        dot = string_file('tn/chinese/data/number/dot.tsv')
+        zero = string_file(get_abs_path('chinese/data/number/zero.tsv'))
+        digit = string_file(get_abs_path('chinese/data/number/digit.tsv'))
+        teen = string_file(get_abs_path('chinese/data/number/teen.tsv'))
+        sign = string_file(get_abs_path('chinese/data/number/sign.tsv'))
+        dot = string_file(get_abs_path('chinese/data/number/dot.tsv'))
 
         rmzero = delete('0') | delete('０')
         rmpunct = delete(',').ques

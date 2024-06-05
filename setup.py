@@ -32,8 +32,11 @@ setup(
     url="https://github.com/wenet-e2e/WeTextProcessing",
     packages=find_packages(),
     package_data={
-        "tn": ["*.fst"],
-        "itn": ["*.fst"],
+        "tn": [
+            "*.fst", "chinese/data/*/*.tsv", "english/data/*/*.tsv",
+            "english/data/*.tsv", "english/data/*/*.far"
+        ],
+        "itn": ["*.fst", "chinese/data/*/*.tsv"],
     },
     install_requires=['pynini==2.1.5', 'importlib_resources'],
     entry_points={

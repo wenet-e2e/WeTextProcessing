@@ -14,6 +14,7 @@
 
 import os
 import string
+import logging
 
 from tn.token_parser import TokenParser
 
@@ -21,6 +22,9 @@ from pynini import (cdrewrite, cross, difference, escape, Fst, shortestpath,
                     union, closure, invert)
 from pynini.lib import byte, utf8
 from pynini.lib.pynutil import delete, insert
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s WETEXT %(levelname)s %(message)s')
 
 
 class Processor:
@@ -84,13 +88,20 @@ class Processor:
         exists = os.path.exists(tagger_path) and os.path.exists(
             verbalizer_path)
         if exists and not overwrite_cache:
+            logging.info("found existing fst: {}".format(tagger_path))
+            logging.info("                    {}".format(verbalizer_path))
+            logging.info("skip building fst for {} ...".format(self.name))
             self.tagger = Fst.read(tagger_path).optimize()
             self.verbalizer = Fst.read(verbalizer_path).optimize()
         else:
+            logging.info("building fst for {} ...".format(self.name))
             self.build_tagger()
             self.build_verbalizer()
             self.tagger.optimize().write(tagger_path)
             self.verbalizer.optimize().write(verbalizer_path)
+            logging.info("done")
+            logging.info("fst path: {}".format(tagger_path))
+            logging.info("          {}".format(tagger_path))
 
     def tag(self, input):
         if len(input) == 0:

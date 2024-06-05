@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import cross, accep, string_file
 from pynini.lib.pynutil import delete, insert, add_weight
@@ -34,14 +35,20 @@ class Cardinal(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        zero = string_file('itn/chinese/data/number/zero.tsv')  # 0
-        digit = string_file('itn/chinese/data/number/digit.tsv')  # 1 ~ 9
+        zero = string_file(
+            get_abs_path('../itn/chinese/data/number/zero.tsv'))  # 0
+        digit = string_file(
+            get_abs_path('../itn/chinese/data/number/digit.tsv'))  # 1 ~ 9
         special_tilde = string_file(
-            'itn/chinese//data/number/special_tilde.tsv')  # 七八十->70~80
+            get_abs_path(
+                '../itn/chinese/data/number/special_tilde.tsv'))  # 七八十->70~80
         special_dash = string_file(
-            'itn/chinese//data/number/special_dash.tsv')  # 七八十->70-80
-        sign = string_file('itn/chinese/data/number/sign.tsv')  # + -
-        dot = string_file('itn/chinese/data/number/dot.tsv')  # .
+            get_abs_path(
+                '../itn/chinese/data/number/special_dash.tsv'))  # 七八十->70-80
+        sign = string_file(
+            get_abs_path('../itn/chinese/data/number/sign.tsv'))  # + -
+        dot = string_file(
+            get_abs_path('../itn/chinese/data/number/dot.tsv'))  # .
 
         # 0. 基础数字
         addzero = insert('0')

@@ -14,6 +14,7 @@
 
 from tn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import string_file
 from pynini.lib.pynutil import delete, insert
@@ -27,8 +28,8 @@ class Sport(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        country = string_file('tn/chinese/data/sport/country.tsv')
-        club = string_file('tn/chinese/data/sport/club.tsv')
+        country = string_file(get_abs_path('chinese/data/sport/country.tsv'))
+        club = string_file(get_abs_path('chinese/data/sport/club.tsv'))
         rmsign = delete('/') | delete('-') | delete(':')
         rmspace = delete(' ').ques
 

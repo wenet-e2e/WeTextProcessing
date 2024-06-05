@@ -14,6 +14,7 @@
 
 from itn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import string_file
 from pynini.lib.pynutil import delete, insert, add_weight
@@ -28,7 +29,8 @@ class Fraction(Processor):
 
     def build_tagger(self):
         number = Cardinal().number
-        sign = string_file('itn/chinese/data/number/sign.tsv')  # + -
+        sign = string_file(
+            get_abs_path('../itn/chinese/data/number/sign.tsv'))  # + -
 
         # NOTE(xcsong): default weight = 1.0,  set to -1.0 means higher priority
         #   For example,

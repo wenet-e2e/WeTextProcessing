@@ -14,6 +14,7 @@
 
 from itn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
+from tn.utils import get_abs_path
 
 from pynini import string_file, accep, cross
 from pynini.lib.pynutil import delete, insert, add_weight
@@ -29,9 +30,12 @@ class Measure(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        units_en = string_file('itn/chinese/data/measure/units_en.tsv')
-        units_zh = string_file('itn/chinese/data/measure/units_zh.tsv')
-        sign = string_file('itn/chinese/data/number/sign.tsv')  # + -
+        units_en = string_file(
+            get_abs_path('../itn/chinese/data/measure/units_en.tsv'))
+        units_zh = string_file(
+            get_abs_path('../itn/chinese/data/measure/units_zh.tsv'))
+        sign = string_file(
+            get_abs_path('../itn/chinese/data/number/sign.tsv'))  # + -
         to = cross('到', '~') | cross('到百分之', '~')
 
         units = add_weight(
