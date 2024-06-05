@@ -42,9 +42,13 @@ class Cardinal(Processor):
         special_tilde = string_file(
             get_abs_path(
                 '../itn/chinese/data/number/special_tilde.tsv'))  # 七八十->70~80
+        special_tilde = special_tilde + add_weight(
+            (accep("万") | accep("亿")), -0.1).ques
         special_dash = string_file(
             get_abs_path(
                 '../itn/chinese/data/number/special_dash.tsv'))  # 七八十->70-80
+        special_dash = special_dash + add_weight(
+            (accep("万") | accep("亿")), -0.1).ques
         sign = string_file(
             get_abs_path('../itn/chinese/data/number/sign.tsv'))  # + -
         dot = string_file(
@@ -101,12 +105,14 @@ class Cardinal(Processor):
                   (number + accep('亿') + delete('零').ques).ques + number)
         # 负的xxx 1.11, 1.01
         number = sign.ques + number + (dot + digits.plus).ques
-        # 五六万 => 5~6万，三五千 => 3000~5000，六七百 => 600~700，三四十 => 30~40
+        # 五六万 => 5~6万，三五千 => 3000~5000，六七百 => 600~700，三四十 => 30~40, 三四十亿 => 30~40亿
         number |= special_tilde
-        # 十七八 => 17-8, 四十五六 => 45-6, 三百七八十 => 370-80
+        # 十七八 => 17-8, 四十五六 => 45-6, 三百七八十 => 370-80, 四十五六万 => 45-6万, 一万六七 => 16000-7000
         _special_dash = cross('十', '1') + special_dash
         _special_dash |= digit + delete('十') + special_dash
         _special_dash |= digit + delete('百') + special_dash
+        _special_dash |= digit + delete('万') + digit + insert(
+            '000-') + digit + insert('000')
         number |= _special_dash
 
         self.number = number.optimize()
