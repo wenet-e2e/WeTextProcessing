@@ -55,7 +55,7 @@ class Normalizer(Processor):
         word = add_weight(Word().tagger, 100)
         whitelist = add_weight(WhiteList().tagger, 1.00)
         punct = add_weight(Punctuation().tagger, 2.00)
-        rang = add_weight(Range().tagger, 1.00)
+        rang = add_weight(Range().tagger, 1.01)
         # TODO(xcsong): add roman
         tagger = punct.star + \
             (cardinal | ordinal | word
