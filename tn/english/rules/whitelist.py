@@ -106,7 +106,7 @@ class WhiteList(Processor):
 
         states.extend(additional_options)
         state_graph = pynini.string_map(states)
-        graph |= pynini.closure(self.NOT_SPACE, 1) + pynini.union(
+        graph |= pynini.closure(self.ALPHA, 1) + pynini.union(
             ", ", ",") + pynini.invert(state_graph).optimize()
 
         self.graph = graph.optimize()
