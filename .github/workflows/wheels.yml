@@ -27,7 +27,8 @@ jobs:
 
       - name: Build Graph
         run: |
-          python -m tn --text "2.5平方电线" --overwrite_cache
+          python -m tn --text "2.5平方电线" --overwrite_cache --language "zh"
+          python -m tn --text "2010-03-21" --overwrite_cache --language "en"
           python -m itn --text "二点五平方电线" --overwrite_cache
 
       - name: Prepare Graph
