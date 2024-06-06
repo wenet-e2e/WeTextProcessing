@@ -17,6 +17,7 @@ import pynini
 from pynini.lib import pynutil
 
 from tn.processor import Processor
+from tn.utils import get_abs_path
 from tn.english.rules.cardinal import Cardinal
 from tn.english.rules.time import Time
 from tn.english.rules.date import Date
@@ -45,14 +46,19 @@ class Range(Processor):
         time = time.tagger @ time.verbalizer
         date = Date(deterministic=self.deterministic)
         date = date.tagger @ date.verbalizer
+        week = pynini.string_file(get_abs_path("english/data/date/week.tsv"))
         delete_space = pynini.closure(pynutil.delete(" "), 0, 1)
 
         approx = pynini.cross("~", "approximately")
 
+        # WEEK
+        week_graph = week + delete_space + (pynini.cross("-", " to ")
+                                            | approx) + delete_space + week
+
         # TIME
         time_graph = time + delete_space + pynini.cross(
             "-", " to ") + delete_space + time
-        self.graph = time_graph | (approx + time)
+        self.graph = time_graph | (approx + time) | week_graph
 
         # YEAR
         date_year_four_digit = (self.DIGIT**4 +
