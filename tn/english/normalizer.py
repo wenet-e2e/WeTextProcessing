@@ -63,7 +63,6 @@ class Normalizer(Processor):
              | time | measure | money
              | telephone | electronic
              | whitelist
-             | punct
              | rang).optimize() + (punct.plus | self.DELETE_SPACE)
         # delete the last space
         self.tagger = tagger.star @ self.build_rule(delete(' '), r='[EOS]')
@@ -92,6 +91,6 @@ class Normalizer(Processor):
              | electronic
              | whitelist
              | punct
-             | rang).optimize() + punct.ques + self.INSERT_SPACE
+             | rang).optimize() + (punct.plus | self.INSERT_SPACE)
         self.verbalizer = verbalizer.star @ self.build_rule(delete(' '),
                                                             r='[EOS]')

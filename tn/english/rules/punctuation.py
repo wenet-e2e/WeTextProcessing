@@ -17,7 +17,7 @@ from unicodedata import category
 
 from pynini.examples import plurals
 from pynini import cross, union, closure, accep
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import add_weight, delete, insert
 
 from tn.processor import Processor
 from tn.utils import get_abs_path, load_labels
@@ -71,11 +71,14 @@ class Punctuation(Processor):
         punct = plurals._priority_union(emphasis, punct, closure(self.VCHAR))
 
         self.graph = punct
-        final_graph = insert("v: \"") + punct + insert("\"")
+        final_graph = insert("v: \"") + add_weight(
+            accep(" "), -1.0).star + punct + add_weight(
+                accep(" "), -1.0).star + insert("\"")
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
-        punct = closure(self.punct | cross('\\\\\\', '\\') | cross('\\"', '"'),
-                        1)
+        punct = closure(
+            self.punct | cross('\\\\\\', '\\') | cross('\\"', '"')
+            | accep(" "), 1)
         verbalizer = delete('v: "') + punct + delete('"')
         self.verbalizer = self.delete_tokens(verbalizer)
