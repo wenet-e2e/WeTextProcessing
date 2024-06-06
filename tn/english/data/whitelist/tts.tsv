@@ -3,24 +3,13 @@ Hon.	honorable
 Mt.	Mount
 Maj.	Major
 Rev.	Reverend
-w/o	without
-a/c number	account number
-c/o	care of
 Gov.	governor
-vs.	versus
-dept.	department
-prof.	professor
-est.	estimated
-vol.	volume
-bldg.	building
 Bldg.	Building
-apt.	apartment
 Apt.	Apartment
 World War II.	World War two
 World War II	World War two
 World War I.	World War one
 World War I	World War one
-etc.	etcetera.
 SnO2	tin four oxide
 HVAC	H-vac
 SPDR	spider
@@ -77,24 +66,14 @@ ZIP	zip
 Ψ	psi
 ζ	zeta
 Ζ	zeta
-ltd	limited
-int'l	international
 A. D	AD
 A.D	AD
-a. d	AD
-a.d	AD
-a. d.	AD
-a.d.	AD
 B. C	BC
 B.C	BC
-b. c	BC
-b.c	BC
 A. D.	AD
 A.D.	AD
 B. C.	BC
 B.C.	BC
-b. c.	BC
-b.c.	BC
 A. A.	a a
 A.A.	AA
 A&A	A and A
@@ -222,8 +201,6 @@ Ajok	AJOK
 Ajsa	AJSA
 Aju	AJU
 Akaa	AKAA
-a.k.a.	AKA
-aka.	AKA
 Aka.	AKA
 Aka	AKA
 A&K	A and K
@@ -240,8 +217,6 @@ Alh	ALH
 ALUs	ALU's
 A'ma	AMA
 A&M	A and M
-a.m.	AM
-a.m	AM
 A. M.	AM
 A.M.	AM
 AMAs	AMA's
@@ -414,7 +389,6 @@ Ba'al	BAAL
 Baal	BAAL
 Baam	BAAM
 Baap	BAAP
-ba'as	BAA's
 Baat	BAAT
 Ba'ath	BAATH
 B. A.	BA
@@ -567,7 +541,6 @@ CBGBs	CBGB's
 CbiXS	CBIXS
 CB&Q	CB and Q
 CBs	CB's
-'c	C
 CcaA	CCAA
 Cca	CCA
 C&C	C and C
@@ -595,7 +568,6 @@ CdTe	CDTE
 CDTi	CDTI
 CD&V	CD and V
 Cec	CEC
-c'e	CE
 C'e	CE
 Ce	CE
 C. E.	CE
@@ -721,7 +693,6 @@ Ctrip	CTRIP
 C. U.	CU
 Cuyp	CUYP
 C&V	C and V
-'cv	CV
 C. V.	CV
 C.V.	CV
 CVEs	CVE's
@@ -875,7 +846,6 @@ DSGi	DSGI
 DSi	DSI
 DSMs	DSM's
 D&SNGRR	D and SNGRR
-dsu'	DSU
 DTCs	DTC's
 DTDs	DTD's
 D. T.	DT
@@ -949,8 +919,6 @@ eFS	EFS
 Efs	EF's
 Efu	EFU
 Egba	EGBA
-e.g.	for  example
-e. g.	for  example
 EG&G	EG and G
 Egi	EGI
 E&GR	E and GR
@@ -1020,7 +988,6 @@ Eph	EPH
 Ephs	EPH's
 Epi	EPI
 ePO	EPO
-epos'	EPO's
 Epos	EPO's
 E.P.s	EP's
 Eq	EQ
@@ -1455,7 +1422,6 @@ Idm	IDM
 IDPs	IDP's
 IDs	ID's
 IDx	IDX
-i.e.	that  is
 Ifa	IFA
 IfF	IFF
 Ifft	IFFT
@@ -1469,7 +1435,6 @@ IFRSs	IFRS's
 Iga	IGA
 IgA	IGA
 IGFs	IGF's
-'ig	IG
 Ig	IG
 I.G.	IG
 IgM	IGM
@@ -1535,7 +1500,6 @@ INTs	INT's
 Intu	INTU
 Ioba	IOBA
 IODs	IOD's
-io.	IO
 .I.o.	IO
 Io.	IO
 Io	IO
@@ -1569,7 +1533,6 @@ I.Q.	IQ
 Irgm	IRGM
 Irig	IRIG
 Iril	IRIL
-i'r	IR
 Ir	IR
 I. R.	IR
 I.R.	IR
@@ -1680,7 +1643,6 @@ J&R	J and R
 J. R.	JR
 J.R.	JR
 Jr.	junior
-jr.	junior
 Jr	junior
 J.R.'s	JR's
 Js	J's
@@ -1747,7 +1709,6 @@ K.M.	KM
 K&N	K and N
 K. N.	KN
 K.N.	KN
-k'o	KO
 K. O.	KO
 K.O.	KO
 KPIs	KPI's
@@ -2210,8 +2171,6 @@ PLCs	PLC's
 P. L.	PL
 P.L.	PL
 PMMoV	PMMOV
-p.m.	PM
-p.m	PM
 P. M.	PM
 P.M.	PM
 PMs	PM's
@@ -2437,7 +2396,6 @@ S.E.S.'s	SES's
 Seyh	SEYH
 Sfax	SFAX
 SFFCo	SFFCO
-'sf	SF
 S. F.	SF
 S.F.	SF
 S.F.'s	SF's
@@ -2603,7 +2561,6 @@ Tiv	TIV
 Tiy's	TIY's
 T. J.	TJ
 T.J.	TJ
-t'ju	TJU
 Tko	TKO
 T. K.	TK
 T.K.	TK
@@ -2746,7 +2703,6 @@ Ukoh	UKOH
 Uko	UKO
 Ukr	UKR
 Ukui	UKUI
-u'k	UK
 Uk	UK
 U.K.	UK
 Ukwu	UKWU
@@ -2923,8 +2879,6 @@ VSANs	VSAN's
 VSATs	VSAT's
 Vsekh	VSEKH
 VSPs	VSP's
-vs.	versus
-_vs._	versus
 VTE	VT eL
 Vtic	VTIC
 VTi	VTI
@@ -2941,7 +2895,6 @@ V. Z.	VZ
 Waay	WAAY
 Wa'il	WAIL
 Wakf	WAKF
-wa'l	WAL
 Waqt	WAQT
 Wasl	WASL
 Watfa	WATFA
