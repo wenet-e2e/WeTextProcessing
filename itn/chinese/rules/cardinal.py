@@ -69,7 +69,7 @@ class Cardinal(Processor):
                                           | add_weight(addzero**2, 1.0)))
         # 一千一百一十一 => 1111, 一千零一十一 => 1011, 一千零一 => 1001
         # 一千一 => 1100, 一千 => 1000
-        thousand = ((hundred | teen | tens | digits) + delete('千') +
+        thousand = (digit + delete('千') +
                     (hundred
                      | add_weight(zero + (tens | teen), 0.1)
                      | add_weight(addzero + zero + digit, 0.5)
@@ -78,7 +78,7 @@ class Cardinal(Processor):
         # 10001111, 1001111, 101111, 11111, 10111, 10011, 10001, 10000
         if self.enable_million:
             ten_thousand = (
-                (thousand | hundred | teen | tens | digits) + delete('万') +
+                (thousand | hundred | teen | tens | digit) + delete('万') +
                 (thousand
                  | add_weight(zero + hundred, 0.1)
                  | add_weight(addzero + zero + (tens | teen), 0.5)
@@ -87,7 +87,7 @@ class Cardinal(Processor):
                  | add_weight(addzero**4, 1.0)))
         else:
             ten_thousand = (
-                (teen | tens | digits) + delete('万') +
+                (teen | tens | digit) + delete('万') +
                 (thousand
                  | add_weight(zero + hundred, 0.1)
                  | add_weight(addzero + zero + (tens | teen), 0.5)
