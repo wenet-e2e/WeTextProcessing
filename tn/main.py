@@ -73,9 +73,8 @@ def main():
             full_to_half=str2bool(args.full_to_half),
             tag_oov=str2bool(args.tag_oov))
     elif args.language == "en":
-        normalizer = EnNormalizer(
-            cache_dir=args.cache_dir,
-            overwrite_cache=args.overwrite_cache)
+        normalizer = EnNormalizer(cache_dir=args.cache_dir,
+                                  overwrite_cache=args.overwrite_cache)
 
     if args.text:
         print(normalizer.tag(args.text))
