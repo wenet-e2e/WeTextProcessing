@@ -57,13 +57,21 @@ class Normalizer(Processor):
         punct = add_weight(Punctuation().tagger, 2.00)
         rang = add_weight(Range().tagger, 1.01)
         # TODO(xcsong): add roman
-        tagger = punct.star + \
-            (cardinal | ordinal | word
-             | date | decimal | fraction
-             | time | measure | money
+        tagger = \
+            (cardinal
+             | ordinal
+             | word
+             | date
+             | decimal
+             | fraction
+             | time
+             | measure
+             | money
              | telephone | electronic
              | whitelist
-             | rang).optimize() + (punct.plus | self.DELETE_SPACE)
+             | rang
+             | punct
+             ).optimize() + (punct.plus | self.DELETE_SPACE)
         # delete the last space
         self.tagger = tagger.star @ self.build_rule(delete(' '), r='[EOS]')
 
@@ -83,14 +91,20 @@ class Normalizer(Processor):
         punct = Punctuation().verbalizer
         rang = Range().verbalizer
         verbalizer = \
-            (cardinal | ordinal | word
-             | date | decimal
-             | fraction | time
-             | measure | money
+            (cardinal
+             | ordinal
+             | word
+             | date
+             | decimal
+             | fraction
+             | time
+             | measure
+             | money
              | telephone
              | electronic
              | whitelist
              | punct
-             | rang).optimize() + (punct.plus | self.INSERT_SPACE)
+             | rang
+             ).optimize() + (punct.plus | self.INSERT_SPACE)
         self.verbalizer = verbalizer.star @ self.build_rule(delete(' '),
                                                             r='[EOS]')
