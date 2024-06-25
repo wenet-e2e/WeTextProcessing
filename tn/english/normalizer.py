@@ -67,7 +67,8 @@ class Normalizer(Processor):
              | time
              | measure
              | money
-             | telephone | electronic
+             | telephone
+             | electronic
              | whitelist
              | rang
              | punct
