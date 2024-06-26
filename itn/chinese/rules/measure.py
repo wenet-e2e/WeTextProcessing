@@ -16,7 +16,7 @@ from itn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
 from tn.utils import get_abs_path
 
-from pynini import string_file, accep, cross
+from pynini import string_file, accep, cross, union
 from pynini.lib.pynutil import delete, insert, add_weight
 
 
@@ -36,6 +36,11 @@ class Measure(Processor):
             get_abs_path('../itn/chinese/data/measure/units_zh.tsv'))
         sign = string_file(
             get_abs_path('../itn/chinese/data/number/sign.tsv'))  # + -
+        digit = string_file(
+            get_abs_path('../itn/chinese/data/number/digit.tsv'))  # 1 ~ 9
+        digit_zh = string_file(
+            get_abs_path('../itn/chinese/data/number/digit_zh.tsv'))  # 1 ~ 9
+        addzero = insert('0')
         to = cross('到', '~') | cross('到百分之', '~')
 
         units = add_weight(
@@ -55,8 +60,35 @@ class Measure(Processor):
 
         # 十千米每小时 => 10km/h, 十一到一百千米每小时 => 11~100km/h
         measure = number + (to + number).ques + units
-        tagger = insert('value: "') + (measure | percent) + insert('"')
 
+        # XXX: 特殊case处理, ignore enable_standalone_number
+        # digit + union("百", "千", "万") + digit + unit
+        unit_sp_case1 = [
+            '年',
+            '月',
+            '个月',
+            '周',
+            '天',
+            '位',
+            '次',
+            '个',
+            '顿',
+        ]
+        if self.enable_0_to_9:
+            measure_sp = add_weight(
+                ((digit + delete('百') + add_weight(addzero**2, 1.0)) |
+                 (digit + delete('千') + add_weight(addzero**3, 1.0)) |
+                 (digit + delete('万') + add_weight(addzero**4, 1.0))) +
+                insert(' ') + digit + union(*unit_sp_case1), -0.5)
+        else:
+            measure_sp = add_weight(
+                ((digit + delete('百') + add_weight(addzero**2, 1.0)) |
+                 (digit + delete('千') + add_weight(addzero**3, 1.0)) |
+                 (digit + delete('万') + add_weight(addzero**4, 1.0))) +
+                digit_zh + union(*unit_sp_case1), -0.5)
+
+        tagger = insert('value: "') + (measure | measure_sp
+                                       | percent) + insert('"')
         # 每小时十千米 => 10km/h, 每小时三十到三百一十一千米 => 30~311km/h
         tagger |= (insert('denominator: "') + delete('每') + units +
                    insert('" numerator: "') + measure + insert('"'))
