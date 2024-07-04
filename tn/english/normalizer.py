@@ -73,8 +73,9 @@ class Normalizer(Processor):
              | rang
              | punct
              ).optimize() + (punct.plus | self.DELETE_SPACE)
-        # delete the last space
-        self.tagger = tagger.star @ self.build_rule(delete(' '), r='[EOS]')
+        # delete the first and last space
+        self.tagger = (delete(' ').star + tagger.star) @ self.build_rule(
+            delete(' '), r='[EOS]')
 
     def build_verbalizer(self):
         cardinal = Cardinal().verbalizer
