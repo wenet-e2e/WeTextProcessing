@@ -47,8 +47,8 @@ class Processor:
         self.DELETE_ZERO_OR_ONE_SPACE = delete(closure(self.SPACE, 0, 1))
         self.MIN_NEG_WEIGHT = -0.0001
         self.TO_LOWER = union(*[
-            cross(x, y)
-            for x, y in zip(string.ascii_uppercase, string.ascii_lowercase)
+            cross(x, y) for x, y in zip(
+                string.ascii_uppercase, string.ascii_lowercase, strict=True)
         ])
         self.TO_UPPER = invert(self.TO_LOWER)
 
