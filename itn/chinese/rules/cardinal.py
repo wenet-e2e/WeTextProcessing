@@ -135,7 +135,7 @@ class Cardinal(Processor):
         # 十七八美元 => $17~18, 四十五六岁 => 45-6岁,
         # 三百七八公里 => 370-80km, 三百七八十千克 => 370-80kg
         number_exclude_0_to_9 |= special_tilde
-        number_exclude_0_to_9 |= add_weight(_special_dash, -100.0)
+        number_exclude_0_to_9 |= add_weight(_special_dash, -0.1)
 
         self.number_exclude_0_to_9 = (sign.ques +
                                       number_exclude_0_to_9).optimize()
