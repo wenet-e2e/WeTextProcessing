@@ -38,7 +38,7 @@ setup(
         ],
         "itn": ["*.fst", "chinese/data/*/*.tsv"],
     },
-    install_requires=['pynini==2.1.5', 'importlib_resources'],
+    install_requires=['pynini==2.1.6', 'importlib_resources'],
     entry_points={
         "console_scripts": [
             "wetn = tn.main:main",
