@@ -26,15 +26,13 @@ from tn.english.rules.roman import get_names
 
 class WhiteList(Processor):
 
-    def __init__(self,
-                 deterministic: bool = False,
-                 input_case: str = INPUT_CASED):
+    def __init__(self, deterministic: bool = False, input_case: str = INPUT_CASED):
         """
         Args:
             deterministic: if True will provide a single transduction option,
                 for False multiple transduction are generated (used for audio-based normalization)
         """
-        super().__init__('whitelist', ordertype="en_tn")
+        super().__init__("whitelist", ordertype="en_tn")
         self.deterministic = deterministic
         self.input_case = input_case
         self.build_tagger()
@@ -51,9 +49,7 @@ class WhiteList(Processor):
         This class has highest priority among all classifier grammars. Whitelisted tokens are defined and loaded from "data/whitelist.tsv".
         """
 
-        def _get_whitelist_graph(input_case,
-                                 file,
-                                 keep_punct_add_end: bool = False):
+        def _get_whitelist_graph(input_case, file, keep_punct_add_end: bool = False):
             whitelist = load_labels(file)
             if input_case == INPUT_LOWER_CASED:
                 whitelist = [[x.lower(), y] for x, y in whitelist]
@@ -67,30 +63,36 @@ class WhiteList(Processor):
             return graph
 
         graph = _get_whitelist_graph(
-            self.input_case, get_abs_path("english/data/whitelist/tts.tsv"))
+            self.input_case, get_abs_path("english/data/whitelist/tts.tsv")
+        )
         graph |= pynini.compose(
-            pynini.difference(pynini.closure(self.VCHAR),
-                              pynini.accep("/")).optimize(),
+            pynini.difference(self.VCHAR.star, pynini.accep("/")).optimize(),
             _get_whitelist_graph(
-                self.input_case,
-                get_abs_path("english/data/whitelist/symbol.tsv")),
+                self.input_case, get_abs_path("english/data/whitelist/symbol.tsv")
+            ),
         ).optimize()
 
         if self.deterministic:
             names = get_names()
-            graph |= (pynini.cross(pynini.union("st", "St", "ST"), "Saint") +
-                      pynini.closure(pynutil.delete(".")) + pynini.accep(" ") +
-                      names)
+            graph |= (
+                pynini.cross(pynini.union("st", "St", "ST"), "Saint")
+                + pynutil.delete(".").star
+                + pynini.accep(" ")
+                + names
+            )
         else:
             graph |= _get_whitelist_graph(
                 self.input_case,
                 get_abs_path("english/data/whitelist/alternatives.tsv"),
-                keep_punct_add_end=True)
+                keep_punct_add_end=True,
+            )
 
         for x in [".", ". "]:
-            graph |= (self.UPPER +
-                      pynini.closure(pynutil.delete(x) + self.UPPER, 2) +
-                      pynini.closure(pynutil.delete("."), 0, 1))
+            graph |= (
+                self.UPPER
+                + pynini.closure(pynutil.delete(x) + self.UPPER, 2)
+                + pynutil.delete(".").ques
+            )
 
         # convert to states only if comma is present before the abbreviation to avoid converting all caps words,
         # e.g. "IN", "OH", "OK"
@@ -106,19 +108,27 @@ class WhiteList(Processor):
 
         states.extend(additional_options)
         state_graph = pynini.string_map(states)
-        graph |= pynini.closure(self.ALPHA, 1) + pynini.union(
-            ", ", ",") + pynini.invert(state_graph).optimize()
+        graph |= (
+            self.ALPHA.plus
+            + pynini.union(", ", ",")
+            + pynini.invert(state_graph).optimize()
+        )
 
         self.graph = graph.optimize()
 
-        fianl_graph = (pynutil.insert("name: \"") + self.graph +
-                       pynutil.insert("\"")).optimize()
+        fianl_graph = (
+            pynutil.insert('name: "') + self.graph + pynutil.insert('"')
+        ).optimize()
         self.tagger = self.add_tokens(fianl_graph)
 
     def build_verbalizer(self):
-        graph = (pynutil.delete("name:") + self.DELETE_SPACE +
-                 pynutil.delete("\"") + pynini.closure(self.NOT_QUOTE, 1) +
-                 pynutil.delete("\""))
+        graph = (
+            pynutil.delete("name:")
+            + self.DELETE_SPACE
+            + pynutil.delete('"')
+            + self.NOT_QUOTE.plus
+            + pynutil.delete('"')
+        )
         final_graph = graph.optimize()
         self.verbalizer = self.delete_tokens(final_graph)
 
@@ -132,15 +142,15 @@ def get_formats(input_f, input_case=INPUT_CASED, is_default=True):
     for x, y in multiple_formats:
         if input_case == INPUT_LOWER_CASED:
             x = x.lower()
-        additional_options.append((
-            f"{x}.",
-            y))  # default "dr" -> doctor, this includes period "dr." -> doctor
         additional_options.append(
-            (f"{x[0].upper() + x[1:]}",
-             f"{y[0].upper() + y[1:]}"))  # "Dr" -> Doctor
+            (f"{x}.", y)
+        )  # default "dr" -> doctor, this includes period "dr." -> doctor
         additional_options.append(
-            (f"{x[0].upper() + x[1:]}.",
-             f"{y[0].upper() + y[1:]}"))  # "Dr." -> Doctor
+            (f"{x[0].upper() + x[1:]}", f"{y[0].upper() + y[1:]}")
+        )  # "Dr" -> Doctor
+        additional_options.append(
+            (f"{x[0].upper() + x[1:]}.", f"{y[0].upper() + y[1:]}")
+        )  # "Dr." -> Doctor
     multiple_formats.extend(additional_options)
 
     if not is_default:

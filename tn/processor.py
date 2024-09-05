@@ -43,8 +43,8 @@ class Processor:
         self.NOT_SPACE = difference(self.VCHAR, self.SPACE).optimize()
         self.INSERT_SPACE = insert(" ")
         self.DELETE_SPACE = delete(self.SPACE).star
-        self.DELETE_EXTRA_SPACE = cross(closure(self.SPACE, 1), " ")
-        self.DELETE_ZERO_OR_ONE_SPACE = delete(closure(self.SPACE, 0, 1))
+        self.DELETE_EXTRA_SPACE = cross(self.SPACE.plus, " ")
+        self.DELETE_ZERO_OR_ONE_SPACE = delete(self.SPACE.ques)
         self.MIN_NEG_WEIGHT = -0.0001
         self.TO_LOWER = union(*[
             cross(x, y)

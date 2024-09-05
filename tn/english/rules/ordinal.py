@@ -41,30 +41,29 @@ class Ordinal(Processor):
         """
         cardinal = Cardinal(self.deterministic)
         cardinal_graph = cardinal.graph
-        cardinal_format = pynini.closure(self.DIGIT | pynini.accep(","))
-        st_format = (pynini.closure(cardinal_format +
-                                    (self.DIGIT - "1"), 0, 1) +
-                     pynini.accep("1") +
-                     pynutil.delete(pynini.union("st", "ST", "ˢᵗ")))
-        nd_format = (pynini.closure(cardinal_format +
-                                    (self.DIGIT - "1"), 0, 1) +
-                     pynini.accep("2") +
-                     pynutil.delete(pynini.union("nd", "ND", "ⁿᵈ")))
-        rd_format = (pynini.closure(cardinal_format +
-                                    (self.DIGIT - "1"), 0, 1) +
-                     pynini.accep("3") +
-                     pynutil.delete(pynini.union("rd", "RD", "ʳᵈ")))
-        th_format = pynini.closure(
+        cardinal_format = (self.DIGIT | pynini.accep(",")).star
+        st_format = (
+            (cardinal_format + (self.DIGIT - "1")).ques
+            + pynini.accep("1")
+            + pynutil.delete(pynini.union("st", "ST", "ˢᵗ"))
+        )
+        nd_format = (
+            (cardinal_format + (self.DIGIT - "1")).ques
+            + pynini.accep("2")
+            + pynutil.delete(pynini.union("nd", "ND", "ⁿᵈ"))
+        )
+        rd_format = (
+            (cardinal_format + (self.DIGIT - "1")).ques
+            + pynini.accep("3")
+            + pynutil.delete(pynini.union("rd", "RD", "ʳᵈ"))
+        )
+        th_format = (
             (self.DIGIT - "1" - "2" - "3")
             | (cardinal_format + "1" + self.DIGIT)
-            | (cardinal_format + (self.DIGIT - "1") +
-               (self.DIGIT - "1" - "2" - "3")),
-            1,
-        ) + pynutil.delete(pynini.union("th", "TH", "ᵗʰ"))
-        self.graph = (st_format | nd_format | rd_format
-                      | th_format) @ cardinal_graph
-        final_graph = pynutil.insert(
-            "integer: \"") + self.graph + pynutil.insert("\"")
+            | (cardinal_format + (self.DIGIT - "1") + (self.DIGIT - "1" - "2" - "3"))
+        ).plus + pynutil.delete(pynini.union("th", "TH", "ᵗʰ"))
+        self.graph = (st_format | nd_format | rd_format | th_format) @ cardinal_graph
+        final_graph = pynutil.insert('integer: "') + self.graph + pynutil.insert('"')
         final_graph = self.add_tokens(final_graph)
         self.tagger = final_graph.optimize()
 
@@ -74,21 +73,26 @@ class Ordinal(Processor):
             ordinal { integer: "thirteen" } } -> thirteenth
         """
         graph_digit = pynini.string_file(
-            get_abs_path("english/data/ordinal/digit.tsv")).invert()
+            get_abs_path("english/data/ordinal/digit.tsv")
+        ).invert()
         graph_teens = pynini.string_file(
-            get_abs_path("english/data/ordinal/teen.tsv")).invert()
+            get_abs_path("english/data/ordinal/teen.tsv")
+        ).invert()
 
-        graph = (pynutil.delete("integer:") + self.DELETE_SPACE +
-                 pynutil.delete("\"") + pynini.closure(self.NOT_QUOTE, 1) +
-                 pynutil.delete("\""))
+        graph = (
+            pynutil.delete("integer:")
+            + self.DELETE_SPACE
+            + pynutil.delete('"')
+            + self.NOT_QUOTE.plus
+            + pynutil.delete('"')
+        )
         convert_rest = pynutil.insert("th")
 
         suffix = pynini.cdrewrite(
-            graph_digit | graph_teens | pynini.cross("ty", "tieth")
-            | convert_rest,
+            graph_digit | graph_teens | pynini.cross("ty", "tieth") | convert_rest,
             "",
             "[EOS]",
-            pynini.closure(self.VCHAR),
+            self.VCHAR.star,
         ).optimize()
         self.graph_v = pynini.compose(graph, suffix)
         self.suffix = suffix
