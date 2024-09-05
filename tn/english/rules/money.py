@@ -23,7 +23,8 @@ from tn.english.rules.decimal import Decimal
 from tn.english.rules.measure import SINGULAR_TO_PLURAL
 
 maj_singular = pynini.string_file(
-    (get_abs_path("english/data/money/currency_major.tsv")))
+    (get_abs_path("english/data/money/currency_major.tsv"))
+)
 
 
 class Money(Processor):
@@ -34,7 +35,7 @@ class Money(Processor):
             deterministic: if True will provide a single transduction option,
                 for False multiple transduction are generated (used for audio-based normalization)
         """
-        super().__init__('money', ordertype="en_tn")
+        super().__init__("money", ordertype="en_tn")
         self.deterministic = deterministic
         self.build_tagger()
         self.build_verbalizer()
@@ -57,41 +58,53 @@ class Money(Processor):
         graph_decimal_final = decimal.final_graph_wo_negative_w_abbr
 
         maj_singular_labels = load_labels(
-            get_abs_path("english/data/money/currency_major.tsv"))
+            get_abs_path("english/data/money/currency_major.tsv")
+        )
         maj_unit_plural = maj_singular @ SINGULAR_TO_PLURAL
         maj_unit_singular = maj_singular
 
-        graph_maj_singular = pynutil.insert(
-            "currency_maj: \"") + maj_unit_singular + pynutil.insert("\"")
-        graph_maj_plural = pynutil.insert(
-            "currency_maj: \"") + maj_unit_plural + pynutil.insert("\"")
+        graph_maj_singular = (
+            pynutil.insert('currency_maj: "') + maj_unit_singular + pynutil.insert('"')
+        )
+        graph_maj_plural = (
+            pynutil.insert('currency_maj: "') + maj_unit_plural + pynutil.insert('"')
+        )
 
         optional_delete_fractional_zeros = (
-            pynutil.delete(".") +
-            pynutil.add_weight(pynutil.delete("0"), -0.2).plus).ques
+            pynutil.delete(".") + pynutil.add_weight(pynutil.delete("0"), -0.2).plus
+        ).ques
 
-        graph_integer_one = pynutil.insert("integer_part: \"") + pynini.cross(
-            "1", "one") + pynutil.insert("\"")
+        graph_integer_one = (
+            pynutil.insert('integer_part: "')
+            + pynini.cross("1", "one")
+            + pynutil.insert('"')
+        )
         decimal_delete_last_zeros = (
-            (self.DIGIT | pynutil.delete(",")).star +
-            pynini.accep(".") + self.DIGIT.plus +
-            pynutil.add_weight(pynutil.delete("0"), -0.01).star)
+            (self.DIGIT | pynutil.delete(",")).star
+            + pynini.accep(".")
+            + self.DIGIT.plus
+            + pynutil.add_weight(pynutil.delete("0"), -0.01).star
+        )
         decimal_with_quantity = self.VCHAR.star + self.ALPHA
 
-        graph_decimal = (graph_maj_plural + self.INSERT_SPACE +
-                         (decimal_delete_last_zeros | decimal_with_quantity)
-                         @ graph_decimal_final)
+        graph_decimal = (
+            graph_maj_plural
+            + self.INSERT_SPACE
+            + (decimal_delete_last_zeros | decimal_with_quantity) @ graph_decimal_final
+        )
 
         graph_integer = (
-            pynutil.insert("integer_part: \"") +
-            ((self.VCHAR.star - "1") @ cardinal_graph) +
-            pynutil.insert("\""))  # noqa
+            pynutil.insert('integer_part: "')
+            + ((self.VCHAR.star - "1") @ cardinal_graph)
+            + pynutil.insert('"')
+        )  # noqa
 
         graph_integer_only = graph_maj_singular + self.INSERT_SPACE + graph_integer_one
         graph_integer_only |= graph_maj_plural + self.INSERT_SPACE + graph_integer
 
-        final_graph = (graph_integer_only +
-                       optional_delete_fractional_zeros) | graph_decimal
+        final_graph = (
+            graph_integer_only + optional_delete_fractional_zeros
+        ) | graph_decimal
 
         self.tagger = self.add_tokens(final_graph.optimize())
 
@@ -102,11 +115,17 @@ class Money(Processor):
         """
         decimal = Decimal(self.deterministic)
         keep_space = pynini.accep(" ")
-        maj = pynutil.delete("currency_maj: \"") + self.NOT_QUOTE.plus + pynutil.delete("\"")
+        maj = (
+            pynutil.delete('currency_maj: "')
+            + self.NOT_QUOTE.plus
+            + pynutil.delete('"')
+        )
 
-        fractional_part = (pynutil.delete("fractional_part: \"") +
-                           self.NOT_QUOTE.plus +
-                           pynutil.delete("\""))
+        fractional_part = (
+            pynutil.delete('fractional_part: "')
+            + self.NOT_QUOTE.plus
+            + pynutil.delete('"')
+        )
 
         integer_part = decimal.integer
 

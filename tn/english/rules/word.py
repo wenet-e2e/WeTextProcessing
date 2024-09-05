@@ -40,11 +40,11 @@ class Word(Processor):
         """
         punct = Punctuation(self.deterministic).graph
         default_graph = difference(self.NOT_SPACE, punct.project("input"))
-        symbols_to_exclude = union("$", "€", "₩", "£", "¥", "#",
-                                   "%") | self.DIGIT
+        symbols_to_exclude = union("$", "€", "₩", "£", "¥", "#", "%") | self.DIGIT
         self.char = difference(default_graph, symbols_to_exclude)
-        graph = (pynutil.insert("v: \"") + self.char.plus +
-                 pynutil.insert("\"")).optimize()
+        graph = (
+            pynutil.insert('v: "') + self.char.plus + pynutil.insert('"')
+        ).optimize()
         final_graph = self.add_tokens(graph)
         self.tagger = final_graph.optimize()
 
@@ -53,7 +53,11 @@ class Word(Processor):
         Finite state transducer for verbalizing word
             e.g. w { v: "sleep" } -> sleep
         """
-        graph = pynutil.delete("v: ") + pynutil.delete(
-            "\"") + self.char.plus + pynutil.delete("\"")
+        graph = (
+            pynutil.delete("v: ")
+            + pynutil.delete('"')
+            + self.char.plus
+            + pynutil.delete('"')
+        )
         final_graph = self.delete_tokens(graph)
         self.verbalizer = final_graph.optimize()
