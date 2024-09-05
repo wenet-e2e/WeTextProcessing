@@ -58,18 +58,17 @@ class Punctuation(Processor):
         ]
 
         self.punct = union(*self.punct_marks)
-        punct = closure(self.punct | cross('\\', '\\\\\\') | cross('"', '\\"'),
-                        1)
+        punct = (self.punct | cross('\\', '\\\\\\') | cross('"', '\\"')).plus
 
         self.emphasis = (
             accep("<") +
             ((
-                closure(self.NOT_SPACE - union("<", ">"), 1) +  # noqa
+                (self.NOT_SPACE - union("<", ">")).plus +
                 closure(accep("/"), 0, 1))  # noqa
-             | (accep("/") + closure(self.NOT_SPACE - union("<", ">"), 1))) +
+             | (accep("/") + (self.NOT_SPACE - union("<", ">")).plus)) +
             accep(">"))  # noqa
         punct = plurals._priority_union(self.emphasis, punct,
-                                        closure(self.VCHAR))
+                                        self.VCHAR.star)
 
         self.graph = punct
         final_graph = insert("v: \"") + add_weight(

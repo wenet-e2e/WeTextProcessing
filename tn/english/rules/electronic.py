@@ -58,33 +58,31 @@ class Electronic(Processor):
             pynini.string_file(
                 get_abs_path("english/data/electronic/words.tsv")), -0.0001)
 
-        dict_words_without_delimiter = dict_words + pynini.closure(
-            pynutil.add_weight(pynutil.insert(" ") + dict_words, -0.0001), 1)
+        dict_words_without_delimiter = dict_words + pynutil.add_weight(pynutil.insert(" ") + dict_words, -0.0001).plus
         dict_words_graph = dict_words_without_delimiter | dict_words
 
         all_accepted_symbols_start = (dict_words_graph
-                                      | pynini.closure(self.ALPHA)
+                                      | self.ALPHA.star
                                       | accepted_symbols).optimize()
 
         all_accepted_symbols_end = (dict_words_graph | numbers
-                                    | pynini.closure(self.ALPHA)
+                                    | self.ALPHA.star
                                     | accepted_symbols).optimize()
 
         graph_symbols = pynini.string_file(
             get_abs_path("english/data/electronic/symbol.tsv")).optimize()
-        username = (self.ALPHA | dict_words_graph) + pynini.closure(
-            self.ALPHA | numbers | accepted_symbols | dict_words_graph)
+        username = (self.ALPHA | dict_words_graph) + (
+            self.ALPHA | numbers | accepted_symbols | dict_words_graph).star
 
         username = pynutil.insert("username: \"") + username + pynutil.insert(
             "\"") + pynini.cross('@', ' ')
 
-        domain_graph = all_accepted_symbols_start + pynini.closure(
+        domain_graph = all_accepted_symbols_start + (
             all_accepted_symbols_end
-            | pynutil.add_weight(accepted_common_domains, -0.0001))
+            | pynutil.add_weight(accepted_common_domains, -0.0001)).star
 
-        protocol_symbols = pynini.closure((graph_symbols
-                                           | pynini.cross(":", "colon")) +
-                                          pynutil.insert(" "))
+        protocol_symbols = ((graph_symbols | pynini.cross(":", "colon")) +
+                                          pynutil.insert(" ")).star
         protocol_start = (pynini.cross("https", "HTTPS ") | pynini.cross(
             "http", "HTTP ")) + (pynini.accep("://") @ protocol_symbols)
         protocol_file_start = pynini.accep("file") + self.INSERT_SPACE + (
@@ -98,7 +96,7 @@ class Electronic(Processor):
 
         domain_graph_with_class_tags = (
             pynutil.insert("domain: \"") + pynini.compose(
-                self.ALPHA + pynini.closure(self.NOT_SPACE) +
+                self.ALPHA + self.NOT_SPACE.star +
                 (self.ALPHA | self.DIGIT | pynini.accep("/")),
                 domain_graph,
             ).optimize() + pynutil.insert("\""))
@@ -107,17 +105,17 @@ class Electronic(Processor):
             protocol, -0.0001) + pynutil.insert("\"")
         # email
         graph = pynini.compose(
-            pynini.closure(self.VCHAR) + pynini.accep("@") +
-            pynini.closure(self.VCHAR) + pynini.accep(".") +
-            pynini.closure(self.VCHAR),
+            self.VCHAR.star + pynini.accep("@") +
+            self.VCHAR.star + pynini.accep(".") +
+            self.VCHAR.star,
             username + domain_graph_with_class_tags,
         )
 
         # abc.com, abc.com/123-sm
         # when only domain, make sure it starts and end with self.ALPHA
         graph |= (pynutil.insert("domain: \"") + pynini.compose(
-            self.ALPHA + pynini.closure(self.NOT_SPACE) +
-            accepted_common_domains + pynini.closure(self.NOT_SPACE),
+            self.ALPHA + self.NOT_SPACE.star +
+            accepted_common_domains + self.NOT_SPACE.star,
             domain_graph,
         ).optimize() + pynutil.insert("\""))
         # www.abc.com/sdafsdf, or https://www.abc.com/asdfad or www.abc.abc/asdfad
@@ -157,16 +155,16 @@ class Electronic(Processor):
             (graph_symbols | graph_digit | long_numbers) + pynutil.insert(" "),
             "",
             "",
-            pynini.closure(self.VCHAR),
+            self.VCHAR.star,
         )
         default_chars_symbols = pynini.compose(
-            pynini.closure(NEMO_NOT_BRACKET),
+            NEMO_NOT_BRACKET.star,
             default_chars_symbols.optimize()).optimize()
 
         # this is far cases when user name was split by dictionary words, i.e. "sevicepart@ab.com" -> "service part"
         space_separated_dict_words = pynutil.add_weight(
-            self.ALPHA + pynini.closure(self.ALPHA | " ") + " " +
-            pynini.closure(self.ALPHA | " "),
+            self.ALPHA + (self.ALPHA | " ").star + " " +
+            (self.ALPHA | " ").star,
             -0.0001,
         )
 
@@ -182,16 +180,16 @@ class Electronic(Processor):
         # this will be used for a safe fallback
         domain_all = pynini.compose(
             default_chars_symbols,
-            pynini.closure(self.ALPHA | " "
-                           | pynutil.add_weight(dict_words, -0.0001)),
+            (self.ALPHA | " "
+                           | pynutil.add_weight(dict_words, -0.0001)).star,
         )
 
         domain = (
             domain_all + self.INSERT_SPACE + plurals._priority_union(
                 domain_common,
                 pynutil.add_weight(pynini.cross(".", "dot"), weight=0.0001),
-                pynini.closure(self.VCHAR)) +
-            pynini.closure(self.INSERT_SPACE + default_chars_symbols, 0, 1))
+                self.VCHAR.star) +
+            (self.INSERT_SPACE + default_chars_symbols).ques)
 
         domain = (
             pynutil.delete("domain:") + self.DELETE_SPACE +
@@ -199,15 +197,12 @@ class Electronic(Processor):
             (domain | pynutil.add_weight(domain_all, weight=100)).optimize() +
             self.DELETE_SPACE + pynutil.delete("\"")).optimize()
 
-        protocol = pynutil.delete("protocol: \"") + pynini.closure(
-            self.NOT_QUOTE, 1) + pynutil.delete("\"")
-        graph = (pynini.closure(protocol + self.DELETE_SPACE, 0, 1) +
-                 pynini.closure(
-                     user_name + self.DELETE_SPACE + pynutil.insert(" at ") +
-                     self.DELETE_SPACE, 0, 1) + domain +
+        protocol = pynutil.delete("protocol: \"") + self.NOT_QUOTE.plus + pynutil.delete("\"")
+        graph = ((protocol + self.DELETE_SPACE).ques +
+                 (user_name + self.DELETE_SPACE + pynutil.insert(" at ") +
+                     self.DELETE_SPACE).ques + domain +
                  self.DELETE_SPACE).optimize() @ pynini.cdrewrite(
-                     self.DELETE_EXTRA_SPACE, "", "", pynini.closure(
-                         self.VCHAR))
+                     self.DELETE_EXTRA_SPACE, "", "", self.VCHAR.star)
 
         delete_tokens = self.delete_tokens(graph)
         self.verbalizer = delete_tokens.optimize()

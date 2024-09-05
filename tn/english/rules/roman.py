@@ -86,7 +86,7 @@ class Roman(Processor):
         else:
             # two or more digit roman numerals
             roman_to_cardinal = pynini.compose(
-                pynini.difference(pynini.closure(self.VCHAR), "I"),
+                pynini.difference(self.VCHAR.star, "I"),
                 (pynutil.insert("default_cardinal: \"default\" integer: \"") +
                  pynini.string_map(roman_dict).optimize() +
                  pynutil.insert("\"")),
@@ -112,11 +112,11 @@ class Roman(Processor):
         """
         suffix = Ordinal(self.deterministic).suffix
 
-        cardinal = pynini.closure(self.NOT_QUOTE)
+        cardinal = self.NOT_QUOTE.star
         ordinal = pynini.compose(cardinal, suffix)
 
         graph = (pynutil.delete("key_cardinal: \"") +
-                 pynini.closure(self.NOT_QUOTE, 1) + pynutil.delete("\"") +
+                 self.NOT_QUOTE.plus + pynutil.delete("\"") +
                  pynini.accep(" ") + pynutil.delete("integer: \"") + cardinal +
                  pynutil.delete("\"")).optimize()
 
@@ -127,9 +127,9 @@ class Roman(Processor):
                   ordinal + pynutil.delete("\"")).optimize()
 
         graph |= (pynutil.delete("key_the_ordinal: \"") +
-                  pynini.closure(self.NOT_QUOTE, 1) + pynutil.delete("\"") +
+                  self.NOT_QUOTE.plus + pynutil.delete("\"") +
                   pynini.accep(" ") + pynutil.delete("integer: \"") +
-                  pynini.closure(pynutil.insert("the "), 0, 1) + ordinal +
+                  pynutil.insert("the ").ques + ordinal +
                   pynutil.delete("\"")).optimize()
 
         delete_tokens = self.delete_tokens(graph)

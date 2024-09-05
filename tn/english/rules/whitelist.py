@@ -69,7 +69,7 @@ class WhiteList(Processor):
         graph = _get_whitelist_graph(
             self.input_case, get_abs_path("english/data/whitelist/tts.tsv"))
         graph |= pynini.compose(
-            pynini.difference(pynini.closure(self.VCHAR),
+            pynini.difference(self.VCHAR.star,
                               pynini.accep("/")).optimize(),
             _get_whitelist_graph(
                 self.input_case,
@@ -79,7 +79,7 @@ class WhiteList(Processor):
         if self.deterministic:
             names = get_names()
             graph |= (pynini.cross(pynini.union("st", "St", "ST"), "Saint") +
-                      pynini.closure(pynutil.delete(".")) + pynini.accep(" ") +
+                      pynutil.delete(".").star + pynini.accep(" ") +
                       names)
         else:
             graph |= _get_whitelist_graph(
@@ -90,7 +90,7 @@ class WhiteList(Processor):
         for x in [".", ". "]:
             graph |= (self.UPPER +
                       pynini.closure(pynutil.delete(x) + self.UPPER, 2) +
-                      pynini.closure(pynutil.delete("."), 0, 1))
+                      pynutil.delete(".").ques)
 
         # convert to states only if comma is present before the abbreviation to avoid converting all caps words,
         # e.g. "IN", "OH", "OK"
@@ -106,7 +106,7 @@ class WhiteList(Processor):
 
         states.extend(additional_options)
         state_graph = pynini.string_map(states)
-        graph |= pynini.closure(self.ALPHA, 1) + pynini.union(
+        graph |= self.ALPHA.plus + pynini.union(
             ", ", ",") + pynini.invert(state_graph).optimize()
 
         self.graph = graph.optimize()
@@ -117,7 +117,7 @@ class WhiteList(Processor):
 
     def build_verbalizer(self):
         graph = (pynutil.delete("name:") + self.DELETE_SPACE +
-                 pynutil.delete("\"") + pynini.closure(self.NOT_QUOTE, 1) +
+                 pynutil.delete("\"") + self.NOT_QUOTE.plus +
                  pynutil.delete("\""))
         final_graph = graph.optimize()
         self.verbalizer = self.delete_tokens(final_graph)

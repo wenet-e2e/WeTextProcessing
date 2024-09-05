@@ -41,26 +41,21 @@ class Ordinal(Processor):
         """
         cardinal = Cardinal(self.deterministic)
         cardinal_graph = cardinal.graph
-        cardinal_format = pynini.closure(self.DIGIT | pynini.accep(","))
-        st_format = (pynini.closure(cardinal_format +
-                                    (self.DIGIT - "1"), 0, 1) +
+        cardinal_format = (self.DIGIT | pynini.accep(",")).star
+        st_format = ((cardinal_format + (self.DIGIT - "1")).ques +
                      pynini.accep("1") +
                      pynutil.delete(pynini.union("st", "ST", "ˢᵗ")))
-        nd_format = (pynini.closure(cardinal_format +
-                                    (self.DIGIT - "1"), 0, 1) +
+        nd_format = ((cardinal_format + (self.DIGIT - "1")).ques +
                      pynini.accep("2") +
                      pynutil.delete(pynini.union("nd", "ND", "ⁿᵈ")))
-        rd_format = (pynini.closure(cardinal_format +
-                                    (self.DIGIT - "1"), 0, 1) +
+        rd_format = ((cardinal_format + (self.DIGIT - "1")).ques +
                      pynini.accep("3") +
                      pynutil.delete(pynini.union("rd", "RD", "ʳᵈ")))
-        th_format = pynini.closure(
+        th_format = (
             (self.DIGIT - "1" - "2" - "3")
             | (cardinal_format + "1" + self.DIGIT)
             | (cardinal_format + (self.DIGIT - "1") +
-               (self.DIGIT - "1" - "2" - "3")),
-            1,
-        ) + pynutil.delete(pynini.union("th", "TH", "ᵗʰ"))
+               (self.DIGIT - "1" - "2" - "3"))).plus + pynutil.delete(pynini.union("th", "TH", "ᵗʰ"))
         self.graph = (st_format | nd_format | rd_format
                       | th_format) @ cardinal_graph
         final_graph = pynutil.insert(
@@ -79,7 +74,7 @@ class Ordinal(Processor):
             get_abs_path("english/data/ordinal/teen.tsv")).invert()
 
         graph = (pynutil.delete("integer:") + self.DELETE_SPACE +
-                 pynutil.delete("\"") + pynini.closure(self.NOT_QUOTE, 1) +
+                 pynutil.delete("\"") + self.NOT_QUOTE.plus +
                  pynutil.delete("\""))
         convert_rest = pynutil.insert("th")
 
@@ -88,7 +83,7 @@ class Ordinal(Processor):
             | convert_rest,
             "",
             "[EOS]",
-            pynini.closure(self.VCHAR),
+            self.VCHAR.star,
         ).optimize()
         self.graph_v = pynini.compose(graph, suffix)
         self.suffix = suffix

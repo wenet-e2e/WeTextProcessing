@@ -52,18 +52,15 @@ class Fraction(Processor):
 
         endings = ["rd", "th", "st", "nd"]
         endings += [x.upper() for x in endings]
-        optional_end = pynini.closure(pynini.cross(pynini.union(*endings), ""),
-                                      0, 1)
+        optional_end = pynini.cross(pynini.union(*endings), "").ques
 
         denominator = pynutil.insert(
             "denominator: \""
         ) + cardinal_graph + optional_end + pynutil.insert("\"")
 
-        graph = pynini.closure(integer + pynini.accep(" "), 0,
-                               1) + (numerator + denominator)
-        graph |= pynini.closure(
-            integer +
-            (pynini.accep(" ") | pynutil.insert(" ")), 0, 1) + pynini.compose(
+        graph = (integer + pynini.accep(" ")).ques + (numerator + denominator)
+        graph |= (
+            integer + (pynini.accep(" ") | pynutil.insert(" "))).ques + pynini.compose(
                 pynini.string_file(
                     get_abs_path("english/data/number/fraction.tsv")),
                 (numerator + denominator))
@@ -80,14 +77,13 @@ class Fraction(Processor):
         """
         suffix = Ordinal(self.deterministic).suffix
 
-        integer = pynutil.delete("integer_part: \"") + pynini.closure(
-            self.NOT_QUOTE) + pynutil.delete("\" ")
+        integer = pynutil.delete("integer_part: \"") + self.NOT_QUOTE.star + pynutil.delete("\" ")
         denominator_one = pynini.cross("denominator: \"one\"", "over one")
         denominator_half = pynini.cross("denominator: \"two\"", "half")
         denominator_quarter = pynini.cross("denominator: \"four\"", "quarter")
 
         denominator_rest = (pynutil.delete("denominator: \"") +
-                            pynini.closure(self.NOT_QUOTE) @ suffix +
+                            self.NOT_QUOTE.star @ suffix +
                             pynutil.delete("\""))
 
         denominators = plurals._priority_union(
@@ -95,10 +91,10 @@ class Fraction(Processor):
             plurals._priority_union(
                 denominator_half,
                 plurals._priority_union(denominator_quarter, denominator_rest,
-                                        pynini.closure(self.VCHAR)),
-                pynini.closure(self.VCHAR),
+                                        self.VCHAR.star),
+                self.VCHAR.star,
             ),
-            pynini.closure(self.VCHAR),
+            self.VCHAR.star,
         ).optimize()
         if not self.deterministic:
             denominators |= pynutil.delete("denominator: \"") + (
@@ -109,30 +105,29 @@ class Fraction(Processor):
         numerator_one = numerator_one + self.INSERT_SPACE + denominators
         numerator_rest = (
             pynutil.delete("numerator: \"") +
-            (pynini.closure(self.NOT_QUOTE) - pynini.accep("one")) +
+            (self.NOT_QUOTE.star - pynini.accep("one")) +
             pynutil.delete("\" "))
         numerator_rest = numerator_rest + self.INSERT_SPACE + denominators
         numerator_rest @= pynini.cdrewrite(
             plurals._priority_union(pynini.cross("half", "halves"),
                                     pynutil.insert("s"),
-                                    pynini.closure(self.VCHAR)),
+                                    self.VCHAR.star),
             "",
             "[EOS]",
-            pynini.closure(self.VCHAR),
+            self.VCHAR.star,
         )
 
         graph = numerator_one | numerator_rest
 
         conjunction = pynutil.insert("and ")
 
-        integer = pynini.closure(integer + self.INSERT_SPACE + conjunction, 0,
-                                 1)
+        integer = (integer + self.INSERT_SPACE + conjunction).ques
 
         graph = integer + graph
         graph @= pynini.cdrewrite(
             pynini.cross("and one half", "and a half")
             | pynini.cross("over ones", "over one"), "", "[EOS]",
-            pynini.closure(self.VCHAR))
+            self.VCHAR.star)
 
         self.graph_v = graph
         delete_tokens = self.delete_tokens(self.graph_v)

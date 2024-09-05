@@ -28,19 +28,18 @@ suppletive = pynini.string_file(get_abs_path("english/data/suppletive.tsv"))
 # _v = pynini.union("a", "e", "i", "o", "u")
 _c = pynini.union("b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p",
                   "q", "r", "s", "t", "v", "w", "x", "y", "z")
-_ies = pynini.closure(Processor("tmp").VCHAR) + _c + pynini.cross("y", "ies")
-_es = pynini.closure(Processor("tmp").VCHAR) + pynini.union(
+_ies = Processor("tmp").VCHAR.star + _c + pynini.cross("y", "ies")
+_es = Processor("tmp").VCHAR.star + pynini.union(
     "s", "sh", "ch", "x", "z") + pynutil.insert("es")
-_s = pynini.closure(Processor("tmp").VCHAR) + pynutil.insert("s")
+_s = Processor("tmp").VCHAR.star + pynutil.insert("s")
 
 graph_plural = plurals._priority_union(
     suppletive,
     plurals._priority_union(
         _ies,
-        plurals._priority_union(_es, _s,
-                                pynini.closure(Processor("tmp").VCHAR)),
-        pynini.closure(Processor("tmp").VCHAR)),
-    pynini.closure(Processor("tmp").VCHAR)).optimize()
+        plurals._priority_union(_es, _s, Processor("tmp").VCHAR.star),
+        Processor("tmp").VCHAR.star),
+    Processor("tmp").VCHAR.star).optimize()
 SINGULAR_TO_PLURAL = graph_plural
 
 
@@ -75,24 +74,18 @@ class Measure(Processor):
                 get_abs_path("english/data/measure/unit_alternatives.tsv"))
 
         graph_unit |= pynini.compose(
-            pynini.closure(self.TO_LOWER, 1) + (self.ALPHA | self.TO_LOWER) +
-            pynini.closure(self.ALPHA | self.TO_LOWER), graph_unit).optimize()
+            self.TO_LOWER.plus + (self.ALPHA | self.TO_LOWER) +
+            (self.ALPHA | self.TO_LOWER).star, graph_unit).optimize()
 
         graph_unit_plural = graph_unit @ SINGULAR_TO_PLURAL
 
-        optional_graph_negative = pynini.closure(
-            pynutil.insert("negative: ") + pynini.cross("-", "\"true\" "), 0,
-            1)
+        optional_graph_negative = (pynutil.insert("negative: ") + pynini.cross("-", "\"true\" ")).ques
 
         graph_unit2 = (pynini.cross("/", "per") +
                        self.DELETE_ZERO_OR_ONE_SPACE + pynutil.insert(" ") +
                        graph_unit)
 
-        optional_graph_unit2 = pynini.closure(
-            self.DELETE_ZERO_OR_ONE_SPACE + pynutil.insert(" ") + graph_unit2,
-            0,
-            1,
-        )
+        optional_graph_unit2 = (self.DELETE_ZERO_OR_ONE_SPACE + pynutil.insert(" ") + graph_unit2).ques
 
         unit_plural = (
             pynutil.insert(" units: \"") +
@@ -116,7 +109,7 @@ class Measure(Processor):
 
         subgraph_cardinal = (
             optional_graph_negative + pynutil.insert("integer: \"") +
-            ((pynini.closure(self.VCHAR) - "1") @ cardinal_graph) +
+            ((self.VCHAR.star - "1") @ cardinal_graph) +
             pynutil.insert("\"") + pynini.accep(' ').ques + unit_plural)
 
         subgraph_cardinal |= (optional_graph_negative +
@@ -133,7 +126,7 @@ class Measure(Processor):
         decimal_dash_alpha = (decimal.final_graph_wo_negative +
                               pynini.cross('-', '') +
                               pynutil.insert(" units: \"") +
-                              pynini.closure(self.ALPHA, 1) +
+                              self.ALPHA.plus +
                               pynutil.insert("\""))
 
         decimal_times = (decimal.final_graph_wo_negative +
@@ -143,7 +136,7 @@ class Measure(Processor):
                          pynutil.insert("\""))
 
         alpha_dash_decimal = (pynutil.insert("units: \"") +
-                              pynini.closure(self.ALPHA, 1) +
+                              self.ALPHA.plus +
                               pynini.accep('-') + pynutil.insert("\"") +
                               decimal.final_graph_wo_negative)
 
@@ -198,7 +191,7 @@ class Measure(Processor):
             range_graph |= cardinal + pynini.cross(x, " by ") + cardinal
             if not self.deterministic:
                 range_graph |= cardinal + pynini.cross(
-                    x, " times ") + pynini.closure(cardinal, 0, 1)
+                    x, " times ") + cardinal.ques
 
         for x in ["*", " * "]:
             range_graph |= cardinal + pynini.cross(x, " times ") + cardinal
@@ -222,32 +215,30 @@ class Measure(Processor):
             1,
             2) @ cardinal.graph_hundred_component_at_least_one_none_zero_digit
         address_num += self.INSERT_SPACE + self.DIGIT**2 @ (
-            pynini.closure(pynini.cross("0", "zero "), 0, 1) +
+            pynini.cross("0", "zero ").ques +
             cardinal.graph_hundred_component_at_least_one_none_zero_digit)
         # to handle the rest of the numbers
         address_num = pynini.compose(self.DIGIT**(3, 4), address_num)
         address_num = plurals._priority_union(address_num, cardinal.graph,
-                                              pynini.closure(self.VCHAR))
+                                              self.VCHAR.star)
 
         direction = (pynini.cross("E", "East")
                      | pynini.cross("S", "South")
                      | pynini.cross("W", "West")
-                     | pynini.cross("N", "North")) + pynini.closure(
-                         pynutil.delete("."), 0, 1)
+                     | pynini.cross("N", "North")) + pynutil.delete(".").ques
 
-        direction = pynini.closure(pynini.accep(" ") + direction, 0, 1)
+        direction = (pynini.accep(" ") + direction).ques
         address_words = get_formats(
             get_abs_path("english/data/address/address_word.tsv"))
         address_words = (
             pynini.accep(" ") +
-            (pynini.closure(ordinal_num, 0, 1)
-             | self.UPPER + pynini.closure(self.ALPHA, 1)) + " " +
-            pynini.closure(self.UPPER + pynini.closure(self.ALPHA) + " ") +
+            (ordinal_num.ques
+             | self.UPPER + self.ALPHA.plus) + " " +
+            (self.UPPER + self.ALPHA.star + " ").star +
             address_words)
 
-        city = pynini.closure(self.ALPHA | pynini.accep(" "), 1)
-        city = pynini.closure(
-            pynini.accep(",") + pynini.accep(" ") + city, 0, 1)
+        city = (self.ALPHA | pynini.accep(" ")).plus
+        city = (pynini.accep(", ") + city).ques
 
         states = load_labels(get_abs_path("english/data/address/state.tsv"))
 
@@ -257,22 +248,14 @@ class Measure(Processor):
         states.extend(additional_options)
         state_graph = pynini.string_map(states)
         state = pynini.invert(state_graph)
-        state = pynini.closure(
-            pynini.accep(",") + pynini.accep(" ") + state, 0, 1)
+        state = (pynini.accep(",") + pynini.accep(" ") + state).ques
 
         zip_code = pynini.compose(self.DIGIT**5, cardinal.single_digits_graph)
-        zip_code = pynini.closure(
-            pynini.closure(pynini.accep(","), 0, 1) + pynini.accep(" ") +
-            zip_code,
-            0,
-            1,
-        )
+        zip_code = pynini.accep(",").ques + pynini.accep(" ") + zip_code
 
-        address = address_num + direction + address_words + pynini.closure(
-            city + state + zip_code, 0, 1)
+        address = address_num + direction + address_words + (city + state + zip_code).ques
 
-        address |= address_num + direction + address_words + pynini.closure(
-            pynini.cross(".", ""), 0, 1)
+        address |= address_num + direction + address_words + pynini.cross(".", "").ques
 
         return address
 
@@ -284,7 +267,7 @@ class Measure(Processor):
         """
         cardinal = Cardinal(self.deterministic)
         unit = (pynutil.delete("units: \"") +
-                pynini.difference(pynini.closure(self.NOT_QUOTE, 1),
+                pynini.difference(self.NOT_QUOTE.plus,
                                   pynini.union("address", "math")) +
                 pynutil.delete("\"") + self.DELETE_SPACE)
 
@@ -298,7 +281,7 @@ class Measure(Processor):
         if not self.deterministic:
             graph_decimal |= pynini.compose(
                 graph_decimal,
-                pynini.closure(self.VCHAR) +
+                self.VCHAR.star +
                 (pynini.cross(" point five", " and a half")
                  | pynini.cross("zero point five", "half")
                  | pynini.cross(" point two five", " and a quarter")

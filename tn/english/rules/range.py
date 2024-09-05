@@ -47,7 +47,7 @@ class Range(Processor):
         date = Date(deterministic=self.deterministic)
         date = date.tagger @ date.verbalizer
         week = pynini.string_file(get_abs_path("english/data/date/week.tsv"))
-        delete_space = pynini.closure(pynutil.delete(" "), 0, 1)
+        delete_space = pynutil.delete(" ").ques
 
         approx = pynini.cross("~", "approximately")
 
@@ -61,10 +61,8 @@ class Range(Processor):
         self.graph = time_graph | (approx + time) | week_graph
 
         # YEAR
-        date_year_four_digit = (self.DIGIT**4 +
-                                pynini.closure(pynini.accep("s"), 0, 1)) @ date
-        date_year_two_digit = (self.DIGIT**2 +
-                               pynini.closure(pynini.accep("s"), 0, 1)) @ date
+        date_year_four_digit = (self.DIGIT**4 + pynini.accep("s").ques) @ date
+        date_year_two_digit = (self.DIGIT**2 + pynini.accep("s").ques) @ date
         year_to_year_graph = (date_year_four_digit + delete_space +
                               pynini.cross("-", " to ") + delete_space +
                               (date_year_four_digit | date_year_two_digit |
@@ -76,10 +74,8 @@ class Range(Processor):
         self.graph |= mid_year_graph
 
         # ADDITION
-        range_graph = cardinal + pynini.closure(
-            pynini.cross("+", " plus ") + cardinal, 1)
-        range_graph |= cardinal + pynini.closure(
-            pynini.cross(" + ", " plus ") + cardinal, 1)
+        range_graph = cardinal + (pynini.cross("+", " plus ") + cardinal).plus
+        range_graph |= cardinal + (pynini.cross(" + ", " plus ") + cardinal).plus
         range_graph |= approx + cardinal
         range_graph |= cardinal + (pynini.cross("...", " ... ")
                                    | pynini.accep(" ... ")) + cardinal
@@ -110,23 +106,21 @@ class Range(Processor):
                                 pynini.cross(x, pynini.union(" x", " times")))
 
             for x in ["*", " * "]:
-                range_graph |= cardinal + pynini.closure(
-                    pynini.cross(x, " times ") + cardinal, 1)
+                range_graph |= cardinal + (
+                    pynini.cross(x, " times ") + cardinal).plus
 
             # supports "No. 12" -> "Number 12"
             range_graph |= ((pynini.cross(pynini.union("NO", "No"), "Number")
                              | pynini.cross("no", "number")) +
-                            pynini.closure(pynini.union(". ", " "), 0, 1) +
+                            pynini.union(". ", " ").ques +
                             cardinal)
 
             for x in ["/", " / "]:
-                range_graph |= cardinal + pynini.closure(
-                    pynini.cross(x, " divided by ") + cardinal, 1)
+                range_graph |= cardinal + (pynini.cross(x, " divided by ") + cardinal).plus
 
             # 10% to 20% -> ten to twenty percent
             range_graph |= (
-                cardinal + pynini.closure(  # noqa
-                    pynini.cross("%", " percent") | pynutil.delete("%"), 0, 1)
+                cardinal + (pynini.cross("%", " percent") | pynutil.delete("%")).ques
                 +  # noqa
                 pynini.union(" to ", "-", " - ") + cardinal +  # noqa
                 pynini.cross("%", " percent"))  # noqa

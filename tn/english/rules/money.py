@@ -66,18 +66,17 @@ class Money(Processor):
         graph_maj_plural = pynutil.insert(
             "currency_maj: \"") + maj_unit_plural + pynutil.insert("\"")
 
-        optional_delete_fractional_zeros = pynini.closure(
+        optional_delete_fractional_zeros = (
             pynutil.delete(".") +
-            pynini.closure(pynutil.add_weight(pynutil.delete("0"), -0.2), 1),
-            0, 1)
+            pynutil.add_weight(pynutil.delete("0"), -0.2).plus).ques
 
         graph_integer_one = pynutil.insert("integer_part: \"") + pynini.cross(
             "1", "one") + pynutil.insert("\"")
         decimal_delete_last_zeros = (
-            pynini.closure(self.DIGIT | pynutil.delete(",")) +
-            pynini.accep(".") + pynini.closure(self.DIGIT, 1) +
-            pynini.closure(pynutil.add_weight(pynutil.delete("0"), -0.01)))
-        decimal_with_quantity = pynini.closure(self.VCHAR) + self.ALPHA
+            (self.DIGIT | pynutil.delete(",")).star +
+            pynini.accep(".") + self.DIGIT.plus +
+            pynutil.add_weight(pynutil.delete("0"), -0.01).star)
+        decimal_with_quantity = self.VCHAR.star + self.ALPHA
 
         graph_decimal = (graph_maj_plural + self.INSERT_SPACE +
                          (decimal_delete_last_zeros | decimal_with_quantity)
@@ -85,7 +84,7 @@ class Money(Processor):
 
         graph_integer = (
             pynutil.insert("integer_part: \"") +
-            ((pynini.closure(self.VCHAR) - "1") @ cardinal_graph) +
+            ((self.VCHAR.star - "1") @ cardinal_graph) +
             pynutil.insert("\""))  # noqa
 
         graph_integer_only = graph_maj_singular + self.INSERT_SPACE + graph_integer_one
@@ -103,11 +102,10 @@ class Money(Processor):
         """
         decimal = Decimal(self.deterministic)
         keep_space = pynini.accep(" ")
-        maj = pynutil.delete("currency_maj: \"") + pynini.closure(
-            self.NOT_QUOTE, 1) + pynutil.delete("\"")
+        maj = pynutil.delete("currency_maj: \"") + self.NOT_QUOTE.plus + pynutil.delete("\"")
 
         fractional_part = (pynutil.delete("fractional_part: \"") +
-                           pynini.closure(self.NOT_QUOTE, 1) +
+                           self.NOT_QUOTE.plus +
                            pynutil.delete("\""))
 
         integer_part = decimal.integer
