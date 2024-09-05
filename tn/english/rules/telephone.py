@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pynini
-from pynini.lib import pynutil
+from pynini import closure, cross, compose, difference, invert, string_file, union
+from pynini.lib.pynutil import add_weight, delete, insert
 from pynini.examples import plurals
 
 from tn.processor import Processor
@@ -44,119 +44,101 @@ class Telephone(Processor):
         +1 123-123-5678-1 -> telephone { country_code: "one" number_part: "one two three, one two three, five six seven eight" extension: "one" }
         1-800-GO-U-HAUL -> telephone { country_code: "one" number_part: "one, eight hundred GO U HAUL" }
         """
-        add_separator = pynutil.insert(", ")  # between components
-        zero = pynini.cross("0", "zero")
+        add_separator = insert(", ")  # between components
+        zero = cross("0", "zero")
         if not self.deterministic:
-            zero |= pynini.cross("0", pynini.union("o", "oh"))
+            zero |= cross("0", union("o", "oh"))
         digit = (
-            pynini.invert(
-                pynini.string_file(get_abs_path("english/data/number/digit.tsv"))
+            invert(
+                string_file(get_abs_path("english/data/number/digit.tsv"))
             ).optimize()
             | zero
         )
 
-        telephone_prompts = pynini.string_file(
+        telephone_prompts = string_file(
             get_abs_path("english/data/telephone/telephone_prompt.tsv")
         )
         country_code = (
             (telephone_prompts + self.DELETE_EXTRA_SPACE).ques
-            + pynini.cross("+", "plus ").ques
-            + pynini.closure(digit + self.INSERT_SPACE, 0, 2)
+            + cross("+", "plus ").ques
+            + closure(digit + insert(" "), 0, 2)
             + digit
-            + pynutil.insert(",")
+            + insert(",")
         )
         country_code |= telephone_prompts
-        country_code = (
-            pynutil.insert('country_code: "') + country_code + pynutil.insert('"')
-        )
-        country_code = (
-            country_code
-            + pynutil.delete("-").ques
-            + self.DELETE_SPACE
-            + self.INSERT_SPACE
-        )
+        country_code = insert('country_code: "') + country_code + insert('"')
+        country_code = country_code + delete("-").ques + self.DELETE_SPACE + insert(" ")
 
-        area_part_default = (digit + self.INSERT_SPACE) ** 2 + digit
-        area_part = pynini.cross("800", "eight hundred") | pynini.compose(
-            pynini.difference(self.VCHAR.star, "800"), area_part_default
+        area_part_default = (digit + insert(" ")) ** 2 + digit
+        area_part = cross("800", "eight hundred") | compose(
+            difference(self.VSIGMA, "800"), area_part_default
         )
 
         area_part = (
-            (area_part + (pynutil.delete("-") | pynutil.delete(".")))
+            (area_part + (delete("-") | delete(".")))
             | (
-                pynutil.delete("(")
+                delete("(")
                 + area_part
-                + (
-                    (pynutil.delete(")") + pynutil.delete(" ").ques)
-                    | pynutil.delete(")-")
-                )
+                + ((delete(")") + delete(" ").ques) | delete(")-"))
             )
         ) + add_separator
 
-        del_separator = pynini.union("-", " ", ".").ques
+        del_separator = union("-", " ", ".").ques
         number_length = (
             (self.DIGIT + del_separator) | (self.ALPHA + del_separator)
         ) ** 7
         number_words = (
-            (self.DIGIT @ digit) + (self.INSERT_SPACE | (pynini.cross("-", ", ")))
+            (self.DIGIT @ digit) + (insert(" ") | (cross("-", ", ")))
             | self.ALPHA
-            | (self.ALPHA + pynini.cross("-", " "))
+            | (self.ALPHA + cross("-", " "))
         ).star
         number_words |= (
-            (self.DIGIT @ digit) + (self.INSERT_SPACE | (pynini.cross(".", ", ")))
+            (self.DIGIT @ digit) + (insert(" ") | (cross(".", ", ")))
             | self.ALPHA
-            | (self.ALPHA + pynini.cross(".", " "))
+            | (self.ALPHA + cross(".", " "))
         ).star
-        number_words = pynini.compose(number_length, number_words)
+        number_words = compose(number_length, number_words)
         number_part = area_part + number_words
-        number_part = (
-            pynutil.insert('number_part: "') + number_part + pynutil.insert('"')
-        )
+        number_part = insert('number_part: "') + number_part + insert('"')
         extension = (
-            pynutil.insert('extension: "')
-            + pynini.closure(digit + self.INSERT_SPACE, 0, 3)
+            insert('extension: "')
+            + closure(digit + insert(" "), 0, 3)
             + digit
-            + pynutil.insert('"')
+            + insert('"')
         )
-        extension = (self.INSERT_SPACE + extension).ques
+        extension = (insert(" ") + extension).ques
 
         graph = plurals._priority_union(
-            country_code + number_part, number_part, self.VCHAR.star
+            country_code + number_part, number_part, self.VSIGMA
         ).optimize()
         graph = plurals._priority_union(
-            country_code + number_part + extension, graph, self.VCHAR.star
+            country_code + number_part + extension, graph, self.VSIGMA
         ).optimize()
         graph = plurals._priority_union(
-            number_part + extension, graph, self.VCHAR.star
+            number_part + extension, graph, self.VSIGMA
         ).optimize()
 
         # ip
-        ip_prompts = pynini.string_file(
-            get_abs_path("english/data/telephone/ip_prompt.tsv")
-        )
-        digit_to_str_graph = digit + pynini.closure(pynutil.insert(" ") + digit, 0, 2)
-        ip_graph = (
-            digit_to_str_graph + (pynini.cross(".", " dot ") + digit_to_str_graph) ** 3
-        )
+        ip_prompts = string_file(get_abs_path("english/data/telephone/ip_prompt.tsv"))
+        digit_to_str_graph = digit + closure(insert(" ") + digit, 0, 2)
+        ip_graph = digit_to_str_graph + (cross(".", " dot ") + digit_to_str_graph) ** 3
         graph |= (
             (
-                pynutil.insert('country_code: "')
+                insert('country_code: "')
                 + ip_prompts
-                + pynutil.insert('"')
+                + insert('"')
                 + self.DELETE_EXTRA_SPACE
             ).ques
-            + pynutil.insert('number_part: "')  # noqa
+            + insert('number_part: "')  # noqa
             + ip_graph.optimize()
-            + pynutil.insert('"')  # noqa
+            + insert('"')  # noqa
         )
         # ssn
-        ssn_prompts = pynini.string_file(
-            get_abs_path("english/data/telephone/ssn_prompt.tsv")
-        )
-        three_digit_part = digit + (pynutil.insert(" ") + digit) ** 2
-        two_digit_part = digit + pynutil.insert(" ") + digit
-        four_digit_part = digit + (pynutil.insert(" ") + digit) ** 3
-        ssn_separator = pynini.cross("-", ", ")
+        ssn_prompts = string_file(get_abs_path("english/data/telephone/ssn_prompt.tsv"))
+        three_digit_part = digit + (insert(" ") + digit) ** 2
+        two_digit_part = digit + insert(" ") + digit
+        four_digit_part = digit + (insert(" ") + digit) ** 3
+        ssn_separator = cross("-", ", ")
         ssn_graph = (
             three_digit_part
             + ssn_separator
@@ -167,14 +149,14 @@ class Telephone(Processor):
 
         graph |= (
             (
-                pynutil.insert('country_code: "')
+                insert('country_code: "')
                 + ssn_prompts
-                + pynutil.insert('"')
+                + insert('"')
                 + self.DELETE_EXTRA_SPACE
             ).ques
-            + pynutil.insert('number_part: "')  # noqa
+            + insert('number_part: "')  # noqa
             + ssn_graph.optimize()  # noqa
-            + pynutil.insert('"')  # noqa
+            + insert('"')  # noqa
         )
 
         final_graph = self.add_tokens(graph)
@@ -187,26 +169,26 @@ class Telephone(Processor):
             -> one, one two three, one two three, five six seven eight, one
         """
         optional_country_code = (
-            pynutil.delete('country_code: "')
+            delete('country_code: "')
             + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
+            + delete('"')
             + self.DELETE_SPACE
-            + self.INSERT_SPACE
+            + insert(" ")
         ).ques
 
         number_part = (
-            pynutil.delete('number_part: "')
+            delete('number_part: "')
             + self.NOT_QUOTE.plus
-            + pynutil.add_weight(pynutil.delete(" "), -0.0001).ques
-            + pynutil.delete('"')
+            + add_weight(delete(" "), -0.0001).ques
+            + delete('"')
         )
 
         optional_extension = (
             self.DELETE_SPACE
-            + self.INSERT_SPACE
-            + pynutil.delete('extension: "')
+            + insert(" ")
+            + delete('extension: "')
             + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
+            + delete('"')
         ).ques
 
         graph = optional_country_code + number_part + optional_extension

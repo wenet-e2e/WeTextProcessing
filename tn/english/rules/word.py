@@ -13,23 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini.lib import pynutil
 from pynini import difference, union
+from pynini.lib.pynutil import delete, insert
 
-from tn.processor import Processor
 from tn.english.rules.punctuation import Punctuation
+from tn.processor import Processor
 
 
 class Word(Processor):
 
-    def __init__(self, deterministic: bool = False):
-        """
-        Args:
-            deterministic: if True will provide a single transduction option,
-                for False multiple transduction are generated (used for audio-based normalization)
-        """
+    def __init__(self):
         super().__init__("w", ordertype="en_tn")
-        self.deterministic = deterministic
         self.build_tagger()
         self.build_verbalizer()
 
@@ -38,13 +32,11 @@ class Word(Processor):
         Finite state transducer for classifying word. Considers sentence boundary exceptions.
             e.g. sleep -> w { v: "sleep" }
         """
-        punct = Punctuation(self.deterministic).graph
+        punct = Punctuation().graph
         default_graph = difference(self.NOT_SPACE, punct.project("input"))
         symbols_to_exclude = union("$", "€", "₩", "£", "¥", "#", "%") | self.DIGIT
         self.char = difference(default_graph, symbols_to_exclude)
-        graph = (
-            pynutil.insert('v: "') + self.char.plus + pynutil.insert('"')
-        ).optimize()
+        graph = (insert('v: "') + self.char.plus + insert('"')).optimize()
         final_graph = self.add_tokens(graph)
         self.tagger = final_graph.optimize()
 
@@ -53,11 +45,6 @@ class Word(Processor):
         Finite state transducer for verbalizing word
             e.g. w { v: "sleep" } -> sleep
         """
-        graph = (
-            pynutil.delete("v: ")
-            + pynutil.delete('"')
-            + self.char.plus
-            + pynutil.delete('"')
-        )
+        graph = delete("v: ") + delete('"') + self.char.plus + delete('"')
         final_graph = self.delete_tokens(graph)
         self.verbalizer = final_graph.optimize()

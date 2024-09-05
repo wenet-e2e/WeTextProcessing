@@ -13,9 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pynini
+from pynini import (
+    accep,
+    cross,
+    closure,
+    compose,
+    difference,
+    Far,
+    invert,
+    string_file,
+    union,
+)
 from pynini.examples import plurals
-from pynini.lib import pynutil
+from pynini.lib.pynutil import add_weight, delete, insert
 
 from tn.processor import Processor
 from tn.utils import get_abs_path
@@ -39,119 +49,79 @@ class Cardinal(Processor):
         Finite state transducer for classifying cardinals, e.g.
             -23 -> cardinal { negative: "true" integer: "twenty three" }
         """
-        # TODO replace to have "oh" as a default for "0"
-        graph = pynini.Far(
-            get_abs_path("english/data/number/cardinal_number_name.far")
-        ).get_fst()
-        graph_au = pynini.Far(
-            get_abs_path("english/data/number/cardinal_number_name_au.far")
-        ).get_fst()
-        self.graph_hundred_component_at_least_one_none_zero_digit = (
-            pynini.closure(self.DIGIT, 2, 3)
-            | pynini.difference(self.DIGIT, pynini.accep("0"))
-        ) @ graph
+        digit = invert(string_file(get_abs_path("english/data/number/digit.tsv")))
+        zero = invert(string_file(get_abs_path("english/data/number/zero.tsv")))
 
-        graph_digit = pynini.string_file(get_abs_path("english/data/number/digit.tsv"))
-        graph_zero = pynini.string_file(get_abs_path("english/data/number/zero.tsv"))
-
-        single_digits_graph = pynini.invert(graph_digit | graph_zero)
-        self.single_digits_graph = (
-            single_digits_graph + (self.INSERT_SPACE + single_digits_graph).star
-        )
-
+        digits = digit | zero
+        self.single_digits = digits + (insert(" ") + digits).star
         if not self.deterministic:
             # for a single token allow only the same normalization
             # "007" -> {"oh oh seven", "zero zero seven"} not {"oh zero seven"}
-            single_digits_graph_zero = pynini.invert(graph_digit | graph_zero)
-            single_digits_graph_oh = pynini.invert(graph_digit) | pynini.cross(
-                "0", "oh"
+            single_digits_oh = digit | cross("0", "oh")
+            self.single_digits |= (
+                single_digits_oh + (insert(" ") + single_digits_oh).star
             )
 
-            self.single_digits_graph = (
-                single_digits_graph_zero
-                + (self.INSERT_SPACE + single_digits_graph_zero).star
-            )
-            self.single_digits_graph |= (
-                single_digits_graph_oh
-                + (self.INSERT_SPACE + single_digits_graph_oh).star
-            )
-
-            single_digits_graph_with_commas = (
-                pynini.closure(self.single_digits_graph + self.INSERT_SPACE, 1, 3)
-                + (
-                    pynutil.delete(",")
-                    + single_digits_graph
-                    + self.INSERT_SPACE
-                    + single_digits_graph
-                    + self.INSERT_SPACE
-                    + single_digits_graph
-                ).plus
-            )
+        # TODO replace to have "oh" as a default for "0"
+        graph = Far(
+            get_abs_path("english/data/number/cardinal_number_name.far")
+        ).get_fst()
+        graph_au = Far(
+            get_abs_path("english/data/number/cardinal_number_name_au.far")
+        ).get_fst()
+        self.graph_hundred_component_at_least_one_none_zero_digit = (
+            closure(self.DIGIT, 2, 3) @ graph | digit
+        )
 
         graph = (
-            pynini.closure(self.DIGIT, 1, 3)
-            + ((pynutil.delete(",") + self.DIGIT**3).star | (self.DIGIT**3).star)
+            closure(self.DIGIT, 1, 3)
+            + ((delete(",") + self.DIGIT**3).star | (self.DIGIT**3).star)
         ) @ graph
 
         self.graph = graph
         self.graph_with_and = self.add_optional_and(graph)
 
         if self.deterministic:
-            long_numbers = pynini.compose(
-                self.DIGIT ** (5, ...), self.single_digits_graph
-            ).optimize()
+            long_numbers = (closure(self.DIGIT, 5) @ self.single_digits).optimize()
             self.long_numbers = plurals._priority_union(
-                long_numbers, self.graph_with_and, self.VCHAR.star
+                long_numbers, self.graph_with_and, self.VSIGMA
             ).optimize()
-            cardinal_with_leading_zeros = pynini.compose(
-                pynini.accep("0") + self.DIGIT.star, self.single_digits_graph
+            cardinal_with_leading_zeros = compose(
+                accep("0") + self.DIGIT.star, self.single_digits
             )
             final_graph = self.long_numbers | cardinal_with_leading_zeros
             final_graph |= self.add_optional_and(graph_au)
         else:
-            leading_zeros = pynini.compose(
-                pynini.accep("0").plus, self.single_digits_graph
-            )
+            leading_zeros = accep("0").plus @ self.single_digits
             cardinal_with_leading_zeros = (
                 leading_zeros
-                + self.INSERT_SPACE
-                + pynini.compose(self.DIGIT.star, self.graph_with_and)
+                + insert(" ")
+                + compose(self.DIGIT.star, self.graph_with_and)
             )
-            self.long_numbers = self.graph_with_and | pynutil.add_weight(
-                self.single_digits_graph, 0.0001
+            self.long_numbers = self.graph_with_and | add_weight(
+                self.single_digits, 0.0001
             )
             # add small weight to non-default graphs to make sure the deterministic option is listed first
-            final_graph = (
-                self.long_numbers
-                | pynutil.add_weight(single_digits_graph_with_commas, 0.0001)
-                | cardinal_with_leading_zeros
-            ).optimize()
+            final_graph = (self.long_numbers | cardinal_with_leading_zeros).optimize()
 
             one_to_a_replacement_graph = (
-                pynini.cross("one hundred", "a hundred")
-                | pynini.cross("one thousand", "thousand")
-                | pynini.cross("one million", "a million")
-            )
-            final_graph |= pynini.compose(
-                final_graph, one_to_a_replacement_graph.optimize() + self.VCHAR.star
+                cross("one hundred", "a hundred")
+                | cross("one thousand", "thousand")
+                | cross("one million", "a million")
+            ).optimize()
+            final_graph |= compose(
+                final_graph, one_to_a_replacement_graph + self.VSIGMA
             ).optimize()
             # remove commas for 4 digits numbers
-            four_digit_comma_graph = (
-                (self.DIGIT - "0") + pynutil.delete(",") + self.DIGIT**3
-            )
-            final_graph |= pynini.compose(
+            four_digit_comma_graph = (self.DIGIT - "0") + delete(",") + self.DIGIT**3
+            final_graph |= compose(
                 four_digit_comma_graph.optimize(), final_graph
             ).optimize()
 
         self.final_graph = final_graph
-        optional_minus_graph = (
-            pynutil.insert("negative: ") + pynini.cross("-", '"true" ')
-        ).ques
+        optional_minus_graph = cross("-", 'negative: "true" ').ques
         final_graph = (
-            optional_minus_graph
-            + pynutil.insert('integer: "')
-            + final_graph
-            + pynutil.insert('"')
+            optional_minus_graph + insert('integer: "') + final_graph + insert('"')
         )
         final_graph = self.add_tokens(final_graph)
         self.tagger = final_graph.optimize()
@@ -159,34 +129,32 @@ class Cardinal(Processor):
     def add_optional_and(self, graph):
         graph_with_and = graph
 
-        graph_with_and = pynutil.add_weight(graph, 0.00001)
+        graph_with_and = add_weight(graph, 0.00001)
         not_quote = self.NOT_QUOTE.star
-        no_thousand_million = pynini.difference(
-            not_quote, not_quote + pynini.union("thousand", "million") + not_quote
+        no_thousand_million = difference(
+            not_quote, not_quote + union("thousand", "million") + not_quote
         ).optimize()
         integer = (
             not_quote
-            + pynutil.add_weight(
-                pynini.cross("hundred ", "hundred and ") + no_thousand_million, -0.0001
+            + add_weight(
+                cross("hundred ", "hundred and ") + no_thousand_million, -0.0001
             )
         ).optimize()
 
-        no_hundred = pynini.difference(
-            self.VCHAR.star, not_quote + pynini.accep("hundred") + not_quote
+        no_hundred = difference(
+            self.VSIGMA, not_quote + accep("hundred") + not_quote
         ).optimize()
         integer |= (
             not_quote
-            + pynutil.add_weight(
-                pynini.cross("thousand ", "thousand and ") + no_hundred, -0.0001
-            )
+            + add_weight(cross("thousand ", "thousand and ") + no_hundred, -0.0001)
         ).optimize()
 
-        optional_hundred = pynini.compose((self.DIGIT - "0") ** 3, graph).optimize()
-        optional_hundred = pynini.compose(
+        optional_hundred = compose((self.DIGIT - "0") ** 3, graph).optimize()
+        optional_hundred = compose(
             optional_hundred,
-            self.VCHAR.star + pynini.cross(" hundred", "") + self.VCHAR.star,
+            self.VSIGMA + cross(" hundred", "") + self.VSIGMA,
         )
-        graph_with_and |= pynini.compose(graph, integer).optimize()
+        graph_with_and |= compose(graph, integer).optimize()
         graph_with_and |= optional_hundred
         return graph_with_and
 
@@ -195,19 +163,16 @@ class Cardinal(Processor):
         Finite state transducer for verbalizing cardinal, e.g.
             cardinal { negative: "true" integer: "23" } -> minus twenty three
         """
-        optional_sign = pynini.cross('negative: "true"', "minus ")
+        optional_sign = cross('negative: "true"', "minus ")
         if not self.deterministic:
-            optional_sign |= pynini.cross('negative: "true"', "negative ")
-            optional_sign |= pynini.cross('negative: "true"', "dash ")
+            optional_sign |= cross('negative: "true"', "negative ")
+            optional_sign |= cross('negative: "true"', "dash ")
 
         self.optional_sign = (optional_sign + self.DELETE_SPACE).ques
 
         integer = self.NOT_QUOTE.star
-
-        self.integer = (
-            self.DELETE_SPACE + pynutil.delete('"') + integer + pynutil.delete('"')
-        )
-        integer = pynutil.delete("integer:") + self.integer
+        self.integer = self.DELETE_SPACE + delete('"') + integer + delete('"')
+        integer = delete("integer:") + self.integer
 
         self.numbers = self.optional_sign + integer
         delete_tokens = self.delete_tokens(self.numbers)

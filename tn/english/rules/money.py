@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pynini
-from pynini.lib import pynutil
+from pynini import accep, cross, string_file
+from pynini.lib.pynutil import add_weight, delete, insert
 
 from tn.processor import Processor
 from tn.utils import get_abs_path, load_labels
@@ -22,9 +22,7 @@ from tn.english.rules.cardinal import Cardinal
 from tn.english.rules.decimal import Decimal
 from tn.english.rules.measure import SINGULAR_TO_PLURAL
 
-maj_singular = pynini.string_file(
-    (get_abs_path("english/data/money/currency_major.tsv"))
-)
+maj_singular = string_file((get_abs_path("english/data/money/currency_major.tsv")))
 
 
 class Money(Processor):
@@ -63,44 +61,36 @@ class Money(Processor):
         maj_unit_plural = maj_singular @ SINGULAR_TO_PLURAL
         maj_unit_singular = maj_singular
 
-        graph_maj_singular = (
-            pynutil.insert('currency_maj: "') + maj_unit_singular + pynutil.insert('"')
-        )
-        graph_maj_plural = (
-            pynutil.insert('currency_maj: "') + maj_unit_plural + pynutil.insert('"')
-        )
+        graph_maj_singular = insert('currency_maj: "') + maj_unit_singular + insert('"')
+        graph_maj_plural = insert('currency_maj: "') + maj_unit_plural + insert('"')
 
         optional_delete_fractional_zeros = (
-            pynutil.delete(".") + pynutil.add_weight(pynutil.delete("0"), -0.2).plus
+            delete(".") + add_weight(delete("0"), -0.2).plus
         ).ques
 
-        graph_integer_one = (
-            pynutil.insert('integer_part: "')
-            + pynini.cross("1", "one")
-            + pynutil.insert('"')
-        )
+        graph_integer_one = insert('integer_part: "') + cross("1", "one") + insert('"')
         decimal_delete_last_zeros = (
-            (self.DIGIT | pynutil.delete(",")).star
-            + pynini.accep(".")
+            (self.DIGIT | delete(",")).star
+            + accep(".")
             + self.DIGIT.plus
-            + pynutil.add_weight(pynutil.delete("0"), -0.01).star
+            + add_weight(delete("0"), -0.01).star
         )
-        decimal_with_quantity = self.VCHAR.star + self.ALPHA
+        decimal_with_quantity = self.VSIGMA + self.ALPHA
 
         graph_decimal = (
             graph_maj_plural
-            + self.INSERT_SPACE
+            + insert(" ")
             + (decimal_delete_last_zeros | decimal_with_quantity) @ graph_decimal_final
         )
 
         graph_integer = (
-            pynutil.insert('integer_part: "')
-            + ((self.VCHAR.star - "1") @ cardinal_graph)
-            + pynutil.insert('"')
+            insert('integer_part: "')
+            + ((self.VSIGMA - "1") @ cardinal_graph)
+            + insert('"')
         )  # noqa
 
-        graph_integer_only = graph_maj_singular + self.INSERT_SPACE + graph_integer_one
-        graph_integer_only |= graph_maj_plural + self.INSERT_SPACE + graph_integer
+        graph_integer_only = graph_maj_singular + insert(" ") + graph_integer_one
+        graph_integer_only |= graph_maj_plural + insert(" ") + graph_integer
 
         final_graph = (
             graph_integer_only + optional_delete_fractional_zeros
@@ -114,17 +104,11 @@ class Money(Processor):
             money { integer_part: "twelve" fractional_part: "o five" currency: "dollars" } -> twelve o five dollars
         """
         decimal = Decimal(self.deterministic)
-        keep_space = pynini.accep(" ")
-        maj = (
-            pynutil.delete('currency_maj: "')
-            + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
-        )
+        keep_space = accep(" ")
+        maj = delete('currency_maj: "') + self.NOT_QUOTE.plus + delete('"')
 
         fractional_part = (
-            pynutil.delete('fractional_part: "')
-            + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
+            delete('fractional_part: "') + self.NOT_QUOTE.plus + delete('"')
         )
 
         integer_part = decimal.integer

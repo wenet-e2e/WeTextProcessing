@@ -13,13 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pynini
-from pynini.lib import pynutil
+from pynini import (
+    accep,
+    cdrewrite,
+    cross,
+    compose,
+    difference,
+    invert,
+    project,
+    string_file,
+    union,
+)
+from pynini.lib.pynutil import add_weight, delete, insert
 from pynini.examples import plurals
 
+from tn.english.rules.cardinal import Cardinal
 from tn.processor import Processor
 from tn.utils import get_abs_path
-from tn.english.rules.cardinal import Cardinal
 
 
 class Electronic(Processor):
@@ -44,25 +54,24 @@ class Electronic(Processor):
         if self.deterministic:
             numbers = self.DIGIT
         else:
-            numbers = pynutil.insert(" ") + cardinal.long_numbers + pynutil.insert(" ")
+            numbers = insert(" ") + cardinal.long_numbers + insert(" ")
 
-        accepted_symbols = pynini.project(
-            pynini.string_file(get_abs_path("english/data/electronic/symbol.tsv")),
+        accepted_symbols = project(
+            string_file(get_abs_path("english/data/electronic/symbol.tsv")),
             "input",
         )
-        accepted_common_domains = pynini.project(
-            pynini.string_file(get_abs_path("english/data/electronic/domain.tsv")),
+        accepted_common_domains = project(
+            string_file(get_abs_path("english/data/electronic/domain.tsv")),
             "input",
         )
 
-        dict_words = pynutil.add_weight(
-            pynini.string_file(get_abs_path("english/data/electronic/words.tsv")),
+        dict_words = add_weight(
+            string_file(get_abs_path("english/data/electronic/words.tsv")),
             -0.0001,
         )
 
         dict_words_without_delimiter = (
-            dict_words
-            + pynutil.add_weight(pynutil.insert(" ") + dict_words, -0.0001).plus
+            dict_words + add_weight(insert(" ") + dict_words, -0.0001).plus
         )
         dict_words_graph = dict_words_without_delimiter | dict_words
 
@@ -74,42 +83,32 @@ class Electronic(Processor):
             dict_words_graph | numbers | self.ALPHA.star | accepted_symbols
         ).optimize()
 
-        graph_symbols = pynini.string_file(
+        graph_symbols = string_file(
             get_abs_path("english/data/electronic/symbol.tsv")
         ).optimize()
         username = (self.ALPHA | dict_words_graph) + (
             self.ALPHA | numbers | accepted_symbols | dict_words_graph
         ).star
 
-        username = (
-            pynutil.insert('username: "')
-            + username
-            + pynutil.insert('"')
-            + pynini.cross("@", " ")
-        )
+        username = insert('username: "') + username + insert('"') + cross("@", " ")
 
         domain_graph = (
             all_accepted_symbols_start
             + (
-                all_accepted_symbols_end
-                | pynutil.add_weight(accepted_common_domains, -0.0001)
+                all_accepted_symbols_end | add_weight(accepted_common_domains, -0.0001)
             ).star
         )
 
-        protocol_symbols = (
-            (graph_symbols | pynini.cross(":", "colon")) + pynutil.insert(" ")
-        ).star
-        protocol_start = (
-            pynini.cross("https", "HTTPS ") | pynini.cross("http", "HTTP ")
-        ) + (pynini.accep("://") @ protocol_symbols)
+        protocol_symbols = ((graph_symbols | cross(":", "colon")) + insert(" ")).star
+        protocol_start = (cross("https", "HTTPS ") | cross("http", "HTTP ")) + (
+            accep("://") @ protocol_symbols
+        )
         protocol_file_start = (
-            pynini.accep("file")
-            + self.INSERT_SPACE
-            + (pynini.accep(":///") @ protocol_symbols)
+            accep("file") + insert(" ") + (accep(":///") @ protocol_symbols)
         )
 
-        protocol_end = pynutil.add_weight(
-            pynini.cross("www", "WWW ") + pynini.accep(".") @ protocol_symbols, -1000
+        protocol_end = add_weight(
+            cross("www", "WWW ") + accep(".") @ protocol_symbols, -1000
         )
         protocol = (
             protocol_file_start
@@ -119,46 +118,38 @@ class Electronic(Processor):
         )
 
         domain_graph_with_class_tags = (
-            pynutil.insert('domain: "')
-            + pynini.compose(
+            insert('domain: "')
+            + compose(
                 self.ALPHA
                 + self.NOT_SPACE.star
-                + (self.ALPHA | self.DIGIT | pynini.accep("/")),
+                + (self.ALPHA | self.DIGIT | accep("/")),
                 domain_graph,
             ).optimize()
-            + pynutil.insert('"')
+            + insert('"')
         )
 
-        protocol = (
-            pynutil.insert('protocol: "')
-            + pynutil.add_weight(protocol, -0.0001)
-            + pynutil.insert('"')
-        )
+        protocol = insert('protocol: "') + add_weight(protocol, -0.0001) + insert('"')
         # email
-        graph = pynini.compose(
-            self.VCHAR.star
-            + pynini.accep("@")
-            + self.VCHAR.star
-            + pynini.accep(".")
-            + self.VCHAR.star,
+        graph = compose(
+            self.VSIGMA + accep("@") + self.VSIGMA + accep(".") + self.VSIGMA,
             username + domain_graph_with_class_tags,
         )
 
         # abc.com, abc.com/123-sm
         # when only domain, make sure it starts and end with self.ALPHA
         graph |= (
-            pynutil.insert('domain: "')
-            + pynini.compose(
+            insert('domain: "')
+            + compose(
                 self.ALPHA
                 + self.NOT_SPACE.star
                 + accepted_common_domains
                 + self.NOT_SPACE.star,
                 domain_graph,
             ).optimize()
-            + pynutil.insert('"')
+            + insert('"')
         )
         # www.abc.com/sdafsdf, or https://www.abc.com/asdfad or www.abc.abc/asdfad
-        graph |= protocol + pynutil.insert(" ") + domain_graph_with_class_tags
+        graph |= protocol + insert(" ") + domain_graph_with_class_tags
 
         final_graph = self.add_tokens(graph)
 
@@ -169,101 +160,86 @@ class Electronic(Processor):
         Finite state transducer for verbalizing electronic
             e.g. electronic { username: "cdf one" domain: "abc.edu" } -> cdf one at abc dot edu
         """
-        graph_digit_no_zero = pynini.invert(
-            pynini.string_file(get_abs_path("english/data/number/digit.tsv"))
+        graph_digit_no_zero = invert(
+            string_file(get_abs_path("english/data/number/digit.tsv"))
         ).optimize()
-        graph_zero = pynini.cross("0", "zero")
-        long_numbers = pynutil.add_weight(
-            graph_digit_no_zero + pynini.cross("000", " thousand"), -0.0001
+        graph_zero = cross("0", "zero")
+        long_numbers = add_weight(
+            graph_digit_no_zero + cross("000", " thousand"), -0.0001
         )
 
         if not self.deterministic:
-            graph_zero |= pynini.cross("0", "o") | pynini.cross("0", "oh")
+            graph_zero |= cross("0", "o") | cross("0", "oh")
 
         graph_digit = graph_digit_no_zero | graph_zero
-        graph_symbols = pynini.string_file(
+        graph_symbols = string_file(
             get_abs_path("english/data/electronic/symbol.tsv")
         ).optimize()
 
-        NEMO_NOT_BRACKET = pynini.difference(
-            self.VCHAR, pynini.union("{", "}")
-        ).optimize()
-        dict_words = pynini.project(
-            pynini.string_file(get_abs_path("english/data/electronic/words.tsv")),
+        NEMO_NOT_BRACKET = difference(self.VCHAR, union("{", "}")).optimize()
+        dict_words = project(
+            string_file(get_abs_path("english/data/electronic/words.tsv")),
             "output",
         )
-        default_chars_symbols = pynini.cdrewrite(
-            pynutil.insert(" ")
-            + (graph_symbols | graph_digit | long_numbers)
-            + pynutil.insert(" "),
+        default_chars_symbols = cdrewrite(
+            insert(" ") + (graph_symbols | graph_digit | long_numbers) + insert(" "),
             "",
             "",
-            self.VCHAR.star,
+            self.VSIGMA,
         )
-        default_chars_symbols = pynini.compose(
+        default_chars_symbols = compose(
             NEMO_NOT_BRACKET.star, default_chars_symbols.optimize()
         ).optimize()
 
         # this is far cases when user name was split by dictionary words, i.e. "sevicepart@ab.com" -> "service part"
-        space_separated_dict_words = pynutil.add_weight(
+        space_separated_dict_words = add_weight(
             self.ALPHA + (self.ALPHA | " ").star + " " + (self.ALPHA | " ").star,
             -0.0001,
         )
 
         user_name = (
-            pynutil.delete("username:")
+            delete("username:")
             + self.DELETE_SPACE
-            + pynutil.delete('"')
+            + delete('"')
             + (default_chars_symbols | space_separated_dict_words).optimize()
-            + pynutil.delete('"')
+            + delete('"')
         )
 
-        domain_common = pynini.string_file(
-            get_abs_path("english/data/electronic/domain.tsv")
-        )
+        domain_common = string_file(get_abs_path("english/data/electronic/domain.tsv"))
 
         # this will be used for a safe fallback
-        domain_all = pynini.compose(
+        domain_all = compose(
             default_chars_symbols,
-            (self.ALPHA | " " | pynutil.add_weight(dict_words, -0.0001)).star,
+            (self.ALPHA | " " | add_weight(dict_words, -0.0001)).star,
         )
 
         domain = (
             domain_all
-            + self.INSERT_SPACE
+            + insert(" ")
             + plurals._priority_union(
                 domain_common,
-                pynutil.add_weight(pynini.cross(".", "dot"), weight=0.0001),
-                self.VCHAR.star,
+                add_weight(cross(".", "dot"), weight=0.0001),
+                self.VSIGMA,
             )
-            + (self.INSERT_SPACE + default_chars_symbols).ques
+            + (insert(" ") + default_chars_symbols).ques
         )
 
         domain = (
-            pynutil.delete("domain:")
+            delete("domain:")
             + self.DELETE_SPACE
-            + pynutil.delete('"')
-            + (domain | pynutil.add_weight(domain_all, weight=100)).optimize()
+            + delete('"')
+            + (domain | add_weight(domain_all, weight=100)).optimize()
             + self.DELETE_SPACE
-            + pynutil.delete('"')
+            + delete('"')
         ).optimize()
 
-        protocol = (
-            pynutil.delete('protocol: "') + self.NOT_QUOTE.plus + pynutil.delete('"')
-        )
+        protocol = delete('protocol: "') + self.NOT_QUOTE.plus + delete('"')
         graph = (
             (protocol + self.DELETE_SPACE).ques
-            + (
-                user_name
-                + self.DELETE_SPACE
-                + pynutil.insert(" at ")
-                + self.DELETE_SPACE
-            ).ques
+            + (user_name + self.DELETE_SPACE + insert(" at ") + self.DELETE_SPACE).ques
             + domain
             + self.DELETE_SPACE
-        ).optimize() @ pynini.cdrewrite(
-            self.DELETE_EXTRA_SPACE, "", "", self.VCHAR.star
-        )
+        ).optimize() @ cdrewrite(self.DELETE_EXTRA_SPACE, "", "", self.VSIGMA)
 
         delete_tokens = self.delete_tokens(graph)
         self.verbalizer = delete_tokens.optimize()

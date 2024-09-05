@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pynini
-from pynini.lib import pynutil
+from pynini import cdrewrite, cross, string_file, string_map, union
+from pynini.lib.pynutil import delete, insert
 
+from tn.english.rules.cardinal import Cardinal
 from tn.processor import Processor
 from tn.utils import get_abs_path, load_labels, augment_labels_with_punct_at_end
-from tn.english.rules.cardinal import Cardinal
 
 
 class Time(Processor):
@@ -48,9 +48,9 @@ class Time(Processor):
         """
         suffix_labels = load_labels(get_abs_path("english/data/time/suffix.tsv"))
         suffix_labels.extend(augment_labels_with_punct_at_end(suffix_labels))
-        suffix_graph = pynini.string_map(suffix_labels)
+        suffix_graph = string_map(suffix_labels)
 
-        time_zone_graph = pynini.string_file(get_abs_path("english/data/time/zone.tsv"))
+        time_zone_graph = string_file(get_abs_path("english/data/time/zone.tsv"))
 
         # only used for < 1000 thousand -> 0 weight
         cardinal = Cardinal(self.deterministic).graph
@@ -60,50 +60,48 @@ class Time(Processor):
         labels_minute_double = [str(x) for x in range(10, 60)]
 
         delete_leading_zero_to_double_digit = (self.DIGIT + self.DIGIT) | (
-            pynutil.delete("0").ques + self.DIGIT
+            delete("0").ques + self.DIGIT
         )
 
         graph_hour = (
-            delete_leading_zero_to_double_digit @ pynini.union(*labels_hour) @ cardinal
+            delete_leading_zero_to_double_digit @ union(*labels_hour) @ cardinal
         )
 
-        graph_minute_single = pynini.union(*labels_minute_single) @ cardinal
-        graph_minute_double = pynini.union(*labels_minute_double) @ cardinal
+        graph_minute_single = union(*labels_minute_single) @ cardinal
+        graph_minute_double = union(*labels_minute_double) @ cardinal
 
-        final_graph_hour = pynutil.insert('hours: "') + graph_hour + pynutil.insert('"')
+        final_graph_hour = insert('hours: "') + graph_hour + insert('"')
         final_graph_minute = (
-            pynutil.insert('minutes: "')
+            insert('minutes: "')
             + (
-                pynini.cross("0", "o") + self.INSERT_SPACE + graph_minute_single
+                cross("0", "o") + insert(" ") + graph_minute_single
                 | graph_minute_double
             )
-            + pynutil.insert('"')
+            + insert('"')
         )
         final_graph_second = (
-            pynutil.insert('seconds: "')
+            insert('seconds: "')
             + (
-                pynini.cross("0", "o") + self.INSERT_SPACE + graph_minute_single
+                cross("0", "o") + insert(" ") + graph_minute_single
                 | graph_minute_double
             )
-            + pynutil.insert('"')
+            + insert('"')
         )
-        final_suffix = pynutil.insert('suffix: "') + suffix_graph + pynutil.insert('"')
-        final_suffix_optional = (
-            self.DELETE_SPACE + self.INSERT_SPACE + final_suffix
-        ).ques
+        final_suffix = insert('suffix: "') + suffix_graph + insert('"')
+        final_suffix_optional = (self.DELETE_SPACE + insert(" ") + final_suffix).ques
         final_time_zone_optional = (
             self.DELETE_SPACE
-            + self.INSERT_SPACE
-            + pynutil.insert('zone: "')
+            + insert(" ")
+            + insert('zone: "')
             + time_zone_graph
-            + pynutil.insert('"')
+            + insert('"')
         ).ques
 
         # 2:30 pm, 02:30, 2:00
         graph_hm = (
             final_graph_hour
-            + pynutil.delete(":")
-            + (pynutil.delete("00") | self.INSERT_SPACE + final_graph_minute)
+            + delete(":")
+            + (delete("00") | insert(" ") + final_graph_minute)
             + final_suffix_optional
             + final_time_zone_optional
         )
@@ -111,16 +109,10 @@ class Time(Processor):
         # 10:30:05 pm,
         graph_hms = (
             final_graph_hour
-            + pynutil.delete(":")
-            + (
-                pynini.cross("00", ' minutes: "zero"')
-                | self.INSERT_SPACE + final_graph_minute
-            )
-            + pynutil.delete(":")
-            + (
-                pynini.cross("00", ' seconds: "zero"')
-                | self.INSERT_SPACE + final_graph_second
-            )
+            + delete(":")
+            + (cross("00", ' minutes: "zero"') | insert(" ") + final_graph_minute)
+            + delete(":")
+            + (cross("00", ' seconds: "zero"') | insert(" ") + final_graph_second)
             + final_suffix_optional
             + final_time_zone_optional
         )
@@ -128,10 +120,10 @@ class Time(Processor):
         # 2.xx pm/am
         graph_hm2 = (
             final_graph_hour
-            + pynutil.delete(".")
-            + (pynutil.delete("00") | self.INSERT_SPACE + final_graph_minute)
+            + delete(".")
+            + (delete("00") | insert(" ") + final_graph_minute)
             + self.DELETE_SPACE
-            + self.INSERT_SPACE
+            + insert(" ")
             + final_suffix
             + final_time_zone_optional
         )
@@ -139,7 +131,7 @@ class Time(Processor):
         graph_h = (
             final_graph_hour
             + self.DELETE_SPACE
-            + self.INSERT_SPACE
+            + insert(" ")
             + final_suffix
             + final_time_zone_optional
         )
@@ -155,73 +147,73 @@ class Time(Processor):
             time { hours: "twelve" } -> twelve o'clock
         """
         hour = (
-            pynutil.delete("hours:")
+            delete("hours:")
             + self.DELETE_SPACE
-            + pynutil.delete('"')
+            + delete('"')
             + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
+            + delete('"')
         )
         minute = (
-            pynutil.delete("minutes:")
+            delete("minutes:")
             + self.DELETE_SPACE
-            + pynutil.delete('"')
+            + delete('"')
             + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
+            + delete('"')
         )
         suffix = (
-            pynutil.delete("suffix:")
+            delete("suffix:")
             + self.DELETE_SPACE
-            + pynutil.delete('"')
+            + delete('"')
             + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
+            + delete('"')
         )
-        optional_suffix = (self.DELETE_SPACE + self.INSERT_SPACE + suffix).ques
+        optional_suffix = (self.DELETE_SPACE + insert(" ") + suffix).ques
         zone = (
-            pynutil.delete("zone:")
+            delete("zone:")
             + self.DELETE_SPACE
-            + pynutil.delete('"')
+            + delete('"')
             + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
+            + delete('"')
         )
-        optional_zone = (self.DELETE_SPACE + self.INSERT_SPACE + zone).ques
+        optional_zone = (self.DELETE_SPACE + insert(" ") + zone).ques
         second = (
-            pynutil.delete("seconds:")
+            delete("seconds:")
             + self.DELETE_SPACE
-            + pynutil.delete('"')
+            + delete('"')
             + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
+            + delete('"')
         )
         graph_hms = (
             hour
-            + pynutil.insert(" hours ")
+            + insert(" hours ")
             + self.DELETE_SPACE
             + minute
-            + pynutil.insert(" minutes and ")
+            + insert(" minutes and ")
             + self.DELETE_SPACE
             + second
-            + pynutil.insert(" seconds")
+            + insert(" seconds")
             + optional_suffix
             + optional_zone
         )
-        graph_hms @= pynini.cdrewrite(
-            pynutil.delete("o ")
-            | pynini.cross("one minutes", "one minute")
-            | pynini.cross("one seconds", "one second")
-            | pynini.cross("one hours", "one hour"),
-            pynini.union(" ", "[BOS]"),
+        graph_hms @= cdrewrite(
+            delete("o ")
+            | cross("one minutes", "one minute")
+            | cross("one seconds", "one second")
+            | cross("one hours", "one hour"),
+            union(" ", "[BOS]"),
             "",
-            self.VCHAR.star,
+            self.VSIGMA,
         )
         graph = (
             hour
             + self.DELETE_SPACE
-            + self.INSERT_SPACE
+            + insert(" ")
             + minute
             + optional_suffix
             + optional_zone
         )
-        graph |= hour + self.INSERT_SPACE + pynutil.insert("o'clock") + optional_zone
-        graph |= hour + self.DELETE_SPACE + self.INSERT_SPACE + suffix + optional_zone
+        graph |= hour + insert(" ") + insert("o'clock") + optional_zone
+        graph |= hour + self.DELETE_SPACE + insert(" ") + suffix + optional_zone
         graph |= graph_hms
         delete_tokens = self.delete_tokens(graph)
         self.verbalizer = delete_tokens.optimize()

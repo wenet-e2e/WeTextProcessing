@@ -14,18 +14,26 @@
 # limitations under the License.
 
 import pynini
-from pynini.lib import pynutil
+from pynini import (
+    accep,
+    cdrewrite,
+    cross,
+    compose,
+    difference,
+    project,
+    string_file,
+    union,
+)
+from pynini.lib.pynutil import add_weight, delete, insert
 
+from tn.english.rules.cardinal import Cardinal
 from tn.processor import Processor
 from tn.utils import get_abs_path
-from tn.english.rules.cardinal import Cardinal
 
-delete_space = pynutil.delete(" ")
-quantities = pynini.string_file(get_abs_path("english/data/number/thousand.tsv"))
-quantities_abbr = pynini.string_file(
-    get_abs_path("english/data/number/quantity_abbr.tsv")
-)
-quantities_abbr |= Processor("tmp").TO_UPPER @ quantities_abbr
+delete_space = delete(" ")
+quantities = string_file(get_abs_path("english/data/number/thousand.tsv"))
+quantities_abbr = string_file(get_abs_path("english/data/number/quantity_abbr.tsv"))
+quantities_abbr |= Processor.TO_UPPER @ quantities_abbr
 
 
 def get_quantity(
@@ -42,33 +50,25 @@ def get_quantity(
         decimal: decimal FST
         cardinal_up_to_hundred: cardinal FST
     """
-    quantity_wo_thousand = pynini.project(quantities, "input") - pynini.union(
-        "k", "K", "thousand"
-    )
+    quantity_wo_thousand = project(quantities, "input") - union("k", "K", "thousand")
     if include_abbr:
-        quantity_wo_thousand |= pynini.project(quantities_abbr, "input") - pynini.union(
+        quantity_wo_thousand |= project(quantities_abbr, "input") - union(
             "k", "K", "thousand"
         )
     res = (
-        pynutil.insert('integer_part: "')
+        insert('integer_part: "')
         + cardinal_up_to_hundred
-        + pynutil.insert('"')
-        + pynutil.delete(" ").ques
-        + pynutil.insert(' quantity: "')
-        + (quantity_wo_thousand @ (quantities | quantities_abbr))
-        + pynutil.insert('"')
+        + insert('"')
+        + delete(" ").ques
+        + insert(' quantity: "')
+        + quantity_wo_thousand @ (quantities | quantities_abbr)
+        + insert('"')
     )
     if include_abbr:
         quantity = quantities | quantities_abbr
     else:
         quantity = quantities
-    res |= (
-        decimal
-        + pynutil.delete(" ").ques
-        + pynutil.insert(' quantity: "')
-        + quantity
-        + pynutil.insert('"')
-    )
+    res |= decimal + delete(" ").ques + insert(' quantity: "') + quantity + insert('"')
     return res
 
 
@@ -97,26 +97,20 @@ class Decimal(Processor):
             cardinal.graph_hundred_component_at_least_one_none_zero_digit
         )
 
-        self.graph = cardinal.single_digits_graph.optimize()
+        self.graph = cardinal.single_digits.optimize()
 
         if not self.deterministic:
-            self.graph = self.graph | pynutil.add_weight(cardinal_graph, 0.1)
+            self.graph = self.graph | add_weight(cardinal_graph, 0.1)
 
-        point = pynutil.delete(".")
-        optional_graph_negative = (
-            pynutil.insert("negative: ") + pynini.cross("-", '"true" ')
-        ).ques
+        point = delete(".")
+        optional_graph_negative = (insert("negative: ") + cross("-", '"true" ')).ques
 
-        self.graph_fractional = (
-            pynutil.insert('fractional_part: "') + self.graph + pynutil.insert('"')
-        )
-        self.graph_integer = (
-            pynutil.insert('integer_part: "') + cardinal_graph + pynutil.insert('"')
-        )
+        self.graph_fractional = insert('fractional_part: "') + self.graph + insert('"')
+        self.graph_integer = insert('integer_part: "') + cardinal_graph + insert('"')
         final_graph_wo_sign = (
-            (self.graph_integer + pynutil.insert(" ")).ques
+            (self.graph_integer + insert(" ")).ques
             + point
-            + pynutil.insert(" ")
+            + insert(" ")
             + self.graph_fractional
         )
 
@@ -135,33 +129,29 @@ class Decimal(Processor):
 
         # reduce options for non_deterministic and allow either "oh" or "zero", but not combination
         if not self.deterministic:
-            no_oh_zero = pynini.difference(
-                self.VCHAR.star,
-                (self.VCHAR.star + "oh" + self.VCHAR.star + "zero" + self.VCHAR.star)
-                | (self.VCHAR.star + "zero" + self.VCHAR.star + "oh" + self.VCHAR.star),
+            no_oh_zero = difference(
+                self.VSIGMA,
+                (self.VSIGMA + "oh" + self.VSIGMA + "zero" + self.VSIGMA)
+                | (self.VSIGMA + "zero" + self.VSIGMA + "oh" + self.VSIGMA),
             ).optimize()
-            no_zero_oh = pynini.difference(
-                self.VCHAR.star,
-                self.VCHAR.star
-                + pynini.accep("zero")
-                + self.VCHAR.star
-                + pynini.accep("oh")
-                + self.VCHAR.star,
+            no_zero_oh = difference(
+                self.VSIGMA,
+                self.VSIGMA + accep("zero") + self.VSIGMA + accep("oh") + self.VSIGMA,
             ).optimize()
 
-            self.final_graph_wo_negative |= pynini.compose(
+            self.final_graph_wo_negative |= compose(
                 self.final_graph_wo_negative,
-                pynini.cdrewrite(
-                    pynini.cross('integer_part: "zero"', 'integer_part: "oh"'),
-                    self.VCHAR.star,
-                    self.VCHAR.star,
-                    self.VCHAR.star,
+                cdrewrite(
+                    cross('integer_part: "zero"', 'integer_part: "oh"'),
+                    self.VSIGMA,
+                    self.VSIGMA,
+                    self.VSIGMA,
                 ),
             )
-            self.final_graph_wo_negative = pynini.compose(
+            self.final_graph_wo_negative = compose(
                 self.final_graph_wo_negative, no_oh_zero
             ).optimize()
-            self.final_graph_wo_negative = pynini.compose(
+            self.final_graph_wo_negative = compose(
                 self.final_graph_wo_negative, no_zero_oh
             ).optimize()
 
@@ -176,34 +166,32 @@ class Decimal(Processor):
             decimal { negative: "true" integer_part: "twelve" fractional_part: "five o o six" quantity: "billion" } -> minus twelve point five o o six billion
         """
         cardinal = Cardinal(deterministic=self.deterministic)
-        self.optional_sign = pynini.cross('negative: "true"', "minus ")
+        self.optional_sign = cross('negative: "true"', "minus ")
         if not self.deterministic:
-            self.optional_sign |= pynutil.add_weight(
-                pynini.cross('negative: "true"', "negative "), 0.1
+            self.optional_sign |= add_weight(
+                cross('negative: "true"', "negative "), 0.1
             )
         self.optional_sign = (self.optional_sign + self.DELETE_SPACE).ques
-        self.integer = pynutil.delete("integer_part:") + cardinal.integer
-        self.optional_integer = (
-            self.integer + self.DELETE_SPACE + self.INSERT_SPACE
-        ).ques
+        self.integer = delete("integer_part:") + cardinal.integer
+        self.optional_integer = (self.integer + self.DELETE_SPACE + insert(" ")).ques
         self.fractional_default = (
-            pynutil.delete("fractional_part:")
+            delete("fractional_part:")
             + self.DELETE_SPACE
-            + pynutil.delete('"')
+            + delete('"')
             + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
+            + delete('"')
         )
 
-        self.fractional = pynutil.insert("point ") + self.fractional_default
+        self.fractional = insert("point ") + self.fractional_default
 
         self.quantity = (
             self.DELETE_SPACE
-            + self.INSERT_SPACE
-            + pynutil.delete("quantity:")
+            + insert(" ")
+            + delete("quantity:")
             + self.DELETE_SPACE
-            + pynutil.delete('"')
+            + delete('"')
             + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
+            + delete('"')
         )
         self.optional_quantity = self.quantity.ques
 
@@ -216,14 +204,14 @@ class Decimal(Processor):
         self.numbers = graph
         delete_tokens = self.delete_tokens(graph)
         if not self.deterministic:
-            delete_tokens |= pynini.compose(
+            delete_tokens |= compose(
                 delete_tokens,
-                self.VCHAR.star
+                self.VSIGMA
                 + (
-                    pynini.cross(" point five", " and a half")
-                    | pynini.cross("zero point five", "half")
-                    | pynini.cross(" point two five", " and a quarter")
-                    | pynini.cross("zero point two five", "quarter")
+                    cross(" point five", " and a half")
+                    | cross("zero point five", "half")
+                    | cross(" point two five", " and a quarter")
+                    | cross("zero point two five", "quarter")
                 ),
             ).optimize()
         self.verbalizer = delete_tokens.optimize()

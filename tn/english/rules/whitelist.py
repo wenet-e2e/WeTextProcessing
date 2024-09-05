@@ -13,15 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pynini
-from pynini.lib import pynutil
+from pynini import accep, closure, compose, cross, difference, invert, string_map, union
+from pynini.lib.pynutil import delete, insert
+
+from tn.english.rules.roman import get_names
+from tn.processor import Processor
+from tn.utils import get_abs_path, load_labels, augment_labels_with_punct_at_end
 
 INPUT_CASED = "cased"
 INPUT_LOWER_CASED = "lower_cased"
-
-from tn.processor import Processor
-from tn.utils import get_abs_path, load_labels, augment_labels_with_punct_at_end
-from tn.english.rules.roman import get_names
 
 
 class WhiteList(Processor):
@@ -59,14 +59,14 @@ class WhiteList(Processor):
             if keep_punct_add_end:
                 whitelist.extend(augment_labels_with_punct_at_end(whitelist))
 
-            graph = pynini.string_map(whitelist)
+            graph = string_map(whitelist)
             return graph
 
         graph = _get_whitelist_graph(
             self.input_case, get_abs_path("english/data/whitelist/tts.tsv")
         )
-        graph |= pynini.compose(
-            pynini.difference(self.VCHAR.star, pynini.accep("/")).optimize(),
+        graph |= compose(
+            difference(self.VSIGMA, accep("/")).optimize(),
             _get_whitelist_graph(
                 self.input_case, get_abs_path("english/data/whitelist/symbol.tsv")
             ),
@@ -75,9 +75,9 @@ class WhiteList(Processor):
         if self.deterministic:
             names = get_names()
             graph |= (
-                pynini.cross(pynini.union("st", "St", "ST"), "Saint")
-                + pynutil.delete(".").star
-                + pynini.accep(" ")
+                cross(union("st", "St", "ST"), "Saint")
+                + delete(".").star
+                + accep(" ")
                 + names
             )
         else:
@@ -88,11 +88,7 @@ class WhiteList(Processor):
             )
 
         for x in [".", ". "]:
-            graph |= (
-                self.UPPER
-                + pynini.closure(pynutil.delete(x) + self.UPPER, 2)
-                + pynutil.delete(".").ques
-            )
+            graph |= self.UPPER + closure(delete(x) + self.UPPER, 2) + delete(".").ques
 
         # convert to states only if comma is present before the abbreviation to avoid converting all caps words,
         # e.g. "IN", "OH", "OK"
@@ -107,27 +103,21 @@ class WhiteList(Processor):
                 additional_options.append((x, f"{y[0]}.{y[1:]}."))
 
         states.extend(additional_options)
-        state_graph = pynini.string_map(states)
-        graph |= (
-            self.ALPHA.plus
-            + pynini.union(", ", ",")
-            + pynini.invert(state_graph).optimize()
-        )
+        state_graph = string_map(states)
+        graph |= self.ALPHA.plus + union(", ", ",") + invert(state_graph).optimize()
 
         self.graph = graph.optimize()
 
-        fianl_graph = (
-            pynutil.insert('name: "') + self.graph + pynutil.insert('"')
-        ).optimize()
+        fianl_graph = (insert('name: "') + self.graph + insert('"')).optimize()
         self.tagger = self.add_tokens(fianl_graph)
 
     def build_verbalizer(self):
         graph = (
-            pynutil.delete("name:")
+            delete("name:")
             + self.DELETE_SPACE
-            + pynutil.delete('"')
+            + delete('"')
             + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
+            + delete('"')
         )
         final_graph = graph.optimize()
         self.verbalizer = self.delete_tokens(final_graph)
@@ -159,5 +149,5 @@ def get_formats(input_f, input_case=INPUT_CASED, is_default=True):
             for (x, y) in multiple_formats
         ]
 
-    multiple_formats = pynini.string_map(multiple_formats)
+    multiple_formats = string_map(multiple_formats)
     return multiple_formats

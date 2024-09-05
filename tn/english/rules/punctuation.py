@@ -16,7 +16,7 @@ import sys
 from unicodedata import category
 
 from pynini.examples import plurals
-from pynini import cross, union, closure, accep
+from pynini import accep, cross, closure, union
 from pynini.lib.pynutil import add_weight, delete, insert
 
 from tn.processor import Processor
@@ -25,14 +25,8 @@ from tn.utils import get_abs_path, load_labels
 
 class Punctuation(Processor):
 
-    def __init__(self, deterministic: bool = False):
-        """
-        Args:
-            deterministic: if True will provide a single transduction option,
-                for False multiple transduction are generated (used for audio-based normalization)
-        """
+    def __init__(self):
         super().__init__("p", ordertype="en_tn")
-        self.deterministic = deterministic
         self.build_tagger()
         self.build_verbalizer()
 
@@ -72,7 +66,7 @@ class Punctuation(Processor):
             )
             + accep(">")
         )  # noqa
-        punct = plurals._priority_union(self.emphasis, punct, self.VCHAR.star)
+        punct = plurals._priority_union(self.emphasis, punct, self.VSIGMA)
 
         self.graph = punct
         final_graph = (
