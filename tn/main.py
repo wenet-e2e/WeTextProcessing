@@ -17,6 +17,7 @@ import argparse
 # TODO(pzd17 & sxc19): multi-language support
 from tn.chinese.normalizer import Normalizer as ZhNormalizer
 from tn.english.normalizer import Normalizer as EnNormalizer
+from tn.japanese.normalizer import Normalizer as JaNormalizer
 from itn.main import str2bool
 
 
@@ -58,7 +59,7 @@ def main():
     parser.add_argument('--language',
                         type=str,
                         default='zh',
-                        choices=["zh", "en"],
+                        choices=["zh", "en", "ja"],
                         help='valid languages')
     args = parser.parse_args()
 
@@ -75,6 +76,12 @@ def main():
     elif args.language == "en":
         normalizer = EnNormalizer(cache_dir=args.cache_dir,
                                   overwrite_cache=args.overwrite_cache)
+    elif args.language == "ja":
+        normalizer = JaNormalizer(cache_dir=args.cache_dir,
+                                  overwrite_cache=args.overwrite_cache,
+                                  remove_puncts=str2bool(args.remove_puncts),
+                                  full_to_half=str2bool(args.full_to_half),
+                                  tag_oov=str2bool(args.tag_oov))
 
     if args.text:
         print(normalizer.tag(args.text))
