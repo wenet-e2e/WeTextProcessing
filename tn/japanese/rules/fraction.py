@@ -37,5 +37,5 @@ class Fraction(Processor):
     def build_verbalizer(self):
         denominator = delete('denominator: "') + self.SIGMA + delete('" ')
         numerator = delete('numerator: "') + self.SIGMA + delete('"')
-        verbalizer = denominator + insert('の') + numerator
+        verbalizer = denominator + insert('分の') + numerator
         self.verbalizer = self.delete_tokens(verbalizer)

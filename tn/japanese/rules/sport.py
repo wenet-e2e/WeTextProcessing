@@ -16,7 +16,7 @@ from tn.japanese.rules.cardinal import Cardinal
 from tn.processor import Processor
 from tn.utils import get_abs_path
 
-from pynini import string_file
+from pynini import string_file, cross
 from pynini.lib.pynutil import delete, insert
 
 
@@ -33,15 +33,17 @@ class Sport(Processor):
         rmsign = delete('/') | delete('-') | delete(':')
         rmspace = delete(' ').ques
 
-        number = Cardinal().number
+        number = Cardinal().positive_integer
         score = rmspace + number + rmsign + insert('対') + number + rmspace
+        only_score = rmspace + number + cross(':', '対') + number + rmspace
         tagger = (insert('team: "') + (country | club) + insert('" score: "') +
-                  score + insert('"'))
+                  score + insert('"')) | (insert('score: "') + only_score +
+                                          insert('"'))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
         super().build_verbalizer()
         team = delete('team: "') + self.SIGMA + delete('" ')
         score = delete('score: "') + self.SIGMA + delete('"')
-        verbalizer = team + score
-        self.verbalizer |= self.delete_tokens(verbalizer)
+        verbalizer = team.ques + score
+        self.verbalizer = self.delete_tokens(verbalizer)

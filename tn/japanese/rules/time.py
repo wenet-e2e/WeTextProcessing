@@ -33,11 +33,13 @@ class Time(Processor):
         noon = string_file(get_abs_path('japanese/data/time/noon.tsv'))
         colon = delete(':') | delete('：')
 
-        tagger = (insert('hour: "') + h + insert('" ') + colon +
-                  insert('minute: "') + m + insert('"') +
-                  (colon + insert(' second: "') + s + insert('"')).ques +
-                  delete(' ').ques +
-                  (insert(' noon: "') + noon + insert('"')).ques)
+        tagger = (
+            (insert('hour: "') + h + insert('" ') + colon +
+             insert('minute: "') + m + insert('"') +
+             (colon + insert(' second: "') + s + insert('"')).ques +
+             delete(' ').ques + (insert(' noon: "') + noon + insert('"')).ques)
+            |
+            (insert('hour: "') + h + insert('" noon: "') + noon + insert('"')))
         tagger = self.add_tokens(tagger)
 
         to = (delete('-') | delete('~')) + insert(' char { value: "から" } ')
@@ -45,8 +47,8 @@ class Time(Processor):
 
     def build_verbalizer(self):
         noon = delete('noon: "') + self.SIGMA + delete('" ')
-        hour = delete('hour: "') + self.SIGMA + delete('" ')
-        minute = delete('minute: "') + self.SIGMA + delete('"')
+        hour = delete('hour: "') + self.SIGMA + delete('"')
+        minute = delete(' minute: "') + self.SIGMA + delete('"')
         second = delete(' second: "') + self.SIGMA + delete('"')
-        verbalizer = noon.ques + hour + minute + second.ques
+        verbalizer = noon.ques + hour + minute + second.ques | noon + hour
         self.verbalizer = self.delete_tokens(verbalizer)

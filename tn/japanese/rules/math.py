@@ -33,16 +33,5 @@ class Math(Processor):
         number = Cardinal().number
         operator = number + (delete(" ").ques + operator + delete(" ").ques +
                              number).star
-        bigger = operator + (delete(" ").ques + delete(">") + insert("は") +
-                             delete(" ").ques + number + insert("より大きい")).star
-        smaller = operator + (delete(" ").ques + delete("<") + insert("は") +
-                              delete(" ").ques + number + insert("より小きい")).star
-        no_less = operator + (delete(" ").ques +
-                              (delete("≥") | delete(">=")) + insert("は") +
-                              delete(" ").ques + number + insert("以上")).star
-        no_more = operator + (delete(" ").ques +
-                              (delete("≤") | delete("<=")) + insert("は") +
-                              delete(" ").ques + number + insert("以下")).star
-        tagger = (operator) | (bigger) | (smaller) | (no_less) | (no_more)
-        tagger = insert('value: "') + tagger + insert('"')
+        tagger = insert('value: "') + operator + insert('"')
         self.tagger = self.add_tokens(tagger)
