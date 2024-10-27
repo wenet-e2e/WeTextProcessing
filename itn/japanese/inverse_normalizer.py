@@ -19,6 +19,7 @@ from itn.japanese.rules.date import Date
 from itn.japanese.rules.fraction import Fraction
 from itn.japanese.rules.math import Math
 from itn.japanese.rules.measure import Measure
+from itn.japanese.rules.money import Money
 from itn.japanese.rules.ordinal import Ordinal
 from itn.japanese.rules.preprocessor import PreProcessor
 from itn.japanese.rules.postprocessor import PostProcessor
@@ -59,12 +60,14 @@ class InverseNormalizer(Processor):
         math = add_weight(Math().tagger, 90)
         measure = add_weight(
             Measure(enable_0_to_9=self.enable_0_to_9).tagger, 1.05)
+        money = add_weight(
+            Money(enable_0_to_9=self.enable_0_to_9).tagger, 1.04)
         ordinal = add_weight(Ordinal().tagger, 1.04)
         time = add_weight(Time().tagger, 1.04)
         whitelist = add_weight(Whitelist().tagger, 1.01)
 
-        tagger = (cardinal | char | date | fraction | math | measure | ordinal
-                  | time | whitelist).optimize().star
+        tagger = (cardinal | char | date | fraction | math | measure | money
+                  | ordinal | time | whitelist).optimize().star
         tagger = (processor @ tagger).star
         # remove the last space
         self.tagger = tagger @ self.build_rule(delete(' '), '', '[EOS]')
@@ -76,11 +79,12 @@ class InverseNormalizer(Processor):
         fraction = Fraction().verbalizer
         math = Math().verbalizer
         measure = Measure().verbalizer
+        money = Money().verbalizer
         ordinal = Ordinal().verbalizer
         time = Time().verbalizer
         whitelist = Whitelist().verbalizer
 
-        verbalizer = cardinal | char | date | fraction | math | measure | ordinal | time | whitelist
+        verbalizer = cardinal | char | date | fraction | math | measure | money | ordinal | time | whitelist
 
         processor = PostProcessor().processor
         self.verbalizer = (verbalizer @ processor).star

@@ -27,7 +27,7 @@ class Ordinal(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        cardinal = Cardinal().positive_integer
+        cardinal = Cardinal().number
         ordinal = (cardinal + accep('番目')) | (accep('第') + cardinal)
         tagger = insert('value: "') + ordinal + insert('"')
         self.tagger = self.add_tokens(tagger)

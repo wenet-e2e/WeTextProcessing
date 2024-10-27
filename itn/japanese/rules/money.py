@@ -16,34 +16,32 @@ from itn.japanese.rules.cardinal import Cardinal
 from tn.processor import Processor
 from tn.utils import get_abs_path
 
-from pynini import cross, string_file
+from pynini import string_file
 from pynini.lib.pynutil import delete, insert
 
 
-class Measure(Processor):
+class Money(Processor):
 
     def __init__(self, enable_0_to_9=True):
-        super().__init__(name='measure')
+        super().__init__(name='money')
         self.enable_0_to_9 = enable_0_to_9
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        unit_en = string_file(
-            get_abs_path('../itn/japanese/data/measure/unit_en.tsv'))
-        unit_ja = string_file(
-            get_abs_path('../itn/japanese/data/measure/unit_ja.tsv'))
+        symbol = string_file(
+            get_abs_path('../itn/japanese/data/money/symbol.tsv'))
 
-        cardinal = Cardinal().number if self.enable_0_to_9 else \
+        number = Cardinal().number if self.enable_0_to_9 else \
             Cardinal().number_exclude_0_to_9
         decimal = Cardinal().decimal
-
-        suffix = (
-            insert('/') + (delete('每') | delete('毎')) +
-            (unit_en | cross('時', 'h') | cross('分', 'min') | cross('秒', 's')))
-
-        measure = ((cardinal | decimal) + unit_en + suffix.ques
-                   | (cardinal | decimal) + unit_ja)
-
-        tagger = insert('value: "') + measure + insert('"')
+        # 三千三百八十点五八円 => ¥3380.58
+        tagger = (insert('value: "') + (number | decimal) + insert('"') +
+                  insert(' currency: "') + symbol + insert('"'))
         self.tagger = self.add_tokens(tagger)
+
+    def build_verbalizer(self):
+        currency = delete('currency: "') + self.SIGMA + delete('"')
+        value = delete(' value: "') + self.SIGMA + delete('"')
+        verbalizer = currency + value
+        self.verbalizer = self.delete_tokens(verbalizer)

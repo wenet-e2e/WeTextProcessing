@@ -28,7 +28,7 @@ class Fraction(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        cardinal = Cardinal(enable_million=True).positive_integer
+        cardinal = Cardinal(enable_million=True).number
         decimal = Cardinal(enable_million=True).decimal
         sign = string_file(
             get_abs_path('../itn/japanese/data/number/sign.tsv'))
@@ -38,15 +38,18 @@ class Fraction(Processor):
             "分 の　") | delete("分 の")
         root_word = accep("√") | cross("ルート", "√")
 
+        # denominator
         denominator = ((decimal | (cardinal + root_word + cardinal) |
                         (root_word + cardinal) | cardinal) + delete(' ').ques)
         denominator = insert('denominator: "') + denominator + insert('"')
 
+        # numerator
         numerator = (closure(delete(' ')) +
                      (decimal | cardinal + root_word + cardinal
                       | root_word + cardinal | cardinal))
         numerator = insert('numerator: "') + numerator + insert('"')
 
+        # fraction
         fraction_sign = sign + insert(" ") + denominator + insert(
             " ") + fraction_word + numerator
         fraction_no_sign = denominator + insert(
