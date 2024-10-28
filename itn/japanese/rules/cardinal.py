@@ -131,15 +131,14 @@ class Cardinal(Processor):
             | (ten_thousand_minus + accep("兆") +
                (ten_thousand_minus + accep("億")).ques + ten_thousand_minus +
                accep("万").ques + ten_thousand_minus.ques)))
-        number |= big_integer
-        self.big_integer = number
+        self.big_integer = number | big_integer
 
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
         cardinal = digit.plus + (dot + digits.plus).plus
         # float number like 1.11
         cardinal |= decimal
         # cardinal string like 110 or 12306 or 13125617878, used in phone
-        cardinal |= digits**3 | digits**5 | digits**10 | digits**11 | digits**12
+        cardinal |= (digits**2 + digits.plus)
         # % like -27.00%
         cardinal |= percent
 
@@ -147,7 +146,7 @@ class Cardinal(Processor):
         if self.enable_standalone_number:
             if self.enable_0_to_9:
                 # 一 => 1    四 => 4    一秒 => 1秒   一万二 => 12000 二十三 => 23
-                cardinal |= number
+                cardinal |= number | big_integer
             else:
                 # 一 => 一   四 => 四   一秒 => 1秒   一万二 => 一万二 二三 => 23
                 number_two_plus = sign.ques + ((digits + digits.plus)
