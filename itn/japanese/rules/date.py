@@ -35,12 +35,12 @@ class Date(Processor):
         to = cross('から', '〜')
 
         # 一月 一日 一年
-        year = insert('year: "') + cardinal + (
-            to + cardinal).ques + delete('年') + insert('"')
-        month = insert('month: "') + month + (
-            to + month).ques + delete('月') + insert('"')
-        day = insert('day: "') + day + (to +
-                                        day).ques + delete('日') + insert('"')
+        year = (insert('year: "') + cardinal + (to + cardinal).ques +
+                delete('年') + insert('"'))
+        month = (insert('month: "') + month + (to + month).ques + delete('月') +
+                 insert('"'))
+        day = (insert('day: "') + day + (to + day).ques + delete('日') +
+               insert('"'))
 
         # 二千二十四年十月一日 二千二十四年十月 十月一日
         graph_date = (year + insert(" ") + month

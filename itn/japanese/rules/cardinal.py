@@ -64,32 +64,46 @@ class Cardinal(Processor):
         hundred = (digit + delete("百") +
                    (tens | teen | addzero**1 + digits | addzero**2))
         # 百 百十 百二十三
-        hundred |= cross("百",
-                         "1") + (tens | teen | addzero + digits | addzero**2)
+        hundred |= (cross("百", "1") +
+                    (tens | teen | addzero + digits | addzero**2))
         # 百一 百二
         hundred |= hundred_digit
 
         # 二千百 二千三百 二千百一 九千百二十三 九千二十三 九千二十 九千二
         thousand = ((hundred | teen | tens | digits) + delete("千") +
-                    (hundred | addzero + tens | addzero + teen
-                     | addzero**2 + digits | addzero**3))
+                    (hundred
+                     | addzero + tens
+                     | addzero + teen
+                     | addzero**2 + digits
+                     | addzero**3))
         #  千百 千三百 千百一 千百二十三 千二十三 千二十 千二
-        thousand |= cross('千', '1') + (hundred | addzero + tens | addzero +
-                                       teen | addzero**2 + digits | addzero**3)
+        thousand |= (cross('千', '1') + (hundred
+                                        | addzero + tens
+                                        | addzero + teen
+                                        | addzero**2 + digits
+                                        | addzero**3))
 
         # 一万 二万二 二万二千百 二万二千三百 一万二千百一 一万九千百二十三 一万九千二十三 九万九千二十 四万九千二
         if self.enable_million:
-            ten_thousand = (
-                (thousand | hundred | teen | tens | digits) + delete("万") +
-                (thousand | addzero + hundred | addzero**2 + tens
-                 | addzero**2 + teen | addzero**3 + digits | addzero**4))
+            ten_thousand = ((thousand | hundred | teen | tens | digits) +
+                            delete("万") + (thousand
+                                           | addzero + hundred
+                                           | addzero**2 + tens
+                                           | addzero**2 + teen
+                                           | addzero**3 + digits
+                                           | addzero**4))
         else:
-            ten_thousand = (
-                (teen | tens | digits) + delete("万") +
-                (thousand | addzero + hundred | addzero**2 + tens
-                 | addzero**2 + teen | addzero**3 + digits | addzero**4))
-            ten_thousand |= (thousand | hundred) + accep("万") + (
-                thousand | hundred | tens | teen | digits).ques
+            # 二万 十万 三十四万
+            ten_thousand = ((teen | tens | digits) + delete("万") +
+                            (thousand
+                             | addzero + hundred
+                             | addzero**2 + tens
+                             | addzero**2 + teen
+                             | addzero**3 + digits
+                             | addzero**4))
+            # 三百四十万 三千四百万
+            ten_thousand |= ((thousand | hundred) + accep("万") +
+                             (thousand | hundred | tens | teen | digits).ques)
 
         # 0~9999
         ten_thousand_minus = digits | teen | tens | hundred | thousand
@@ -111,12 +125,12 @@ class Cardinal(Processor):
 
         # ±100,000,000~∞  e.g. 一兆三百二十万五千 => 1兆320万5000
         big_integer = (sign.ques + (
-            (ten_thousand_minus + accep("兆")).ques +
-            (ten_thousand_minus + accep("億")) +
-            (ten_thousand_minus + accep("万").ques + ten_thousand_minus.ques)
-            | (ten_thousand_minus + accep("兆")) +
-            (ten_thousand_minus + accep("億")).ques +
-            (ten_thousand_minus + accep("万").ques + ten_thousand_minus.ques)))
+            ((ten_thousand_minus + accep("兆")).ques + ten_thousand_minus +
+             accep("億") + ten_thousand_minus + accep("万").ques +
+             ten_thousand_minus.ques)
+            | (ten_thousand_minus + accep("兆") +
+               (ten_thousand_minus + accep("億")).ques + ten_thousand_minus +
+               accep("万").ques + ten_thousand_minus.ques)))
         number |= big_integer
         self.big_integer = number
 

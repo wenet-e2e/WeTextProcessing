@@ -38,9 +38,11 @@ class Measure(Processor):
             Cardinal().number_exclude_0_to_9
         decimal = Cardinal().decimal
 
-        suffix = (
-            insert('/') + (delete('每') | delete('毎')) +
-            (unit_en | cross('時', 'h') | cross('分', 'min') | cross('秒', 's')))
+        suffix = (insert('/') + (delete('每') | delete('毎')) +
+                  (unit_en
+                   | cross('時', 'h')
+                   | cross('分', 'min')
+                   | cross('秒', 's')))
 
         measure = ((cardinal | decimal) + unit_en + suffix.ques
                    | (cardinal | decimal) + unit_ja)

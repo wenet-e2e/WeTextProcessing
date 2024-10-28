@@ -32,20 +32,20 @@ class Time(Processor):
         s = string_file(get_abs_path('../itn/japanese/data/time/second.tsv'))
 
         # 一時三十分三秒 一時三十分 三十分三秒 一時 三十分 三秒
-        tagger = ((insert('hour: "') + h + insert('" ')).ques +
-                  (insert('minute: "') + m + insert('"')) +
-                  (insert(' second: "') + s + insert('"')).ques
+        tagger = (((insert('hour: "') + h + insert('" ')).ques +
+                   (insert('minute: "') + m + insert('"')) +
+                   (insert(' second: "') + s + insert('"')).ques)
                   | insert('hour: "') + h + insert('" ')
                   | insert(' second: "') + s + insert('"'))
         tagger = self.add_tokens(tagger)
         self.tagger = tagger
 
     def build_verbalizer(self):
-        hour = delete('hour: "') + self.SIGMA + delete('"') + delete(
-            ' ').ques + insert('時')
+        hour = (delete('hour: "') + self.SIGMA + delete('"') +
+                delete(' ').ques + insert('時'))
         minute = delete('minute: "') + self.SIGMA + delete('"') + insert('分')
-        second = delete(' ').ques + delete('second: "') + self.SIGMA + delete(
-            '"') + insert('秒')
+        second = (delete(' ').ques + delete('second: "') + self.SIGMA +
+                  delete('"') + insert('秒'))
 
         verbalizer = hour.ques + minute + second.ques | second | hour
         self.verbalizer = self.delete_tokens(verbalizer)

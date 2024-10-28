@@ -47,7 +47,8 @@ class PostProcessor(Processor):
             processor @= self.build_rule(delete(puncts | self.PUNCT))
 
         if tag_oov:
-            charset = (ja_charset_std | ja_charset_ext | puncts | self.DIGIT
+            charset = (ja_charset_std
+                       | ja_charset_ext | puncts | self.DIGIT
                        | self.ALPHA | self.PUNCT | self.SPACE)
             oov = difference(self.VCHAR, charset)
             processor @= Tagger('oov', oov, self.VSIGMA)._tagger
