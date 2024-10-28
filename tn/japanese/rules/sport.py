@@ -36,9 +36,9 @@ class Sport(Processor):
         number = Cardinal().positive_integer
         score = rmspace + number + rmsign + insert('対') + number + rmspace
         only_score = rmspace + number + cross(':', '対') + number + rmspace
-        tagger = (insert('team: "') + (country | club) + insert('" score: "') +
-                  score + insert('"')) | (insert('score: "') + only_score +
-                                          insert('"'))
+        tagger = ((insert('team: "') + (country | club) +
+                   insert('" score: "') + score + insert('"'))
+                  | (insert('score: "') + only_score + insert('"')))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):

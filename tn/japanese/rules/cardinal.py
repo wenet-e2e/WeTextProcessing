@@ -51,7 +51,7 @@ class Cardinal(Processor):
 
         # 100-999
         hundred = (teen + insert('百') + (ten | (rmzero + digit) | rmzero**2))
-        # hundred prefix like "1,11" in "1,115,000"
+        # hundred prefix containing "," like "1,11" in "1,115,000"
         hundred_prefix = (teen + insert('百') + rmpunct +
                           (ten | (rmzero + digit) | rmzero**2))
 
@@ -60,7 +60,7 @@ class Cardinal(Processor):
                                                     | (rmzero + ten)
                                                     | (rmzero**2 + digit)
                                                     | rmzero**3))
-        # thousand prefix like "10,00" in "10,000,000"
+        # thousand prefix containing "," like "10,00" in "10,000,000"
         thousand_prefix = (digit + insert('千') +
                            (hundred_prefix
                             | (rmzero + rmpunct + ten)
@@ -68,7 +68,7 @@ class Cardinal(Processor):
                             | rmzero + rmpunct + rmzero**2))
         self.thousand = thousand
 
-        # 10000-99999999  1,115,000  10,000,000
+        # 10000-99999999  e.g. 1,115,000  10,000,000
         ten_thousand = ((thousand_prefix | hundred_prefix | ten | digit) +
                         insert('万') +
                         (thousand

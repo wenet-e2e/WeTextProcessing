@@ -31,13 +31,15 @@ class Time(Processor):
         m = string_file(get_abs_path('japanese/data/time/minute.tsv'))
         s = string_file(get_abs_path('japanese/data/time/second.tsv'))
         noon = string_file(get_abs_path('japanese/data/time/noon.tsv'))
+
         colon = delete(':') | delete('：')
+        h = insert('hour: "') + h + insert('" ')
+        m = insert('minute: "') + m + insert('"')
+        s = insert(' second: "') + s + insert('"')
+        noon = insert(' noon: "') + noon + insert('"')
 
         tagger = (
-            (insert('hour: "') + h + insert('" ') + colon +
-             insert('minute: "') + m + insert('"') +
-             (colon + insert(' second: "') + s + insert('"')).ques +
-             delete(' ').ques + (insert(' noon: "') + noon + insert('"')).ques)
+            (h + colon + m + (colon + s).ques + delete(' ').ques + noon.ques)
             |
             (insert('hour: "') + h + insert('" noon: "') + noon + insert('"')))
         tagger = self.add_tokens(tagger)
