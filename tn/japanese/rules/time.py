@@ -33,15 +33,16 @@ class Time(Processor):
         noon = string_file(get_abs_path('japanese/data/time/noon.tsv'))
 
         colon = delete(':') | delete('：')
+        h_noon = (insert('hour: "') + h + insert('" noon: "') + noon +
+                  insert('"'))
         h = insert('hour: "') + h + insert('" ')
         m = insert('minute: "') + m + insert('"')
         s = insert(' second: "') + s + insert('"')
         noon = insert(' noon: "') + noon + insert('"')
 
-        tagger = (
-            (h + colon + m + (colon + s).ques + delete(' ').ques + noon.ques)
-            |
-            (insert('hour: "') + h + insert('" noon: "') + noon + insert('"')))
+        tagger = ((h + colon + m +
+                   (colon + s).ques + delete(' ').ques + noon.ques)
+                  | h_noon)
         tagger = self.add_tokens(tagger)
 
         to = (delete('-') | delete('~')) + insert(' char { value: "から" } ')
