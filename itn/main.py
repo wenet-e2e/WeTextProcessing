@@ -15,7 +15,8 @@
 import argparse
 
 # TODO(xcsong): multi-language support
-from itn.chinese.inverse_normalizer import InverseNormalizer
+from itn.chinese.inverse_normalizer import InverseNormalizer as ZhInverseNormalizer
+from itn.japanese.inverse_normalizer import InverseNormalizer as JaInverseNormalizer
 
 
 def str2bool(s, default=False):
@@ -51,14 +52,27 @@ def main():
                         type=str,
                         default='False',
                         help='六百万 = 6000000 if True else 600万')
+    parser.add_argument('--language',
+                        type=str,
+                        default='zh',
+                        choices=["zh", "ja"],
+                        help='valid languages')
     args = parser.parse_args()
 
-    normalizer = InverseNormalizer(
-        cache_dir=args.cache_dir,
-        overwrite_cache=args.overwrite_cache,
-        enable_standalone_number=str2bool(args.enable_standalone_number),
-        enable_0_to_9=str2bool(args.enable_0_to_9),
-        enable_million=str2bool(args.enable_million))
+    if args.language == 'zh':
+        normalizer = ZhInverseNormalizer(
+            cache_dir=args.cache_dir,
+            overwrite_cache=args.overwrite_cache,
+            enable_standalone_number=str2bool(args.enable_standalone_number),
+            enable_0_to_9=str2bool(args.enable_0_to_9),
+            enable_million=str2bool(args.enable_million))
+    elif args.language == 'ja':
+        normalizer = JaInverseNormalizer(
+            cache_dir=args.cache_dir,
+            overwrite_cache=args.overwrite_cache,
+            enable_standalone_number=str2bool(args.enable_standalone_number),
+            enable_0_to_9=str2bool(args.enable_0_to_9),
+            enable_million=str2bool(args.enable_million))
 
     if args.text:
         print(normalizer.tag(args.text))
