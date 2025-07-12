@@ -7,6 +7,12 @@ $ cmake -B build -DCMAKE_BUILD_TYPE=Release
 $ cmake --build build
 ```
 
+On Windows:
+``` bash
+$ cmake -DCMAKE_BUILD_TYPE=Release -B build -G "Visual Studio 17 2022" -DBUILD_SHARED_LIBS=0 -DCMAKE_CXX_FLAGS="/ZI"
+$ cmake --build build
+```
+
 2. How to use
 
 ``` bash
