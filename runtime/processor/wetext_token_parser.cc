@@ -32,6 +32,10 @@ const std::unordered_map<std::string, std::vector<std::string>> ZH_TN_ORDERS = {
     {"measure", {"denominator", "numerator", "value"}},
     {"money", {"value", "currency"}},
     {"time", {"noon", "hour", "minute", "second"}}};
+const std::unordered_map<std::string, std::vector<std::string>> JA_TN_ORDERS = {
+    {"date", {"year", "month", "day"}},
+    {"money", {"value", "currency"}}};
+
 const std::unordered_map<std::string, std::vector<std::string>> EN_TN_ORDERS = {
     {"date", {"preserve_order", "text", "day", "month", "year"}},
     {"money", {"integer_part", "fractional_part", "quantity", "currency_maj"}}};
@@ -49,6 +53,8 @@ TokenParser::TokenParser(ParseType type) {
     orders_ = ZH_ITN_ORDERS;
   } else if (type == ParseType::kEN_TN) {
     orders_ = EN_TN_ORDERS;
+  } else if (type == ParseType::kJA_TN) {
+    orders_ = JA_TN_ORDERS;
   } else {
     LOG(FATAL) << "Invalid order";
   }

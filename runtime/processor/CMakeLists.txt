@@ -11,3 +11,12 @@ else()
     target_link_libraries(wetext_processor PUBLIC dl fst wetext_utils)
   endif()
 endif()
+
+# ----------------------------------------------------------------------------
+# C API shared library (wetext_processor_c)
+# ----------------------------------------------------------------------------
+add_library(wetext_processor_c SHARED
+  wetext_processor_c_api.cc
+)
+
+target_link_libraries(wetext_processor_c PUBLIC wetext_processor)
