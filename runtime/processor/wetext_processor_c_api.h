@@ -7,11 +7,11 @@ extern "C" {
 
 // Symbol visibility
 #if defined(_WIN32) || defined(_WIN64)
-  #ifdef WETEXT_PROCESSOR_C_API_EXPORTS
-    #define WETEXT_API __declspec(dllexport)
-  #else
-    #define WETEXT_API __declspec(dllimport)
-  #endif
+  // Symbols are auto-exported on Windows because CMake sets
+  // `CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON` for this target. We therefore
+  // leave `WETEXT_API` empty to avoid the usual dllexport/dllimport
+  // clutter while still allowing the same header to compile elsewhere.
+  #define WETEXT_API 
 #else
   #define WETEXT_API __attribute__((visibility("default")))
 #endif
