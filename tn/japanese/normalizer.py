@@ -24,6 +24,7 @@ from tn.japanese.rules.postprocessor import PostProcessor
 from tn.japanese.rules.preprocessor import PreProcessor
 from tn.japanese.rules.sport import Sport
 from tn.japanese.rules.time import Time
+from tn.japanese.rules.transliteration import Transliteration
 from tn.japanese.rules.whitelist import Whitelist
 
 from pynini.lib.pynutil import add_weight, delete
@@ -35,11 +36,13 @@ class Normalizer(Processor):
     def __init__(self,
                  cache_dir=None,
                  overwrite_cache=False,
+                 transliterate=False,
                  remove_interjections=False,
                  remove_puncts=False,
                  full_to_half=True,
                  tag_oov=False):
         super().__init__(name='ja_normalizer')
+        self.transliterate = transliterate
         self.remove_interjections = remove_interjections
         self.remove_puncts = remove_puncts
         self.full_to_half = full_to_half
@@ -62,6 +65,9 @@ class Normalizer(Processor):
         whitelist = add_weight(Whitelist().tagger, 1.03)
         tagger = (cardinal | char | date | fraction | math | measure | money
                   | sport | time | whitelist).optimize()
+        if self.transliterate:
+            transliteration = add_weight(Transliteration().tagger, 1.04)
+            tagger = (tagger | transliteration).optimize()
         tagger = (processor @ tagger).star
         self.tagger = tagger @ self.build_rule(delete(' '), r='[EOS]')
 
@@ -75,9 +81,12 @@ class Normalizer(Processor):
         money = Money().verbalizer
         sport = Sport().verbalizer
         time = Time().verbalizer
+        transliteration = Transliteration().verbalizer
         whitelist = Whitelist().verbalizer
         verbalizer = (cardinal | char | date | fraction | math | measure
                       | money | sport | time | whitelist).optimize()
+        if self.transliterate:
+            verbalizer = (verbalizer | transliteration).optimize()
 
         processor = PostProcessor(
             remove_interjections=self.remove_interjections,
