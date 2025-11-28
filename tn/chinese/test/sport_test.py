@@ -21,7 +21,7 @@ from tn.chinese.test.utils import parse_test_case
 class TestSport:
 
     sport = Sport()
-    sport_cases = parse_test_case('data/sport.txt')
+    sport_cases = parse_test_case("data/sport.txt")
 
     @pytest.mark.parametrize("written, spoken", sport_cases)
     def test_sport(self, written, spoken):

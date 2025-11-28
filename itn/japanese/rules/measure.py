@@ -23,29 +23,25 @@ from tn.utils import get_abs_path
 class Measure(Processor):
 
     def __init__(self, enable_0_to_9=True):
-        super().__init__(name='measure')
+        super().__init__(name="measure")
         self.enable_0_to_9 = enable_0_to_9
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        unit_en = string_file(
-            get_abs_path('../itn/japanese/data/measure/unit_en.tsv'))
-        unit_ja = string_file(
-            get_abs_path('../itn/japanese/data/measure/unit_ja.tsv'))
+        unit_en = string_file(get_abs_path("../itn/japanese/data/measure/unit_en.tsv"))
+        unit_ja = string_file(get_abs_path("../itn/japanese/data/measure/unit_ja.tsv"))
 
-        cardinal = Cardinal().number if self.enable_0_to_9 else \
-            Cardinal().number_exclude_0_to_9
+        cardinal = Cardinal().number if self.enable_0_to_9 else Cardinal().number_exclude_0_to_9
         decimal = Cardinal().decimal
 
-        suffix = (insert('/') + (delete('每') | delete('毎')) +
-                  (unit_en
-                   | cross('時', 'h')
-                   | cross('分', 'min')
-                   | cross('秒', 's')))
+        suffix = (
+            insert("/")
+            + (delete("每") | delete("毎"))
+            + (unit_en | cross("時", "h") | cross("分", "min") | cross("秒", "s"))
+        )
 
-        measure = ((cardinal | decimal) + unit_en + suffix.ques
-                   | (cardinal | decimal) + unit_ja)
+        measure = (cardinal | decimal) + unit_en + suffix.ques | (cardinal | decimal) + unit_ja
 
         tagger = insert('value: "') + measure + insert('"')
         self.tagger = self.add_tokens(tagger)

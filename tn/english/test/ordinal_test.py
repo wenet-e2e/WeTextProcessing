@@ -21,7 +21,7 @@ from tn.english.test.utils import parse_test_case
 class TestOrdinal:
 
     ordinal = Ordinal(deterministic=False)
-    ordinal_cases = parse_test_case('data/ordinal.txt')
+    ordinal_cases = parse_test_case("data/ordinal.txt")
 
     @pytest.mark.parametrize("written, spoken", ordinal_cases)
     def test_ordinal(self, written, spoken):

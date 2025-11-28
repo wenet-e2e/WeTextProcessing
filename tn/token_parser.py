@@ -14,24 +14,24 @@
 
 import string
 
-EOS = '<EOS>'
+EOS = "<EOS>"
 TN_ORDERS = {
-    'date': ['year', 'month', 'day'],
-    'fraction': ['denominator', 'numerator'],
-    'measure': ['denominator', 'numerator', 'value'],
-    'money': ['value', 'currency'],
-    'time': ['noon', 'hour', 'minute', 'second']
+    "date": ["year", "month", "day"],
+    "fraction": ["denominator", "numerator"],
+    "measure": ["denominator", "numerator", "value"],
+    "money": ["value", "currency"],
+    "time": ["noon", "hour", "minute", "second"],
 }
 EN_TN_ORDERS = {
-    'date': ['preserve_order', 'text', 'day', 'month', 'year'],
-    'money': ['integer_part', 'fractional_part', 'quantity', 'currency_maj'],
+    "date": ["preserve_order", "text", "day", "month", "year"],
+    "money": ["integer_part", "fractional_part", "quantity", "currency_maj"],
 }
 ITN_ORDERS = {
-    'date': ['year', 'month', 'day'],
-    'fraction': ['sign', 'numerator', 'denominator'],
-    'measure': ['numerator', 'denominator', 'value'],
-    'money': ['currency', 'value', 'decimal'],
-    'time': ['hour', 'minute', 'second', 'noon']
+    "date": ["year", "month", "day"],
+    "fraction": ["sign", "numerator", "denominator"],
+    "measure": ["numerator", "denominator", "value"],
+    "money": ["currency", "value", "decimal"],
+    "time": ["hour", "minute", "second", "noon"],
 }
 
 
@@ -47,17 +47,16 @@ class Token:
         self.members[key] = value
 
     def string(self, orders):
-        output = self.name + ' {'
+        output = self.name + " {"
         if self.name in orders.keys():
-            if "preserve_order" not in self.members.keys() or \
-                    self.members["preserve_order"] != "true":
+            if "preserve_order" not in self.members.keys() or self.members["preserve_order"] != "true":
                 self.order = orders[self.name]
 
         for key in self.order:
             if key not in self.members.keys():
                 continue
             output += ' {}: "{}"'.format(key, self.members[key])
-        return output + ' }'
+        return output + " }"
 
 
 class TokenParser:
@@ -89,7 +88,7 @@ class TokenParser:
 
     def parse_ws(self):
         not_eos = self.char != EOS
-        while not_eos and self.char == ' ':
+        while not_eos and self.char == " ":
             not_eos = self.read()
         return not_eos
 
@@ -109,8 +108,8 @@ class TokenParser:
         assert self.char != EOS
         assert self.char not in string.whitespace
 
-        key = ''
-        while self.char in string.ascii_letters + '_':
+        key = ""
+        while self.char in string.ascii_letters + "_":
             key += self.char
             self.read()
         return key
@@ -119,10 +118,10 @@ class TokenParser:
         assert self.char != EOS
         escape = False
 
-        value = ''
+        value = ""
         while self.char != '"':
             value += self.char
-            escape = self.char == '\\'
+            escape = self.char == "\\"
             self.read()
             if escape:
                 escape = False
@@ -134,12 +133,12 @@ class TokenParser:
         self.load(input)
         while self.parse_ws():
             name = self.parse_key()
-            self.parse_chars(' { ')
+            self.parse_chars(" { ")
 
             token = Token(name)
             while self.parse_ws():
-                if self.char == '}':
-                    self.parse_char('}')
+                if self.char == "}":
+                    self.parse_char("}")
                     break
                 key = self.parse_key()
                 self.parse_chars(': "')
@@ -150,7 +149,7 @@ class TokenParser:
 
     def reorder(self, input):
         self.parse(input)
-        output = ''
+        output = ""
         for token in self.tokens:
-            output += token.string(self.orders) + ' '
+            output += token.string(self.orders) + " "
         return output.strip()

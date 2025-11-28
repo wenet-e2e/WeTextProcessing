@@ -23,27 +23,24 @@ from tn.utils import get_abs_path
 class Measure(Processor):
 
     def __init__(self):
-        super().__init__(name='measure')
+        super().__init__(name="measure")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        units_en = string_file(
-            get_abs_path('japanese/data/measure/units_en.tsv'))
-        units_ja = string_file(
-            get_abs_path('japanese/data/measure/units_ja.tsv'))
+        units_en = string_file(get_abs_path("japanese/data/measure/units_en.tsv"))
+        units_ja = string_file(get_abs_path("japanese/data/measure/units_ja.tsv"))
 
         # taking '-' '~' as 'から' if the follwing word in units
-        units = (units_en | units_ja)
-        rmspace = delete(' ').ques
-        to = cross('-', 'から') | cross('~', 'から') | accep('から')
+        units = units_en | units_ja
+        rmspace = delete(" ").ques
+        to = cross("-", "から") | cross("~", "から") | accep("から")
 
         number = Cardinal().number
         # 1-11月，1月-11月
         prefix = number + (rmspace + units).ques + to
         measure = prefix.ques + number + rmspace + units
-        measure |= (measure + rmspace + delete('/') + insert('毎') + rmspace +
-                    units)
+        measure |= measure + rmspace + delete("/") + insert("毎") + rmspace + units
         tagger = insert('value: "') + measure + insert('"')
 
         # 10km/h, 2m/s

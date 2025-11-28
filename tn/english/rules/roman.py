@@ -41,9 +41,7 @@ class Roman(Processor):
         """
         roman_dict = load_labels(get_abs_path("english/data/roman/roman_to_spoken.tsv"))
         default_graph = pynini.string_map(roman_dict).optimize()
-        default_graph = (
-            pynutil.insert('integer: "') + default_graph + pynutil.insert('"')
-        )
+        default_graph = pynutil.insert('integer: "') + default_graph + pynutil.insert('"')
         ordinal_limit = 19
 
         if self.deterministic:
@@ -52,9 +50,7 @@ class Roman(Processor):
         else:
             start_idx = 0
 
-        graph_teens = pynini.string_map(
-            [x[0] for x in roman_dict[start_idx:ordinal_limit]]
-        ).optimize()
+        graph_teens = pynini.string_map([x[0] for x in roman_dict[start_idx:ordinal_limit]]).optimize()
 
         # roman numerals up to ordinal_limit with a preceding name are converted to ordinal form
         names = get_names()
@@ -75,11 +71,7 @@ class Roman(Processor):
 
         key_words = pynini.string_map(key_words).optimize()
         graph |= (
-            pynutil.insert('key_cardinal: "')
-            + key_words
-            + pynutil.insert('"')
-            + pynini.accep(" ")
-            + default_graph
+            pynutil.insert('key_cardinal: "') + key_words + pynutil.insert('"') + pynini.accep(" ") + default_graph
         ).optimize()
 
         if self.deterministic:
@@ -88,8 +80,7 @@ class Roman(Processor):
                 pynini.closure(self.ALPHA, 2),
                 (
                     pynutil.insert('default_cardinal: "default" ')
-                    + (pynini.string_map([x[0] for x in roman_dict[:50]]).optimize())
-                    @ default_graph
+                    + (pynini.string_map([x[0] for x in roman_dict[:50]]).optimize()) @ default_graph
                 ),
             )
             graph |= roman_to_cardinal
@@ -108,11 +99,7 @@ class Roman(Processor):
         # convert three digit roman or up with suffix to ordinal
         roman_to_ordinal = pynini.compose(
             pynini.closure(self.ALPHA, 3),
-            (
-                pynutil.insert('default_ordinal: "default" ')
-                + graph_teens @ default_graph
-                + pynutil.delete("th")
-            ),
+            (pynutil.insert('default_ordinal: "default" ') + graph_teens @ default_graph + pynutil.delete("th")),
         )
 
         graph |= roman_to_ordinal
@@ -140,17 +127,9 @@ class Roman(Processor):
             + pynutil.delete('"')
         ).optimize()
 
-        graph |= (
-            pynutil.delete('default_cardinal: "default" integer: "')
-            + cardinal
-            + pynutil.delete('"')
-        ).optimize()
+        graph |= (pynutil.delete('default_cardinal: "default" integer: "') + cardinal + pynutil.delete('"')).optimize()
 
-        graph |= (
-            pynutil.delete('default_ordinal: "default" integer: "')
-            + ordinal
-            + pynutil.delete('"')
-        ).optimize()
+        graph |= (pynutil.delete('default_ordinal: "default" integer: "') + ordinal + pynutil.delete('"')).optimize()
 
         graph |= (
             pynutil.delete('key_the_ordinal: "')

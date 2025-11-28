@@ -21,7 +21,7 @@ from tn.english.test.utils import parse_test_case
 class TestRoman:
 
     roman = Roman(deterministic=False)
-    roman_cases = parse_test_case('data/roman.txt')
+    roman_cases = parse_test_case("data/roman.txt")
 
     @pytest.mark.parametrize("written, spoken", roman_cases)
     def test_roman(self, written, spoken):

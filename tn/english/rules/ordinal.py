@@ -72,12 +72,8 @@ class Ordinal(Processor):
         Finite state transducer for verbalizing ordinal, e.g.
             ordinal { integer: "thirteen" } } -> thirteenth
         """
-        graph_digit = pynini.string_file(
-            get_abs_path("english/data/ordinal/digit.tsv")
-        ).invert()
-        graph_teens = pynini.string_file(
-            get_abs_path("english/data/ordinal/teen.tsv")
-        ).invert()
+        graph_digit = pynini.string_file(get_abs_path("english/data/ordinal/digit.tsv")).invert()
+        graph_teens = pynini.string_file(get_abs_path("english/data/ordinal/teen.tsv")).invert()
 
         graph = (
             pynutil.delete("integer:")

@@ -21,7 +21,7 @@ from tn.chinese.test.utils import parse_test_case
 class TestPreProcessor:
 
     processor = PreProcessor().processor
-    processor_cases = parse_test_case('data/preprocessor.txt')
+    processor_cases = parse_test_case("data/preprocessor.txt")
 
     @pytest.mark.parametrize("written, spoken", processor_cases)
     def test_processor(self, written, spoken):

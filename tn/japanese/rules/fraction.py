@@ -21,21 +21,28 @@ from tn.processor import Processor
 class Fraction(Processor):
 
     def __init__(self):
-        super().__init__(name='fraction')
+        super().__init__(name="fraction")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        rmspace = delete(' ').ques
+        rmspace = delete(" ").ques
         number = Cardinal().number
 
-        tagger = (insert('numerator: "') + number + rmspace + delete('/') +
-                  rmspace + insert('" denominator: "') + number +
-                  insert('"')).optimize()
+        tagger = (
+            insert('numerator: "')
+            + number
+            + rmspace
+            + delete("/")
+            + rmspace
+            + insert('" denominator: "')
+            + number
+            + insert('"')
+        ).optimize()
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
         denominator = delete('denominator: "') + self.SIGMA + delete('" ')
         numerator = delete('numerator: "') + self.SIGMA + delete('"')
-        verbalizer = denominator + insert('分の') + numerator
+        verbalizer = denominator + insert("分の") + numerator
         self.verbalizer = self.delete_tokens(verbalizer)

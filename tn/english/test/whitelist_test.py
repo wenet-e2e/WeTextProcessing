@@ -21,7 +21,7 @@ from tn.english.test.utils import parse_test_case
 class TestWhiteList:
 
     whitelist = WhiteList(deterministic=False)
-    whitelist_cases = parse_test_case('data/whitelist.txt')
+    whitelist_cases = parse_test_case("data/whitelist.txt")
 
     @pytest.mark.parametrize("written, spoken", whitelist_cases)
     def test_whitelist(self, written, spoken):

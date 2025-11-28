@@ -21,12 +21,10 @@ from tn.utils import get_abs_path
 class PreProcessor(Processor):
 
     def __init__(self, full_to_half):
-        super().__init__(name='preprocessor')
-        traditional2simple = string_file(
-            get_abs_path(
-                '../itn/japanese/data/char/fullwidth_to_halfwidth.tsv'))
+        super().__init__(name="preprocessor")
+        traditional2simple = string_file(get_abs_path("../itn/japanese/data/char/fullwidth_to_halfwidth.tsv"))
 
-        processor = self.build_rule('')
+        processor = self.build_rule("")
         if full_to_half:
             processor @= self.build_rule(traditional2simple)
 

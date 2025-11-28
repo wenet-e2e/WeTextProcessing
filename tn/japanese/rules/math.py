@@ -31,7 +31,6 @@ class Math(Processor):
         operator = string_file(get_abs_path("japanese/data/math/operator.tsv"))
 
         number = Cardinal().number
-        operator = number + (delete(" ").ques + operator + delete(" ").ques +
-                             number).star
+        operator = number + (delete(" ").ques + operator + delete(" ").ques + number).star
         tagger = insert('value: "') + operator + insert('"')
         self.tagger = self.add_tokens(tagger)

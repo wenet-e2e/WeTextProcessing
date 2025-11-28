@@ -32,45 +32,44 @@ from tn.processor import Processor
 
 class InverseNormalizer(Processor):
 
-    def __init__(self,
-                 cache_dir=None,
-                 overwrite_cache=False,
-                 full_to_half=False,
-                 enable_standalone_number=True,
-                 enable_0_to_9=False,
-                 enable_million=False):
-        super().__init__(name='ja_inverse_normalizer', ordertype='itn')
+    def __init__(
+        self,
+        cache_dir=None,
+        overwrite_cache=False,
+        full_to_half=False,
+        enable_standalone_number=True,
+        enable_0_to_9=False,
+        enable_million=False,
+    ):
+        super().__init__(name="ja_inverse_normalizer", ordertype="itn")
         self.full_to_half = full_to_half
         self.convert_number = enable_standalone_number
         self.enable_0_to_9 = enable_0_to_9
         self.enable_million = enable_million
         if cache_dir is None:
             cache_dir = files("itn")
-        self.build_fst('ja_itn', cache_dir, overwrite_cache)
+        self.build_fst("ja_itn", cache_dir, overwrite_cache)
 
     def build_tagger(self):
         processor = PreProcessor(full_to_half=self.full_to_half).processor
 
-        cardinal = add_weight(
-            Cardinal(self.convert_number, self.enable_0_to_9,
-                     self.enable_million).tagger, 1.06)
+        cardinal = add_weight(Cardinal(self.convert_number, self.enable_0_to_9, self.enable_million).tagger, 1.06)
         char = add_weight(Char().tagger, 100)
         date = add_weight(Date().tagger, 1.02)
         fraction = add_weight(Fraction().tagger, 1.05)
         math = add_weight(Math().tagger, 90)
-        measure = add_weight(
-            Measure(enable_0_to_9=self.enable_0_to_9).tagger, 1.05)
-        money = add_weight(
-            Money(enable_0_to_9=self.enable_0_to_9).tagger, 1.04)
+        measure = add_weight(Measure(enable_0_to_9=self.enable_0_to_9).tagger, 1.05)
+        money = add_weight(Money(enable_0_to_9=self.enable_0_to_9).tagger, 1.04)
         ordinal = add_weight(Ordinal().tagger, 1.04)
         time = add_weight(Time().tagger, 1.04)
         whitelist = add_weight(Whitelist().tagger, 1.01)
 
-        tagger = (cardinal | char | date | fraction | math | measure | money
-                  | ordinal | time | whitelist).optimize().star
+        tagger = (
+            (cardinal | char | date | fraction | math | measure | money | ordinal | time | whitelist).optimize().star
+        )
         tagger = (processor @ tagger).star
         # remove the last space
-        self.tagger = tagger @ self.build_rule(delete(' '), '', '[EOS]')
+        self.tagger = tagger @ self.build_rule(delete(" "), "", "[EOS]")
 
     def build_verbalizer(self):
         cardinal = Cardinal(self.convert_number, self.enable_0_to_9).verbalizer

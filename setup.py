@@ -15,8 +15,8 @@ import sys
 
 from setuptools import find_packages, setup
 
-version = sys.argv[-1].split('=')[1]
-sys.argv = sys.argv[0:len(sys.argv) - 1]
+version = sys.argv[-1].split("=")[1]
+sys.argv = sys.argv[0 : len(sys.argv) - 1]
 
 with open("README.md", "r", encoding="utf8") as fh:
     long_description = fh.read()
@@ -32,20 +32,17 @@ setup(
     url="https://github.com/wenet-e2e/WeTextProcessing",
     packages=find_packages(),
     package_data={
-        "tn": [
-            "*.fst", "chinese/data/*/*.tsv", "english/data/*/*.tsv",
-            "english/data/*.tsv", "english/data/*/*.far"
-        ],
+        "tn": ["*.fst", "chinese/data/*/*.tsv", "english/data/*/*.tsv", "english/data/*.tsv", "english/data/*/*.far"],
         "itn": ["*.fst", "chinese/data/*/*.tsv"],
     },
-    install_requires=['pynini==2.1.6', 'importlib_resources'],
+    install_requires=["pynini==2.1.6", "importlib_resources"],
     entry_points={
         "console_scripts": [
             "wetn = tn.main:main",
             "weitn = itn.main:main",
         ]
     },
-    tests_require=['pytest'],
+    tests_require=["pytest"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",

@@ -21,7 +21,7 @@ from tn.english.test.utils import parse_test_case
 class TestMoney:
 
     money = Money(deterministic=False)
-    money_cases = parse_test_case('data/money.txt')
+    money_cases = parse_test_case("data/money.txt")
 
     @pytest.mark.parametrize("written, spoken", money_cases)
     def test_money(self, written, spoken):

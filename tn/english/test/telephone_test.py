@@ -21,7 +21,7 @@ from tn.english.test.utils import parse_test_case
 class TestTelephone:
 
     telephone = Telephone(deterministic=False)
-    telephone_cases = parse_test_case('data/telephone.txt')
+    telephone_cases = parse_test_case("data/telephone.txt")
 
     @pytest.mark.parametrize("written, spoken", telephone_cases)
     def test_telephone(self, written, spoken):

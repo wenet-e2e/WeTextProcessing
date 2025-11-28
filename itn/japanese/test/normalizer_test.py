@@ -22,21 +22,22 @@ from itn.japanese.test.utils import parse_test_case
 
 class TestNormalizer:
 
-    normalizer = InverseNormalizer(overwrite_cache=True,
-                                   enable_standalone_number=True,
-                                   enable_0_to_9=True,
-                                   enable_million=False)
+    normalizer = InverseNormalizer(
+        overwrite_cache=True, enable_standalone_number=True, enable_0_to_9=True, enable_million=False
+    )
 
-    normalizer_cases = chain(parse_test_case('data/cardinal.txt'),
-                             parse_test_case('data/char.txt'),
-                             parse_test_case('data/date.txt'),
-                             parse_test_case('data/fraction.txt'),
-                             parse_test_case('data/math.txt'),
-                             parse_test_case('data/measure.txt'),
-                             parse_test_case('data/money.txt'),
-                             parse_test_case('data/number.txt'),
-                             parse_test_case('data/time.txt'),
-                             parse_test_case('data/whitelist.txt'))
+    normalizer_cases = chain(
+        parse_test_case("data/cardinal.txt"),
+        parse_test_case("data/char.txt"),
+        parse_test_case("data/date.txt"),
+        parse_test_case("data/fraction.txt"),
+        parse_test_case("data/math.txt"),
+        parse_test_case("data/measure.txt"),
+        parse_test_case("data/money.txt"),
+        parse_test_case("data/number.txt"),
+        parse_test_case("data/time.txt"),
+        parse_test_case("data/whitelist.txt"),
+    )
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)
     def test_normalizer(self, spoken, written):
@@ -45,19 +46,21 @@ class TestNormalizer:
 
 class TestNormalizerDisablestandalonenumberEnable0to9:
 
-    normalizer = InverseNormalizer(overwrite_cache=True,
-                                   enable_standalone_number=False,
-                                   enable_0_to_9=True,
-                                   enable_million=False)
+    normalizer = InverseNormalizer(
+        overwrite_cache=True, enable_standalone_number=False, enable_0_to_9=True, enable_million=False
+    )
 
     normalizer_cases = chain(
-        parse_test_case('data/char.txt'), parse_test_case('data/date.txt'),
-        parse_test_case('data/fraction.txt'), parse_test_case('data/math.txt'),
-        parse_test_case('data/measure.txt'), parse_test_case('data/money.txt'),
-        parse_test_case('data/time.txt'),
-        parse_test_case('data/whitelist.txt'),
-        parse_test_case(
-            'data/normalizer_disable_standalone_number_enable_0_to_9.txt'))
+        parse_test_case("data/char.txt"),
+        parse_test_case("data/date.txt"),
+        parse_test_case("data/fraction.txt"),
+        parse_test_case("data/math.txt"),
+        parse_test_case("data/measure.txt"),
+        parse_test_case("data/money.txt"),
+        parse_test_case("data/time.txt"),
+        parse_test_case("data/whitelist.txt"),
+        parse_test_case("data/normalizer_disable_standalone_number_enable_0_to_9.txt"),
+    )
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)
     def test_normalizer(self, spoken, written):
@@ -66,19 +69,21 @@ class TestNormalizerDisablestandalonenumberEnable0to9:
 
 class TestNormalizerEnablestandalonenumberDisable0to9:
 
-    normalizer = InverseNormalizer(overwrite_cache=True,
-                                   enable_standalone_number=True,
-                                   enable_0_to_9=False,
-                                   enable_million=False)
+    normalizer = InverseNormalizer(
+        overwrite_cache=True, enable_standalone_number=True, enable_0_to_9=False, enable_million=False
+    )
 
     normalizer_cases = chain(
-        parse_test_case('data/char.txt'), parse_test_case('data/date.txt'),
-        parse_test_case('data/fraction.txt'), parse_test_case('data/math.txt'),
-        parse_test_case('data/measure.txt'), parse_test_case('data/money.txt'),
-        parse_test_case('data/time.txt'),
-        parse_test_case('data/whitelist.txt'),
-        parse_test_case(
-            'data/normalizer_enable_standalone_number_disable_0_to_9.txt'))
+        parse_test_case("data/char.txt"),
+        parse_test_case("data/date.txt"),
+        parse_test_case("data/fraction.txt"),
+        parse_test_case("data/math.txt"),
+        parse_test_case("data/measure.txt"),
+        parse_test_case("data/money.txt"),
+        parse_test_case("data/time.txt"),
+        parse_test_case("data/whitelist.txt"),
+        parse_test_case("data/normalizer_enable_standalone_number_disable_0_to_9.txt"),
+    )
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)
     def test_normalizer(self, spoken, written):
@@ -87,19 +92,21 @@ class TestNormalizerEnablestandalonenumberDisable0to9:
 
 class TestNormalizerDisablestandalonenumberDisable0to9:
 
-    normalizer = InverseNormalizer(overwrite_cache=True,
-                                   enable_standalone_number=False,
-                                   enable_0_to_9=False,
-                                   enable_million=False)
+    normalizer = InverseNormalizer(
+        overwrite_cache=True, enable_standalone_number=False, enable_0_to_9=False, enable_million=False
+    )
 
     normalizer_cases = chain(
-        parse_test_case('data/char.txt'), parse_test_case('data/date.txt'),
-        parse_test_case('data/fraction.txt'), parse_test_case('data/math.txt'),
-        parse_test_case('data/measure.txt'), parse_test_case('data/money.txt'),
-        parse_test_case('data/time.txt'),
-        parse_test_case('data/whitelist.txt'),
-        parse_test_case(
-            'data/normalizer_disable_standalone_number_disable_0_to_9.txt'))
+        parse_test_case("data/char.txt"),
+        parse_test_case("data/date.txt"),
+        parse_test_case("data/fraction.txt"),
+        parse_test_case("data/math.txt"),
+        parse_test_case("data/measure.txt"),
+        parse_test_case("data/money.txt"),
+        parse_test_case("data/time.txt"),
+        parse_test_case("data/whitelist.txt"),
+        parse_test_case("data/normalizer_disable_standalone_number_disable_0_to_9.txt"),
+    )
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)
     def test_normalizer(self, spoken, written):

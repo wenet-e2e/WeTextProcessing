@@ -23,50 +23,44 @@ from tn.utils import get_abs_path
 class Measure(Processor):
 
     def __init__(self):
-        super().__init__(name='measure')
+        super().__init__(name="measure")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        units_en = string_file(
-            get_abs_path('chinese/data/measure/units_en.tsv'))
-        units_zh = string_file(
-            get_abs_path('chinese/data/measure/units_zh.tsv'))
-        units = add_weight((cross("k", "千") | cross("w", "万")), 0.1).ques + \
-            (units_en | units_zh)
-        rmspace = delete(' ').ques
-        to = cross('-', '到') | cross('~', '到') | accep('到')
+        units_en = string_file(get_abs_path("chinese/data/measure/units_en.tsv"))
+        units_zh = string_file(get_abs_path("chinese/data/measure/units_zh.tsv"))
+        units = add_weight((cross("k", "千") | cross("w", "万")), 0.1).ques + (units_en | units_zh)
+        rmspace = delete(" ").ques
+        to = cross("-", "到") | cross("~", "到") | accep("到")
 
         number = Cardinal().number
-        number @= self.build_rule(cross('二', '两'), '[BOS]', '[EOS]')
+        number @= self.build_rule(cross("二", "两"), "[BOS]", "[EOS]")
         # 1-11个，1个-11个
         prefix = number + (rmspace + units).ques + to
         measure = prefix.ques + number + rmspace + units
 
-        for unit in ['两', '月', '号']:
-            measure @= self.build_rule(cross('两' + unit, '二' + unit),
-                                       l='[BOS]')
-            measure @= self.build_rule(cross('到两' + unit, '到二' + unit),
-                                       r='[EOS]')
+        for unit in ["两", "月", "号"]:
+            measure @= self.build_rule(cross("两" + unit, "二" + unit), l="[BOS]")
+            measure @= self.build_rule(cross("到两" + unit, "到二" + unit), r="[EOS]")
 
         # -xxxx年, -xx年
         digits = Cardinal().digits
         cardinal = digits**2 | digits**4
-        unit = accep('年') | accep('年度') | accep('赛季')
+        unit = accep("年") | accep("年度") | accep("赛季")
         prefix = cardinal + (rmspace + unit).ques + to
         annual = prefix.ques + cardinal + unit
 
         tagger = insert('value: "') + (measure | annual) + insert('"')
 
         # 10km/h
-        rmsign = rmspace + delete('/') + rmspace
-        tagger |= (insert('numerator: "') + measure + rmsign +
-                   insert('" denominator: "') + units + insert('"'))
+        rmsign = rmspace + delete("/") + rmspace
+        tagger |= insert('numerator: "') + measure + rmsign + insert('" denominator: "') + units + insert('"')
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
         super().build_verbalizer()
         denominator = delete('denominator: "') + self.SIGMA + delete('" ')
         numerator = delete('numerator: "') + self.SIGMA + delete('"')
-        verbalizer = insert('每') + denominator + numerator
+        verbalizer = insert("每") + denominator + numerator
         self.verbalizer |= self.delete_tokens(verbalizer)

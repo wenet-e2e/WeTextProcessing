@@ -22,30 +22,27 @@ from tn.utils import get_abs_path
 class Time(Processor):
 
     def __init__(self):
-        super().__init__(name='time')
+        super().__init__(name="time")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        h = string_file(get_abs_path('japanese/data/time/hour.tsv'))
-        m = string_file(get_abs_path('japanese/data/time/minute.tsv'))
-        s = string_file(get_abs_path('japanese/data/time/second.tsv'))
-        noon = string_file(get_abs_path('japanese/data/time/noon.tsv'))
+        h = string_file(get_abs_path("japanese/data/time/hour.tsv"))
+        m = string_file(get_abs_path("japanese/data/time/minute.tsv"))
+        s = string_file(get_abs_path("japanese/data/time/second.tsv"))
+        noon = string_file(get_abs_path("japanese/data/time/noon.tsv"))
 
-        colon = delete(':') | delete('：')
-        h_noon = (insert('hour: "') + h + insert('" noon: "') + noon +
-                  insert('"'))
+        colon = delete(":") | delete("：")
+        h_noon = insert('hour: "') + h + insert('" noon: "') + noon + insert('"')
         h = insert('hour: "') + h + insert('" ')
         m = insert('minute: "') + m + insert('"')
         s = insert(' second: "') + s + insert('"')
         noon = insert(' noon: "') + noon + insert('"')
 
-        tagger = ((h + colon + m +
-                   (colon + s).ques + delete(' ').ques + noon.ques)
-                  | h_noon)
+        tagger = (h + colon + m + (colon + s).ques + delete(" ").ques + noon.ques) | h_noon
         tagger = self.add_tokens(tagger)
 
-        to = (delete('-') | delete('~')) + insert(' char { value: "から" } ')
+        to = (delete("-") | delete("~")) + insert(' char { value: "から" } ')
         self.tagger = tagger + (to + tagger).ques
 
     def build_verbalizer(self):

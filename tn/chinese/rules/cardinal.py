@@ -22,62 +22,61 @@ from tn.utils import get_abs_path
 class Cardinal(Processor):
 
     def __init__(self):
-        super().__init__('cardinal')
+        super().__init__("cardinal")
         self.number = None
         self.digits = None
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        zero = string_file(get_abs_path('chinese/data/number/zero.tsv'))
-        digit = string_file(get_abs_path('chinese/data/number/digit.tsv'))
-        teen = string_file(get_abs_path('chinese/data/number/teen.tsv'))
-        sign = string_file(get_abs_path('chinese/data/number/sign.tsv'))
-        dot = string_file(get_abs_path('chinese/data/number/dot.tsv'))
+        zero = string_file(get_abs_path("chinese/data/number/zero.tsv"))
+        digit = string_file(get_abs_path("chinese/data/number/digit.tsv"))
+        teen = string_file(get_abs_path("chinese/data/number/teen.tsv"))
+        sign = string_file(get_abs_path("chinese/data/number/sign.tsv"))
+        dot = string_file(get_abs_path("chinese/data/number/dot.tsv"))
 
-        rmzero = delete('0') | delete('０')
-        rmpunct = delete(',').ques
+        rmzero = delete("0") | delete("０")
+        rmpunct = delete(",").ques
         digits = zero | digit
         self.digits = digits
 
         # 11 => 十一
-        ten = teen + insert('十') + (digit | rmzero)
+        ten = teen + insert("十") + (digit | rmzero)
         # 11 => 一十一
-        tens = digit + insert('十') + (digit | rmzero)
+        tens = digit + insert("十") + (digit | rmzero)
         # 111, 101, 100
-        hundred = (digit + insert('百') + (tens | (zero + digit) | rmzero**2))
+        hundred = digit + insert("百") + (tens | (zero + digit) | rmzero**2)
         # 1111, 1011, 1001, 1000
-        thousand = (digit + insert('千') + rmpunct + (hundred
-                                                     | (zero + tens)
-                                                     | (rmzero + zero + digit)
-                                                     | rmzero**3))
+        thousand = digit + insert("千") + rmpunct + (hundred | (zero + tens) | (rmzero + zero + digit) | rmzero**3)
         # 10001111, 1001111, 101111, 11111, 10111, 10011, 10001, 10000
-        ten_thousand = ((thousand | hundred | ten | digit) + insert('万') +
-                        (thousand
-                         | (zero + rmpunct + hundred)
-                         | (rmzero + rmpunct + zero + tens)
-                         | (rmzero + rmpunct + rmzero + zero + digit)
-                         | rmzero**4))
+        ten_thousand = (
+            (thousand | hundred | ten | digit)
+            + insert("万")
+            + (
+                thousand
+                | (zero + rmpunct + hundred)
+                | (rmzero + rmpunct + zero + tens)
+                | (rmzero + rmpunct + rmzero + zero + digit)
+                | rmzero**4
+            )
+        )
 
         # 1.11, 1.01
         number = digits | ten | hundred | thousand | ten_thousand
         number = sign.ques + number + (dot + digits.plus).ques
-        number @= self.build_rule(
-            cross('二百', '两百')
-            | cross('二千', '两千')
-            | cross('二万', '两万')).optimize()
-        percent = insert('百分之') + number + delete('%')
-        self.number = accep('约').ques + accep('人均').ques + (number | percent)
+        number @= self.build_rule(cross("二百", "两百") | cross("二千", "两千") | cross("二万", "两万")).optimize()
+        percent = insert("百分之") + number + delete("%")
+        self.number = accep("约").ques + accep("人均").ques + (number | percent)
 
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
-        cardinal = digits.plus + (dot + digits.plus)**3
+        cardinal = digits.plus + (dot + digits.plus) ** 3
         cardinal |= percent
         # xxxx-xxx-xxx
-        cardinal |= digits.plus + (delete('-') + digits.plus)**2
+        cardinal |= digits.plus + (delete("-") + digits.plus) ** 2
         # xxx-xxxxxxxx
-        cardinal |= digits**3 + delete('-') + digits**8
+        cardinal |= digits**3 + delete("-") + digits**8
         # three or five or eleven phone numbers
-        phone_digits = digits @ self.build_rule(cross('一', '幺'))
+        phone_digits = digits @ self.build_rule(cross("一", "幺"))
         phone = phone_digits**3 | phone_digits**5 | phone_digits**11
         phone |= accep("尾号") + (accep("是") | accep("为")).ques + phone_digits**4
         cardinal |= add_weight(phone, -1.0)

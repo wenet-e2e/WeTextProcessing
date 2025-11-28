@@ -22,28 +22,34 @@ from tn.utils import get_abs_path
 class Time(Processor):
 
     def __init__(self):
-        super().__init__(name='time')
+        super().__init__(name="time")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        h = string_file(get_abs_path('../itn/chinese/data/time/hour.tsv'))
-        m = string_file(get_abs_path('../itn/chinese/data/time/minute.tsv'))
-        s = string_file(get_abs_path('../itn/chinese/data/time/second.tsv'))
-        noon = string_file(get_abs_path('../itn/chinese/data/time/noon.tsv'))
+        h = string_file(get_abs_path("../itn/chinese/data/time/hour.tsv"))
+        m = string_file(get_abs_path("../itn/chinese/data/time/minute.tsv"))
+        s = string_file(get_abs_path("../itn/chinese/data/time/second.tsv"))
+        noon = string_file(get_abs_path("../itn/chinese/data/time/noon.tsv"))
 
-        tagger = ((insert('noon: "') + noon + insert('" ')).ques +
-                  insert('hour: "') + h + insert('"') + insert(' minute: "') +
-                  m + delete('分').ques + insert('"') +
-                  (insert(' second: "') + s + insert('"')).ques)
+        tagger = (
+            (insert('noon: "') + noon + insert('" ')).ques
+            + insert('hour: "')
+            + h
+            + insert('"')
+            + insert(' minute: "')
+            + m
+            + delete("分").ques
+            + insert('"')
+            + (insert(' second: "') + s + insert('"')).ques
+        )
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        addcolon = insert(':')
+        addcolon = insert(":")
         hour = delete('hour: "') + self.SIGMA + delete('"')
         minute = delete(' minute: "') + self.SIGMA + delete('"')
         second = delete(' second: "') + self.SIGMA + delete('"')
         noon = delete(' noon: "') + self.SIGMA + delete('"')
-        verbalizer = (hour + addcolon + minute + (addcolon + second).ques +
-                      noon.ques)
+        verbalizer = hour + addcolon + minute + (addcolon + second).ques + noon.ques
         self.verbalizer = self.delete_tokens(verbalizer)

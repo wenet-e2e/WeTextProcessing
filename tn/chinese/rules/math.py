@@ -30,15 +30,10 @@ class Math(Processor):
     def build_tagger(self):
         operator = string_file(get_abs_path("chinese/data/math/operator.tsv"))
         # When it appears alone, it is treated as punctuation
-        symbols = (cross("~", "到")
-                   | cross(":", "比")
-                   | cross("<", "小于")
-                   | cross(">", "大于"))
+        symbols = cross("~", "到") | cross(":", "比") | cross("<", "小于") | cross(">", "大于")
 
         number = Cardinal().number
-        tagger = (number +
-                  (delete(" ").ques +
-                   (operator | symbols) + delete(" ").ques + number).star)
+        tagger = number + (delete(" ").ques + (operator | symbols) + delete(" ").ques + number).star
         tagger |= operator
         tagger = insert('value: "') + tagger + insert('"')
         self.tagger = self.add_tokens(tagger)

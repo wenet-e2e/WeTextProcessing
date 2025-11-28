@@ -23,17 +23,17 @@ from tn.utils import get_abs_path
 class Date(Processor):
 
     def __init__(self):
-        super().__init__(name='date')
+        super().__init__(name="date")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
         yyyy = Cardinal().thousand
-        m = string_file(get_abs_path('japanese/data/date/m.tsv'))
-        mm = string_file(get_abs_path('japanese/data/date/mm.tsv'))
-        d = string_file(get_abs_path('japanese/data/date/d.tsv'))
-        dd = string_file(get_abs_path('japanese/data/date/dd.tsv'))
-        rmsign = (delete('/') | delete('-') | delete('.')) + insert(' ')
+        m = string_file(get_abs_path("japanese/data/date/m.tsv"))
+        mm = string_file(get_abs_path("japanese/data/date/mm.tsv"))
+        d = string_file(get_abs_path("japanese/data/date/d.tsv"))
+        dd = string_file(get_abs_path("japanese/data/date/dd.tsv"))
+        rmsign = (delete("/") | delete("-") | delete(".")) + insert(" ")
 
         year = insert('year: "') + yyyy + insert('年"')
         month = insert('month: "') + (m | mm) + insert('"')
@@ -42,23 +42,21 @@ class Date(Processor):
         # yyyy/m/d | yyyy/mm/dd | dd/mm/yyyy
         # yyyy/0m | 0m/yyyy | 0m/dd
         mm = insert('month: "') + mm + insert('"')
-        date = ((year + rmsign + month + rmsign + day)
-                | (day + rmsign + month + rmsign + year)
-                | (year + rmsign + mm)
-                | (mm + rmsign + year)
-                | (mm + rmsign + day))
+        date = (
+            (year + rmsign + month + rmsign + day)
+            | (day + rmsign + month + rmsign + year)
+            | (year + rmsign + mm)
+            | (mm + rmsign + year)
+            | (mm + rmsign + day)
+        )
         # yyyy/0m | 0m/yyyy | 0m/dd
-        simple_date = ((year + rmsign + month)
-                       | (month + rmsign + year)
-                       | (month + rmsign + day))
+        simple_date = (year + rmsign + month) | (month + rmsign + year) | (month + rmsign + day)
 
         tagger = self.add_tokens(date)
         simple_tagger = self.add_tokens(simple_date)
 
-        to = ((delete('-') | delete('~') | delete('から')) +
-              insert(' char { value: "から" } '))
-        self.tagger = (tagger + (to + tagger).ques
-                       | simple_tagger + to + simple_tagger)
+        to = (delete("-") | delete("~") | delete("から")) + insert(' char { value: "から" } ')
+        self.tagger = tagger + (to + tagger).ques | simple_tagger + to + simple_tagger
 
     def build_verbalizer(self):
         year = delete('year: "') + self.SIGMA + delete('" ')

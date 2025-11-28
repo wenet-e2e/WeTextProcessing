@@ -36,10 +36,10 @@ from tn.processor import Processor
 class Normalizer(Processor):
 
     def __init__(self, cache_dir=None, overwrite_cache=False):
-        super().__init__(name='en_normalizer', ordertype="en_tn")
+        super().__init__(name="en_normalizer", ordertype="en_tn")
         if cache_dir is None:
             cache_dir = files("tn")
-        self.build_fst('en_tn', cache_dir, overwrite_cache)
+        self.build_fst("en_tn", cache_dir, overwrite_cache)
 
     def build_tagger(self):
         cardinal = add_weight(Cardinal().tagger, 1.0)
@@ -57,25 +57,24 @@ class Normalizer(Processor):
         punct = add_weight(Punctuation().tagger, 2.00)
         rang = add_weight(Range().tagger, 1.01)
         # TODO(xcsong): add roman
-        tagger = \
-            (cardinal
-             | ordinal
-             | word
-             | date
-             | decimal
-             | fraction
-             | time
-             | measure
-             | money
-             | telephone
-             | electronic
-             | whitelist
-             | rang
-             | punct
-             ).optimize() + (punct.plus | self.DELETE_SPACE)
+        tagger = (
+            cardinal
+            | ordinal
+            | word
+            | date
+            | decimal
+            | fraction
+            | time
+            | measure
+            | money
+            | telephone
+            | electronic
+            | whitelist
+            | rang
+            | punct
+        ).optimize() + (punct.plus | self.DELETE_SPACE)
         # delete the first and last space
-        self.tagger = (delete(' ').star + tagger.star) @ self.build_rule(
-            delete(' '), r='[EOS]')
+        self.tagger = (delete(" ").star + tagger.star) @ self.build_rule(delete(" "), r="[EOS]")
 
     def build_verbalizer(self):
         cardinal = Cardinal().verbalizer
@@ -92,21 +91,20 @@ class Normalizer(Processor):
         whitelist = WhiteList().verbalizer
         punct = Punctuation().verbalizer
         rang = Range().verbalizer
-        verbalizer = \
-            (cardinal
-             | ordinal
-             | word
-             | date
-             | decimal
-             | fraction
-             | time
-             | measure
-             | money
-             | telephone
-             | electronic
-             | whitelist
-             | punct
-             | rang
-             ).optimize() + (punct.plus | self.INSERT_SPACE)
-        self.verbalizer = verbalizer.star @ self.build_rule(delete(' '),
-                                                            r='[EOS]')
+        verbalizer = (
+            cardinal
+            | ordinal
+            | word
+            | date
+            | decimal
+            | fraction
+            | time
+            | measure
+            | money
+            | telephone
+            | electronic
+            | whitelist
+            | punct
+            | rang
+        ).optimize() + (punct.plus | self.INSERT_SPACE)
+        self.verbalizer = verbalizer.star @ self.build_rule(delete(" "), r="[EOS]")

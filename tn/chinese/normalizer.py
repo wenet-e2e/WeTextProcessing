@@ -32,16 +32,18 @@ from tn.processor import Processor
 
 class Normalizer(Processor):
 
-    def __init__(self,
-                 cache_dir=None,
-                 overwrite_cache=False,
-                 remove_interjections=True,
-                 remove_erhua=True,
-                 traditional_to_simple=True,
-                 remove_puncts=False,
-                 full_to_half=True,
-                 tag_oov=False):
-        super().__init__(name='zh_normalizer')
+    def __init__(
+        self,
+        cache_dir=None,
+        overwrite_cache=False,
+        remove_interjections=True,
+        remove_erhua=True,
+        traditional_to_simple=True,
+        remove_puncts=False,
+        full_to_half=True,
+        tag_oov=False,
+    ):
+        super().__init__(name="zh_normalizer")
         self.remove_interjections = remove_interjections
         self.remove_erhua = remove_erhua
         self.traditional_to_simple = traditional_to_simple
@@ -50,11 +52,10 @@ class Normalizer(Processor):
         self.tag_oov = tag_oov
         if cache_dir is None:
             cache_dir = files("tn")
-        self.build_fst('zh_tn', cache_dir, overwrite_cache)
+        self.build_fst("zh_tn", cache_dir, overwrite_cache)
 
     def build_tagger(self):
-        processor = PreProcessor(
-            traditional_to_simple=self.traditional_to_simple).processor
+        processor = PreProcessor(traditional_to_simple=self.traditional_to_simple).processor
 
         date = add_weight(Date().tagger, 1.02)
         whitelist = add_weight(Whitelist().tagger, 1.03)
@@ -67,11 +68,10 @@ class Normalizer(Processor):
         math = add_weight(Math().tagger, 90)
         char = add_weight(Char().tagger, 100)
 
-        tagger = (date | whitelist | sport | fraction | measure | money | time
-                  | cardinal | math | char).optimize()
+        tagger = (date | whitelist | sport | fraction | measure | money | time | cardinal | math | char).optimize()
         tagger = (processor @ tagger).star
         # delete the last space
-        self.tagger = tagger @ self.build_rule(delete(' '), r='[EOS]')
+        self.tagger = tagger @ self.build_rule(delete(" "), r="[EOS]")
 
     def build_verbalizer(self):
         cardinal = Cardinal().verbalizer
@@ -85,12 +85,12 @@ class Normalizer(Processor):
         time = Time().verbalizer
         whitelist = Whitelist(remove_erhua=self.remove_erhua).verbalizer
 
-        verbalizer = (cardinal | char | date | fraction | math | measure
-                      | money | sport | time | whitelist).optimize()
+        verbalizer = (cardinal | char | date | fraction | math | measure | money | sport | time | whitelist).optimize()
 
         processor = PostProcessor(
             remove_interjections=self.remove_interjections,
             remove_puncts=self.remove_puncts,
             full_to_half=self.full_to_half,
-            tag_oov=self.tag_oov).processor
+            tag_oov=self.tag_oov,
+        ).processor
         self.verbalizer = (verbalizer @ processor).star

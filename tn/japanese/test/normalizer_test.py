@@ -24,16 +24,18 @@ class TestNormalizer:
 
     normalizer = Normalizer(overwrite_cache=True)
 
-    normalizer_cases = chain(parse_test_case('data/cardinal.txt'),
-                             parse_test_case('data/char.txt'),
-                             parse_test_case('data/date.txt'),
-                             parse_test_case('data/fraction.txt'),
-                             parse_test_case('data/math.txt'),
-                             parse_test_case('data/measure.txt'),
-                             parse_test_case('data/money.txt'),
-                             parse_test_case('data/sport.txt'),
-                             parse_test_case('data/time.txt'),
-                             parse_test_case('data/whitelist.txt'))
+    normalizer_cases = chain(
+        parse_test_case("data/cardinal.txt"),
+        parse_test_case("data/char.txt"),
+        parse_test_case("data/date.txt"),
+        parse_test_case("data/fraction.txt"),
+        parse_test_case("data/math.txt"),
+        parse_test_case("data/measure.txt"),
+        parse_test_case("data/money.txt"),
+        parse_test_case("data/sport.txt"),
+        parse_test_case("data/time.txt"),
+        parse_test_case("data/whitelist.txt"),
+    )
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)
     def test_normalizer(self, spoken, written):

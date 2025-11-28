@@ -29,15 +29,15 @@ class Processor:
         self.ALPHA = byte.ALPHA
         self.DIGIT = byte.DIGIT
         self.PUNCT = byte.PUNCT
-        self.SPACE = byte.SPACE | u'\u00A0'
+        self.SPACE = byte.SPACE | "\u00A0"
         self.VCHAR = utf8.VALID_UTF8_CHAR
         self.VSIGMA = self.VCHAR.star
         self.LOWER = byte.LOWER
         self.UPPER = byte.UPPER
 
-        CHAR = difference(self.VCHAR, union('\\', '"'))
-        self.CHAR = (CHAR | cross('\\', '\\\\\\') | cross('"', '\\"'))
-        self.SIGMA = (CHAR | cross('\\\\\\', '\\') | cross('\\"', '"')).star
+        CHAR = difference(self.VCHAR, union("\\", '"'))
+        self.CHAR = CHAR | cross("\\", "\\\\\\") | cross('"', '\\"')
+        self.SIGMA = (CHAR | cross("\\\\\\", "\\") | cross('\\"', '"')).star
         self.NOT_QUOTE = difference(self.VCHAR, r'"').optimize()
         self.NOT_SPACE = difference(self.VCHAR, self.SPACE).optimize()
         self.INSERT_SPACE = insert(" ")
@@ -45,10 +45,7 @@ class Processor:
         self.DELETE_EXTRA_SPACE = cross(self.SPACE.plus, " ")
         self.DELETE_ZERO_OR_ONE_SPACE = delete(self.SPACE.ques)
         self.MIN_NEG_WEIGHT = -0.0001
-        self.TO_LOWER = union(*[
-            cross(x, y)
-            for x, y in zip(string.ascii_uppercase, string.ascii_lowercase)
-        ])
+        self.TO_LOWER = union(*[cross(x, y) for x, y in zip(string.ascii_uppercase, string.ascii_lowercase)])
         self.TO_UPPER = invert(self.TO_LOWER)
 
         self.name = name
@@ -56,17 +53,16 @@ class Processor:
         self.tagger = None
         self.verbalizer = None
 
-    def build_rule(self, fst, l='', r=''):
+    def build_rule(self, fst, l="", r=""):
         rule = cdrewrite(fst, l, r, self.VSIGMA)
         return rule
 
     def add_tokens(self, tagger):
-        tagger = insert(f"{self.name} {{ ") + tagger + insert(' } ')
+        tagger = insert(f"{self.name} {{ ") + tagger + insert(" } ")
         return tagger.optimize()
 
     def delete_tokens(self, verbalizer):
-        verbalizer = (delete(f"{self.name}") + delete(' { ') + verbalizer +
-                      delete(' }') + delete(' ').ques)
+        verbalizer = delete(f"{self.name}") + delete(" { ") + verbalizer + delete(" }") + delete(" ").ques
         return verbalizer.optimize()
 
     def build_verbalizer(self):
@@ -74,22 +70,21 @@ class Processor:
         self.verbalizer = self.delete_tokens(verbalizer)
 
     def build_fst(self, prefix, cache_dir, overwrite_cache):
-        logger = logging.getLogger('wetext-{}'.format(self.name))
+        logger = logging.getLogger("wetext-{}".format(self.name))
         logger.setLevel(logging.INFO)
         handler = logging.StreamHandler()
-        fmt = logging.Formatter('%(asctime)s WETEXT %(levelname)s %(message)s')
+        fmt = logging.Formatter("%(asctime)s WETEXT %(levelname)s %(message)s")
         handler.setFormatter(fmt)
         logger.addHandler(handler)
 
         os.makedirs(cache_dir, exist_ok=True)
-        tagger_name = '{}_tagger.fst'.format(prefix)
-        verbalizer_name = '{}_verbalizer.fst'.format(prefix)
+        tagger_name = "{}_tagger.fst".format(prefix)
+        verbalizer_name = "{}_verbalizer.fst".format(prefix)
 
         tagger_path = os.path.join(cache_dir, tagger_name)
         verbalizer_path = os.path.join(cache_dir, verbalizer_name)
 
-        exists = os.path.exists(tagger_path) and os.path.exists(
-            verbalizer_path)
+        exists = os.path.exists(tagger_path) and os.path.exists(verbalizer_path)
         if exists and not overwrite_cache:
             logger.info("found existing fst: {}".format(tagger_path))
             logger.info("                    {}".format(verbalizer_path))
@@ -108,7 +103,7 @@ class Processor:
 
     def tag(self, input):
         if len(input) == 0:
-            return ''
+            return ""
         input = escape(input)
         lattice = input @ self.tagger
         return shortestpath(lattice, nshortest=1, unique=True).string()
@@ -116,7 +111,7 @@ class Processor:
     def verbalize(self, input):
         # Only words from the blacklist are contained.
         if len(input) == 0:
-            return ''
+            return ""
         output = TokenParser(self.ordertype).reorder(input)
         # We need escape for pynini to build the fst from string.
         lattice = escape(output) @ self.verbalizer

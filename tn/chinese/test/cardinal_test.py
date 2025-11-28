@@ -21,8 +21,8 @@ from tn.chinese.test.utils import parse_test_case
 class TestCardinal:
 
     cardinal = Cardinal()
-    number_cases = parse_test_case('data/number.txt')
-    cardinal_cases = parse_test_case('data/cardinal.txt')
+    number_cases = parse_test_case("data/number.txt")
+    cardinal_cases = parse_test_case("data/cardinal.txt")
 
     @pytest.mark.parametrize("written, spoken", number_cases)
     def test_number(self, written, spoken):

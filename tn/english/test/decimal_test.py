@@ -21,7 +21,7 @@ from tn.english.test.utils import parse_test_case
 class TestDecimal:
 
     decimal = Decimal(deterministic=False)
-    decimal_cases = parse_test_case('data/decimal.txt')
+    decimal_cases = parse_test_case("data/decimal.txt")
 
     @pytest.mark.parametrize("written, spoken", decimal_cases)
     def test_decimal(self, written, spoken):

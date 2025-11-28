@@ -21,7 +21,7 @@ from tn.english.test.utils import parse_test_case
 class TestElectronic:
 
     electronic = Electronic(deterministic=False)
-    electronic_cases = parse_test_case('data/electronic.txt')
+    electronic_cases = parse_test_case("data/electronic.txt")
 
     @pytest.mark.parametrize("written, spoken", electronic_cases)
     def test_electronic(self, written, spoken):

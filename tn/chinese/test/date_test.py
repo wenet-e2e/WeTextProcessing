@@ -21,7 +21,7 @@ from tn.chinese.test.utils import parse_test_case
 class TestDate:
 
     date = Date()
-    date_cases = parse_test_case('data/date.txt')
+    date_cases = parse_test_case("data/date.txt")
 
     @pytest.mark.parametrize("written, spoken", date_cases)
     def test_date(self, written, spoken):

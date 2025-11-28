@@ -47,17 +47,12 @@ class Punctuation(Processor):
         punct_unicode = [
             chr(i)
             for i in range(sys.maxunicode)
-            if category(chr(i)).startswith("P")
-            and chr(i) not in punct_symbols_to_exclude
+            if category(chr(i)).startswith("P") and chr(i) not in punct_symbols_to_exclude
         ]
 
-        whitelist_symbols = load_labels(
-            get_abs_path("english/data/whitelist/symbol.tsv")
-        )
+        whitelist_symbols = load_labels(get_abs_path("english/data/whitelist/symbol.tsv"))
         whitelist_symbols = [x[0] for x in whitelist_symbols]
-        self.punct_marks = [
-            p for p in punct_unicode + list(s) if p not in whitelist_symbols
-        ]
+        self.punct_marks = [p for p in punct_unicode + list(s) if p not in whitelist_symbols]
 
         self.punct = union(*self.punct_marks)
         punct = (self.punct | cross("\\", "\\\\\\") | cross('"', '\\"')).plus
@@ -65,9 +60,7 @@ class Punctuation(Processor):
         self.emphasis = (
             accep("<")
             + (
-                (
-                    (self.NOT_SPACE - union("<", ">")).plus + closure(accep("/"), 0, 1)
-                )  # noqa
+                ((self.NOT_SPACE - union("<", ">")).plus + closure(accep("/"), 0, 1))  # noqa
                 | (accep("/") + (self.NOT_SPACE - union("<", ">")).plus)
             )
             + accep(">")
@@ -76,23 +69,13 @@ class Punctuation(Processor):
 
         self.graph = punct
         final_graph = (
-            insert('v: "')
-            + add_weight(accep(" "), -1.0).star
-            + punct
-            + add_weight(accep(" "), -1.0).star
-            + insert('"')
+            insert('v: "') + add_weight(accep(" "), -1.0).star + punct + add_weight(accep(" "), -1.0).star + insert('"')
         )
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
-        punct = closure(
-            self.punct | self.emphasis | cross("\\\\\\", "\\") | cross('\\"', '"'), 1
-        )
+        punct = closure(self.punct | self.emphasis | cross("\\\\\\", "\\") | cross('\\"', '"'), 1)
         verbalizer = (
-            delete('v: "')
-            + add_weight(accep(" "), -1.0).star
-            + punct
-            + add_weight(accep(" "), -1.0).star
-            + delete('"')
+            delete('v: "') + add_weight(accep(" "), -1.0).star + punct + add_weight(accep(" "), -1.0).star + delete('"')
         )
         self.verbalizer = self.delete_tokens(verbalizer)

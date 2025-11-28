@@ -52,18 +52,10 @@ class Range(Processor):
         approx = pynini.cross("~", "approximately")
 
         # WEEK
-        week_graph = (
-            week
-            + delete_space
-            + (pynini.cross("-", " to ") | approx)
-            + delete_space
-            + week
-        )
+        week_graph = week + delete_space + (pynini.cross("-", " to ") | approx) + delete_space + week
 
         # TIME
-        time_graph = (
-            time + delete_space + pynini.cross("-", " to ") + delete_space + time
-        )
+        time_graph = time + delete_space + pynini.cross("-", " to ") + delete_space + time
         self.graph = time_graph | (approx + time) | week_graph
 
         # YEAR
@@ -76,11 +68,7 @@ class Range(Processor):
             + delete_space
             + (date_year_four_digit | date_year_two_digit | (self.DIGIT**2 @ cardinal))
         )
-        mid_year_graph = (
-            pynini.accep("mid")
-            + pynini.cross("-", " ")
-            + (date_year_four_digit | date_year_two_digit)
-        )
+        mid_year_graph = pynini.accep("mid") + pynini.cross("-", " ") + (date_year_four_digit | date_year_two_digit)
 
         self.graph |= year_to_year_graph
         self.graph |= mid_year_graph
@@ -89,35 +77,21 @@ class Range(Processor):
         range_graph = cardinal + (pynini.cross("+", " plus ") + cardinal).plus
         range_graph |= cardinal + (pynini.cross(" + ", " plus ") + cardinal).plus
         range_graph |= approx + cardinal
-        range_graph |= (
-            cardinal + (pynini.cross("...", " ... ") | pynini.accep(" ... ")) + cardinal
-        )
+        range_graph |= cardinal + (pynini.cross("...", " ... ") | pynini.accep(" ... ")) + cardinal
 
         if not self.deterministic:
             # cardinal ----
             cardinal_to_cardinal_graph = (
-                cardinal
-                + delete_space
-                + pynini.cross("-", pynini.union(" to ", " minus "))
-                + delete_space
-                + cardinal
+                cardinal + delete_space + pynini.cross("-", pynini.union(" to ", " minus ")) + delete_space + cardinal
             )
 
             range_graph |= cardinal_to_cardinal_graph | (
-                cardinal
-                + delete_space
-                + pynini.cross(":", " to ")
-                + delete_space
-                + cardinal
+                cardinal + delete_space + pynini.cross(":", " to ") + delete_space + cardinal
             )
 
             # MULTIPLY
             for x in [" x ", "x"]:
-                range_graph |= (
-                    cardinal
-                    + pynini.cross(x, pynini.union(" by ", " times "))
-                    + cardinal
-                )
+                range_graph |= cardinal + pynini.cross(x, pynini.union(" by ", " times ")) + cardinal
 
             # 40x -> "40 times" ("40 x" cases is covered in serial)
             for x in [" x", "x"]:
@@ -137,18 +111,13 @@ class Range(Processor):
 
             # supports "No. 12" -> "Number 12"
             range_graph |= (
-                (
-                    pynini.cross(pynini.union("NO", "No"), "Number")
-                    | pynini.cross("no", "number")
-                )
+                (pynini.cross(pynini.union("NO", "No"), "Number") | pynini.cross("no", "number"))
                 + pynini.union(". ", " ").ques
                 + cardinal
             )
 
             for x in ["/", " / "]:
-                range_graph |= (
-                    cardinal + (pynini.cross(x, " divided by ") + cardinal).plus
-                )
+                range_graph |= cardinal + (pynini.cross(x, " divided by ") + cardinal).plus
 
             # 10% to 20% -> ten to twenty percent
             range_graph |= (

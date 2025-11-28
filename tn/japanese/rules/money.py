@@ -23,17 +23,24 @@ from tn.utils import get_abs_path
 class Money(Processor):
 
     def __init__(self):
-        super().__init__(name='money')
+        super().__init__(name="money")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        code = string_file(get_abs_path('japanese/data/money/code.tsv'))
-        symbol = string_file(get_abs_path('japanese/data/money/symbol.tsv'))
+        code = string_file(get_abs_path("japanese/data/money/code.tsv"))
+        symbol = string_file(get_abs_path("japanese/data/money/symbol.tsv"))
 
         number = Cardinal().number
-        tagger = (insert('currency: "') + (code | symbol) + delete(' ').ques +
-                  insert('" ') + insert('value: "') + number + insert('"'))
+        tagger = (
+            insert('currency: "')
+            + (code | symbol)
+            + delete(" ").ques
+            + insert('" ')
+            + insert('value: "')
+            + number
+            + insert('"')
+        )
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):

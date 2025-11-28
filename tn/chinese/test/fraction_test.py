@@ -21,7 +21,7 @@ from tn.chinese.test.utils import parse_test_case
 class TestFraction:
 
     fraction = Fraction()
-    fraction_cases = parse_test_case('data/fraction.txt')
+    fraction_cases = parse_test_case("data/fraction.txt")
 
     @pytest.mark.parametrize("written, spoken", fraction_cases)
     def test_fraction(self, written, spoken):

@@ -22,15 +22,9 @@ from tn.english.rules.ordinal import Ordinal
 from tn.processor import Processor
 from tn.utils import augment_labels_with_punct_at_end, get_abs_path, load_labels
 
-graph_teen = pynini.invert(
-    pynini.string_file(get_abs_path("english/data/number/teen.tsv"))
-).optimize()
-graph_digit = pynini.invert(
-    pynini.string_file(get_abs_path("english/data/number/digit.tsv"))
-).optimize()
-ties_graph = pynini.invert(
-    pynini.string_file(get_abs_path("english/data/number/ty.tsv"))
-).optimize()
+graph_teen = pynini.invert(pynini.string_file(get_abs_path("english/data/number/teen.tsv"))).optimize()
+graph_digit = pynini.invert(pynini.string_file(get_abs_path("english/data/number/digit.tsv"))).optimize()
+ties_graph = pynini.invert(pynini.string_file(get_abs_path("english/data/number/ty.tsv"))).optimize()
 year_suffix = load_labels(get_abs_path("english/data/date/year_suffix.tsv"))
 year_suffix.extend(augment_labels_with_punct_at_end(year_suffix))
 year_suffix = pynini.string_map(year_suffix).optimize()
@@ -43,23 +37,13 @@ def get_ties_graph(deterministic: bool = False):
     12 -> thirteen
     20 -> twenty
     """
-    graph = (
-        graph_teen
-        | ties_graph + pynutil.delete("0")
-        | ties_graph + Processor("tmp").INSERT_SPACE + graph_digit
-    )
+    graph = graph_teen | ties_graph + pynutil.delete("0") | ties_graph + Processor("tmp").INSERT_SPACE + graph_digit
 
     if deterministic:
-        graph = (
-            graph
-            | pynini.cross("0", "oh") + Processor("tmp").INSERT_SPACE + graph_digit
-        )
+        graph = graph | pynini.cross("0", "oh") + Processor("tmp").INSERT_SPACE + graph_digit
     else:
         graph = (
-            graph
-            | (pynini.cross("0", "oh") | pynini.cross("0", "zero"))
-            + Processor("tmp").INSERT_SPACE
-            + graph_digit
+            graph | (pynini.cross("0", "oh") | pynini.cross("0", "zero")) + Processor("tmp").INSERT_SPACE + graph_digit
         )
 
     return graph.optimize()
@@ -76,18 +60,11 @@ def get_four_digit_year_graph(deterministic: bool = False):
 
     graph_with_s = (
         (graph_ties + Processor("tmp").INSERT_SPACE + graph_ties)
-        | (
-            graph_teen
-            + Processor("tmp").INSERT_SPACE
-            + (ties_graph | pynini.cross("1", "ten"))
-        )
+        | (graph_teen + Processor("tmp").INSERT_SPACE + (ties_graph | pynini.cross("1", "ten")))
     ) + pynutil.delete("0s")
 
     graph_with_s |= (
-        (graph_teen | graph_ties)
-        + Processor("tmp").INSERT_SPACE
-        + pynini.cross("00", "hundred")
-        + pynutil.delete("s")
+        (graph_teen | graph_ties) + Processor("tmp").INSERT_SPACE + pynini.cross("00", "hundred") + pynutil.delete("s")
     )
     graph_with_s = (
         graph_with_s
@@ -100,11 +77,7 @@ def get_four_digit_year_graph(deterministic: bool = False):
     )
 
     graph = graph_ties + Processor("tmp").INSERT_SPACE + graph_ties
-    graph |= (
-        (graph_teen | graph_ties)
-        + Processor("tmp").INSERT_SPACE
-        + pynini.cross("00", "hundred")
-    )
+    graph |= (graph_teen | graph_ties) + Processor("tmp").INSERT_SPACE + pynini.cross("00", "hundred")
 
     thousand_graph = (
         graph_digit
@@ -122,9 +95,7 @@ def get_four_digit_year_graph(deterministic: bool = False):
 
     graph |= graph_with_s
     if deterministic:
-        graph = plurals._priority_union(
-            thousand_graph, graph, Processor("tmp").VCHAR.star
-        )
+        graph = plurals._priority_union(thousand_graph, graph, Processor("tmp").VCHAR.star)
     else:
         graph |= thousand_graph
 
@@ -137,9 +108,7 @@ def _get_two_digit_year_with_s_graph():
         pynutil.delete("'").ques
         + pynini.compose(
             ties_graph + pynutil.delete("0s"),
-            pynini.cdrewrite(
-                pynini.cross("y", "ies"), "", "[EOS]", Processor("tmp").VCHAR.star
-            ),
+            pynini.cdrewrite(pynini.cross("y", "ies"), "", "[EOS]", Processor("tmp").VCHAR.star),
         )
     ).optimize()
     return graph
@@ -157,11 +126,7 @@ def _get_year_graph(cardinal_graph, deterministic: bool = False):
     123 A.D., 4200 B.C
     """
     graph = get_four_digit_year_graph(deterministic)
-    graph = (
-        pynini.union("1", "2")
-        + (Processor("tmp").DIGIT ** 3)
-        + (pynini.cross(" s", "s") | "s").ques
-    ) @ graph
+    graph = (pynini.union("1", "2") + (Processor("tmp").DIGIT ** 3) + (pynini.cross(" s", "s") | "s").ques) @ graph
 
     graph |= _get_two_digit_year_with_s_graph()
 
@@ -227,32 +192,22 @@ class Date(Processor):
         """
         cardinal = Cardinal(self.deterministic)
         # january, January, JANUARY
-        month_graph = pynini.string_file(
-            get_abs_path("english/data/date/month_name.tsv")
-        )
+        month_graph = pynini.string_file(get_abs_path("english/data/date/month_name.tsv"))
         # jan, Jan, JAN
-        month_abbr_graph = pynini.string_file(
-            get_abs_path("english/data/date/month_abbr.tsv")
-        )
+        month_abbr_graph = pynini.string_file(get_abs_path("english/data/date/month_abbr.tsv"))
         month_graph |= month_abbr_graph
         month_graph += pynutil.delete(self.PUNCT).ques
 
-        month_numbers_labels = pynini.string_file(
-            get_abs_path("english/data/date/month_number.tsv")
-        )
+        month_numbers_labels = pynini.string_file(get_abs_path("english/data/date/month_number.tsv"))
         cardinal_graph = cardinal.graph_hundred_component_at_least_one_none_zero_digit
 
-        year_graph = _get_year_graph(
-            cardinal_graph=cardinal_graph, deterministic=self.deterministic
-        )
+        year_graph = _get_year_graph(cardinal_graph=cardinal_graph, deterministic=self.deterministic)
 
         # three_digit_year = (self.DIGIT @ cardinal_graph) + self.INSERT_SPACE + (self.DIGIT ** 2) @ cardinal_graph
         # year_graph |= three_digit_year
 
         month_graph = pynutil.insert('month: "') + month_graph + pynutil.insert('"')
-        month_numbers_graph = (
-            pynutil.insert('month: "') + month_numbers_labels + pynutil.insert('"')
-        )
+        month_numbers_graph = pynutil.insert('month: "') + month_numbers_labels + pynutil.insert('"')
 
         endings = ["rd", "th", "st", "nd"]
         endings += [x.upper() for x in endings]
@@ -262,11 +217,7 @@ class Date(Processor):
             pynutil.insert('day: "')
             + pynutil.delete("the ").ques
             + (
-                (
-                    (pynini.union("1", "2") + self.DIGIT)
-                    | self.DIGIT
-                    | (pynini.accep("3") + pynini.union("0", "1"))
-                )
+                ((pynini.union("1", "2") + self.DIGIT) | self.DIGIT | (pynini.accep("3") + pynini.union("0", "1")))
                 + pynutil.delete(endings).ques
             )
             @ cardinal_graph
@@ -277,12 +228,7 @@ class Date(Processor):
             cardinal_graph=cardinal_graph,
             single_digits_graph=cardinal.single_digits_graph,
         )
-        two_digit_year = (
-            pynutil.insert('year: "')
-            + two_digit_year
-            + pynini.union(",", ".").ques
-            + pynutil.insert('"')
-        )
+        two_digit_year = pynutil.insert('year: "') + two_digit_year + pynini.union(",", ".").ques + pynutil.insert('"')
 
         graph_year = (
             pynutil.insert(' year: "')
@@ -328,16 +274,8 @@ class Date(Processor):
                 + (pynutil.add_weight(year_graph, -1.0))
             )
 
-        graph_dmy = (
-            day_graph
-            + self.DELETE_EXTRA_SPACE
-            + self.INSERT_SPACE
-            + month_graph
-            + optional_graph_year
-        )
-        day_ex_month = (
-            self.DIGIT**2 - pynini.project(month_numbers_graph, "input")
-        ) @ day_graph
+        graph_dmy = day_graph + self.DELETE_EXTRA_SPACE + self.INSERT_SPACE + month_graph + optional_graph_year
+        day_ex_month = (self.DIGIT**2 - pynini.project(month_numbers_graph, "input")) @ day_graph
         for x in ["-", "/", "."]:
             delete_sep = pynutil.delete(x)
             graph_dmy |= (
@@ -372,15 +310,9 @@ class Date(Processor):
                 + day_graph
             )
 
-        final_graph = (
-            pynutil.add_weight(graph_mdy | graph_dmy | graph_ymd, -0.1) | year_graph
-        )
+        final_graph = pynutil.add_weight(graph_mdy | graph_dmy | graph_ymd, -0.1) | year_graph
 
-        period_fy = (
-            pynutil.insert('text: "')
-            + _get_financial_period_graph()
-            + pynutil.insert('"')
-        )
+        period_fy = pynutil.insert('text: "') + _get_financial_period_graph() + pynutil.insert('"')
         graph_fy = period_fy + self.INSERT_SPACE + two_digit_year
 
         final_graph |= graph_fy
@@ -395,28 +327,10 @@ class Date(Processor):
         """
         ordinal = Ordinal(self.deterministic)
         phrase = self.NOT_QUOTE.plus
-        day_cardinal = (
-            pynutil.delete("day:")
-            + self.DELETE_SPACE
-            + pynutil.delete('"')
-            + phrase
-            + pynutil.delete('"')
-        )
+        day_cardinal = pynutil.delete("day:") + self.DELETE_SPACE + pynutil.delete('"') + phrase + pynutil.delete('"')
         day = day_cardinal @ ordinal.suffix
-        period = (
-            pynutil.delete("text:")
-            + self.DELETE_SPACE
-            + pynutil.delete('"')
-            + phrase
-            + pynutil.delete('"')
-        )
-        month = (
-            pynutil.delete("month:")
-            + self.DELETE_SPACE
-            + pynutil.delete('"')
-            + phrase
-            + pynutil.delete('"')
-        )
+        period = pynutil.delete("text:") + self.DELETE_SPACE + pynutil.delete('"') + phrase + pynutil.delete('"')
+        month = pynutil.delete("month:") + self.DELETE_SPACE + pynutil.delete('"') + phrase + pynutil.delete('"')
 
         year = (
             pynutil.delete("year:")
@@ -428,21 +342,11 @@ class Date(Processor):
         )
 
         # financial period
-        graph_fy = (
-            pynutil.insert("the ")
-            + period
-            + pynutil.insert(" of")
-            + (self.DELETE_EXTRA_SPACE + year).ques
-        )
+        graph_fy = pynutil.insert("the ") + period + pynutil.insert(" of") + (self.DELETE_EXTRA_SPACE + year).ques
 
         # day month year, month year
         graph_dmy = (
-            (
-                pynutil.insert("the ")
-                + day
-                + self.DELETE_EXTRA_SPACE
-                + pynutil.insert("of ")
-            ).ques
+            (pynutil.insert("the ") + day + self.DELETE_EXTRA_SPACE + pynutil.insert("of ")).ques
             + month
             + (self.DELETE_EXTRA_SPACE + year).ques
         )

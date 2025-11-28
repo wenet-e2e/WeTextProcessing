@@ -23,17 +23,16 @@ from tn.utils import get_abs_path
 class Math(Processor):
 
     def __init__(self):
-        super().__init__(name='math')
+        super().__init__(name="math")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        operator = string_file(
-            get_abs_path('../itn/japanese/data/math/operator.tsv'))
+        operator = string_file(get_abs_path("../itn/japanese/data/math/operator.tsv"))
 
         number = Cardinal().big_integer
         decimal = Cardinal().decimal
         number |= decimal
-        tagger = (number + (operator + number).plus)
+        tagger = number + (operator + number).plus
         tagger = insert('value: "') + tagger + insert('"')
         self.tagger = self.add_tokens(tagger)

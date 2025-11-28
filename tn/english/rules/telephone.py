@@ -48,16 +48,9 @@ class Telephone(Processor):
         zero = pynini.cross("0", "zero")
         if not self.deterministic:
             zero |= pynini.cross("0", pynini.union("o", "oh"))
-        digit = (
-            pynini.invert(
-                pynini.string_file(get_abs_path("english/data/number/digit.tsv"))
-            ).optimize()
-            | zero
-        )
+        digit = pynini.invert(pynini.string_file(get_abs_path("english/data/number/digit.tsv"))).optimize() | zero
 
-        telephone_prompts = pynini.string_file(
-            get_abs_path("english/data/telephone/telephone_prompt.tsv")
-        )
+        telephone_prompts = pynini.string_file(get_abs_path("english/data/telephone/telephone_prompt.tsv"))
         country_code = (
             (telephone_prompts + self.DELETE_EXTRA_SPACE).ques
             + pynini.cross("+", "plus ").ques
@@ -66,15 +59,8 @@ class Telephone(Processor):
             + pynutil.insert(",")
         )
         country_code |= telephone_prompts
-        country_code = (
-            pynutil.insert('country_code: "') + country_code + pynutil.insert('"')
-        )
-        country_code = (
-            country_code
-            + pynutil.delete("-").ques
-            + self.DELETE_SPACE
-            + self.INSERT_SPACE
-        )
+        country_code = pynutil.insert('country_code: "') + country_code + pynutil.insert('"')
+        country_code = country_code + pynutil.delete("-").ques + self.DELETE_SPACE + self.INSERT_SPACE
 
         area_part_default = (digit + self.INSERT_SPACE) ** 2 + digit
         area_part = pynini.cross("800", "eight hundred") | pynini.compose(
@@ -86,17 +72,12 @@ class Telephone(Processor):
             | (
                 pynutil.delete("(")
                 + area_part
-                + (
-                    (pynutil.delete(")") + pynutil.delete(" ").ques)
-                    | pynutil.delete(")-")
-                )
+                + ((pynutil.delete(")") + pynutil.delete(" ").ques) | pynutil.delete(")-"))
             )
         ) + add_separator
 
         del_separator = pynini.union("-", " ", ".").ques
-        number_length = (
-            (self.DIGIT + del_separator) | (self.ALPHA + del_separator)
-        ) ** 7
+        number_length = ((self.DIGIT + del_separator) | (self.ALPHA + del_separator)) ** 7
         number_words = (
             (self.DIGIT @ digit) + (self.INSERT_SPACE | (pynini.cross("-", ", ")))
             | self.ALPHA
@@ -109,9 +90,7 @@ class Telephone(Processor):
         ).star
         number_words = pynini.compose(number_length, number_words)
         number_part = area_part + number_words
-        number_part = (
-            pynutil.insert('number_part: "') + number_part + pynutil.insert('"')
-        )
+        number_part = pynutil.insert('number_part: "') + number_part + pynutil.insert('"')
         extension = (
             pynutil.insert('extension: "')
             + pynini.closure(digit + self.INSERT_SPACE, 0, 3)
@@ -120,58 +99,30 @@ class Telephone(Processor):
         )
         extension = (self.INSERT_SPACE + extension).ques
 
-        graph = plurals._priority_union(
-            country_code + number_part, number_part, self.VCHAR.star
-        ).optimize()
-        graph = plurals._priority_union(
-            country_code + number_part + extension, graph, self.VCHAR.star
-        ).optimize()
-        graph = plurals._priority_union(
-            number_part + extension, graph, self.VCHAR.star
-        ).optimize()
+        graph = plurals._priority_union(country_code + number_part, number_part, self.VCHAR.star).optimize()
+        graph = plurals._priority_union(country_code + number_part + extension, graph, self.VCHAR.star).optimize()
+        graph = plurals._priority_union(number_part + extension, graph, self.VCHAR.star).optimize()
 
         # ip
-        ip_prompts = pynini.string_file(
-            get_abs_path("english/data/telephone/ip_prompt.tsv")
-        )
+        ip_prompts = pynini.string_file(get_abs_path("english/data/telephone/ip_prompt.tsv"))
         digit_to_str_graph = digit + pynini.closure(pynutil.insert(" ") + digit, 0, 2)
-        ip_graph = (
-            digit_to_str_graph + (pynini.cross(".", " dot ") + digit_to_str_graph) ** 3
-        )
+        ip_graph = digit_to_str_graph + (pynini.cross(".", " dot ") + digit_to_str_graph) ** 3
         graph |= (
-            (
-                pynutil.insert('country_code: "')
-                + ip_prompts
-                + pynutil.insert('"')
-                + self.DELETE_EXTRA_SPACE
-            ).ques
+            (pynutil.insert('country_code: "') + ip_prompts + pynutil.insert('"') + self.DELETE_EXTRA_SPACE).ques
             + pynutil.insert('number_part: "')  # noqa
             + ip_graph.optimize()
             + pynutil.insert('"')  # noqa
         )
         # ssn
-        ssn_prompts = pynini.string_file(
-            get_abs_path("english/data/telephone/ssn_prompt.tsv")
-        )
+        ssn_prompts = pynini.string_file(get_abs_path("english/data/telephone/ssn_prompt.tsv"))
         three_digit_part = digit + (pynutil.insert(" ") + digit) ** 2
         two_digit_part = digit + pynutil.insert(" ") + digit
         four_digit_part = digit + (pynutil.insert(" ") + digit) ** 3
         ssn_separator = pynini.cross("-", ", ")
-        ssn_graph = (
-            three_digit_part
-            + ssn_separator
-            + two_digit_part
-            + ssn_separator
-            + four_digit_part
-        )
+        ssn_graph = three_digit_part + ssn_separator + two_digit_part + ssn_separator + four_digit_part
 
         graph |= (
-            (
-                pynutil.insert('country_code: "')
-                + ssn_prompts
-                + pynutil.insert('"')
-                + self.DELETE_EXTRA_SPACE
-            ).ques
+            (pynutil.insert('country_code: "') + ssn_prompts + pynutil.insert('"') + self.DELETE_EXTRA_SPACE).ques
             + pynutil.insert('number_part: "')  # noqa
             + ssn_graph.optimize()  # noqa
             + pynutil.insert('"')  # noqa

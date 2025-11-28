@@ -29,29 +29,27 @@ class Date(Processor):
 
     def build_tagger(self):
         cardinal = Cardinal().ten_thousand_minus
-        day = string_file(get_abs_path('../itn/japanese/data/date/day.tsv'))
-        month = string_file(
-            get_abs_path('../itn/japanese/data/date/month.tsv'))
-        to = cross('から', '〜')
+        day = string_file(get_abs_path("../itn/japanese/data/date/day.tsv"))
+        month = string_file(get_abs_path("../itn/japanese/data/date/month.tsv"))
+        to = cross("から", "〜")
 
         # 一月 一日 一年
-        year = (insert('year: "') + cardinal + (to + cardinal).ques +
-                delete('年') + insert('"'))
-        month = (insert('month: "') + month + (to + month).ques + delete('月') +
-                 insert('"'))
-        day = (insert('day: "') + day + (to + day).ques + delete('日') +
-               insert('"'))
+        year = insert('year: "') + cardinal + (to + cardinal).ques + delete("年") + insert('"')
+        month = insert('month: "') + month + (to + month).ques + delete("月") + insert('"')
+        day = insert('day: "') + day + (to + day).ques + delete("日") + insert('"')
 
         # 二千二十四年十月一日 二千二十四年十月 十月一日
-        graph_date = (year + insert(" ") + month
-                      | month + insert(" ") + day
-                      | year + insert(" ") + month + insert(" ") + day)
+        graph_date = (
+            year + insert(" ") + month | month + insert(" ") + day | year + insert(" ") + month + insert(" ") + day
+        )
 
         # specific context for era year, e.g., L6 -> "令和6年"
-        context = union(accep('今年は'), accep('来年は'), accep('再来年は'),
-                        accep('去年は'), accep('一昨年は'), accep('おととしは'))
-        era_year = union(cross("R", "令和"), cross("H", "平成"), cross("S", "昭和"),
-                         cross("T", "大正"), cross("M", "明治"))
+        context = union(
+            accep("今年は"), accep("来年は"), accep("再来年は"), accep("去年は"), accep("一昨年は"), accep("おととしは")
+        )
+        era_year = union(
+            cross("R", "令和"), cross("H", "平成"), cross("S", "昭和"), cross("T", "大正"), cross("M", "明治")
+        )
         era_year = context + era_year + cardinal
         era_year = insert('year: "') + era_year + insert('"')
 
@@ -59,14 +57,14 @@ class Date(Processor):
         self.tagger = self.add_tokens(date).optimize()
 
     def build_verbalizer(self):
-        year = delete('year: "') + self.SIGMA + insert('年') + delete('"')
+        year = delete('year: "') + self.SIGMA + insert("年") + delete('"')
         era_year = delete('year: "') + self.SIGMA + delete('"')
-        month = delete('month: "') + self.SIGMA + insert('月') + delete('"')
-        day = delete('day: "') + self.SIGMA + insert('日') + delete('"')
+        month = delete('month: "') + self.SIGMA + insert("月") + delete('"')
+        day = delete('day: "') + self.SIGMA + insert("日") + delete('"')
 
-        graph_regular = (year + delete(' ') + month
-                         | month + delete(' ') + day
-                         | year + delete(' ') + month + delete(' ') + day)
+        graph_regular = (
+            year + delete(" ") + month | month + delete(" ") + day | year + delete(" ") + month + delete(" ") + day
+        )
 
         graph = graph_regular | era_year
         self.verbalizer = self.delete_tokens(graph).optimize()

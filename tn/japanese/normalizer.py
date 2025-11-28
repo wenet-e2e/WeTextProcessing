@@ -33,15 +33,17 @@ from tn.processor import Processor
 
 class Normalizer(Processor):
 
-    def __init__(self,
-                 cache_dir=None,
-                 overwrite_cache=False,
-                 transliterate=False,
-                 remove_interjections=False,
-                 remove_puncts=False,
-                 full_to_half=True,
-                 tag_oov=False):
-        super().__init__(name='ja_normalizer')
+    def __init__(
+        self,
+        cache_dir=None,
+        overwrite_cache=False,
+        transliterate=False,
+        remove_interjections=False,
+        remove_puncts=False,
+        full_to_half=True,
+        tag_oov=False,
+    ):
+        super().__init__(name="ja_normalizer")
         self.transliterate = transliterate
         self.remove_interjections = remove_interjections
         self.remove_puncts = remove_puncts
@@ -49,7 +51,7 @@ class Normalizer(Processor):
         self.tag_oov = tag_oov
         if cache_dir is None:
             cache_dir = files("tn")
-        self.build_fst('ja_tn', cache_dir, overwrite_cache)
+        self.build_fst("ja_tn", cache_dir, overwrite_cache)
 
     def build_tagger(self):
         processor = PreProcessor(full_to_half=self.full_to_half).processor
@@ -63,13 +65,12 @@ class Normalizer(Processor):
         sport = add_weight(Sport().tagger, 1.06)
         time = add_weight(Time().tagger, 1.05)
         whitelist = add_weight(Whitelist().tagger, 1.03)
-        tagger = (cardinal | char | date | fraction | math | measure | money
-                  | sport | time | whitelist).optimize()
+        tagger = (cardinal | char | date | fraction | math | measure | money | sport | time | whitelist).optimize()
         if self.transliterate:
             transliteration = add_weight(Transliteration().tagger, 1.04)
             tagger = (tagger | transliteration).optimize()
         tagger = (processor @ tagger).star
-        self.tagger = tagger @ self.build_rule(delete(' '), r='[EOS]')
+        self.tagger = tagger @ self.build_rule(delete(" "), r="[EOS]")
 
     def build_verbalizer(self):
         cardinal = Cardinal().verbalizer
@@ -83,13 +84,11 @@ class Normalizer(Processor):
         time = Time().verbalizer
         transliteration = Transliteration().verbalizer
         whitelist = Whitelist().verbalizer
-        verbalizer = (cardinal | char | date | fraction | math | measure
-                      | money | sport | time | whitelist).optimize()
+        verbalizer = (cardinal | char | date | fraction | math | measure | money | sport | time | whitelist).optimize()
         if self.transliterate:
             verbalizer = (verbalizer | transliteration).optimize()
 
         processor = PostProcessor(
-            remove_interjections=self.remove_interjections,
-            remove_puncts=self.remove_puncts,
-            tag_oov=self.tag_oov).processor
+            remove_interjections=self.remove_interjections, remove_puncts=self.remove_puncts, tag_oov=self.tag_oov
+        ).processor
         self.verbalizer = (verbalizer @ processor).star

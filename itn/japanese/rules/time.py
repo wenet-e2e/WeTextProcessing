@@ -22,30 +22,32 @@ from tn.utils import get_abs_path
 class Time(Processor):
 
     def __init__(self):
-        super().__init__(name='time')
+        super().__init__(name="time")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        h = string_file(get_abs_path('../itn/japanese/data/time/hour.tsv'))
-        m = string_file(get_abs_path('../itn/japanese/data/time/minute.tsv'))
-        s = string_file(get_abs_path('../itn/japanese/data/time/second.tsv'))
+        h = string_file(get_abs_path("../itn/japanese/data/time/hour.tsv"))
+        m = string_file(get_abs_path("../itn/japanese/data/time/minute.tsv"))
+        s = string_file(get_abs_path("../itn/japanese/data/time/second.tsv"))
 
         # 一時三十分三秒 一時三十分 三十分三秒 一時 三十分 三秒
-        tagger = (((insert('hour: "') + h + insert('" ')).ques +
-                   (insert('minute: "') + m + insert('"')) +
-                   (insert(' second: "') + s + insert('"')).ques)
-                  | insert('hour: "') + h + insert('" ')
-                  | insert(' second: "') + s + insert('"'))
+        tagger = (
+            (
+                (insert('hour: "') + h + insert('" ')).ques
+                + (insert('minute: "') + m + insert('"'))
+                + (insert(' second: "') + s + insert('"')).ques
+            )
+            | insert('hour: "') + h + insert('" ')
+            | insert(' second: "') + s + insert('"')
+        )
         tagger = self.add_tokens(tagger)
         self.tagger = tagger
 
     def build_verbalizer(self):
-        hour = (delete('hour: "') + self.SIGMA + delete('"') +
-                delete(' ').ques + insert('時'))
-        minute = delete('minute: "') + self.SIGMA + delete('"') + insert('分')
-        second = (delete(' ').ques + delete('second: "') + self.SIGMA +
-                  delete('"') + insert('秒'))
+        hour = delete('hour: "') + self.SIGMA + delete('"') + delete(" ").ques + insert("時")
+        minute = delete('minute: "') + self.SIGMA + delete('"') + insert("分")
+        second = delete(" ").ques + delete('second: "') + self.SIGMA + delete('"') + insert("秒")
 
         verbalizer = hour.ques + minute + second.ques | second | hour
         self.verbalizer = self.delete_tokens(verbalizer)

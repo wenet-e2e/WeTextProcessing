@@ -23,22 +23,22 @@ from tn.utils import get_abs_path
 class Sport(Processor):
 
     def __init__(self):
-        super().__init__(name='sport')
+        super().__init__(name="sport")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        country = string_file(get_abs_path('japanese/data/sport/country.tsv'))
-        club = string_file(get_abs_path('japanese/data/sport/club.tsv'))
-        rmsign = delete('/') | delete('-') | delete(':')
-        rmspace = delete(' ').ques
+        country = string_file(get_abs_path("japanese/data/sport/country.tsv"))
+        club = string_file(get_abs_path("japanese/data/sport/club.tsv"))
+        rmsign = delete("/") | delete("-") | delete(":")
+        rmspace = delete(" ").ques
 
         number = Cardinal().positive_integer
-        score = rmspace + number + rmsign + insert('対') + number + rmspace
-        only_score = rmspace + number + cross(':', '対') + number + rmspace
-        tagger = ((insert('team: "') + (country | club) +
-                   insert('" score: "') + score + insert('"'))
-                  | (insert('score: "') + only_score + insert('"')))
+        score = rmspace + number + rmsign + insert("対") + number + rmspace
+        only_score = rmspace + number + cross(":", "対") + number + rmspace
+        tagger = (insert('team: "') + (country | club) + insert('" score: "') + score + insert('"')) | (
+            insert('score: "') + only_score + insert('"')
+        )
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):

@@ -20,7 +20,7 @@ from tn.chinese.test.utils import parse_test_case
 
 class TestTime:
     time = Time()
-    time_cases = parse_test_case('data/time.txt')
+    time_cases = parse_test_case("data/time.txt")
 
     @pytest.mark.parametrize("written, spoken", time_cases)
     def test_time(self, written, spoken):

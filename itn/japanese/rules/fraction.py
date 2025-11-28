@@ -23,46 +23,35 @@ from tn.utils import get_abs_path
 class Fraction(Processor):
 
     def __init__(self):
-        super().__init__(name='fraction')
+        super().__init__(name="fraction")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
         cardinal = Cardinal(enable_million=True).number
         decimal = Cardinal(enable_million=True).decimal
-        sign = string_file(
-            get_abs_path('../itn/japanese/data/number/sign.tsv'))
+        sign = string_file(get_abs_path("../itn/japanese/data/number/sign.tsv"))
         sign = insert('sign: "') + sign + insert('"')
 
-        fraction_word = (delete("分の")
-                         | delete(" 分 の　")
-                         | delete("分 の　")
-                         | delete("分 の"))
+        fraction_word = delete("分の") | delete(" 分 の　") | delete("分 の　") | delete("分 の")
         root_word = accep("√") | cross("ルート", "√")
 
         # denominator
-        denominator = ((decimal
-                        | (cardinal + root_word + cardinal)
-                        | (root_word + cardinal)
-                        | cardinal) + delete(' ').ques)
+        denominator = (decimal | (cardinal + root_word + cardinal) | (root_word + cardinal) | cardinal) + delete(
+            " "
+        ).ques
         denominator = insert('denominator: "') + denominator + insert('"')
 
         # numerator
-        numerator = (closure(delete(' ')) + (decimal
-                                             | cardinal + root_word + cardinal
-                                             | root_word + cardinal
-                                             | cardinal))
+        numerator = closure(delete(" ")) + (decimal | cardinal + root_word + cardinal | root_word + cardinal | cardinal)
         numerator = insert('numerator: "') + numerator + insert('"')
 
         # fraction
-        fraction_sign = (sign + insert(" ") + denominator + insert(" ") +
-                         fraction_word + numerator)
-        fraction_no_sign = denominator + insert(
-            " ") + fraction_word + numerator
+        fraction_sign = sign + insert(" ") + denominator + insert(" ") + fraction_word + numerator
+        fraction_no_sign = denominator + insert(" ") + fraction_word + numerator
         regular_fractions = fraction_sign | fraction_no_sign
 
-        integer_fraction_sign = ((sign + insert(" ")).ques + denominator +
-                                 insert(" ") + fraction_word + numerator)
+        integer_fraction_sign = (sign + insert(" ")).ques + denominator + insert(" ") + fraction_word + numerator
         fraction = regular_fractions | integer_fraction_sign
         self.tagger = self.add_tokens(fraction).optimize()
 
@@ -70,6 +59,5 @@ class Fraction(Processor):
         sign = delete('sign: "') + self.SIGMA + delete('"')
         denominator = delete('denominator: "') + self.SIGMA + delete('"')
         numerator = delete('numerator: "') + self.SIGMA + delete('"')
-        fraction = ((sign + delete(' ')).ques + numerator + delete(' ') +
-                    insert('/') + denominator)
+        fraction = (sign + delete(" ")).ques + numerator + delete(" ") + insert("/") + denominator
         self.verbalizer = self.delete_tokens(fraction).optimize()

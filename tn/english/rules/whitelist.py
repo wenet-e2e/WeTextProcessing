@@ -62,14 +62,10 @@ class WhiteList(Processor):
             graph = pynini.string_map(whitelist)
             return graph
 
-        graph = _get_whitelist_graph(
-            self.input_case, get_abs_path("english/data/whitelist/tts.tsv")
-        )
+        graph = _get_whitelist_graph(self.input_case, get_abs_path("english/data/whitelist/tts.tsv"))
         graph |= pynini.compose(
             pynini.difference(self.VCHAR.star, pynini.accep("/")).optimize(),
-            _get_whitelist_graph(
-                self.input_case, get_abs_path("english/data/whitelist/symbol.tsv")
-            ),
+            _get_whitelist_graph(self.input_case, get_abs_path("english/data/whitelist/symbol.tsv")),
         ).optimize()
 
         if self.deterministic:
@@ -88,11 +84,7 @@ class WhiteList(Processor):
             )
 
         for x in [".", ". "]:
-            graph |= (
-                self.UPPER
-                + pynini.closure(pynutil.delete(x) + self.UPPER, 2)
-                + pynutil.delete(".").ques
-            )
+            graph |= self.UPPER + pynini.closure(pynutil.delete(x) + self.UPPER, 2) + pynutil.delete(".").ques
 
         # convert to states only if comma is present before the abbreviation to avoid converting all caps words,
         # e.g. "IN", "OH", "OK"
@@ -108,17 +100,11 @@ class WhiteList(Processor):
 
         states.extend(additional_options)
         state_graph = pynini.string_map(states)
-        graph |= (
-            self.ALPHA.plus
-            + pynini.union(", ", ",")
-            + pynini.invert(state_graph).optimize()
-        )
+        graph |= self.ALPHA.plus + pynini.union(", ", ",") + pynini.invert(state_graph).optimize()
 
         self.graph = graph.optimize()
 
-        fianl_graph = (
-            pynutil.insert('name: "') + self.graph + pynutil.insert('"')
-        ).optimize()
+        fianl_graph = (pynutil.insert('name: "') + self.graph + pynutil.insert('"')).optimize()
         self.tagger = self.add_tokens(fianl_graph)
 
     def build_verbalizer(self):
@@ -142,22 +128,13 @@ def get_formats(input_f, input_case=INPUT_CASED, is_default=True):
     for x, y in multiple_formats:
         if input_case == INPUT_LOWER_CASED:
             x = x.lower()
-        additional_options.append(
-            (f"{x}.", y)
-        )  # default "dr" -> doctor, this includes period "dr." -> doctor
-        additional_options.append(
-            (f"{x[0].upper() + x[1:]}", f"{y[0].upper() + y[1:]}")
-        )  # "Dr" -> Doctor
-        additional_options.append(
-            (f"{x[0].upper() + x[1:]}.", f"{y[0].upper() + y[1:]}")
-        )  # "Dr." -> Doctor
+        additional_options.append((f"{x}.", y))  # default "dr" -> doctor, this includes period "dr." -> doctor
+        additional_options.append((f"{x[0].upper() + x[1:]}", f"{y[0].upper() + y[1:]}"))  # "Dr" -> Doctor
+        additional_options.append((f"{x[0].upper() + x[1:]}.", f"{y[0].upper() + y[1:]}"))  # "Dr." -> Doctor
     multiple_formats.extend(additional_options)
 
     if not is_default:
-        multiple_formats = [
-            (x, f"|raw_start|{x}|raw_end||norm_start|{y}|norm_end|")
-            for (x, y) in multiple_formats
-        ]
+        multiple_formats = [(x, f"|raw_start|{x}|raw_end||norm_start|{y}|norm_end|") for (x, y) in multiple_formats]
 
     multiple_formats = pynini.string_map(multiple_formats)
     return multiple_formats

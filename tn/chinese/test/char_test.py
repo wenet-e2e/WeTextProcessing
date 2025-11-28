@@ -21,7 +21,7 @@ from tn.chinese.test.utils import parse_test_case
 class TestChar:
 
     char = Char()
-    char_cases = parse_test_case('data/char.txt')
+    char_cases = parse_test_case("data/char.txt")
 
     @pytest.mark.parametrize("written, spoken", char_cases)
     def test_char(self, written, spoken):

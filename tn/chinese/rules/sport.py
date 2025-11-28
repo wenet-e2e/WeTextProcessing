@@ -23,20 +23,19 @@ from tn.utils import get_abs_path
 class Sport(Processor):
 
     def __init__(self):
-        super().__init__(name='sport')
+        super().__init__(name="sport")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        country = string_file(get_abs_path('chinese/data/sport/country.tsv'))
-        club = string_file(get_abs_path('chinese/data/sport/club.tsv'))
-        rmsign = delete('/') | delete('-') | delete(':')
-        rmspace = delete(' ').ques
+        country = string_file(get_abs_path("chinese/data/sport/country.tsv"))
+        club = string_file(get_abs_path("chinese/data/sport/club.tsv"))
+        rmsign = delete("/") | delete("-") | delete(":")
+        rmspace = delete(" ").ques
 
         number = Cardinal().number
-        score = rmspace + number + rmsign + insert('比') + number + rmspace
-        tagger = (insert('team: "') + (country | club) + insert('" score: "') +
-                  score + insert('"'))
+        score = rmspace + number + rmsign + insert("比") + number + rmspace
+        tagger = insert('team: "') + (country | club) + insert('" score: "') + score + insert('"')
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):

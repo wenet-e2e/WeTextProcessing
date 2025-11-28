@@ -21,7 +21,7 @@ from tn.english.test.utils import parse_test_case
 class TestRange:
 
     range = Range(deterministic=False)
-    range_cases = parse_test_case('data/range.txt')
+    range_cases = parse_test_case("data/range.txt")
 
     @pytest.mark.parametrize("written, spoken", range_cases)
     def test_range(self, written, spoken):

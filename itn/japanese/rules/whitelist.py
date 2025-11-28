@@ -22,13 +22,12 @@ from tn.utils import get_abs_path
 class Whitelist(Processor):
 
     def __init__(self):
-        super().__init__(name='whitelist')
+        super().__init__(name="whitelist")
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        whitelist = string_file(
-            get_abs_path('../itn/japanese/data/default/whitelist.tsv'))
+        whitelist = string_file(get_abs_path("../itn/japanese/data/default/whitelist.tsv"))
 
         tagger = insert('value: "') + whitelist + insert('"')
         self.tagger = self.add_tokens(tagger)

@@ -18,7 +18,7 @@ import os
 def parse_test_case(file_name):
     file = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + file_name
 
-    delimiter = '=>'
+    delimiter = "=>"
     with open(file) as fin:
         for line in fin:
             assert delimiter in line
@@ -26,7 +26,7 @@ def parse_test_case(file_name):
             assert 0 < len(arr) <= 2
 
             written = arr[0].strip()
-            spoken = ''
+            spoken = ""
             if len(arr) > 1:
                 spoken = arr[1].strip()
             yield (written, spoken)

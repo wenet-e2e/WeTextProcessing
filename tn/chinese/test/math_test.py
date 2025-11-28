@@ -21,7 +21,7 @@ from tn.chinese.test.utils import parse_test_case
 class TestMath:
 
     math = Math()
-    math_cases = parse_test_case('data/math.txt')
+    math_cases = parse_test_case("data/math.txt")
 
     @pytest.mark.parametrize("written, spoken", math_cases)
     def test_math(self, written, spoken):

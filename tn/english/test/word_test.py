@@ -21,7 +21,7 @@ from tn.english.test.utils import parse_test_case
 class TestWord:
 
     word = Word()
-    word_cases = parse_test_case('data/word.txt')
+    word_cases = parse_test_case("data/word.txt")
 
     @pytest.mark.parametrize("written, spoken", word_cases)
     def test_char(self, written, spoken):

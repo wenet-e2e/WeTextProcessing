@@ -22,23 +22,16 @@ from tn.utils import get_abs_path
 
 class PostProcessor(Processor):
 
-    def __init__(self,
-                 remove_interjections=True,
-                 remove_puncts=False,
-                 tag_oov=False):
-        super().__init__(name='postprocessor')
-        blacklist = string_file(
-            get_abs_path('japanese/data/default/blacklist.tsv'))
-        puncts = string_file(
-            get_abs_path('japanese/data/char/punctuations_ja.tsv'))
+    def __init__(self, remove_interjections=True, remove_puncts=False, tag_oov=False):
+        super().__init__(name="postprocessor")
+        blacklist = string_file(get_abs_path("japanese/data/default/blacklist.tsv"))
+        puncts = string_file(get_abs_path("japanese/data/char/punctuations_ja.tsv"))
         # 片假名/平假名/浊音/半浊音/小写假名
-        ja_charset_std = string_file(
-            get_abs_path('japanese/data/char/hiragana_and_katakana.tsv'))
+        ja_charset_std = string_file(get_abs_path("japanese/data/char/hiragana_and_katakana.tsv"))
         # 日语常用汉字表
-        ja_charset_ext = string_file(
-            get_abs_path('japanese/data/char/common_chinese_char.tsv'))
+        ja_charset_ext = string_file(get_abs_path("japanese/data/char/common_chinese_char.tsv"))
 
-        processor = self.build_rule('')
+        processor = self.build_rule("")
         if remove_interjections:
             processor @= self.build_rule(delete(blacklist))
 
@@ -46,9 +39,8 @@ class PostProcessor(Processor):
             processor @= self.build_rule(delete(puncts | self.PUNCT))
 
         if tag_oov:
-            charset = (ja_charset_std | ja_charset_ext | puncts | self.DIGIT
-                       | self.ALPHA | self.PUNCT | self.SPACE)
+            charset = ja_charset_std | ja_charset_ext | puncts | self.DIGIT | self.ALPHA | self.PUNCT | self.SPACE
             oov = difference(self.VCHAR, charset)
-            processor @= Tagger('oov', oov, self.VSIGMA)._tagger
+            processor @= Tagger("oov", oov, self.VSIGMA)._tagger
 
         self.processor = processor.optimize()

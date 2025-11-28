@@ -21,7 +21,7 @@ from tn.english.test.utils import parse_test_case
 class TestNormalizer:
 
     normalizer = Normalizer(overwrite_cache=True)
-    cases = parse_test_case('data/normalizer.txt')
+    cases = parse_test_case("data/normalizer.txt")
 
     @pytest.mark.parametrize("written, spoken", cases)
     def test_normalizer(self, written, spoken):

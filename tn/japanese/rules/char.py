@@ -20,7 +20,7 @@ from tn.processor import Processor
 class Char(Processor):
 
     def __init__(self):
-        super().__init__(name='char')
+        super().__init__(name="char")
         self.build_tagger()
         self.build_verbalizer()
 
