@@ -64,7 +64,7 @@ class Cardinal(Processor):
         # 1.11, 1.01
         number = digits | ten | hundred | thousand | ten_thousand
         number = sign.ques + number + (dot + digits.plus).ques
-        number @= self.build_rule(cross("二百", "两百") | cross("二千", "两千") | cross("二万", "两万")).optimize()
+        number @= self.build_rule(cross("二百", "两百") | cross("二千", "两千") | cross("二万", "两万"), "[BOS]").optimize()
         percent = insert("百分之") + number + delete("%")
         self.number = accep("约").ques + accep("人均").ques + (number | percent)
 
