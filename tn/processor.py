@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 import string
-import logging
 
-from tn.token_parser import TokenParser
-
-from pynini import (cdrewrite, cross, difference, escape, Fst, shortestpath,
-                    union, closure, invert)
+from pynini import Fst, cdrewrite, closure, cross, difference, escape, invert, shortestpath, union
 from pynini.lib import byte, utf8
 from pynini.lib.pynutil import delete, insert
+
+from tn.token_parser import TokenParser
 
 
 class Processor:

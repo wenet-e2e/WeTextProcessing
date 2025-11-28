@@ -16,9 +16,9 @@
 import pynini
 from pynini.lib import pynutil
 
+from tn.english.rules.ordinal import Ordinal
 from tn.processor import Processor
 from tn.utils import get_abs_path, load_labels
-from tn.english.rules.ordinal import Ordinal
 
 
 class Roman(Processor):

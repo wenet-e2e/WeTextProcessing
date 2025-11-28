@@ -16,11 +16,11 @@
 import pynini
 from pynini.lib import pynutil
 
+from tn.english.rules.cardinal import Cardinal
+from tn.english.rules.date import Date
+from tn.english.rules.time import Time
 from tn.processor import Processor
 from tn.utils import get_abs_path
-from tn.english.rules.cardinal import Cardinal
-from tn.english.rules.time import Time
-from tn.english.rules.date import Date
 
 
 class Range(Processor):

@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pynini import accep, closure, cross, string_file
+from pynini.lib.pynutil import delete, insert
+
 from itn.japanese.rules.cardinal import Cardinal
 from tn.processor import Processor
 from tn.utils import get_abs_path
-
-from pynini import accep, cross, string_file, closure
-from pynini.lib.pynutil import delete, insert
 
 
 class Fraction(Processor):

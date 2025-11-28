@@ -14,12 +14,12 @@
 # limitations under the License.
 
 import pynini
-from pynini.lib import pynutil
 from pynini.examples import plurals
+from pynini.lib import pynutil
 
+from tn.english.rules.cardinal import Cardinal
 from tn.processor import Processor
 from tn.utils import get_abs_path
-from tn.english.rules.cardinal import Cardinal
 
 
 class Electronic(Processor):

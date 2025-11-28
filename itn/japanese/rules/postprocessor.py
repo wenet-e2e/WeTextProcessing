@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tn.processor import Processor
-from tn.utils import get_abs_path
-
-from pynini import string_file, difference
+from pynini import difference, string_file
 from pynini.lib.pynutil import delete
 from pynini.lib.tagger import Tagger
+
+from tn.processor import Processor
+from tn.utils import get_abs_path
 
 
 class PostProcessor(Processor):

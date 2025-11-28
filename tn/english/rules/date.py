@@ -17,10 +17,10 @@ import pynini
 from pynini.examples import plurals
 from pynini.lib import pynutil
 
-from tn.processor import Processor
-from tn.utils import get_abs_path, load_labels, augment_labels_with_punct_at_end
 from tn.english.rules.cardinal import Cardinal
 from tn.english.rules.ordinal import Ordinal
+from tn.processor import Processor
+from tn.utils import augment_labels_with_punct_at_end, get_abs_path, load_labels
 
 graph_teen = pynini.invert(
     pynini.string_file(get_abs_path("english/data/number/teen.tsv"))

@@ -13,7 +13,7 @@
 # limitations under the License.
 import sys
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 version = sys.argv[-1].split('=')[1]
 sys.argv = sys.argv[0:len(sys.argv) - 1]

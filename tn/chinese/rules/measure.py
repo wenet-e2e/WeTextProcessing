@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pynini import accep, cross, string_file
+from pynini.lib.pynutil import add_weight, delete, insert
+
 from tn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
 from tn.utils import get_abs_path
-
-from pynini import accep, cross, string_file
-from pynini.lib.pynutil import delete, insert, add_weight
 
 
 class Measure(Processor):

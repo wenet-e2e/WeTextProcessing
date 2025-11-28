@@ -13,24 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tn.processor import Processor
+from importlib_resources import files
+from pynini.lib.pynutil import add_weight, delete
+
 from tn.english.rules.cardinal import Cardinal
-from tn.english.rules.ordinal import Ordinal
-from tn.english.rules.decimal import Decimal
-from tn.english.rules.fraction import Fraction
-from tn.english.rules.word import Word
 from tn.english.rules.date import Date
-from tn.english.rules.time import Time
+from tn.english.rules.decimal import Decimal
+from tn.english.rules.electronic import Electronic
+from tn.english.rules.fraction import Fraction
 from tn.english.rules.measure import Measure
 from tn.english.rules.money import Money
-from tn.english.rules.telephone import Telephone
-from tn.english.rules.electronic import Electronic
-from tn.english.rules.whitelist import WhiteList
+from tn.english.rules.ordinal import Ordinal
 from tn.english.rules.punctuation import Punctuation
 from tn.english.rules.range import Range
-
-from pynini.lib.pynutil import add_weight, delete
-from importlib_resources import files
+from tn.english.rules.telephone import Telephone
+from tn.english.rules.time import Time
+from tn.english.rules.whitelist import WhiteList
+from tn.english.rules.word import Word
+from tn.processor import Processor
 
 
 class Normalizer(Processor):

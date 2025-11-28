@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from itn.japanese.rules.cardinal import Cardinal
-from tn.processor import Processor
-
 from pynini import accep
 from pynini.lib.pynutil import insert
+
+from itn.japanese.rules.cardinal import Cardinal
+from tn.processor import Processor
 
 
 class Ordinal(Processor):

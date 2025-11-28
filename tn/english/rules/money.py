@@ -16,11 +16,11 @@
 import pynini
 from pynini.lib import pynutil
 
-from tn.processor import Processor
-from tn.utils import get_abs_path, load_labels
 from tn.english.rules.cardinal import Cardinal
 from tn.english.rules.decimal import Decimal
 from tn.english.rules.measure import SINGULAR_TO_PLURAL
+from tn.processor import Processor
+from tn.utils import get_abs_path, load_labels
 
 maj_singular = pynini.string_file(
     (get_abs_path("english/data/money/currency_major.tsv"))

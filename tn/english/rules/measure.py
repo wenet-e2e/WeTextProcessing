@@ -17,12 +17,12 @@ import pynini
 from pynini.examples import plurals
 from pynini.lib import pynutil
 
-from tn.processor import Processor
-from tn.utils import get_abs_path, load_labels, get_formats
 from tn.english.rules.cardinal import Cardinal
-from tn.english.rules.ordinal import Ordinal
 from tn.english.rules.decimal import Decimal
 from tn.english.rules.fraction import Fraction
+from tn.english.rules.ordinal import Ordinal
+from tn.processor import Processor
+from tn.utils import get_abs_path, get_formats, load_labels
 
 suppletive = pynini.string_file(get_abs_path("english/data/suppletive.tsv"))
 # _v = pynini.union("a", "e", "i", "o", "u")

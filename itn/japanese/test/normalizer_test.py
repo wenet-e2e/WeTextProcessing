@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
-
 from itertools import chain
+
+import pytest
 
 from itn.japanese.inverse_normalizer import InverseNormalizer
 from itn.japanese.test.utils import parse_test_case

@@ -14,11 +14,12 @@
 
 import argparse
 
+from itn.main import str2bool
+
 # TODO(pzd17 & sxc19): multi-language support
 from tn.chinese.normalizer import Normalizer as ZhNormalizer
 from tn.english.normalizer import Normalizer as EnNormalizer
 from tn.japanese.normalizer import Normalizer as JaNormalizer
-from itn.main import str2bool
 
 
 def main():

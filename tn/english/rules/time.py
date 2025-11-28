@@ -16,9 +16,9 @@
 import pynini
 from pynini.lib import pynutil
 
-from tn.processor import Processor
-from tn.utils import get_abs_path, load_labels, augment_labels_with_punct_at_end
 from tn.english.rules.cardinal import Cardinal
+from tn.processor import Processor
+from tn.utils import augment_labels_with_punct_at_end, get_abs_path, load_labels
 
 
 class Time(Processor):

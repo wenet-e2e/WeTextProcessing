@@ -15,8 +15,8 @@
 import sys
 from unicodedata import category
 
+from pynini import accep, closure, cross, union
 from pynini.examples import plurals
-from pynini import cross, union, closure, accep
 from pynini.lib.pynutil import add_weight, delete, insert
 
 from tn.processor import Processor

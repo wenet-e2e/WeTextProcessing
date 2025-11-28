@@ -12,21 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tn.processor import Processor
+from importlib_resources import files
+from pynini.lib.pynutil import add_weight, delete
+
 from itn.chinese.rules.cardinal import Cardinal
 from itn.chinese.rules.char import Char
 from itn.chinese.rules.date import Date
 from itn.chinese.rules.fraction import Fraction
+from itn.chinese.rules.license_plate import LicensePlate
 from itn.chinese.rules.math import Math
 from itn.chinese.rules.measure import Measure
 from itn.chinese.rules.money import Money
-from itn.chinese.rules.whitelist import Whitelist
-from itn.chinese.rules.time import Time
 from itn.chinese.rules.postprocessor import PostProcessor
-from itn.chinese.rules.license_plate import LicensePlate
-
-from pynini.lib.pynutil import add_weight, delete
-from importlib_resources import files
+from itn.chinese.rules.time import Time
+from itn.chinese.rules.whitelist import Whitelist
+from tn.processor import Processor
 
 
 class InverseNormalizer(Processor):

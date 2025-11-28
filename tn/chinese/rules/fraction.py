@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pynini.lib.pynutil import delete, insert
+
 from tn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
-
-from pynini.lib.pynutil import delete, insert
 
 
 class Fraction(Processor):

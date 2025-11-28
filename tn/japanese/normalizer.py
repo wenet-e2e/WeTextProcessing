@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tn.processor import Processor
+from importlib_resources import files
+from pynini.lib.pynutil import add_weight, delete
+
 from tn.japanese.rules.cardinal import Cardinal
 from tn.japanese.rules.char import Char
 from tn.japanese.rules.date import Date
@@ -26,9 +28,7 @@ from tn.japanese.rules.sport import Sport
 from tn.japanese.rules.time import Time
 from tn.japanese.rules.transliteration import Transliteration
 from tn.japanese.rules.whitelist import Whitelist
-
-from pynini.lib.pynutil import add_weight, delete
-from importlib_resources import files
+from tn.processor import Processor
 
 
 class Normalizer(Processor):

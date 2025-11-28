@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tn.processor import Processor
+from importlib_resources import files
+from pynini.lib.pynutil import add_weight, delete
+
 from tn.chinese.rules.cardinal import Cardinal
 from tn.chinese.rules.char import Char
 from tn.chinese.rules.date import Date
@@ -25,9 +27,7 @@ from tn.chinese.rules.preprocessor import PreProcessor
 from tn.chinese.rules.sport import Sport
 from tn.chinese.rules.time import Time
 from tn.chinese.rules.whitelist import Whitelist
-
-from pynini.lib.pynutil import add_weight, delete
-from importlib_resources import files
+from tn.processor import Processor
 
 
 class Normalizer(Processor):

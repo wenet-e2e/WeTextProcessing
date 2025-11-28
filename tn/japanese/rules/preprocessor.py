@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pynini import string_file
+
 from tn.processor import Processor
 from tn.utils import get_abs_path
-
-from pynini import string_file
 
 
 class PreProcessor(Processor):

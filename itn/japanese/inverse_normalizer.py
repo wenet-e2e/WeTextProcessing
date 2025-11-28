@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tn.processor import Processor
+from importlib_resources import files
+from pynini.lib.pynutil import add_weight, delete
+
 from itn.japanese.rules.cardinal import Cardinal
 from itn.japanese.rules.char import Char
 from itn.japanese.rules.date import Date
@@ -21,13 +23,11 @@ from itn.japanese.rules.math import Math
 from itn.japanese.rules.measure import Measure
 from itn.japanese.rules.money import Money
 from itn.japanese.rules.ordinal import Ordinal
-from itn.japanese.rules.preprocessor import PreProcessor
 from itn.japanese.rules.postprocessor import PostProcessor
-from itn.japanese.rules.whitelist import Whitelist
+from itn.japanese.rules.preprocessor import PreProcessor
 from itn.japanese.rules.time import Time
-
-from pynini.lib.pynutil import add_weight, delete
-from importlib_resources import files
+from itn.japanese.rules.whitelist import Whitelist
+from tn.processor import Processor
 
 
 class InverseNormalizer(Processor):

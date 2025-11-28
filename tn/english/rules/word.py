@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini.lib import pynutil
 from pynini import difference, union
+from pynini.lib import pynutil
 
-from tn.processor import Processor
 from tn.english.rules.punctuation import Punctuation
+from tn.processor import Processor
 
 
 class Word(Processor):
