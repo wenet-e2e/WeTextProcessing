@@ -16,7 +16,7 @@ import logging
 import os
 import string
 
-from pynini import Fst, cdrewrite, closure, cross, difference, escape, invert, shortestpath, union
+from pynini import Fst, cdrewrite, cross, difference, escape, invert, shortestpath, union
 from pynini.lib import byte, utf8
 from pynini.lib.pynutil import delete, insert
 
