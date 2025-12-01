@@ -44,6 +44,11 @@ class Ordinal(Processor):
         self.graph = graph @ Cardinal().graph_no_exception
         self.graph |= ((self.TO_LOWER + self.SIGMA) @ self.graph).optimize()
 
+        tagger = insert('value: "') + self.graph + insert('"')
+        self.tagger = self.add_tokens(tagger).optimize()
+
+    def build_verbalizer(self):
+        super().build_verbalizer()
         convert_eleven = cross("11", "11th")
         convert_twelve = cross("12", "12th")
         convert_thirteen = cross("13", "13th")
@@ -51,7 +56,7 @@ class Ordinal(Processor):
         convert_two = cross("2", "2nd")
         convert_three = cross("3", "3rd")
         convert_rest = insert("th", weight=0.01)
-        suffix =  self.build_rule(
+        suffix = self.build_rule(
             convert_eleven
             | convert_twelve
             | convert_thirteen
@@ -62,7 +67,4 @@ class Ordinal(Processor):
             "",
             "[EOS]",
         )
-        self.graph = self.graph @ suffix
-
-        tagger = insert('value: "') + self.graph + insert('"')
-        self.tagger = self.add_tokens(tagger).optimize()
+        self.verbalizer = (self.verbalizer @ suffix) .optimize()

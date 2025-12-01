@@ -1,0 +1,10 @@
+july twenty fifth two thousand twelve => july 25 2012
+nineteen eighties => 1980s
+two thousand and twenty => 2020
+two thousand and nine => 2009
+the twenty fifth of july twenty twelve => 25 july 2012
+the twenty fifth of july two thousand twelve => 25 july 2012
+the twenty second of july twenty twelve => 22 july 2012
+the fifteenth of january => 15 january
+the seventeenth of may twenty ten => 17 may 2010
+january first => january 1

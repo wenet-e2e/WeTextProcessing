@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini import closure
 from pynini.lib.pynutil import insert
 
 from tn.processor import Processor

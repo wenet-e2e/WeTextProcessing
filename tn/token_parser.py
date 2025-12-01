@@ -33,6 +33,9 @@ ITN_ORDERS = {
     "money": ["currency", "value", "decimal"],
     "time": ["hour", "minute", "second", "noon"],
 }
+EN_ITN_ORDERS = {
+    "date": ["month", "day", "year", "text"],
+}
 
 
 class Token:
@@ -68,6 +71,8 @@ class TokenParser:
             self.orders = ITN_ORDERS
         elif ordertype == "en_tn":
             self.orders = EN_TN_ORDERS
+        elif ordertype == "en_itn":
+            self.orders = EN_ITN_ORDERS
         else:
             raise NotImplementedError()
 

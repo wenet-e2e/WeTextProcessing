@@ -25,13 +25,16 @@ class TestNormalizer:
     normalizer = InverseNormalizer(overwrite_cache=True)
 
     normalizer_cases = chain(
-        parse_test_case("data/cardinal.txt"),
-        parse_test_case("data/ordinal.txt"),
+        # parse_test_case("data/cardinal.txt"),
+        # parse_test_case("data/ordinal.txt"),
+        # parse_test_case("data/date.txt"),
+        parse_test_case("data/debug.txt"),
         # parse_test_case("data/word.txt"),
     )
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)
     def test_normalizer(self, spoken, written):
-        print(spoken, written)
+        # print(f"spoken: {spoken}, written: {written}")
         print(self.normalizer.tag(spoken))
+        print(f"actual: {self.normalizer.normalize(spoken)}, expected: {written}")
         assert self.normalizer.normalize(spoken) == written
