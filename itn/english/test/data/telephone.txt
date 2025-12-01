@@ -1,0 +1,18 @@
+One two three one two three five six seven eight~123-123-5678
+Plus nine one one two three one two three five six seven eight~+91 123-123-5678
+Plus forty four one two three one two three five six seven eight~+44 123-123-5678
+Four one two three one two three five six seven eight~4 123-123-5678
+Zero two three one two three five six seven eight~023-123-5678
+O two three one two three five six seven eight~023-123-5678
+Oh two three one two three five six seven eight~023-123-5678
+Double oh three one two three five six seven eight~003-123-5678
+Four three two double seven three two one four three two one four three double zero five~432 7732 143214 3005
+One two three dot one two three dot o dot four o~123.123.0.40
+One twenty three dot one two three dot o dot four o~123.123.0.40
+Two two five dot double five dot o dot four o~225.55.0.40
+Two two five dot double five dot o dot forty five~225.55.0.45
+SSN is seven double nine one two three double one three~SSN is 799-12-3113
+Seven nine nine~799
+A b nine~Ab9
+A b c~A b c
+Five w k r a three one~5wkra31

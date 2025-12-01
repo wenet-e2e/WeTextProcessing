@@ -1,0 +1,450 @@
+10K	ten k
+1D	one d
+1G	one g
+1K	one k
+2.5G	two point five g
+2D	two d
+2G	two g
+2K	two k
+3D	three d
+3G	three g
+4D	four d
+4G	four g
+4K	four k
+5D	five d
+5G	five g
+6G	six g
+7-eleven	seven eleven
+7G	seven g
+8K	eight k
+AAA	triple a
+AC	a c
+ACL	a c l
+ADAS	a das
+AEB	a e b
+AES	a e s
+AGX	a g x
+AI	a i
+AI	ai
+AI	ais
+ALU	a l u
+AMD	a m d
+API	a p i
+API	api
+ARP	a r p
+ASAP	a s a p
+ASAP	a sap
+ASMC	a s m c
+ASR	a s r
+ASUS	a sus
+ASUS	asus
+AT&T	a t and t
+ATM	a t m
+AV1	a v one
+AV1	av one
+AVAS	a v a s
+AVAS	a vas
+AVRCP	a v r c p
+AWS	a w s
+AWS	aws
+AlphaFold	alpha fold
+AstraZeneca	astra zeneca
+AstraZeneca	astrazeneca
+Audio2Face	audio to face
+Audio2Face	audio too face
+BBC	b b c
+BCP	b c p
+BEV	b e v
+BGA	b g a
+BGP	b g p
+BIOS	Bios
+BIOS	bios
+BIS	b i s
+BSP	b s p
+BasePOD	base pod
+BasePOD	basepod
+Billion-X	billion X
+C#	c sharp
+C++	c plus plus
+CAT5	cat five
+CAT5e	cat five e
+CAT6	cat six
+CAT6A	cat six a
+CAT7	cat seven
+CAT8	cat eight
+CBC	c b c
+CCS	c c s
+CCTV	c c t v
+CCTV	c c tv
+CDN	c d n
+CEO	c e o
+CES	c e s
+CFO	c f o
+CHAdeMO	cha demo
+CHAdeMO	chai demo
+CLI	c l i
+CMO	c m o
+CMS	c m s
+CNN	c n n
+COVID	covid
+COVID-19	covid nineteen
+CPU	c p u
+CSO	c s o
+CSP	c s p
+CSS	c s s
+CV	c v
+CVT	c v t
+CalTech	cal tech
+CalTech	caltech
+CapEx	cap ex
+CapEx	capex
+ChatGPT	chat g p t
+CloudXR	cloud x r
+ConnectX	connect x
+Core 2	core two
+DALI	d a l i
+DB	d b
+DC	d c
+DCDB	d c d b
+DDR	d d r
+DDoS	d d o s
+DDoS	d dos
+DGL	d g l
+DGX	d g x	-1.1
+DGX A100	d g x a hundred	-1.1
+DGX A100	d g x a one hundred	-1.1
+DGX Station	d g x station	-1.1
+DHCP	d h c p
+DLSS	d l s s
+DLSS 2	d l s s two
+DLSS 3	d l s s three
+DNA	d n a
+DNN	d n n
+DNS	d n s
+DOS	dos
+DP	d p
+DPDT	d p d t
+DPU	d p u
+DPX	d p x
+DeepMind	deep mind
+DeepMind	deepmind
+DeepStream	deep stream
+DeepStream	deepstream
+DevOps	dev ops
+Direct3D	direct three d
+DisplayPort	display port
+EBC	e b c
+EBS	e b s
+EC2	e c two
+ECC	e c c
+ECS	e c s
+EFS	e f s
+EGX	e g x
+EKS	e k s
+ELB	e l b
+ELCB	e l c b
+EMR	e m r
+EOL	e o l
+EV	e v
+Earth-2	earth two
+FAT12	fat twelve
+FAT16	fat sixteen
+FAT32	fat thirty two
+FIFO	fee foe
+FIFO	fifo
+FOMO	foe moe
+FOMO	fomo
+FPS	f p s
+FSA	f s a
+FST	f s t
+FTP	f t p
+FTPS	f t p s
+FX	f x
+G-SYNC	g sync
+GCC	g c c
+GCP	g c p
+GCS	g c s
+GFN	G f n
+GPL	G P L
+GPLv2	G P L two
+GPLv3	G P L three
+GPU	g p u
+GRPC	g r p c
+GRU	g r u
+GSK	g s k
+GTC	g t c
+GTX	g t x	-1.1
+GUI	g u i
+GUI	gui
+GeForce	geforce
+GeForce NOW	geforce now
+H.264	H two six four
+H.264	H two sixty four
+H.265	H two six five
+H.265	H two sixty five
+H100	H one hundred
+HDMI	h d m i
+HEVC	h e v c
+HFS	h f s
+HFS+	h f s plus
+HGX	h g x
+HMD	Hmd
+HPC	h p c
+HQ	h q
+HSM	h s m
+HT	h t
+HTML	h t m l
+HTTP	h t t p
+HTTPS	h t t p s
+HuggingFace	hugging face
+I/O	i o
+ICMP	i c m p
+IEC	i e c
+IEEE	i triple e
+IGMP	i g m p
+IGX	i g x
+IISc	i i s c
+IIT	i i t
+INT8	int eight
+IP	i p
+IPSec	i p sec
+ISC	i s c
+ISI	i s i
+InfiniBand	inifiband
+IoT	i o t
+Isaac SIM	isaac sim
+JSON	j son
+JavaScript	java script
+JavaScript	javascript
+KVM	k v m
+LFP	lee fei po
+LFP	life po
+LGA	l g a	-1.1
+LLC	l l c
+LLM	l l m
+LLMs	l l ms
+LLP	l l p
+LSTM	l s t m
+LT	l t
+LTT	l t t
+LinkedIn	linked in
+LinkedIn	linkedin
+MB	m b
+MCB	m c b
+MCCB	m c c b
+MCP	m c p
+MDM	m d m
+MFA	m f a
+MIT	m i t
+ML	m l
+MLPerf	m l perf
+MONAI	monai
+MWC	m w c
+MXNet	m x net
+MacBook	mac book
+MacBook	macbook
+MacBook Pro	mac book pro
+Max-Q	max q
+Million-X	million x
+MoCap	mo cap
+NC	n c
+NGC	n g c
+NLP	n l p
+NLU	n l u
+NMC	n m c
+NO	n o
+NTFS	n t f s
+NTP	n t p
+NVDec	n v dec
+NVDec	n v deck
+NVEnc	n v enc
+NVEnc	n v inc
+NVEnc	n v ink
+NVMe	n v m e
+Ni-CD	knee cad
+NiMH	n i m h
+NoSQL	no s q l
+NoSQL	no sql
+Nvidia A100	Nvidia a hundred
+Nvidia A100	Nvidia a one hundred
+Nvidia A100	nvidia a hundred
+Nvidia A100	nvidia a one hundred
+Nvidia A30	Nvidia a thirty
+Nvidia A30	nvidia a thirty
+Nvidia A40	Nvidia a forty
+Nvidia A40	nvidia a forty
+OCI	o c i
+OEM	o e m
+OEMs	o e ms
+OLTC	o l t c
+OLTP	o l t p
+ONNX	o n n x
+OVX	o v x
+OpEx	op ex
+OpEx	opex
+OpenCL	open c l
+OpenGL	open g l
+PCI	p c i
+PCIe	p c i e	-1.1
+PDF	p d f
+PHEV	p h e v
+POP3	pop three
+PSO	p s o
+Photoshop	photo shop
+PhysX	fizz ex
+PhysX	fizz x
+PhysX	phys ex
+PhysX	phys x
+PlayStation	play station
+Premiere Pro	premiere pro
+ProVis	pro vis
+ProVis	provis
+PyG	pi g
+PyG	py g
+PyTorch	pi torch
+QODA	q o d a
+QOS	q o s
+RCBO	r c b o
+RCCB	r c c b
+RDS	r d s
+RFP	r f p
+RISC	risc
+RL	r l
+RNN	r n n
+ROI	r o i
+RSS	r s s
+RT	r t
+RTP	r t p
+RTX	r t x	-1.1
+RTX ON	r t x on
+RTX Off	r t x off
+RacerX	racer x
+Ryzen 2	rye zen two
+Ryzen 3	rye zen three
+Ryzen 5	rye zen five
+Ryzen 7	rye zen seven
+Ryzen 9	rye zen nine
+S&P	s and p
+S3	s three
+SAE	s a e
+SDK	s d k
+SEO	s e o
+SFU	s f u
+SHIELD TV	shield tv
+SIGGRAPH	sig graph
+SIGGRAPH	siggraph
+SMPS	s m p s
+SMTP	s m t p
+SNMP	s n m p
+SNS	s n s
+SOL	s o l
+SPDT	s p d t
+SPN	s p n
+SPST	s p s t
+SQL	s q l
+SQS	s q s
+SSD	s s d
+SSH	s s h
+SSL	s s l
+SSO	s s o
+SSR	s s r
+SUV	s u v
+SWG	s w g
+SaaS	saas
+ServiceNow	service now
+SuperCloud	super cloud
+SuperPOD	super pod
+TCP	t c p
+TCP/IP	t c p i p
+TFTP	t f t p
+TJ	t j
+TOS 	t o s
+TPM	t p m
+TPMS	t p m s
+TPN	t p n
+TSL	t s l
+TSMC	t s m c
+TTS 	t t s
+Telnet	tell net
+TensorRT	tensor r t
+The A100	The a hundred
+The A100	The a one hundred
+The A100	the a hundred
+The A100	the a one hundred
+The A30	The a thirty
+The A30	the a thirty
+The A40	The a forty
+The A40	the a forty
+Tick-Tock	tick tock
+TikTok app	tick tock app
+TikTok is	tick tock is
+UDP	u d p
+UEFI	u e f i
+UFI	u f i
+UFS	u f s
+UPS	u p s
+USB	u s b
+VAAPI	v a a p i
+VAAPI	v a api
+VDI	v d i
+VDPAU	v d p a u
+VDPAU	v d paw
+VDPAU	v d pow
+VFD	v f d
+VLAN	v lan
+VMFS	v m f s
+VP	v p
+VPN	v p n
+Vcc	v c c
+Vdd	v d d
+VoIP	v o i p
+WFSA	w f s a
+WFST	w f s t
+Wi-Fi	wi fi
+Wi-Fi	wifi
+XFX	x f x
+XFX	x fx
+XML	x m l
+ZFS	z f s
+Zen 2	zen two
+Zen 3	zen three
+Zen 4	zen four
+b-tree	b t ree
+btrfs	b t r f s
+btrfs	b tree f s
+btrfs	butter f s
+c#	c sharp
+c++	c plus plus
+cuBLAS	cue blah
+cuBLAS	cue blahs
+cuBLAS	q blahs
+cuDNN	c u d n n
+cuDNN	cue d n n
+cuDNN	q d n n
+cuOpt	cue opt
+cuOpt	q opt
+cuQuantum	cue quantum
+cuQuantum	q quantum
+dr.	doctor
+e.g.	for example
+es3	e s three
+exFAT	ex fat
+ext3	e x t three
+ext4	e x t four
+i3	i three
+i5	i five
+i7	i seven
+i9	i nine
+iOS	ios
+iTPMS	i t p m s
+mr.	mister
+mrs.	misses
+on TikTok	on tick tock
+sFTP	s f t p
+st.	saint
+x1	x one
+x16	x sixteen
+x2	x two
+x4	x four
+x8	x eight
+xfs	x f s

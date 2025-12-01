@@ -1,0 +1,33 @@
+Eight oclock g m t~08:00 gmt
+Seven a m e s t~07:00 a.m. est
+Two p m~02:00 p.m.
+Seven A M E S T~07:00 A.M. EST
+Two P M~02:00 P.M.
+Two thirty~02:30
+Three o'clock~03:00
+Quarter past one~01:15
+Half past three~03:30
+Eight fifty one~08:51
+Eight fifty two~08:52
+Eight forty~08:40
+Eight nineteen~08:19
+Eight o six~08:06
+Eight thirty eight~08:38
+Eight thirty two~08:32
+Eight twenty nine~08:29
+Eleven fifty five p m~11:55 p.m.
+Eleven fifty three p m~11:53 p.m.
+Eleven forty a m~11:40 a.m.
+Eleven forty five a m~11:45 a.m.
+Eleven forty p m~11:40 p.m.
+Eleven forty six a m~11:46 a.m.
+Eleven o six p m~11:06 p.m.
+Eleven thirteen a m~11:13 a.m.
+Half past twelve~12:30
+Quarter past one~01:15
+Quarter to one~12:45
+Quarter to twelve~11:45
+Set alarm at ten to eleven pm~Set alarm at 10:50 p.m.
+One min to one am~12:59 a.m.
+eleven Forty six A M~11:46 A.M.
+eleven forty six AM~11:46 A.M.

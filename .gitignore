@@ -40,5 +40,5 @@ compile_commands.json
 WeTextProcessing.egg-info/
 build/
 dist/
-tn/*.far
-itn/*.far
+tn/*.fst
+itn/*.fst
