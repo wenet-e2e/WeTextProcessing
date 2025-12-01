@@ -1,70 +1,70 @@
-july twenty fifth two thousand twelve~july 25 2012
-nineteen eighties~1980s
-two thousand and twenty~2020
-two thousand and nine~2009
-the twenty fifth of july twenty twelve~25 july 2012
-the twenty fifth of july two thousand twelve~25 july 2012
-the twenty second of july twenty twelve~22 july 2012
-the fifteenth of january~15 january
-the seventeenth of may twenty ten~17 may 2010
-january first~january 1
-july twenty second two thousand eight~july 22 2008
-june thirty~june 30
-july twenty fifth twenty twelve~july 25 2012
-nineteen seventeen~1917
-twenty twelve~2012
-march sixteen sixty five~march 1665
-sixteen sixty five~1665
-july two thousand twelve~july 2012
-october nineteen oh five~october 1905
-july fifteen o six~july 1506
-the twenty fifth of july twenty twelve~25 july 2012
-july twenty fifth twenty twelve~july 25 2012
-july twenty fifth two thousand twelve~july 25 2012
-july one thousand eight hundred seventy six~july 1876
-february twenty fifth twenty sixteen~february 25 2016
-november twenty fourth twenty fourteen~november 24 2014
-nineteen ninety four~1994
-two thousand three~2003
-one thousand eight~1008
-nineteen seventy six~1976
-june twentieth twenty fourteen~june 20 2014
-nineteen seventy three~1973
-nineteen seventy five~1975
-eleven fifty five~1155
-July twenty fifth two thousand twelve~July 25 2012
-Nineteen eighties~1980s
-Two thousand and twenty~2020
-Two thousand and nine~2009
-The twenty fifth of july twenty twelve~25 july 2012
-The twenty fifth of july two thousand twelve~25 july 2012
-The twenty second of july twenty twelve~22 july 2012
-The fifteenth of january~15 january
-The fifteenth of January~15 January
-The seventeenth of may twenty ten~17 may 2010
-January first~January 1
-July twenty second two thousand eight~July 22 2008
-June thirty~June 30
-July twenty fifth twenty twelve~July 25 2012
-Nineteen seventeen~1917
-Twenty twelve~2012
-March sixteen sixty five~March 1665
-Sixteen sixty five~1665
-July two thousand twelve~July 2012
-October nineteen oh five~October 1905
-July fifteen o six~July 1506
-The twenty fifth of july twenty twelve~25 july 2012
-The twenty fifth of July twenty twelve~25 July 2012
-July twenty fifth twenty twelve~July 25 2012
-July twenty fifth two thousand twelve~July 25 2012
-July one thousand eight hundred seventy six~July 1876
-February twenty fifth twenty sixteen~February 25 2016
-November twenty fourth twenty fourteen~November 24 2014
-Nineteen ninety four~1994
-Two thousand three~2003
-One thousand eight~1008
-Nineteen seventy six~1976
-June twentieth twenty fourteen~June 20 2014
-Nineteen seventy three~1973
-Nineteen seventy five~1975
-Eleven fifty five~1155
+july twenty fifth two thousand twelve => july 25 2012
+nineteen eighties => 1980s
+two thousand and twenty => 2020
+two thousand and nine => 2009
+the twenty fifth of july twenty twelve => 25 july 2012
+the twenty fifth of july two thousand twelve => 25 july 2012
+the twenty second of july twenty twelve => 22 july 2012
+the fifteenth of january => 15 january
+the seventeenth of may twenty ten => 17 may 2010
+january first => january 1
+july twenty second two thousand eight => july 22 2008
+june thirty => june 30
+july twenty fifth twenty twelve => july 25 2012
+nineteen seventeen => 1917
+twenty twelve => 2012
+march sixteen sixty five => march 1665
+sixteen sixty five => 1665
+july two thousand twelve => july 2012
+october nineteen oh five => october 1905
+july fifteen o six => july 1506
+the twenty fifth of july twenty twelve => 25 july 2012
+july twenty fifth twenty twelve => july 25 2012
+july twenty fifth two thousand twelve => july 25 2012
+july one thousand eight hundred seventy six => july 1876
+february twenty fifth twenty sixteen => february 25 2016
+november twenty fourth twenty fourteen => november 24 2014
+nineteen ninety four => 1994
+two thousand three => 2003
+one thousand eight => 1008
+nineteen seventy six => 1976
+june twentieth twenty fourteen => june 20 2014
+nineteen seventy three => 1973
+nineteen seventy five => 1975
+eleven fifty five => 1155
+July twenty fifth two thousand twelve => July 25 2012
+Nineteen eighties => 1980s
+Two thousand and twenty => 2020
+Two thousand and nine => 2009
+The twenty fifth of july twenty twelve => 25 july 2012
+The twenty fifth of july two thousand twelve => 25 july 2012
+The twenty second of july twenty twelve => 22 july 2012
+The fifteenth of january => 15 january
+The fifteenth of January => 15 January
+The seventeenth of may twenty ten => 17 may 2010
+January first => January 1
+July twenty second two thousand eight => July 22 2008
+June thirty => June 30
+July twenty fifth twenty twelve => July 25 2012
+Nineteen seventeen => 1917
+Twenty twelve => 2012
+March sixteen sixty five => March 1665
+Sixteen sixty five => 1665
+July two thousand twelve => July 2012
+October nineteen oh five => October 1905
+July fifteen o six => July 1506
+The twenty fifth of july twenty twelve => 25 july 2012
+The twenty fifth of July twenty twelve => 25 July 2012
+July twenty fifth twenty twelve => July 25 2012
+July twenty fifth two thousand twelve => July 25 2012
+July one thousand eight hundred seventy six => July 1876
+February twenty fifth twenty sixteen => February 25 2016
+November twenty fourth twenty fourteen => November 24 2014
+Nineteen ninety four => 1994
+Two thousand three => 2003
+One thousand eight => 1008
+Nineteen seventy six => 1976
+June twentieth twenty fourteen => June 20 2014
+Nineteen seventy three => 1973
+Nineteen seventy five => 1975
+Eleven fifty five => 1155

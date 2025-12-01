@@ -1,9 +1,9 @@
-Doctor dao~Dr. dao
-Misses Smith~Mrs. Smith
-Misses smith~Mrs. smith
-Mister Dao~Mr. Dao
-Saint George~St. George
-I like for example ice cream~I like e.g. ice cream
-S and p five hundred~S&P 500
-S and P Five hundred~S&P 500
-Seven eleven stores~7-eleven stores
+Doctor dao => Dr. dao
+Misses Smith => Mrs. Smith
+Misses smith => Mrs. smith
+Mister Dao => Mr. Dao
+Saint George => St. George
+I like for example ice cream => I like e.g. ice cream
+S and p five hundred => S&P 500
+S and P Five hundred => S&P 500
+Seven eleven stores => 7-eleven stores

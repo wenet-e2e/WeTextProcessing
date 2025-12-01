@@ -1,34 +1,34 @@
-One hundredth~100th
-Twenty five thousand one hundred eleventh~25111th
-Second~2nd
-Zeroth~0th
-First~1st
-Second~2nd
-Third~3rd
-Fourth~4th
-Eleventh~11th
-Twelfth~12th
-Thirteenth~13th
-Twenty first~21st
-Twenty third~23rd
-One hundred eleventh~111th
-One thousandth~1000th
-One hundred twenty first~121st
-Eleven hundred twenty first~1121st
-Second~2nd
-Tenth~10th
-Sixth~6th
-Third~3rd
-Nineteenth~19th
-Third~3rd
-Twelfth~12th
-Forty eighth~48th
-Seventy first~71st
-Third~3rd
-Forty second~42nd
-Seventeenth~17th
-Twentieth~20th
-Twenty first~21st
-Seventh~7th
-Second~2nd
-Fifth~5th
+One hundredth => 100th
+Twenty five thousand one hundred eleventh => 25111th
+Second => 2nd
+Zeroth => 0th
+First => 1st
+Second => 2nd
+Third => 3rd
+Fourth => 4th
+Eleventh => 11th
+Twelfth => 12th
+Thirteenth => 13th
+Twenty first => 21st
+Twenty third => 23rd
+One hundred eleventh => 111th
+One thousandth => 1000th
+One hundred twenty first => 121st
+Eleven hundred twenty first => 1121st
+Second => 2nd
+Tenth => 10th
+Sixth => 6th
+Third => 3rd
+Nineteenth => 19th
+Third => 3rd
+Twelfth => 12th
+Forty eighth => 48th
+Seventy first => 71st
+Third => 3rd
+Forty second => 42nd
+Seventeenth => 17th
+Twentieth => 20th
+Twenty first => 21st
+Seventh => 7th
+Second => 2nd
+Fifth => 5th

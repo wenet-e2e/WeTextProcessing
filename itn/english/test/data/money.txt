@@ -1,54 +1,54 @@
-Two dollars~$2
-One cent~$0.01
-Four united states dollars and sixty nine cents~$4.69
-Seventy five dollars sixty three~$75.63
-Twenty nine dollars fifty cents~$29.50
-Eleven dollars and fifty one cents~$11.51
-Nine hundred ninety three dollars and ninety two cents~$993.92
-Four hundred sixty billion won~₩460 billion
-Thirty billion yen~¥30 billion
-Two point five billion dollars~$2.5 billion
-Forty five billion dollars~$45 billion
-Fifty million dollars~$50 million
-Fifty billion dollars~$50 billion
-Zero point two million dollars~$0.2 million
-Fifteen point two billion dollars~$15.2 billion
-One point six nine billion yuan~1.69 billion yuan
-One point four three six billion yuan~1.436 billion yuan
-Four million yuan~4 million yuan
-One dollar~$1
-Fifteen thousand dollars~$15000
-One dollars~One dollars
-Twenty dollar~$20
-Twenty point five o six dollars~$20.506
-Point five o six dollars~$.506
-Eighteen dollars~$18
-Eighteen million nine hundred twenty five thousand dollars~$18925000
-Eighteen thousand eight hundred fifty four dollars~$18854
-Eighteen thousand eight hundred one dollars~$18801
-Eighteen thousand eight hundred seventy five dollars~$18875
-Eighteen thousand eighty one dollars~$18081
-Eighteen thousand fifty two dollars~$18052
-Eighteen thousand five hundred forty two dollars~$18542
-Eighteen thousand five hundred nineteen dollars~$18519
-Eighteen thousand five hundred seventy dollars~$18570
-Eighteen thousand five hundred seventy eight dollars~$18578
-Eighteen thousand five hundred sixteen dollars~$18516
-Eighteen thousand four hundred eighty two dollars~$18482
-Eighteen thousand four hundred seventy eight dollars~$18478
-Eighteen thousand four hundred sixty eight dollars~$18468
-Eighteen thousand nine hundred three dollars~$18903
-Eighteen thousand nine hundred twenty nine dollars~$18929
-Eighteen thousand ninety five dollars~$18095
-Eighteen thousand one hundred seventeen dollars~$18117
-Eighteen thousand one hundred twenty eight dollars~$18128
-Eighteen thousand one hundred twenty five dollars~$18125
-Eighteen thousand one hundred twenty four dollars~$18124
-Eighteen thousand one hundred twenty nine dollars~$18129
-One thousand fifty five dollars~$1055
-One fifty five dollars~$155
-Fifteen hundred dollars~$1500
-Ninety nine hundred dollars~$9900
-Ninety nine hundred and fifteen dollars and one cent~$9915.01
-zero point two Million Dollars~$0.2 Million
-One Cent~$0.01
+Two dollars => $2
+One cent => $0.01
+Four united states dollars and sixty nine cents => $4.69
+Seventy five dollars sixty three => $75.63
+Twenty nine dollars fifty cents => $29.50
+Eleven dollars and fifty one cents => $11.51
+Nine hundred ninety three dollars and ninety two cents => $993.92
+Four hundred sixty billion won => ₩460 billion
+Thirty billion yen => ¥30 billion
+Two point five billion dollars => $2.5 billion
+Forty five billion dollars => $45 billion
+Fifty million dollars => $50 million
+Fifty billion dollars => $50 billion
+Zero point two million dollars => $0.2 million
+Fifteen point two billion dollars => $15.2 billion
+One point six nine billion yuan => 1.69 billion yuan
+One point four three six billion yuan => 1.436 billion yuan
+Four million yuan => 4 million yuan
+One dollar => $1
+Fifteen thousand dollars => $15000
+One dollars => One dollars
+Twenty dollar => $20
+Twenty point five o six dollars => $20.506
+Point five o six dollars => $.506
+Eighteen dollars => $18
+Eighteen million nine hundred twenty five thousand dollars => $18925000
+Eighteen thousand eight hundred fifty four dollars => $18854
+Eighteen thousand eight hundred one dollars => $18801
+Eighteen thousand eight hundred seventy five dollars => $18875
+Eighteen thousand eighty one dollars => $18081
+Eighteen thousand fifty two dollars => $18052
+Eighteen thousand five hundred forty two dollars => $18542
+Eighteen thousand five hundred nineteen dollars => $18519
+Eighteen thousand five hundred seventy dollars => $18570
+Eighteen thousand five hundred seventy eight dollars => $18578
+Eighteen thousand five hundred sixteen dollars => $18516
+Eighteen thousand four hundred eighty two dollars => $18482
+Eighteen thousand four hundred seventy eight dollars => $18478
+Eighteen thousand four hundred sixty eight dollars => $18468
+Eighteen thousand nine hundred three dollars => $18903
+Eighteen thousand nine hundred twenty nine dollars => $18929
+Eighteen thousand ninety five dollars => $18095
+Eighteen thousand one hundred seventeen dollars => $18117
+Eighteen thousand one hundred twenty eight dollars => $18128
+Eighteen thousand one hundred twenty five dollars => $18125
+Eighteen thousand one hundred twenty four dollars => $18124
+Eighteen thousand one hundred twenty nine dollars => $18129
+One thousand fifty five dollars => $1055
+One fifty five dollars => $155
+Fifteen hundred dollars => $1500
+Ninety nine hundred dollars => $9900
+Ninety nine hundred and fifteen dollars and one cent => $9915.01
+zero point two Million Dollars => $0.2 Million
+One Cent => $0.01

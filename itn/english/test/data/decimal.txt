@@ -1,129 +1,129 @@
-five point two million~5.2 million
-one hundred sixty four point five eight thousand~164.58 thousand
-four hundred million~400 million
-fifty billion~50 billion
-four hundred five billion~405 billion
-four point eight five billion~4.85 billion
-one hundred billion~100 billion
-one hundred ten billion~110 billion
-one hundred thirty two billion~132 billion
-one point eight four billion~1.84 billion
-one point eight one billion~1.81 billion
-one point five nine billion~1.59 billion
-one point four five three billion~1.453 billion
-one point seven two billion~1.72 billion
-one point two five billion~1.25 billion
-thirteen billion~13 billion
-thirty billion~30 billion
-two thousand eight hundred five point eight seven three billion~2805.873 billion
-seventy trillion~70 trillion
-thirteen million~13 million
-eighteen billion~18 billion
-four hundred fifty million~450 million
-one hundred thirty million~130 million
-ten million~10 million
-four hundred million~400 million
-five million~5 million
-five hundred million~500 million
-twelve million~12 million
-thirteen million~13 million
-four million~4 million
-forty five million~45 million
-fifteen million~15 million
-fifteen trillion~15 trillion
-fifteen billion~15 billion
-two million~2 million
-eight million~8 million
-point one two o five~.1205
-minus sixty point two four zero zero~-60.2400
-zero point two six~0.26
-point zero two~.02
-sixty point two~60.2
-eighteen~18
-eighteen point eight five~18.85
-eighteen point five o~18.50
-eighteen point five six~18.56
-eighteen point nine~18.9
-eighteen point o five~18.05
-eighteen point one two~18.12
-eighteen point o one~18.01
-eighteen point o o o~18.000
-eighteen point six~18.6
-eighteen point three o o~18.300
-eighteen point three six~18.36
-eighteen point two five~18.25
-eighteen point two two~18.22
-eight hundred eighteen point three o three~818.303
-eight hundred eight point eight~808.8
-eight hundred eight point zero~808.0
-eight hundred eighty eight point one~888.1
-eight hundred eighty four point three~884.3
-eight hundred eighty two point eight~882.8
-eight hundred eighty two point zero~882.0
-eight hundred forty five point nine four~845.94
-Five point two million~5.2 million
-One hundred sixty four point five eight thousand~164.58 thousand
-Four hundred million~400 million
-Fifty billion~50 billion
-Four hundred five billion~405 billion
-Four point eight five billion~4.85 billion
-One hundred billion~100 billion
-One hundred ten billion~110 billion
-One hundred thirty two billion~132 billion
-One point eight four billion~1.84 billion
-One point eight four Billion~1.84 Billion
-One point eight one billion~1.81 billion
-One point five nine billion~1.59 billion
-One point four five three billion~1.453 billion
-One point seven two billion~1.72 billion
-One point two five billion~1.25 billion
-Thirteen billion~13 billion
-Thirty billion~30 billion
-Thirty Billion~30 Billion
-Two thousand eight hundred five point eight seven three billion~2805.873 billion
-Seventy trillion~70 trillion
-Thirteen million~13 million
-Eighteen billion~18 billion
-Four hundred fifty million~450 million
-One hundred thirty million~130 million
-Ten million~10 million
-Four hundred million~400 million
-Five million~5 million
-Five hundred million~500 million
-Twelve million~12 million
-Thirteen million~13 million
-Four million~4 million
-Forty five million~45 million
-Fifteen million~15 million
-Fifteen trillion~15 trillion
-Fifteen billion~15 billion
-Fifteen Billion~15 Billion
-Two million~2 million
-Eight million~8 million
-Point one two o five~.1205
-Minus sixty point two four zero zero~-60.2400
-Zero point two six~0.26
-Point zero two~.02
-Sixty point two~60.2
-Eighteen~18
-Eighteen point eight five~18.85
-Eighteen point five o~18.50
-Eighteen point five six~18.56
-Eighteen point nine~18.9
-Eighteen point o five~18.05
-Eighteen point one two~18.12
-Eighteen point o one~18.01
-Eighteen point o o o~18.000
-Eighteen point six~18.6
-Eighteen point three o o~18.300
-Eighteen point three six~18.36
-Eighteen point two five~18.25
-Eighteen point two two~18.22
-Eight hundred eighteen point three o three~818.303
-Eight hundred eight point eight~808.8
-Eight hundred eight point zero~808.0
-Eight hundred eighty eight point one~888.1
-Eight hundred eighty four point three~884.3
-Eight hundred eighty two point eight~882.8
-Eight hundred eighty two point zero~882.0
-Eight hundred forty five point nine four~845.94
+five point two million => 5.2 million
+one hundred sixty four point five eight thousand => 164.58 thousand
+four hundred million => 400 million
+fifty billion => 50 billion
+four hundred five billion => 405 billion
+four point eight five billion => 4.85 billion
+one hundred billion => 100 billion
+one hundred ten billion => 110 billion
+one hundred thirty two billion => 132 billion
+one point eight four billion => 1.84 billion
+one point eight one billion => 1.81 billion
+one point five nine billion => 1.59 billion
+one point four five three billion => 1.453 billion
+one point seven two billion => 1.72 billion
+one point two five billion => 1.25 billion
+thirteen billion => 13 billion
+thirty billion => 30 billion
+two thousand eight hundred five point eight seven three billion => 2805.873 billion
+seventy trillion => 70 trillion
+thirteen million => 13 million
+eighteen billion => 18 billion
+four hundred fifty million => 450 million
+one hundred thirty million => 130 million
+ten million => 10 million
+four hundred million => 400 million
+five million => 5 million
+five hundred million => 500 million
+twelve million => 12 million
+thirteen million => 13 million
+four million => 4 million
+forty five million => 45 million
+fifteen million => 15 million
+fifteen trillion => 15 trillion
+fifteen billion => 15 billion
+two million => 2 million
+eight million => 8 million
+point one two o five => .1205
+minus sixty point two four zero zero => -60.2400
+zero point two six => 0.26
+point zero two => .02
+sixty point two => 60.2
+eighteen => 18
+eighteen point eight five => 18.85
+eighteen point five o => 18.50
+eighteen point five six => 18.56
+eighteen point nine => 18.9
+eighteen point o five => 18.05
+eighteen point one two => 18.12
+eighteen point o one => 18.01
+eighteen point o o o => 18.000
+eighteen point six => 18.6
+eighteen point three o o => 18.300
+eighteen point three six => 18.36
+eighteen point two five => 18.25
+eighteen point two two => 18.22
+eight hundred eighteen point three o three => 818.303
+eight hundred eight point eight => 808.8
+eight hundred eight point zero => 808.0
+eight hundred eighty eight point one => 888.1
+eight hundred eighty four point three => 884.3
+eight hundred eighty two point eight => 882.8
+eight hundred eighty two point zero => 882.0
+eight hundred forty five point nine four => 845.94
+Five point two million => 5.2 million
+One hundred sixty four point five eight thousand => 164.58 thousand
+Four hundred million => 400 million
+Fifty billion => 50 billion
+Four hundred five billion => 405 billion
+Four point eight five billion => 4.85 billion
+One hundred billion => 100 billion
+One hundred ten billion => 110 billion
+One hundred thirty two billion => 132 billion
+One point eight four billion => 1.84 billion
+One point eight four Billion => 1.84 Billion
+One point eight one billion => 1.81 billion
+One point five nine billion => 1.59 billion
+One point four five three billion => 1.453 billion
+One point seven two billion => 1.72 billion
+One point two five billion => 1.25 billion
+Thirteen billion => 13 billion
+Thirty billion => 30 billion
+Thirty Billion => 30 Billion
+Two thousand eight hundred five point eight seven three billion => 2805.873 billion
+Seventy trillion => 70 trillion
+Thirteen million => 13 million
+Eighteen billion => 18 billion
+Four hundred fifty million => 450 million
+One hundred thirty million => 130 million
+Ten million => 10 million
+Four hundred million => 400 million
+Five million => 5 million
+Five hundred million => 500 million
+Twelve million => 12 million
+Thirteen million => 13 million
+Four million => 4 million
+Forty five million => 45 million
+Fifteen million => 15 million
+Fifteen trillion => 15 trillion
+Fifteen billion => 15 billion
+Fifteen Billion => 15 Billion
+Two million => 2 million
+Eight million => 8 million
+Point one two o five => .1205
+Minus sixty point two four zero zero => -60.2400
+Zero point two six => 0.26
+Point zero two => .02
+Sixty point two => 60.2
+Eighteen => 18
+Eighteen point eight five => 18.85
+Eighteen point five o => 18.50
+Eighteen point five six => 18.56
+Eighteen point nine => 18.9
+Eighteen point o five => 18.05
+Eighteen point one two => 18.12
+Eighteen point o one => 18.01
+Eighteen point o o o => 18.000
+Eighteen point six => 18.6
+Eighteen point three o o => 18.300
+Eighteen point three six => 18.36
+Eighteen point two five => 18.25
+Eighteen point two two => 18.22
+Eight hundred eighteen point three o three => 818.303
+Eight hundred eight point eight => 808.8
+Eight hundred eight point zero => 808.0
+Eight hundred eighty eight point one => 888.1
+Eight hundred eighty four point three => 884.3
+Eight hundred eighty two point eight => 882.8
+Eight hundred eighty two point zero => 882.0
+Eight hundred forty five point nine four => 845.94
