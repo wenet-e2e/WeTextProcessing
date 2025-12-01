@@ -26,7 +26,8 @@ class TestNormalizer:
 
     normalizer_cases = chain(
         parse_test_case("data/cardinal.txt"),
-        # parse_test_case("data/normalizer.txt"),
+        parse_test_case("data/ordinal.txt"),
+        # parse_test_case("data/word.txt"),
     )
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)

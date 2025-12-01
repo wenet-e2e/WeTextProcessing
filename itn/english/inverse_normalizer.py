@@ -16,6 +16,7 @@ from importlib_resources import files
 from pynini.lib.pynutil import add_weight, delete
 
 from itn.english.rules.cardinal import Cardinal
+from itn.english.rules.ordinal import Ordinal
 from itn.english.rules.word import Word
 from tn.processor import Processor
 
@@ -29,12 +30,14 @@ class InverseNormalizer(Processor):
         self.build_fst("en_itn", cache_dir, overwrite_cache)
 
     def build_tagger(self):
-        tagger = (add_weight(Cardinal().tagger, 1.0) | add_weight(Word().tagger, 100)).optimize()
+        tagger = (
+            add_weight(Cardinal().tagger, 1.0) | add_weight(Ordinal().tagger, 1.09) | add_weight(Word().tagger, 100)
+        ).optimize()
 
         tagger = tagger.star
         # remove the last space
         self.tagger = tagger @ self.build_rule(delete(" "), "", "[EOS]")
 
     def build_verbalizer(self):
-        verbalizer = (Cardinal().verbalizer | Word().verbalizer).optimize()
+        verbalizer = (Cardinal().verbalizer | Ordinal().verbalizer | Word().verbalizer).optimize()
         self.verbalizer = verbalizer.star
