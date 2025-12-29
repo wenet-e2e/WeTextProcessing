@@ -167,5 +167,15 @@ class Cardinal(Processor):
                 cardinal |= add_weight(number, 0.1)
             else:
                 cardinal |= add_weight(number_exclude_0_to_9, 0.1)
+
+        
+        # 5. 添加"中文数字+英文字母"的规则，如"四a" -> "4a"
+        # 匹配一个或多个英文字母（大小写）
+        from pynini import union
+        english_letters = union(*[accep(c) for c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"])
+        # 数字+字母的组合，如"四a" -> "4a"
+        number_with_letter = number + english_letters.plus
+        cardinal |= add_weight(number_with_letter, 0.05)  # 使用较高优先级
+        
         tagger = insert('value: "') + cardinal + (insert(" ") + cardinal).star + insert('"')
         self.tagger = self.add_tokens(tagger)
