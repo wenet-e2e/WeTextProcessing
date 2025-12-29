@@ -57,8 +57,8 @@ class Measure(Processor):
         )
 
         # 十千米每小时 => 10km/h, 十一到一百千米每小时 => 11~100km/h
-        measure = number + (to + number).ques + units
-
+        # measure = number + (to + number).ques + units
+        measure = number + (insert("、") + number).star + (to + number).ques + units
         # XXX: 特殊case处理, ignore enable_standalone_number
         # digit + union("百", "千", "万") + digit + unit
         unit_sp_case1 = [

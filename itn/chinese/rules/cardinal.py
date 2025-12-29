@@ -193,5 +193,5 @@ class Cardinal(Processor):
         # 将这个规则添加到 cardinal，使用较高优先级（负权重）
         cardinal |= add_weight(number_range, -0.05)
         
-        tagger = insert('value: "') + cardinal + (insert(" ") + cardinal).star + insert('"')
+        tagger = insert('value: "') + cardinal + (insert("、") + cardinal).star + insert('"')
         self.tagger = self.add_tokens(tagger)
