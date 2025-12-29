@@ -176,6 +176,22 @@ class Cardinal(Processor):
         # 数字+字母的组合，如"四a" -> "4a"
         number_with_letter = number + english_letters.plus
         cardinal |= add_weight(number_with_letter, 0.05)  # 使用较高优先级
+
+        # 6. 添加两个连续完整数字的范围规则（如"二十一二十二" -> "21-22"）
+        # 定义完整数字（不包括单个数字0-9，避免误匹配）
+        complete_number = teen | tens | hundred | thousand | ten_thousand
+        complete_number = (
+            (complete_number + accep("兆") + delete("零").ques).ques 
+            + (complete_number + accep("亿") + delete("零").ques).ques 
+            + complete_number
+        )
+        complete_number = sign.ques + complete_number + (dot + digits.plus).ques
+        
+        # 两个连续完整数字的范围模式（优先级高于单独的数字）
+        # 如：二十一二十二 -> 21-22, 三十一三十二 -> 31-32
+        number_range = complete_number + insert("~") + complete_number
+        # 将这个规则添加到 cardinal，使用较高优先级（负权重）
+        cardinal |= add_weight(number_range, -0.05)
         
         tagger = insert('value: "') + cardinal + (insert(" ") + cardinal).star + insert('"')
         self.tagger = self.add_tokens(tagger)
