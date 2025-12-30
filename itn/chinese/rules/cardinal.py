@@ -101,7 +101,7 @@ class Cardinal(Processor):
                 )
             )
             ten_thousand |= (
-                (thousand | hundred)
+                (thousand | hundred | tens | teen | digits)
                 + accep("万")
                 + delete("零").ques
                 + (thousand | hundred | tens | teen | digits).ques
