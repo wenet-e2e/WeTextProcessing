@@ -56,9 +56,38 @@ class Measure(Processor):
             + insert("%")
         )
 
-        # 十千米每小时 => 10km/h, 十一到一百千米每小时 => 11~100km/h
-        measure = number + (to + number).ques + units
+        # 定义"到百分点"的转换
+        to_percent_point = cross("到", "~")
+        
+        # 二十二个百分点, 零点六个百分点, 负二十二个百分点
+        # 十一到十二个百分点 => 11~12%
+        # 注意：需要确保范围匹配时，第二个数字不会误匹配后续的"个"+"百分"+"点"
+        percent_point_single = (
+            (sign + delete("的").ques).ques
+            + Cardinal().number
+            + delete("个")
+            + delete("百分")
+            + (delete("点") | delete("比"))
+            + insert("%")
+        )
+        
+        percent_point_range = (
+            (sign + delete("的").ques).ques
+            + Cardinal().number
+            + to_percent_point
+            + Cardinal().number
+            + delete("个")
+            + delete("百分")
+            + (delete("点") | delete("比"))
+            + insert("%")
+        )
+        
+        percent_point = percent_point_range | percent_point_single
 
+
+        # 十千米每小时 => 10km/h, 十一到一百千米每小时 => 11~100km/h
+        # measure = number + (to + number).ques + units
+        measure = number + (insert("、") + number).star + (to + number).ques + units
         # XXX: 特殊case处理, ignore enable_standalone_number
         # digit + union("百", "千", "万") + digit + unit
         unit_sp_case1 = [
@@ -96,7 +125,7 @@ class Measure(Processor):
                 -0.5,
             )
 
-        tagger = insert('value: "') + (measure | measure_sp | percent) + insert('"')
+        tagger = insert('value: "') + (add_weight(percent_point_range, -0.5) | add_weight(percent_point_single, -0.3) | measure | measure_sp | percent) + insert('"')
         # 每小时十千米 => 10km/h, 每小时三十到三百一十一千米 => 30~311km/h
         tagger |= insert('denominator: "') + delete("每") + units + insert('" numerator: "') + measure + insert('"')
 

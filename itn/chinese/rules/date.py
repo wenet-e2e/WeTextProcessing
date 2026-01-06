@@ -37,7 +37,7 @@ class Date(Processor):
         dd = string_file(get_abs_path("../itn/chinese/data/date/dd.tsv"))
 
         year = insert('year: "') + (yyyy | yyy | yy) + delete("年") + insert('" ')
-        year_only = insert('year: "') + (yyyy | yyy | yy) + accep("年") + insert('"')
+        year_only = insert('year: "') + (yyyy | yyy | yy) + (accep("年") | accep("财年")) + insert('"')
         month = insert('month: "') + mm + insert('"')
         day = insert(' day: "') + dd + insert('"')
 
