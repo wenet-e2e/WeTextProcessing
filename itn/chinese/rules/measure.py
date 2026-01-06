@@ -56,6 +56,16 @@ class Measure(Processor):
             + insert("%")
         )
 
+        # 二十二个百分点, 零点六个百分点, 负二十二个百分点
+        percent_point = (
+            (sign + delete("的").ques).ques
+            + Cardinal().number
+            + delete("个").ques
+            + delete("百分")
+            + (delete("点") | delete("比"))
+            + insert("%")
+        )
+
         # 十千米每小时 => 10km/h, 十一到一百千米每小时 => 11~100km/h
         # measure = number + (to + number).ques + units
         measure = number + (insert("、") + number).star + (to + number).ques + units
@@ -96,7 +106,7 @@ class Measure(Processor):
                 -0.5,
             )
 
-        tagger = insert('value: "') + (measure | measure_sp | percent) + insert('"')
+        tagger = insert('value: "') + (measure | measure_sp | percent | percent_point) + insert('"')
         # 每小时十千米 => 10km/h, 每小时三十到三百一十一千米 => 30~311km/h
         tagger |= insert('denominator: "') + delete("每") + units + insert('" numerator: "') + measure + insert('"')
 

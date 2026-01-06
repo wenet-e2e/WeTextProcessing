@@ -172,9 +172,9 @@ class Cardinal(Processor):
         # 5. 添加"中文数字+英文字母"的规则，如"四a" -> "4a"
         # 匹配一个或多个英文字母（大小写）
         from pynini import union
-        english_letters = union(*[accep(c) for c in "abcdABCD"])
+        english_letters = union(*[accep(c) for c in "abcdqABCD"])
         # 数字+字母的组合，如"四a" -> "4a"
-        number_with_letter = number + english_letters.plus
+        number_with_letter = number.plus + english_letters.plus
         cardinal |= add_weight(number_with_letter, 0.05)  # 使用较高优先级
 
         # 6. 添加两个连续完整数字的范围规则（如"二十一二十二" -> "21-22"）
