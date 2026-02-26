@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version'
+        description: 'Release version (optional, will be determined by setuptools_scm if not provided)'
         required: false
 
 jobs:
