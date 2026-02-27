@@ -35,11 +35,13 @@ class InverseNormalizer(Processor):
         self,
         cache_dir=None,
         overwrite_cache=False,
+        remove_interjections=True,
         enable_standalone_number=True,
         enable_0_to_9=False,
         enable_million=False,
     ):
         super().__init__(name="zh_inverse_normalizer", ordertype="itn")
+        self.remove_interjections = remove_interjections
         self.convert_number = enable_standalone_number
         self.enable_0_to_9 = enable_0_to_9
         self.enable_million = enable_million
@@ -78,6 +80,6 @@ class InverseNormalizer(Processor):
             | LicensePlate().verbalizer
             | Whitelist().verbalizer
         ).optimize()
-        postprocessor = PostProcessor(remove_interjections=True).processor
+        postprocessor = PostProcessor(remove_interjections=self.remove_interjections).processor
 
         self.verbalizer = (verbalizer @ postprocessor).star

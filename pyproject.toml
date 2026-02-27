@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "WeTextProcessing"
+authors = [
+    {name = "Zhendong Peng", email = "pzd17@tsinghua.org.cn"},
+    {name = "Xingchen Song", email = "sxc19@tsinghua.org.cn"}
+]
+description = "WeTextProcessing, including TN & ITN"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dynamic = ["version"]
+dependencies = [
+    # Core dependencies for text processing functionality
+    "pynini>=2.1.6,<2.1.7",
+    "importlib_resources"
+]
+
+[project.urls]
+Homepage = "https://github.com/wenet-e2e/WeTextProcessing"
+
+[project.scripts]
+wetn = "tn.main:main"
+weitn = "itn.main:main"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "flake8"]
+dev = [
+    # Development tools
+    "flake8",
+    "pre-commit==3.5.0",
+    "pytest"
+]
+
+[tool.setuptools_scm]
+version_scheme = "guess-next-dev"
+local_scheme = "dirty-tag"
+write_to = "tn/_version.py"
+fallback_version = "1.0.5"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tn*", "itn*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+tn = ["*.fst", "chinese/data/*/*.tsv", "english/data/*/*.tsv", "english/data/*.tsv", "english/data/*/*.far"]
+itn = ["*.fst", "chinese/data/*/*.tsv"]
