@@ -28,7 +28,7 @@ std::vector<std::pair<std::string, std::string>> ParseTestCase(
   std::vector<std::pair<std::string, std::string>> test_cases;
   std::string line;
   while (getline(file, line)) {
-    CHECK_NE(line.find(delimiter), string::npos);
+    CHECK_NE(line.find(delimiter), std::string::npos);
     std::vector<std::string> arr;
     wetext::Split(line, delimiter, &arr);
     CHECK_GT(arr.size(), 0);
