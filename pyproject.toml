@@ -45,7 +45,7 @@ dev = [
 version_scheme = "guess-next-dev"
 local_scheme = "dirty-tag"
 write_to = "tn/_version.py"
-fallback_version = "1.0.5"
+fallback_version = "1.1.0"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -53,5 +53,5 @@ include = ["tn*", "itn*"]
 namespaces = false
 
 [tool.setuptools.package-data]
-tn = ["*.fst", "chinese/data/*/*.tsv", "english/data/*/*.tsv", "english/data/*.tsv", "english/data/*/*.far"]
-itn = ["*.fst", "chinese/data/*/*.tsv"]
+tn = ["*.fst", "chinese/data/*/*.tsv", "english/data/*/*.tsv", "english/data/*.tsv", "english/data/*/*.far", "japanese/data/*/*.tsv"]
+itn = ["*.fst", "chinese/data/*/*.tsv", "japanese/data/*/*.tsv"]
