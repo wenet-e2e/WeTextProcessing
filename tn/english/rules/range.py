@@ -25,14 +25,11 @@ from tn.utils import get_abs_path
 
 class Range(Processor):
 
-    def __init__(self, deterministic: bool = False):
-        """
-        Args:
-            deterministic: if True will provide a single transduction option,
-                for False multiple transduction are generated (used for audio-based normalization)
-        """
+    def __init__(self, deterministic: bool = False, date=None, time=None):
         super().__init__("range", ordertype="en_tn")
         self.deterministic = deterministic
+        self.date = date or Date(deterministic)
+        self.time = time or Time(deterministic)
         self.build_tagger()
         self.build_verbalizer()
 
@@ -42,9 +39,9 @@ class Range(Processor):
             2-3 => range { value "two to three" }
         """
         cardinal = Cardinal(deterministic=True).graph_with_and
-        time = Time(deterministic=self.deterministic)
+        time = self.time
         time = time.tagger @ time.verbalizer
-        date = Date(deterministic=self.deterministic)
+        date = self.date
         date = date.tagger @ date.verbalizer
         week = pynini.string_file(get_abs_path("english/data/date/week.tsv"))
         delete_space = pynutil.delete(" ").ques

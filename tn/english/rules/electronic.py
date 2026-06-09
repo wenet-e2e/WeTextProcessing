@@ -24,14 +24,10 @@ from tn.utils import get_abs_path
 
 class Electronic(Processor):
 
-    def __init__(self, deterministic: bool = False):
-        """
-        Args:
-            deterministic: if True will provide a single transduction option,
-                for False multiple transduction are generated (used for audio-based normalization)
-        """
+    def __init__(self, deterministic: bool = False, cardinal=None):
         super().__init__("electronic", ordertype="en_tn")
         self.deterministic = deterministic
+        self.cardinal = cardinal or Cardinal(deterministic)
         self.build_tagger()
         self.build_verbalizer()
 
@@ -40,7 +36,7 @@ class Electronic(Processor):
         Finite state transducer for classifying electronic: as URLs, email addresses, etc.
             e.g. cdf1@abc.edu -> tokens { electronic { username: "cdf one" domain: "abc.edu" } }
         """
-        cardinal = Cardinal(self.deterministic)
+        cardinal = self.cardinal
         if self.deterministic:
             numbers = self.DIGIT
         else:

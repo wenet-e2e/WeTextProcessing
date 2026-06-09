@@ -22,8 +22,9 @@ from tn.utils import get_abs_path
 
 class Money(Processor):
 
-    def __init__(self):
+    def __init__(self, cardinal=None):
         super().__init__(name="money")
+        self.cardinal = cardinal or Cardinal()
         self.build_tagger()
         self.build_verbalizer()
 
@@ -31,7 +32,7 @@ class Money(Processor):
         code = string_file(get_abs_path("chinese/data/money/code.tsv"))
         symbol = string_file(get_abs_path("chinese/data/money/symbol.tsv"))
 
-        number = Cardinal().number
+        number = self.cardinal.number
         tagger = (
             insert('currency: "')
             + (code | symbol)

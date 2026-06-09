@@ -93,8 +93,11 @@ class Processor:
             self.verbalizer = Fst.read(verbalizer_path).optimize()
         else:
             logger.info("building fst for {} ...".format(self.name))
-            self.build_tagger()
-            self.build_verbalizer()
+            if hasattr(self, 'build_tagger_and_verbalizer'):
+                self.build_tagger_and_verbalizer()
+            else:
+                self.build_tagger()
+                self.build_verbalizer()
             self.tagger.optimize().write(tagger_path)
             self.verbalizer.optimize().write(verbalizer_path)
             logger.info("done")

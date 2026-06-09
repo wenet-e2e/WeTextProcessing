@@ -22,13 +22,14 @@ from tn.utils import get_abs_path
 
 class Date(Processor):
 
-    def __init__(self):
+    def __init__(self, cardinal=None):
         super().__init__(name="date")
+        self.cardinal = cardinal or Cardinal()
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        cardinal = Cardinal().ten_thousand_minus
+        cardinal = self.cardinal.ten_thousand_minus
         day = string_file(get_abs_path("../itn/japanese/data/date/day.tsv"))
         month = string_file(get_abs_path("../itn/japanese/data/date/month.tsv"))
         to = cross("から", "〜")

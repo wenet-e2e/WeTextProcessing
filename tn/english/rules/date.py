@@ -168,14 +168,11 @@ def _get_financial_period_graph():
 
 class Date(Processor):
 
-    def __init__(self, deterministic: bool = False):
-        """
-        Args:
-            deterministic: if True will provide a single transduction option,
-                for False multiple transduction are generated (used for audio-based normalization)
-        """
+    def __init__(self, deterministic: bool = False, cardinal=None, ordinal=None):
         super().__init__("date", ordertype="en_tn")
         self.deterministic = deterministic
+        self.cardinal = cardinal or Cardinal(deterministic)
+        self.ordinal = ordinal or Ordinal(deterministic, cardinal=self.cardinal)
         self.build_tagger()
         self.build_verbalizer()
 
@@ -190,7 +187,7 @@ class Date(Processor):
             2012/01/05 -> date { year: "twenty twelve" month: "january" day: "five" }
             2012 -> date { year: "twenty twelve" }
         """
-        cardinal = Cardinal(self.deterministic)
+        cardinal = self.cardinal
         # january, January, JANUARY
         month_graph = pynini.string_file(get_abs_path("english/data/date/month_name.tsv"))
         # jan, Jan, JAN
@@ -325,7 +322,7 @@ class Date(Processor):
             date { month: "february" day: "five" year: "twenty twelve" } -> the fifth of february twenty twelve
             date { day: "five" month: "february" year: "twenty twelve" } -> the fifth of february twenty twelve
         """
-        ordinal = Ordinal(self.deterministic)
+        ordinal = self.ordinal
         phrase = self.NOT_QUOTE.plus
         day_cardinal = pynutil.delete("day:") + self.DELETE_SPACE + pynutil.delete('"') + phrase + pynutil.delete('"')
         day = day_cardinal @ ordinal.suffix

@@ -50,40 +50,47 @@ class InverseNormalizer(Processor):
             cache_dir = files("itn")
         self.build_fst("ja_itn", cache_dir, overwrite_cache)
 
-    def build_tagger(self):
+    def build_tagger_and_verbalizer(self):
         processor = PreProcessor(full_to_half=self.full_to_half).processor
-
-        cardinal = add_weight(Cardinal(self.convert_number, self.enable_0_to_9, self.enable_million).tagger, 1.06)
-        char = add_weight(Char().tagger, 100)
-        date = add_weight(Date().tagger, 1.02)
-        fraction = add_weight(Fraction().tagger, 1.05)
-        math = add_weight(Math().tagger, 90)
-        measure = add_weight(Measure(enable_0_to_9=self.enable_0_to_9).tagger, 1.05)
-        money = add_weight(Money(enable_0_to_9=self.enable_0_to_9).tagger, 1.04)
-        ordinal = add_weight(Ordinal().tagger, 1.04)
-        time = add_weight(Time().tagger, 1.04)
-        whitelist = add_weight(Whitelist().tagger, 1.01)
+        cardinal = Cardinal(self.convert_number, self.enable_0_to_9, self.enable_million)
+        cardinal_million = Cardinal(enable_million=True)
+        char = Char()
+        date = Date(cardinal=cardinal)
+        fraction = Fraction(cardinal=cardinal_million)
+        math = Math(cardinal=cardinal)
+        measure = Measure(enable_0_to_9=self.enable_0_to_9, cardinal=cardinal)
+        money = Money(enable_0_to_9=self.enable_0_to_9, cardinal=cardinal)
+        ordinal = Ordinal(cardinal=cardinal)
+        time = Time()
+        whitelist = Whitelist()
 
         tagger = (
-            (cardinal | char | date | fraction | math | measure | money | ordinal | time | whitelist).optimize().star
-        )
+            add_weight(cardinal.tagger, 1.06)
+            | add_weight(char.tagger, 100)
+            | add_weight(date.tagger, 1.02)
+            | add_weight(fraction.tagger, 1.05)
+            | add_weight(math.tagger, 90)
+            | add_weight(measure.tagger, 1.05)
+            | add_weight(money.tagger, 1.04)
+            | add_weight(ordinal.tagger, 1.04)
+            | add_weight(time.tagger, 1.04)
+            | add_weight(whitelist.tagger, 1.01)
+        ).optimize().star
         tagger = (processor @ tagger).star
-        # remove the last space
         self.tagger = tagger @ self.build_rule(delete(" "), "", "[EOS]")
 
-    def build_verbalizer(self):
-        cardinal = Cardinal(self.convert_number, self.enable_0_to_9).verbalizer
-        char = Char().verbalizer
-        date = Date().verbalizer
-        fraction = Fraction().verbalizer
-        math = Math().verbalizer
-        measure = Measure().verbalizer
-        money = Money().verbalizer
-        ordinal = Ordinal().verbalizer
-        time = Time().verbalizer
-        whitelist = Whitelist().verbalizer
+        verbalizer = (
+            cardinal.verbalizer
+            | char.verbalizer
+            | date.verbalizer
+            | fraction.verbalizer
+            | math.verbalizer
+            | measure.verbalizer
+            | money.verbalizer
+            | ordinal.verbalizer
+            | time.verbalizer
+            | whitelist.verbalizer
+        )
 
-        verbalizer = cardinal | char | date | fraction | math | measure | money | ordinal | time | whitelist
-
-        processor = PostProcessor().processor
-        self.verbalizer = (verbalizer @ processor).star
+        postprocessor = PostProcessor().processor
+        self.verbalizer = (verbalizer @ postprocessor).star

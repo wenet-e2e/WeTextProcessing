@@ -27,14 +27,11 @@ maj_singular = pynini.string_file((get_abs_path("english/data/money/currency_maj
 
 class Money(Processor):
 
-    def __init__(self, deterministic: bool = False):
-        """
-        Args:
-            deterministic: if True will provide a single transduction option,
-                for False multiple transduction are generated (used for audio-based normalization)
-        """
+    def __init__(self, deterministic: bool = False, cardinal=None, decimal=None):
         super().__init__("money", ordertype="en_tn")
         self.deterministic = deterministic
+        self.cardinal = cardinal or Cardinal(deterministic)
+        self.decimal = decimal or Decimal(deterministic, cardinal=self.cardinal)
         self.build_tagger()
         self.build_verbalizer()
 
@@ -50,8 +47,8 @@ class Money(Processor):
             $1.2 million -> money { currency_maj: "dollars" integer_part: "one"  fractional_part: "two" quantity: "million" }
             $1.2320 -> money { currency_maj: "dollars" integer_part: "one"  fractional_part: "two three two" }
         """
-        cardinal = Cardinal(self.deterministic)
-        decimal = Decimal(self.deterministic)
+        cardinal = self.cardinal
+        decimal = self.decimal
         cardinal_graph = cardinal.graph_with_and
         graph_decimal_final = decimal.final_graph_wo_negative_w_abbr
 
@@ -97,7 +94,7 @@ class Money(Processor):
         Finite state transducer for verbalizing money, e.g.
             money { integer_part: "twelve" fractional_part: "o five" currency: "dollars" } -> twelve o five dollars
         """
-        decimal = Decimal(self.deterministic)
+        decimal = self.decimal
         keep_space = pynini.accep(" ")
         maj = pynutil.delete('currency_maj: "') + self.NOT_QUOTE.plus + pynutil.delete('"')
 

@@ -23,14 +23,10 @@ from tn.utils import augment_labels_with_punct_at_end, get_abs_path, load_labels
 
 class Time(Processor):
 
-    def __init__(self, deterministic: bool = False):
-        """
-        Args:
-            deterministic: if True will provide a single transduction option,
-                for False multiple transduction are generated (used for audio-based normalization)
-        """
+    def __init__(self, deterministic: bool = False, cardinal=None):
         super().__init__("time", ordertype="en_tn")
         self.deterministic = deterministic
+        self.cardinal = cardinal or Cardinal(deterministic)
         self.build_tagger()
         self.build_verbalizer()
 
@@ -53,7 +49,7 @@ class Time(Processor):
         time_zone_graph = pynini.string_file(get_abs_path("english/data/time/zone.tsv"))
 
         # only used for < 1000 thousand -> 0 weight
-        cardinal = Cardinal(self.deterministic).graph
+        cardinal = self.cardinal.graph
 
         labels_hour = [str(x) for x in range(0, 24)]
         labels_minute_single = [str(x) for x in range(1, 10)]

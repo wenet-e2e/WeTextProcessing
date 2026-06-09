@@ -22,8 +22,9 @@ from tn.utils import get_abs_path
 
 class Sport(Processor):
 
-    def __init__(self):
+    def __init__(self, cardinal=None):
         super().__init__(name="sport")
+        self.cardinal = cardinal or Cardinal()
         self.build_tagger()
         self.build_verbalizer()
 
@@ -33,7 +34,7 @@ class Sport(Processor):
         rmsign = delete("/") | delete("-") | delete(":")
         rmspace = delete(" ").ques
 
-        number = Cardinal().number
+        number = self.cardinal.number
         score = rmspace + number + rmsign + insert("比") + number + rmspace
         tagger = insert('team: "') + (country | club) + insert('" score: "') + score + insert('"')
         self.tagger = self.add_tokens(tagger)

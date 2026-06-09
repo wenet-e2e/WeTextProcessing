@@ -22,8 +22,9 @@ from tn.utils import get_abs_path
 
 class Measure(Processor):
 
-    def __init__(self):
+    def __init__(self, cardinal=None):
         super().__init__(name="measure")
+        self.cardinal = cardinal or Cardinal()
         self.build_tagger()
         self.build_verbalizer()
 
@@ -36,7 +37,7 @@ class Measure(Processor):
         rmspace = delete(" ").ques
         to = cross("-", "から") | cross("~", "から") | accep("から")
 
-        number = Cardinal().number
+        number = self.cardinal.number
         # 1-11月，1月-11月
         prefix = number + (rmspace + units).ques + to
         measure = prefix.ques + number + rmspace + units
