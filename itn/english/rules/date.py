@@ -118,7 +118,14 @@ class Date(Processor):
         # Year only => "twenty twelve", "two thousand three"
         graph_y = add_weight(year, 0.01) + po
 
-        final_graph = graph_mdy | graph_md | graph_my | graph_dmy | graph_dm | graph_y
+        # Decades: "nineteen eighties" => 1980s
+        decade_suffix = closure(self.ALPHA, 1) + (cross("ies", "y") | delete("s"))
+        decade_word = pynini.compose(decade_suffix, ties | cross("ten", "10"))
+        graph_decade = (
+            insert('year: "') + (teen | two_digit) + ds + decade_word + insert('0s"') + po
+        )
+
+        final_graph = graph_mdy | graph_md | graph_my | graph_dmy | graph_dm | graph_y | graph_decade
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):

@@ -1,4 +1,5 @@
 july twenty fifth two thousand twelve => july 25 2012
+nineteen eighties => 1980s
 two thousand and twenty => 2020
 two thousand and nine => 2009
 the twenty fifth of july twenty twelve => 25 july 2012

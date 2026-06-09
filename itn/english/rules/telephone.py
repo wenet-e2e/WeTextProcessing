@@ -87,7 +87,7 @@ class Telephone(Processor):
         serial_char = single | add_weight(two_digit, 0.002) | self.ALPHA
         serial = serial_char + closure(ds + serial_char, 2)
         serial = serial @ (closure(self.ALPHA | self.DIGIT) + self.DIGIT + closure(self.ALPHA | self.DIGIT))
-        graph |= insert('number_part: "') + add_weight(serial, 0.001) + insert('"')
+        graph |= insert('number_part: "') + add_weight(serial, 2.0) + insert('"')
 
         self.tagger = self.add_tokens(graph)
 
