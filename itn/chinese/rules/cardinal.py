@@ -149,6 +149,10 @@ class Cardinal(Processor):
         self.number_exclude_0_to_9 = (sign.ques + number_exclude_0_to_9).optimize()
 
         # 3. 特殊格式的数字
+        # "N个X" repeat pattern for digit sequences, e.g. 四个八 => 8888
+        repeat_digit = string_file(get_abs_path("../itn/chinese/data/number/repeat_digit.tsv"))
+        digit_token = digits | repeat_digit
+
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
         cardinal = digits.plus + (dot + digits.plus).plus
         # float number like 1.11
@@ -157,6 +161,9 @@ class Cardinal(Processor):
         #   340621199806051223, used in ID card
         idcard_last_char = digits | "X" | "x"
         cardinal |= digits**3 | digits**4 | digits**5 | digits**11 | (digits**17 + idcard_last_char) | digits**18
+        # digit sequences with "N个X" repeat, e.g. 幺三八四个八 => 1388888
+        # requires at least one normal digit before repeat_digit
+        cardinal |= digits.plus + repeat_digit + digits.star
 
         # 4. 特殊格式的数字 + 标准数字
         # cardinal string like 23
