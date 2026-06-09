@@ -38,6 +38,7 @@ class TestNormalizer:
         parse_test_case("data/whitelist.txt"),
         parse_test_case("data/number.txt"),
         parse_test_case("data/license_plate.txt"),
+        parse_test_case("data/train_number.txt"),
         parse_test_case("data/normalizer.txt"),
     )
 
