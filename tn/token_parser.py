@@ -27,11 +27,13 @@ EN_TN_ORDERS = {
     "money": ["integer_part", "fractional_part", "quantity", "currency_maj"],
 }
 ITN_ORDERS = {
-    "date": ["year", "month", "day"],
+    "date": ["year", "month", "day", "preserve_order"],
     "fraction": ["sign", "numerator", "denominator"],
-    "measure": ["numerator", "denominator", "value"],
+    "measure": ["numerator", "denominator", "value", "units"],
     "money": ["currency", "value", "decimal"],
     "time": ["hour", "minute", "second", "noon"],
+    "telephone": ["value"],
+    "electronic": ["username", "domain", "protocol"],
 }
 
 
