@@ -19,6 +19,9 @@
 #include "processor/wetext_processor.h"
 #include "utils/wetext_flags.h"
 
+#include <gflags/gflags.h>
+#include <glog/logging.h>
+
 DEFINE_string(text, "", "input string");
 DEFINE_string(file, "", "input file");
 DEFINE_string(tagger, "", "tagger fst path");

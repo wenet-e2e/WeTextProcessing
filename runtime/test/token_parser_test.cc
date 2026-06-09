@@ -26,7 +26,7 @@ class TokenParserTest : public testing::Test {
   wetext::TokenParser* parser;
 
   virtual void SetUp() {
-    parser = new wetext::TokenParser(wetext::ParseType::kTN);
+    parser = new wetext::TokenParser(wetext::ParseType::kZH_TN);
   }
 
   virtual void TearDown() { delete parser; }
