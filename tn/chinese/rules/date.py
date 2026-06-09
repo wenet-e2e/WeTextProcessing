@@ -39,17 +39,17 @@ class Date(Processor):
 
         year = insert('year: "') + yyyy + insert('年"')
         month = insert('month: "') + (m | mm) + insert('"')
+        month_two_digit = insert('month: "') + mm + insert('"')
         day = insert('day: "') + (d | dd) + insert('"')
 
         # yyyy/m/d | yyyy/mm/dd | dd/mm/yyyy
         # yyyy/0m | 0m/yyyy | 0m/dd
-        mm = insert('month: "') + mm + insert('"')
         date = (
             (year + rmsign + month + rmsign + day)
             | (day + rmsign + month + rmsign + year)
-            | (year + rmsign + mm)
-            | (mm + rmsign + year)
-            | (mm + rmsign + day)
+            | (year + rmsign + month_two_digit)
+            | (month_two_digit + rmsign + year)
+            | (month_two_digit + rmsign + day)
         )
         tagger = self.add_tokens(date)
 
