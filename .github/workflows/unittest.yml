@@ -20,20 +20,31 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: ${{ matrix.python-version }}
+          activate-environment: test
+      - name: Install openfst (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install openfst
+          echo "CPLUS_INCLUDE_PATH=/opt/homebrew/include:$CPLUS_INCLUDE_PATH" >> $GITHUB_ENV
+          echo "LIBRARY_PATH=/opt/homebrew/lib:$LIBRARY_PATH" >> $GITHUB_ENV
+      - name: Install pynini via conda (Windows)
+        if: runner.os == 'Windows'
+        shell: bash -el {0}
+        run: conda install -c conda-forge pynini
       - name: Install dependencies
+        shell: bash -el {0}
         run: |
           python -m pip install --upgrade pip
-          pip install .[test]
+          pip install .[test] ${{ runner.os == 'Windows' && '--no-deps' || '' }}
       - name: Lint with flake8
+        shell: bash -el {0}
         run: |
-          # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
-        run: |
-          pytest
+        shell: bash -el {0}
+        run: pytest
