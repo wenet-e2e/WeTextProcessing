@@ -1,0 +1,14 @@
+two hundred meters => 200 m
+two hundred kilometers per hour => 200 km/h
+minus sixty six kilograms => -66 kg
+three hours => 3 h
+one milli volt => 1 mv
+ninety grams => 90 g
+eight kilograms => 8 kg
+eighteen feet => 18 ft
+eighteen ounces => 18 oz
+eight hundred kilowatts => 800 kW
+eight hundred horsepower => 800 hp
+fifty six point three per square kilometer => 56.3 /km²
+twelve point five meters => 12.5 m
+point two meters => .2 m

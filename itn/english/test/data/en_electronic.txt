@@ -1,0 +1,5 @@
+a at gmail dot com => a@gmail.com
+c d f at a b c dot e d u => cdf@abc.edu
+a b c at a b c dot com => abc@abc.com
+a b c at g mail dot a b c => abc@gmail.abc
+a dot b c at nvidia dot com => a.bc@nvidia.com
