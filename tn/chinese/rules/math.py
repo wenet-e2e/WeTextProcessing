@@ -30,10 +30,11 @@ class Math(Processor):
 
     def build_tagger(self):
         operator = string_file(get_abs_path("chinese/data/math/operator.tsv"))
+        unambiguous_operator = string_file(get_abs_path("chinese/data/math/operator_unambiguous.tsv"))
         symbols = cross("~", "到") | cross(":", "比") | cross("<", "小于") | cross(">", "大于")
 
         number = self.cardinal.number
         tagger = number + (delete(" ").ques + (operator | symbols) + delete(" ").ques + number).star
-        tagger |= operator
+        tagger |= unambiguous_operator
         tagger = insert('value: "') + tagger + insert('"')
         self.tagger = self.add_tokens(tagger)
