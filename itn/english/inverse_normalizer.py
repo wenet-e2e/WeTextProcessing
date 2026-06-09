@@ -19,13 +19,13 @@ from itn.english.rules.cardinal import Cardinal
 from itn.english.rules.char import Char
 from itn.english.rules.date import Date
 from itn.english.rules.decimal import Decimal
-from itn.english.rules.electronic import Electronic
 from itn.english.rules.measure import Measure
 from itn.english.rules.money import Money
 from itn.english.rules.ordinal import Ordinal
 from itn.english.rules.telephone import Telephone
 from itn.english.rules.time import Time
 from itn.english.rules.whitelist import Whitelist
+from itn.english.rules.word import Word
 from tn.processor import Processor
 
 
@@ -46,21 +46,21 @@ class InverseNormalizer(Processor):
         measure = Measure(cardinal=cardinal, decimal=decimal)
         money = Money(cardinal=cardinal, decimal=decimal)
         telephone = Telephone(cardinal=cardinal)
-        electronic = Electronic()
         whitelist = Whitelist()
+        word = Word()
         char = Char()
 
         tagger = (
-            add_weight(date.tagger, 0.9)
-            | add_weight(time.tagger, 0.9)
-            | add_weight(measure.tagger, 0.95)
-            | add_weight(money.tagger, 0.9)
-            | add_weight(whitelist.tagger, 0.9)
-            | add_weight(telephone.tagger, 1.0)
-            | add_weight(electronic.tagger, 2.0)
-            | add_weight(ordinal.tagger, 1.0)
-            | add_weight(decimal.tagger, 1.01)
-            | add_weight(cardinal.tagger, 1.02)
+            add_weight(date.tagger, 1.09)
+            | add_weight(time.tagger, 1.1)
+            | add_weight(measure.tagger, 1.1)
+            | add_weight(money.tagger, 1.1)
+            | add_weight(whitelist.tagger, 1.01)
+            | add_weight(telephone.tagger, 1.1)
+            | add_weight(ordinal.tagger, 1.09)
+            | add_weight(decimal.tagger, 1.1)
+            | add_weight(cardinal.tagger, 1.1)
+            | add_weight(word.tagger, 50)
             | add_weight(char.tagger, 100)
         ).optimize()
 
@@ -76,9 +76,11 @@ class InverseNormalizer(Processor):
             | measure.verbalizer
             | money.verbalizer
             | telephone.verbalizer
-            | electronic.verbalizer
             | whitelist.verbalizer
+            | word.verbalizer
             | char.verbalizer
         ).optimize()
 
-        self.verbalizer = verbalizer.star
+        self.verbalizer = (verbalizer + self.INSERT_SPACE).star @ self.build_rule(
+            self.DELETE_EXTRA_SPACE
+        ) @ self.build_rule(delete(" "), r="[EOS]")

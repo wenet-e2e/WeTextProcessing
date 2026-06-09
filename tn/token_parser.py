@@ -30,8 +30,8 @@ ITN_ORDERS = {
     "date": ["year", "month", "day", "preserve_order"],
     "fraction": ["sign", "numerator", "denominator"],
     "measure": ["numerator", "denominator", "value", "units"],
-    "money": ["currency", "value", "decimal"],
-    "time": ["hour", "minute", "second", "noon"],
+    "money": ["currency", "value", "decimal", "quantity"],
+    "time": ["hour", "minute", "second", "noon", "zone"],
     "telephone": ["value"],
     "electronic": ["username", "domain", "protocol"],
 }

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini import closure, cross, string_file, union
+from pynini import closure, cross, difference, string_file, union
 from pynini.lib.pynutil import delete, insert
 
 from tn.processor import Processor
@@ -47,6 +47,7 @@ class Cardinal(Processor):
 
         # 1~999
         up_to_999 = up_to_99 | hundreds
+        self.up_to_999 = up_to_999
         # 1~999 with zero-padding to 3 digits
         up_to_999_padded = hundreds | insert("0") + two_digit | insert("00") + one_digit
 
@@ -111,10 +112,17 @@ class Cardinal(Processor):
         graph = (delete_and @ graph).optimize()
 
         self.graph = graph
+        self.graph_no_exception = graph
+
+        # exclude 0-12 from cardinal tagger (they stay as words)
+        from itn.english.rules.time import _num_to_word
+        exception_labels = [_num_to_word(x) for x in range(0, 13) if _num_to_word(x)]
+        exception = union(*exception_labels).optimize()
+        graph_with_exception = (difference(self.VSIGMA, exception) @ graph).optimize()
 
         minus = delete("minus") | delete("negative")
         optional_minus = closure(insert('negative: "-" ') + minus + ds, 0, 1)
-        final_graph = optional_minus + insert('integer: "') + graph + insert('"')
+        final_graph = optional_minus + insert('integer: "') + graph_with_exception + insert('"')
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):

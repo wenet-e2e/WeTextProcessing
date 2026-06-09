@@ -48,13 +48,21 @@ class Decimal(Processor):
 
         # quantity: "five point two million" => 5.2 million
         quantities = load_labels(get_abs_path("../itn/english/data/numbers/thousands.tsv"))
-        quantity_names = [x[0] for x in quantities if x[0] != "thousand"]
-        quantity = union(*quantity_names)
+        quantity_all = union(*[x[0] for x in quantities])
+        quantity_no_thousand = union(*[x[0] for x in quantities if x[0] != "thousand"])
+        # decimal + quantity: five point two million, 164.58 thousand
         quantity_graph = (
             optional_negative + integer_part + ds + point + ds + frac_part
-            + ds + insert(' quantity: "') + quantity + insert('"')
+            + ds + insert(' quantity: "') + quantity_all + insert('"')
         )
-        graph |= quantity_graph
+        # cardinal (up to 999) + quantity: four hundred million, five million
+        # exclude thousand to let cardinal handle "ten thousand" => 10000
+        cardinal_small = self.cardinal.up_to_999
+        cardinal_quantity = (
+            optional_negative + insert('integer_part: "') + cardinal_small + insert('"')
+            + ds + insert(' quantity: "') + quantity_no_thousand + insert('"')
+        )
+        graph |= quantity_graph | cardinal_quantity
 
         self.tagger = self.add_tokens(graph)
 
