@@ -18,6 +18,13 @@ import string
 
 from pynini import Fst, cdrewrite, cross, difference, escape, invert, shortestpath, union
 from pynini.lib import byte, utf8
+
+logger = logging.getLogger("wetext")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(asctime)s WETEXT %(levelname)s %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 from pynini.lib.pynutil import delete, insert
 
 from tn.token_parser import TokenParser
@@ -70,13 +77,6 @@ class Processor:
         self.verbalizer = self.delete_tokens(verbalizer)
 
     def build_fst(self, prefix, cache_dir, overwrite_cache):
-        logger = logging.getLogger("wetext-{}".format(self.name))
-        logger.setLevel(logging.INFO)
-        handler = logging.StreamHandler()
-        fmt = logging.Formatter("%(asctime)s WETEXT %(levelname)s %(message)s")
-        handler.setFormatter(fmt)
-        logger.addHandler(handler)
-
         os.makedirs(cache_dir, exist_ok=True)
         tagger_name = "{}_tagger.fst".format(prefix)
         verbalizer_name = "{}_verbalizer.fst".format(prefix)
