@@ -58,7 +58,7 @@ class Measure(Processor):
 
         # 10km/h
         rmsign = rmspace + delete("/") + rmspace
-        tagger |= insert('numerator: "') + measure + rmsign + insert('" denominator: "') + units + insert('"')
+        tagger |= insert('numerator: "') + measure + rmsign + insert('" denominator: "') + (measure | units) + insert('"')
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
