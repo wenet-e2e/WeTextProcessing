@@ -82,3 +82,13 @@ def get_formats(input_f, input_case="cased", is_default=True):
 
     multiple_formats = pynini.string_map(multiple_formats)
     return multiple_formats
+
+
+def str2bool(s, default=False):
+    s = s.lower()
+    if s == "true":
+        return True
+    elif s == "false":
+        return False
+    else:
+        return default

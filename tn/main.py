@@ -14,7 +14,7 @@
 
 import argparse
 
-from itn.main import str2bool
+from tn.utils import str2bool
 
 # TODO(pzd17 & sxc19): multi-language support
 from tn.chinese.normalizer import Normalizer as ZhNormalizer
@@ -63,7 +63,7 @@ def main():
         print(normalizer.tag(args.text))
         print(normalizer.normalize(args.text))
     elif args.file:
-        with open(args.file) as fin:
+        with open(args.file, encoding="utf-8") as fin:
             for line in fin:
                 print(normalizer.tag(line.strip()))
                 print(normalizer.normalize(line.strip()))
