@@ -72,7 +72,7 @@ class Telephone(Processor):
         graph |= insert('number_part: "') + ssn + insert('"')
 
         # IP: X.X.X.X
-        ip_token = single + closure(ds + single, 0, 2) | add_weight(two_digit, 0.002)
+        ip_token = single + closure(ds + single, 0, 2) | double | add_weight(two_digit, 0.002)
         ip = ip_token + (cross(" dot ", ".") + ip_token) ** 3
         graph |= insert('number_part: "') + add_weight(ip, -0.001) + insert('"')
 

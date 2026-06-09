@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini import closure, cross, string_file, union
+from pynini import accep, closure, compose, cross, string_file, union
 from pynini.lib.pynutil import add_weight, delete, insert
 
 from itn.english.rules.cardinal import Cardinal
@@ -48,11 +48,17 @@ class Money(Processor):
 
         cent = cross("cent", "") | cross("cents", "")
         magnitudes = load_labels(get_abs_path("../itn/english/data/magnitudes.tsv"))
-        magnitude = union(*[name for symbol, name in magnitudes])
+        magnitude = union(*[name for symbol, name in magnitudes if name != "thousand"])
 
         # "two dollars"
+        # add "one fifty five" => "one hundred fifty five" => 155
+        with_hundred = compose(
+            closure(self.NOT_SPACE) + accep(" ") + insert("hundred ") + self.VSIGMA,
+            compose(cardinal_graph, self.DIGIT ** 3),
+        )
+        cardinal_with_hundred = cardinal_graph | with_hundred
         integer_graph = (
-            insert('value: "') + cardinal_graph + insert('"')
+            insert('value: "') + cardinal_with_hundred + insert('"')
             + ds + insert(' currency: "') + currency + insert('"')
         )
         # "fifty million dollars" / "four hundred billion won"
