@@ -104,21 +104,29 @@ class Processor:
             logger.info("fst path: {}".format(tagger_path))
             logger.info("          {}".format(verbalizer_path))
 
-    def tag(self, input):
+    def tag(self, input, nbest=1):
         if len(input) == 0:
-            return ""
+            return "" if nbest == 1 else [""]
         input = escape(input)
         lattice = input @ self.tagger
-        return shortestpath(lattice, nshortest=1, unique=True).string()
+        if nbest == 1:
+            return shortestpath(lattice, nshortest=1, unique=True).string()
+        lattice = shortestpath(lattice.project("output").rmepsilon(), nshortest=nbest, unique=True)
+        paths = lattice.paths()
+        results = []
+        while not paths.done():
+            results.append(paths.ostring())
+            paths.next()
+        return results
 
     def verbalize(self, input):
-        # Only words from the blacklist are contained.
         if len(input) == 0:
             return ""
         output = TokenParser(self.ordertype).reorder(input)
-        # We need escape for pynini to build the fst from string.
         lattice = escape(output) @ self.verbalizer
         return shortestpath(lattice, nshortest=1, unique=True).string()
 
-    def normalize(self, input):
-        return self.verbalize(self.tag(input))
+    def normalize(self, input, nbest=1):
+        if nbest == 1:
+            return self.verbalize(self.tag(input))
+        return [self.verbalize(tagged) for tagged in self.tag(input, nbest)]
