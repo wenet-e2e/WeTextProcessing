@@ -72,7 +72,13 @@ class Cardinal(Processor):
                     + single_digits_graph
                     + self.INSERT_SPACE
                     + single_digits_graph
-                ).plus
+                    + (self.INSERT_SPACE + pynutil.delete(",")
+                       + single_digits_graph
+                       + self.INSERT_SPACE
+                       + single_digits_graph
+                       + self.INSERT_SPACE
+                       + single_digits_graph).star
+                )
             )
 
         graph = (
