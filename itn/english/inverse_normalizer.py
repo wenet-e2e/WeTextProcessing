@@ -56,7 +56,7 @@ class InverseNormalizer(Processor):
             add_weight(date.tagger, 1.09)
             | add_weight(time.tagger, 1.1)
             | add_weight(measure.tagger, 1.1)
-            | add_weight(money.tagger, 1.1)
+            | add_weight(money.tagger, 1.08)
             | add_weight(whitelist.tagger, 1.01)
             | add_weight(telephone.tagger, 1.1)
             | add_weight(electronic.tagger, 1.1)

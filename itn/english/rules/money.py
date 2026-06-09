@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pynini import closure, cross, string_file, union
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import add_weight, delete, insert
 
 from itn.english.rules.cardinal import Cardinal
 from itn.english.rules.decimal import Decimal
@@ -33,6 +33,7 @@ class Money(Processor):
 
     def build_tagger(self):
         cardinal_graph = self.cardinal.graph
+        cardinal_small = self.cardinal.up_to_999
         ds = delete(" ")
 
         currency_labels = load_labels(get_abs_path("../itn/english/data/currency.tsv"))
@@ -49,18 +50,46 @@ class Money(Processor):
         magnitudes = load_labels(get_abs_path("../itn/english/data/magnitudes.tsv"))
         magnitude = union(*[name for symbol, name in magnitudes])
 
+        # "two dollars"
         integer_graph = (
             insert('value: "') + cardinal_graph + insert('"')
             + ds + insert(' currency: "') + currency + insert('"')
         )
-        # "fifty million dollars" => $50 million
-        cardinal_small = self.cardinal.up_to_999
+        # "fifty million dollars" / "four hundred billion won"
         quantity_graph = (
             insert('value: "') + cardinal_small + insert('"')
             + ds + insert(' quantity: "') + magnitude + insert('"')
             + ds + insert(' currency: "') + currency + insert('"')
         )
-        # cents: pad single digit (1-9 => 01-09)
+        # "two point five billion dollars"
+        digit = string_file(get_abs_path("../itn/english/data/numbers/digit.tsv"))
+        zero = string_file(get_abs_path("../itn/english/data/numbers/zero.tsv"))
+        frac_d = digit | zero | cross("o", "0")
+        frac = closure(frac_d + ds) + frac_d
+        decimal_quantity_graph = (
+            insert('value: "') + cardinal_graph + insert(".")
+            + ds + delete("point") + ds + frac + insert('"')
+            + ds + insert(' quantity: "') + magnitude + insert('"')
+            + ds + insert(' currency: "') + currency + insert('"')
+        )
+        # "twenty point five o six dollars" (decimal without quantity)
+        decimal_graph = (
+            insert('value: "') + cardinal_graph + insert(".")
+            + ds + delete("point") + ds + frac + insert('"')
+            + ds + insert(' currency: "') + currency + insert('"')
+        )
+        # "point five o six dollars"
+        decimal_no_int = (
+            insert('value: ".') + delete("point") + ds + frac + insert('"')
+            + ds + insert(' currency: "') + currency + insert('"')
+        )
+        # "one fifty five dollars" => $155 (missing "hundred")
+        with_hundred = (
+            insert('value: "') + cardinal_small + insert('"')
+            + ds + insert(' currency: "') + currency + insert('"')
+        )
+
+        # cents
         cents_graph = union(*[cross(_num_to_word(x), f"{x:02d}") for x in range(1, 100) if _num_to_word(x)])
         with_cents = (
             insert('value: "') + cardinal_graph + insert('"')
@@ -69,31 +98,22 @@ class Money(Processor):
             + insert(' decimal: "') + cents_graph + insert('"')
             + ds + cent
         )
-        cents_only = (
-            insert('currency: "$" decimal: "') + cents_graph + insert('"')
-            + ds + cent
-        )
-
-        # "two point five billion dollars"
-        frac_digit = string_file(get_abs_path("../itn/english/data/numbers/digit.tsv"))
-        frac_zero = string_file(get_abs_path("../itn/english/data/numbers/zero.tsv"))
-        frac_d = frac_digit | frac_zero | cross("o", "0")
-        frac = closure(frac_d + ds) + frac_d
-        decimal_quantity_graph = (
-            insert('value: "') + cardinal_graph + insert(".")
-            + ds + delete("point") + ds + frac + insert('"')
-            + ds + insert(' quantity: "') + magnitude + insert('"')
-            + ds + insert(' currency: "') + currency + insert('"')
-        )
-
         # "seventy five dollars sixty three" (no "cents" word)
         dollars_amount = (
             insert('value: "') + cardinal_graph + insert('"')
             + ds + insert(' currency: "') + currency + insert('"')
             + ds + insert(' decimal: "') + cents_graph + insert('"')
         )
+        cents_only = (
+            insert('currency: "$" decimal: "') + cents_graph + insert('"')
+            + ds + cent
+        )
 
-        graph = integer_graph | quantity_graph | decimal_quantity_graph | with_cents | dollars_amount | cents_only
+        graph = (
+            integer_graph | add_weight(quantity_graph, -1) | add_weight(decimal_quantity_graph, -1)
+            | decimal_graph | decimal_no_int
+            | with_cents | dollars_amount | cents_only
+        )
         self.tagger = self.add_tokens(graph)
 
     def build_verbalizer(self):
