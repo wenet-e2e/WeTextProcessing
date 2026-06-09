@@ -17,8 +17,15 @@ from pynini.lib.pynutil import add_weight, delete
 
 from itn.english.rules.cardinal import Cardinal
 from itn.english.rules.char import Char
+from itn.english.rules.date import Date
 from itn.english.rules.decimal import Decimal
+from itn.english.rules.electronic import Electronic
+from itn.english.rules.measure import Measure
+from itn.english.rules.money import Money
 from itn.english.rules.ordinal import Ordinal
+from itn.english.rules.telephone import Telephone
+from itn.english.rules.time import Time
+from itn.english.rules.whitelist import Whitelist
 from tn.processor import Processor
 
 
@@ -34,10 +41,24 @@ class InverseNormalizer(Processor):
         cardinal = Cardinal()
         ordinal = Ordinal(cardinal=cardinal)
         decimal = Decimal(cardinal=cardinal)
+        date = Date(cardinal=cardinal, ordinal=ordinal)
+        time = Time(cardinal=cardinal)
+        measure = Measure(cardinal=cardinal, decimal=decimal)
+        money = Money(cardinal=cardinal, decimal=decimal)
+        telephone = Telephone(cardinal=cardinal)
+        electronic = Electronic()
+        whitelist = Whitelist()
         char = Char()
 
         tagger = (
-            add_weight(ordinal.tagger, 1.0)
+            add_weight(date.tagger, 0.9)
+            | add_weight(time.tagger, 0.9)
+            | add_weight(measure.tagger, 0.95)
+            | add_weight(money.tagger, 0.9)
+            | add_weight(whitelist.tagger, 0.9)
+            | add_weight(telephone.tagger, 1.0)
+            | add_weight(electronic.tagger, 2.0)
+            | add_weight(ordinal.tagger, 1.0)
             | add_weight(decimal.tagger, 1.01)
             | add_weight(cardinal.tagger, 1.02)
             | add_weight(char.tagger, 100)
@@ -50,6 +71,13 @@ class InverseNormalizer(Processor):
             cardinal.verbalizer
             | ordinal.verbalizer
             | decimal.verbalizer
+            | date.verbalizer
+            | time.verbalizer
+            | measure.verbalizer
+            | money.verbalizer
+            | telephone.verbalizer
+            | electronic.verbalizer
+            | whitelist.verbalizer
             | char.verbalizer
         ).optimize()
 

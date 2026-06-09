@@ -12,12 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini import closure, cross, string_file
+from pynini import closure, cross, string_file, union
 from pynini.lib.pynutil import delete, insert
 
 from itn.english.rules.cardinal import Cardinal
 from tn.processor import Processor
 from tn.utils import get_abs_path
+
+
+def _num_to_word(n):
+    ones = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+            "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+            "seventeen", "eighteen", "nineteen"]
+    tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+    if n < 20:
+        return ones[n]
+    return tens[n // 10] + (" " + ones[n % 10] if n % 10 else "")
 
 
 class Time(Processor):
@@ -29,34 +39,58 @@ class Time(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        digit = string_file(get_abs_path("../itn/english/data/numbers/digit.tsv"))
-        teen = string_file(get_abs_path("../itn/english/data/numbers/teen.tsv"))
-        ties = string_file(get_abs_path("../itn/english/data/numbers/ties.tsv"))
+        cardinal_graph = self.cardinal.graph
         time_suffix = string_file(get_abs_path("../itn/english/data/time/time_suffix.tsv"))
         time_zone = string_file(get_abs_path("../itn/english/data/time/time_zone.tsv"))
         ds = delete(" ")
 
-        hour = teen | (insert("0") + digit)
-        minute = teen | (ties + (ds + digit | insert("0"))) | insert("0") + digit
+        # hours: 0-23, only valid hour words, with zero-padding
+        hour_labels = [_num_to_word(x) for x in range(0, 24) if _num_to_word(x)]
+        hour_padded = union(*[cross(_num_to_word(x), f"{x:02d}") for x in range(0, 24) if _num_to_word(x)])
+        # minutes: 1-9 (single), 10-59 (double)
+        min_single = [_num_to_word(x) for x in range(1, 10)]
+        min_double = [_num_to_word(x) for x in range(10, 60)]
+        graph_min_single = union(*[cross(_num_to_word(x), f"{x:02d}") for x in range(1, 10)])
+        graph_min_double = union(*[cross(_num_to_word(x), str(x)) for x in range(10, 60)])
 
-        # two thirty => 02:30
-        graph = insert('hour: "') + hour + insert('" ') + ds + insert('minute: "') + minute + insert('"')
-        # eight oclock => 08:00
-        oclock = cross("o'clock", "") | cross("oclock", "")
-        graph |= insert('hour: "') + hour + insert('" minute: "00"') + ds + oclock
+        hour = insert('hour: "') + hour_padded + insert('"')
+        oclock = cross("o'clock", "") | cross("oclock", "") | cross("hundred hours", "")
+        minute = (
+            oclock + insert("00")
+            | delete("o") + ds + graph_min_single
+            | graph_min_double
+        )
 
         suffix = ds + insert(' noon: "') + time_suffix + insert('"')
         zone = ds + insert(' zone: "') + time_zone + insert('"')
-        graph += suffix.ques + zone.ques
 
-        self.tagger = self.add_tokens(graph)
+        # "eight oclock" (no suffix needed)
+        graph_oclock = hour + ds + insert(' minute: "') + oclock + insert('00"')
+        # "two o five" (no suffix needed)
+        graph_o_min = hour + ds + insert(' minute: "') + delete("o") + ds + graph_min_single + insert('"')
+        # "two pm", "three am" (hour + suffix, minutes = 00)
+        graph_h_suffix = hour + insert(' minute: "00"') + suffix + closure(zone, 0, 1)
+        # "two thirty am" (hour + minute + suffix required)
+        graph_hm_suffix = (
+            hour + ds + insert(' minute: "') + graph_min_double + insert('"')
+            + suffix + closure(zone, 0, 1)
+        )
+        # "half past two", "quarter past two"
+        graph_half_quarter = (
+            insert('minute: "')
+            + (cross("half", "30") | cross("quarter", "15"))
+            + insert('"')
+            + ds + delete("past") + ds
+            + hour
+        )
+
+        final_graph = graph_oclock | graph_o_min | graph_h_suffix | graph_hm_suffix | graph_half_quarter
+        self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
-        hours = delete('hour: "') + self.NOT_QUOTE.plus + delete('"')
-        minutes = delete(' minute: "') + self.NOT_QUOTE.plus + delete('"')
-        suffix = delete(' noon: "') + self.NOT_QUOTE.plus + delete('"')
-        zone = delete(' zone: "') + self.NOT_QUOTE.plus + delete('"')
-        graph = hours + insert(":") + self.DELETE_SPACE + minutes
-        graph += closure(insert(" ") + self.DELETE_SPACE + suffix, 0, 1)
-        graph += closure(insert(" ") + self.DELETE_SPACE + zone, 0, 1)
+        hour = delete('hour: "') + self.NOT_QUOTE.plus + delete('"')
+        minute = delete(' minute: "') + self.NOT_QUOTE.plus + delete('"')
+        noon = delete(' noon: "') + self.NOT_QUOTE.plus + delete('"')
+        graph = hour + insert(":") + self.DELETE_SPACE + minute
+        graph += closure(insert(" ") + self.DELETE_SPACE + noon, 0, 1)
         self.verbalizer = self.delete_tokens(graph)
