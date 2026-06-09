@@ -18,6 +18,7 @@ from pynini.lib.pynutil import add_weight, delete
 from itn.chinese.rules.cardinal import Cardinal
 from itn.chinese.rules.char import Char
 from itn.chinese.rules.date import Date
+from itn.chinese.rules.train_number import TrainNumber
 from itn.chinese.rules.fraction import Fraction
 from itn.chinese.rules.license_plate import LicensePlate
 from itn.chinese.rules.math import Math
@@ -62,6 +63,7 @@ class InverseNormalizer(Processor):
             | add_weight(cardinal.tagger, 1.06)
             | add_weight(Math(cardinal=cardinal).tagger, 1.10)
             | add_weight(LicensePlate().tagger, 1.0)
+            | add_weight(TrainNumber().tagger, 1.0)
             | add_weight(Char().tagger, 100)
         ).optimize()
 
@@ -73,6 +75,7 @@ class InverseNormalizer(Processor):
             | Char().verbalizer
             | Date().verbalizer
             | Fraction().verbalizer
+            | TrainNumber().verbalizer
             | Math().verbalizer
             | Measure(enable_0_to_9=self.enable_0_to_9).verbalizer
             | Money(enable_0_to_9=self.enable_0_to_9).verbalizer
