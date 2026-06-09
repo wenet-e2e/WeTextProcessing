@@ -32,7 +32,7 @@ ITN_ORDERS = {
     "measure": ["numerator", "denominator", "value", "units"],
     "money": ["currency", "value", "decimal", "quantity"],
     "time": ["hour", "minute", "second", "noon", "zone"],
-    "telephone": ["value"],
+    "telephone": ["country_code", "number_part"],
     "electronic": ["username", "domain", "protocol"],
 }
 
