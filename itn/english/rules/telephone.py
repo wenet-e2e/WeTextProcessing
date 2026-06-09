@@ -40,8 +40,8 @@ class Telephone(Processor):
                                       ("five","5"),("six","6"),("seven","7"),("eight","8"),
                                       ("nine","9"),("zero","0"),("oh","0"),("o","0")]])
 
-        # two-digit cardinal: twenty three => 23
-        two_digit = self.cardinal.graph_no_exception @ (self.DIGIT + self.DIGIT)
+        # two-digit cardinal: twenty three => 23 (uses graph_two_digit for proper space handling)
+        two_digit = self.cardinal.graph_two_digit
 
         # a token is 1 or 2 digits
         token = single | double | add_weight(two_digit, 0.002)
@@ -72,7 +72,13 @@ class Telephone(Processor):
         graph |= insert('number_part: "') + ssn + insert('"')
 
         # IP: X.X.X.X
-        ip_token = single + closure(ds + single, 0, 2) | double | add_weight(two_digit, 0.002)
+        ip_token = (
+            single + closure(ds + single, 0, 2)
+            | double
+            | add_weight(two_digit, 0.002)
+            | single + ds + two_digit
+            | two_digit + ds + single
+        )
         ip = ip_token + (cross(" dot ", ".") + ip_token) ** 3
         graph |= insert('number_part: "') + add_weight(ip, -0.001) + insert('"')
 
@@ -84,7 +90,7 @@ class Telephone(Processor):
         graph |= insert('number_part: "') + cc + insert('"')
 
         # serial: mixed alpha+digits, at least one digit, length >= 3
-        serial_char = single | add_weight(two_digit, 0.002) | self.ALPHA
+        serial_char = add_weight(single, 0.001) | add_weight(two_digit, -0.001) | self.ALPHA
         serial = serial_char + closure(ds + serial_char, 2)
         serial = serial @ (closure(self.ALPHA | self.DIGIT) + self.DIGIT + closure(self.ALPHA | self.DIGIT))
         graph |= insert('number_part: "') + add_weight(serial, 2.0) + insert('"')

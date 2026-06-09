@@ -36,6 +36,7 @@ class Cardinal(Processor):
         # 1~9, 10~19, 20~99
         one_digit = digit
         two_digit = teen | (ties + (ds + digit | insert("0")))
+        self.graph_two_digit = two_digit
         up_to_99 = one_digit | two_digit
 
         # one hundred, one hundred twenty three, one hundred one

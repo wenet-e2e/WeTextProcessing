@@ -52,6 +52,10 @@ class Time(Processor):
         graph_min_double = union(*[cross(_num_to_word(x), str(x)) for x in range(10, 60)])
         graph_min_verbose = cross("half", "30") | cross("quarter", "15")
 
+        # minutes without zero-padding (for minute_to composition)
+        min_single_raw = union(*[cross(_num_to_word(x), str(x)) for x in range(1, 10)])
+        min_double_raw = graph_min_double  # already no padding
+
         oclock = cross("o'clock", "") | cross("oclock", "") | cross("hundred hours", "")
 
         hour = insert('hour: "') + hour_all + insert('"')
@@ -89,7 +93,7 @@ class Time(Processor):
         # "ten to eleven pm" => 10:50 p.m.
         graph_min_to = (
             insert('minute: "')
-            + ((graph_min_single | graph_min_double) @ minute_to)
+            + ((min_single_raw | min_double_raw) @ minute_to)
             + insert('"')
             + closure(ds + delete("min") + delete("ute").ques + delete("s").ques, 0, 1)
             + ds + delete("to") + ds
