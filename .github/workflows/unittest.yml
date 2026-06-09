@@ -26,12 +26,27 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Cache Homebrew (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/cache@v4
+        with:
+          path: |
+            /opt/homebrew/Cellar/openfst
+            /opt/homebrew/include/fst
+            /opt/homebrew/lib/libfst*
+          key: brew-openfst-${{ runner.os }}
       - name: Install openfst (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install openfst
+          brew install openfst || true
           echo "CPLUS_INCLUDE_PATH=/opt/homebrew/include:$CPLUS_INCLUDE_PATH" >> $GITHUB_ENV
           echo "LIBRARY_PATH=/opt/homebrew/lib:$LIBRARY_PATH" >> $GITHUB_ENV
+      - name: Cache pip (non-Windows)
+        if: runner.os != 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
       - name: Install dependencies (non-Windows)
         if: runner.os != 'Windows'
         run: |
@@ -43,6 +58,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           activate-environment: test
+          use-only-tar-bz2: true
+      - name: Cache Conda (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: C:\Miniconda\envs\test
+          key: conda-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
         shell: bash -el {0}
