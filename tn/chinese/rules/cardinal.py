@@ -91,9 +91,10 @@ class Cardinal(Processor):
         cardinal |= digits.plus + (delete("-") + digits.plus) ** 2
         # xxx-xxxxxxxx
         cardinal |= digits**3 + delete("-") + digits**8
-        # three or five or eleven phone numbers
+        # well-known short phone numbers (110, 12306, etc.) and 11-digit mobile
         phone_digits = digits @ self.build_rule(cross("一", "幺"))
-        phone = phone_digits**3 | phone_digits**5 | phone_digits**11
+        phone = string_file(get_abs_path("chinese/data/cardinal/phone.tsv"))
+        phone |= phone_digits**11
         phone |= accep("尾号") + (accep("是") | accep("为")).ques + phone_digits**4
         cardinal |= add_weight(phone, -1.0)
 
