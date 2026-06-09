@@ -1,0 +1,17 @@
+july twenty fifth two thousand twelve => july 25 2012
+the twenty fifth of july twenty twelve => 25 july 2012
+the twenty fifth of july two thousand twelve => 25 july 2012
+the twenty second of july twenty twelve => 22 july 2012
+the fifteenth of january => 15 january
+january first => january 1
+july twenty second two thousand eight => july 22 2008
+june thirty => june 30
+july twenty fifth twenty twelve => july 25 2012
+twenty twelve => 2012
+july two thousand twelve => july 2012
+october nineteen oh five => october 1905
+february twenty fifth twenty sixteen => february 25 2016
+november twenty fourth twenty fourteen => november 24 2014
+two thousand and three => 2003
+two thousand and twenty => 2020
+nineteen seventy six => 1976

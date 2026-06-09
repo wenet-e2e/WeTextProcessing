@@ -1,0 +1,3 @@
+one two three one two three five six seven eight => 123-123-5678
+one two three four five six seven eight nine zero => 123-456-7890
+plus one one two three one two three five six seven eight => +1 123-123-5678

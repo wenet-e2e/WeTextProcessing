@@ -12,24 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from itertools import chain
+from pynini import invert, string_file
+from pynini.lib.pynutil import insert
 
-import pytest
-
-from itn.english.inverse_normalizer import InverseNormalizer
-from itn.english.test.utils import parse_test_case
+from tn.processor import Processor
+from tn.utils import get_abs_path
 
 
-class TestNormalizer:
+class Whitelist(Processor):
 
-    normalizer = InverseNormalizer(overwrite_cache=True)
+    def __init__(self):
+        super().__init__(name="whitelist", ordertype="itn")
+        self.build_tagger()
+        self.build_verbalizer()
 
-    normalizer_cases = chain(
-        parse_test_case("data/en_cardinal.txt"),
-        parse_test_case("data/en_ordinal.txt"),
-        parse_test_case("data/en_decimal.txt"),
-    )
-
-    @pytest.mark.parametrize("spoken, written", normalizer_cases)
-    def test_normalizer(self, spoken, written):
-        assert self.normalizer.normalize(spoken) == written
+    def build_tagger(self):
+        whitelist = invert(string_file(get_abs_path("../itn/english/data/whitelist.tsv")))
+        tagger = insert('value: "') + whitelist + insert('"')
+        self.tagger = self.add_tokens(tagger)
