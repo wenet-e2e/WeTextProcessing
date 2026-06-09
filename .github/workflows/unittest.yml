@@ -6,6 +6,8 @@ on:
     paths:
       - '**.py'
       - '**.tsv'
+      - '**.toml'
+      - '**.yml'
 
 jobs:
   unit-test:
