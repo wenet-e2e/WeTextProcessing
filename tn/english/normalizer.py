@@ -26,6 +26,7 @@ from tn.english.rules.money import Money
 from tn.english.rules.ordinal import Ordinal
 from tn.english.rules.punctuation import Punctuation
 from tn.english.rules.range import Range
+from tn.english.rules.serial import Serial
 from tn.english.rules.telephone import Telephone
 from tn.english.rules.time import Time
 from tn.english.rules.whitelist import WhiteList
@@ -53,6 +54,7 @@ class Normalizer(Processor):
         money = Money(cardinal=cardinal, decimal=decimal)
         telephone = Telephone()
         electronic = Electronic(cardinal=cardinal)
+        serial = Serial(cardinal=cardinal, ordinal=ordinal)
         word = Word(punctuation=punctuation)
         whitelist = WhiteList()
         rang = Range(date=date, time=time)
@@ -69,6 +71,7 @@ class Normalizer(Processor):
             | add_weight(money.tagger, 1.00)
             | add_weight(telephone.tagger, 1.00)
             | add_weight(electronic.tagger, 1.00)
+            | add_weight(serial.tagger, 1.01)
             | add_weight(whitelist.tagger, 1.00)
             | add_weight(rang.tagger, 1.01)
             | add_weight(punctuation.tagger, 2.00)
@@ -87,6 +90,7 @@ class Normalizer(Processor):
             | money.verbalizer
             | telephone.verbalizer
             | electronic.verbalizer
+            | serial.verbalizer
             | whitelist.verbalizer
             | punctuation.verbalizer
             | rang.verbalizer
