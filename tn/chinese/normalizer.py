@@ -58,7 +58,7 @@ class Normalizer(Processor):
         processor = PreProcessor(traditional_to_simple=self.traditional_to_simple).processor
         cardinal = Cardinal()
         date = Date()
-        whitelist = Whitelist()
+        whitelist = Whitelist(remove_erhua=self.remove_erhua)
         sport = Sport(cardinal=cardinal)
         fraction = Fraction(cardinal=cardinal)
         measure = Measure(cardinal=cardinal)
@@ -92,7 +92,7 @@ class Normalizer(Processor):
             | money.verbalizer
             | sport.verbalizer
             | time.verbalizer
-            | Whitelist(remove_erhua=self.remove_erhua).verbalizer
+            | whitelist.verbalizer
         ).optimize()
 
         postprocessor = PostProcessor(

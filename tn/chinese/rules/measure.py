@@ -36,7 +36,7 @@ class Measure(Processor):
         to = cross("-", "到") | cross("~", "到") | accep("到")
 
         number = self.cardinal.number
-        strip_comma = self.build_rule(delete(","), self.DIGIT, self.DIGIT)
+        strip_comma = self.build_rule(delete(",") | delete("，"), self.DIGIT, self.DIGIT)
         number = strip_comma @ number
         number @= self.build_rule(cross("二", "两"), "[BOS]", "[EOS]")
         # 1-11个，1个-11个

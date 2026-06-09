@@ -52,19 +52,29 @@ class InverseNormalizer(Processor):
 
     def build_tagger_and_verbalizer(self):
         cardinal = Cardinal(self.convert_number, self.enable_0_to_9, self.enable_million)
+        char = Char()
+        date = Date()
+        fraction = Fraction(cardinal=cardinal)
+        train_number = TrainNumber()
+        math = Math(cardinal=cardinal)
+        measure = Measure(enable_0_to_9=self.enable_0_to_9, cardinal=cardinal)
+        money = Money(enable_0_to_9=self.enable_0_to_9, cardinal=cardinal)
+        time = Time()
+        license_plate = LicensePlate()
+        whitelist = Whitelist()
 
         tagger = (
-            add_weight(Date().tagger, 1.02)
-            | add_weight(Whitelist().tagger, 1.01)
-            | add_weight(Fraction(cardinal=cardinal).tagger, 1.05)
-            | add_weight(Measure(enable_0_to_9=self.enable_0_to_9, cardinal=cardinal).tagger, 1.05)
-            | add_weight(Money(enable_0_to_9=self.enable_0_to_9, cardinal=cardinal).tagger, 1.04)
-            | add_weight(Time().tagger, 1.05)
+            add_weight(date.tagger, 1.02)
+            | add_weight(whitelist.tagger, 1.01)
+            | add_weight(fraction.tagger, 1.05)
+            | add_weight(measure.tagger, 1.05)
+            | add_weight(money.tagger, 1.04)
+            | add_weight(time.tagger, 1.05)
             | add_weight(cardinal.tagger, 1.06)
-            | add_weight(Math(cardinal=cardinal).tagger, 1.10)
-            | add_weight(LicensePlate().tagger, 1.0)
-            | add_weight(TrainNumber().tagger, 1.0)
-            | add_weight(Char().tagger, 100)
+            | add_weight(math.tagger, 1.10)
+            | add_weight(license_plate.tagger, 1.0)
+            | add_weight(train_number.tagger, 1.0)
+            | add_weight(char.tagger, 100)
         ).optimize()
 
         tagger = tagger.star
@@ -72,16 +82,16 @@ class InverseNormalizer(Processor):
 
         verbalizer = (
             cardinal.verbalizer
-            | Char().verbalizer
-            | Date().verbalizer
-            | Fraction().verbalizer
-            | TrainNumber().verbalizer
-            | Math().verbalizer
-            | Measure(enable_0_to_9=self.enable_0_to_9).verbalizer
-            | Money(enable_0_to_9=self.enable_0_to_9).verbalizer
-            | Time().verbalizer
-            | LicensePlate().verbalizer
-            | Whitelist().verbalizer
+            | char.verbalizer
+            | date.verbalizer
+            | fraction.verbalizer
+            | train_number.verbalizer
+            | math.verbalizer
+            | measure.verbalizer
+            | money.verbalizer
+            | time.verbalizer
+            | license_plate.verbalizer
+            | whitelist.verbalizer
         ).optimize()
         postprocessor = PostProcessor(remove_interjections=self.remove_interjections).processor
 
