@@ -22,14 +22,10 @@ from tn.processor import Processor
 
 class Word(Processor):
 
-    def __init__(self, deterministic: bool = False):
-        """
-        Args:
-            deterministic: if True will provide a single transduction option,
-                for False multiple transduction are generated (used for audio-based normalization)
-        """
+    def __init__(self, deterministic: bool = False, punctuation=None):
         super().__init__("w", ordertype="en_tn")
         self.deterministic = deterministic
+        self.punctuation = punctuation or Punctuation(deterministic)
         self.build_tagger()
         self.build_verbalizer()
 
@@ -38,7 +34,7 @@ class Word(Processor):
         Finite state transducer for classifying word. Considers sentence boundary exceptions.
             e.g. sleep -> w { v: "sleep" }
         """
-        punct = Punctuation(self.deterministic).graph
+        punct = self.punctuation.graph
         default_graph = difference(self.NOT_SPACE, punct.project("input"))
         symbols_to_exclude = union("$", "€", "₩", "£", "¥", "#", "%") | self.DIGIT
         self.char = difference(default_graph, symbols_to_exclude)

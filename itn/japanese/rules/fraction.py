@@ -22,14 +22,15 @@ from tn.utils import get_abs_path
 
 class Fraction(Processor):
 
-    def __init__(self):
+    def __init__(self, cardinal=None):
         super().__init__(name="fraction")
+        self.cardinal = cardinal or Cardinal(enable_million=True)
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        cardinal = Cardinal(enable_million=True).number
-        decimal = Cardinal(enable_million=True).decimal
+        cardinal = self.cardinal.number
+        decimal = self.cardinal.decimal
         sign = string_file(get_abs_path("../itn/japanese/data/number/sign.tsv"))
         sign = insert('sign: "') + sign + insert('"')
 

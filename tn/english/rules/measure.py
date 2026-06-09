@@ -67,14 +67,13 @@ SINGULAR_TO_PLURAL = graph_plural
 
 class Measure(Processor):
 
-    def __init__(self, deterministic: bool = False):
-        """
-        Args:
-            deterministic: if True will provide a single transduction option,
-                for False multiple transduction are generated (used for audio-based normalization)
-        """
+    def __init__(self, deterministic: bool = False, cardinal=None, decimal=None, fraction=None, ordinal=None):
         super().__init__("measure", ordertype="en_tn")
         self.deterministic = deterministic
+        self.cardinal = cardinal or Cardinal(deterministic)
+        self.ordinal = ordinal or Ordinal(deterministic, cardinal=self.cardinal)
+        self.decimal = decimal or Decimal(deterministic, cardinal=self.cardinal)
+        self.fraction = fraction or Fraction(deterministic, cardinal=self.cardinal, ordinal=self.ordinal)
         self.build_tagger()
         self.build_verbalizer()
 
@@ -85,7 +84,7 @@ class Measure(Processor):
             1kg -> measure { integer: "one" units: "kilogram" }
             .5kg -> measure { fractional_part: "five" units: "kilograms" }
         """
-        cardinal = Cardinal(self.deterministic)
+        cardinal = self.cardinal
         cardinal_graph = cardinal.graph_with_and | self.get_range(cardinal.graph_with_and)
 
         graph_unit = pynini.string_file(get_abs_path("english/data/measure/unit.tsv"))
@@ -113,7 +112,7 @@ class Measure(Processor):
             pynutil.insert(' units: "') + (graph_unit + optional_graph_unit2 | graph_unit2) + pynutil.insert('"')
         )
 
-        decimal = Decimal(self.deterministic)
+        decimal = self.decimal
         subgraph_decimal = (
             optional_graph_negative + decimal.final_graph_wo_negative + pynini.accep(" ").ques + unit_plural
         )
@@ -176,7 +175,7 @@ class Measure(Processor):
             + decimal.final_graph_wo_negative
         )
 
-        fraction = Fraction(self.deterministic)
+        fraction = self.fraction
         subgraph_fraction = fraction.graph + pynini.accep(" ").ques + unit_plural
 
         address = self.get_address_graph(cardinal)
@@ -250,7 +249,7 @@ class Measure(Processor):
             2788 San Tomas Expy, Santa Clara, CA 95051 ->
                 units: "address" integer: "two seven eight eight San Tomas Expressway Santa Clara California nine five zero five one"
         """
-        ordinal = Ordinal(self.deterministic)
+        ordinal = self.ordinal
         ordinal_verbalizer = ordinal.graph_v
         ordinal_tagger = ordinal.graph
         ordinal_num = pynini.compose(
@@ -311,7 +310,7 @@ class Measure(Processor):
             measure { negative: "true" integer: "twelve" units: "kilograms" } -> minus twelve kilograms
             measure { integer_part: "twelve" fractional_part: "five" units: "kilograms" } -> twelve point five kilograms
         """
-        cardinal = Cardinal(self.deterministic)
+        cardinal = self.cardinal
         unit = (
             pynutil.delete('units: "')
             + pynini.difference(self.NOT_QUOTE.plus, pynini.union("address", "math"))
@@ -322,7 +321,7 @@ class Measure(Processor):
         if not self.deterministic:
             unit |= pynini.compose(unit, pynini.cross(pynini.union("inch", "inches"), '"'))
 
-        decimal = Decimal(self.deterministic)
+        decimal = self.decimal
         graph_decimal = decimal.numbers
 
         if not self.deterministic:
@@ -339,7 +338,7 @@ class Measure(Processor):
 
         graph_cardinal = cardinal.numbers
 
-        fraction = Fraction(self.deterministic)
+        fraction = self.fraction
         graph_fraction = fraction.graph_v
 
         graph = (graph_cardinal | graph_decimal | graph_fraction) + pynini.accep(" ") + unit

@@ -62,14 +62,10 @@ def get_quantity(
 
 class Decimal(Processor):
 
-    def __init__(self, deterministic: bool = False):
-        """
-        Args:
-            deterministic: if True will provide a single transduction option,
-                for False multiple transduction are generated (used for audio-based normalization)
-        """
+    def __init__(self, deterministic: bool = False, cardinal=None):
         super().__init__("decimal", ordertype="en_tn")
         self.deterministic = deterministic
+        self.cardinal = cardinal or Cardinal(deterministic)
         self.build_tagger()
         self.build_verbalizer()
 
@@ -79,7 +75,7 @@ class Decimal(Processor):
             -12.5006 billion -> decimal { negative: "true" integer_part: "12" fractional_part: "five o o six" quantity: "billion" }
             1 billion -> decimal { integer_part: "one" quantity: "billion" }
         """
-        cardinal = Cardinal(deterministic=self.deterministic)
+        cardinal = self.cardinal
         cardinal_graph = cardinal.graph_with_and
         cardinal_graph_hundred_component_at_least_one_none_zero_digit = (
             cardinal.graph_hundred_component_at_least_one_none_zero_digit
@@ -146,7 +142,7 @@ class Decimal(Processor):
         Finite state transducer for verbalizing decimal, e.g.
             decimal { negative: "true" integer_part: "twelve" fractional_part: "five o o six" quantity: "billion" } -> minus twelve point five o o six billion
         """
-        cardinal = Cardinal(deterministic=self.deterministic)
+        cardinal = self.cardinal
         self.optional_sign = pynini.cross('negative: "true"', "minus ")
         if not self.deterministic:
             self.optional_sign |= pynutil.add_weight(pynini.cross('negative: "true"', "negative "), 0.1)

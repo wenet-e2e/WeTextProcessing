@@ -23,14 +23,10 @@ from tn.utils import get_abs_path
 
 class Ordinal(Processor):
 
-    def __init__(self, deterministic: bool = False):
-        """
-        Args:
-            deterministic: if True will provide a single transduction option,
-                for False multiple transduction are generated (used for audio-based normalization)
-        """
+    def __init__(self, deterministic: bool = False, cardinal=None):
         super().__init__("ordinal", ordertype="en_tn")
         self.deterministic = deterministic
+        self.cardinal = cardinal or Cardinal(deterministic)
         self.build_tagger()
         self.build_verbalizer()
 
@@ -39,8 +35,7 @@ class Ordinal(Processor):
         Finite state transducer for classifying ordinal, e.g.
             13th -> ordinal { integer: "thirteen" }
         """
-        cardinal = Cardinal(self.deterministic)
-        cardinal_graph = cardinal.graph
+        cardinal_graph = self.cardinal.graph
         cardinal_format = (self.DIGIT | pynini.accep(",")).star
         st_format = (
             (cardinal_format + (self.DIGIT - "1")).ques

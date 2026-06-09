@@ -20,14 +20,15 @@ from tn.processor import Processor
 
 class Fraction(Processor):
 
-    def __init__(self):
+    def __init__(self, cardinal=None):
         super().__init__(name="fraction")
+        self.cardinal = cardinal or Cardinal()
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
         rmspace = delete(" ").ques
-        number = Cardinal().number
+        number = self.cardinal.number
 
         tagger = (
             insert('numerator: "')

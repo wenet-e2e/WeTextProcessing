@@ -53,42 +53,54 @@ class Normalizer(Processor):
             cache_dir = files("tn")
         self.build_fst("ja_tn", cache_dir, overwrite_cache)
 
-    def build_tagger(self):
+    def build_tagger_and_verbalizer(self):
         processor = PreProcessor(full_to_half=self.full_to_half).processor
-        cardinal = add_weight(Cardinal().tagger, 1.06)
-        char = add_weight(Char().tagger, 100)
-        date = add_weight(Date().tagger, 1.02)
-        fraction = add_weight(Fraction().tagger, 1.05)
-        math = add_weight(Math().tagger, 90)
-        measure = add_weight(Measure().tagger, 1.05)
-        money = add_weight(Money().tagger, 1.05)
-        sport = add_weight(Sport().tagger, 1.06)
-        time = add_weight(Time().tagger, 1.05)
-        whitelist = add_weight(Whitelist().tagger, 1.03)
-        tagger = (cardinal | char | date | fraction | math | measure | money | sport | time | whitelist).optimize()
+        cardinal = Cardinal()
+        char = Char()
+        date = Date(cardinal=cardinal)
+        fraction = Fraction(cardinal=cardinal)
+        math = Math(cardinal=cardinal)
+        measure = Measure(cardinal=cardinal)
+        money = Money(cardinal=cardinal)
+        sport = Sport(cardinal=cardinal)
+        time = Time()
+        whitelist = Whitelist()
+
+        tagger = (
+            add_weight(cardinal.tagger, 1.06)
+            | add_weight(char.tagger, 100)
+            | add_weight(date.tagger, 1.02)
+            | add_weight(fraction.tagger, 1.05)
+            | add_weight(math.tagger, 90)
+            | add_weight(measure.tagger, 1.05)
+            | add_weight(money.tagger, 1.05)
+            | add_weight(sport.tagger, 1.06)
+            | add_weight(time.tagger, 1.05)
+            | add_weight(whitelist.tagger, 1.03)
+        ).optimize()
         if self.transliterate:
-            transliteration = add_weight(Transliteration().tagger, 1.04)
-            tagger = (tagger | transliteration).optimize()
+            transliteration = Transliteration()
+            tagger = (tagger | add_weight(transliteration.tagger, 1.04)).optimize()
         tagger = (processor @ tagger).star
         self.tagger = tagger @ self.build_rule(delete(" "), r="[EOS]")
 
-    def build_verbalizer(self):
-        cardinal = Cardinal().verbalizer
-        char = Char().verbalizer
-        date = Date().verbalizer
-        fraction = Fraction().verbalizer
-        math = Math().verbalizer
-        measure = Measure().verbalizer
-        money = Money().verbalizer
-        sport = Sport().verbalizer
-        time = Time().verbalizer
-        transliteration = Transliteration().verbalizer
-        whitelist = Whitelist().verbalizer
-        verbalizer = (cardinal | char | date | fraction | math | measure | money | sport | time | whitelist).optimize()
+        transliteration = Transliteration()
+        verbalizer = (
+            cardinal.verbalizer
+            | char.verbalizer
+            | date.verbalizer
+            | fraction.verbalizer
+            | math.verbalizer
+            | measure.verbalizer
+            | money.verbalizer
+            | sport.verbalizer
+            | time.verbalizer
+            | whitelist.verbalizer
+        ).optimize()
         if self.transliterate:
-            verbalizer = (verbalizer | transliteration).optimize()
+            verbalizer = (verbalizer | transliteration.verbalizer).optimize()
 
-        processor = PostProcessor(
+        postprocessor = PostProcessor(
             remove_interjections=self.remove_interjections, remove_puncts=self.remove_puncts, tag_oov=self.tag_oov
         ).processor
-        self.verbalizer = (verbalizer @ processor).star
+        self.verbalizer = (verbalizer @ postprocessor).star

@@ -25,14 +25,11 @@ from tn.utils import get_abs_path
 
 class Fraction(Processor):
 
-    def __init__(self, deterministic: bool = False):
-        """
-        Args:
-            deterministic: if True will provide a single transduction option,
-                for False multiple transduction are generated (used for audio-based normalization)
-        """
+    def __init__(self, deterministic: bool = False, cardinal=None, ordinal=None):
         super().__init__("fraction", ordertype="en_tn")
         self.deterministic = deterministic
+        self.cardinal = cardinal or Cardinal(deterministic)
+        self.ordinal = ordinal or Ordinal(deterministic, cardinal=self.cardinal)
         self.build_tagger()
         self.build_verbalizer()
 
@@ -44,7 +41,7 @@ class Fraction(Processor):
         "23 4/5th" ->
         fraction { integer_part: "twenty three" numerator: "four" denominator: "five" }
         """
-        cardinal_graph = Cardinal(self.deterministic).graph
+        cardinal_graph = self.cardinal.graph
         integer = pynutil.insert('integer_part: "') + cardinal_graph + pynutil.insert('"')
         numerator = (
             pynutil.insert('numerator: "') + cardinal_graph + (pynini.cross("/", '" ') | pynini.cross(" / ", '" '))
@@ -72,7 +69,7 @@ class Fraction(Processor):
             e.g. fraction { integer_part: "twenty three" numerator: "four" denominator: "five" } ->
             twenty three and four fifth
         """
-        suffix = Ordinal(self.deterministic).suffix
+        suffix = self.ordinal.suffix
 
         integer = pynutil.delete('integer_part: "') + self.NOT_QUOTE.star + pynutil.delete('" ')
         denominator_one = pynini.cross('denominator: "one"', "over one")

@@ -49,27 +49,27 @@ class InverseNormalizer(Processor):
             cache_dir = files("itn")
         self.build_fst("zh_itn", cache_dir, overwrite_cache)
 
-    def build_tagger(self):
+    def build_tagger_and_verbalizer(self):
+        cardinal = Cardinal(self.convert_number, self.enable_0_to_9, self.enable_million)
+
         tagger = (
             add_weight(Date().tagger, 1.02)
             | add_weight(Whitelist().tagger, 1.01)
-            | add_weight(Fraction().tagger, 1.05)
-            | add_weight(Measure(enable_0_to_9=self.enable_0_to_9).tagger, 1.05)
-            | add_weight(Money(enable_0_to_9=self.enable_0_to_9).tagger, 1.04)
+            | add_weight(Fraction(cardinal=cardinal).tagger, 1.05)
+            | add_weight(Measure(enable_0_to_9=self.enable_0_to_9, cardinal=cardinal).tagger, 1.05)
+            | add_weight(Money(enable_0_to_9=self.enable_0_to_9, cardinal=cardinal).tagger, 1.04)
             | add_weight(Time().tagger, 1.05)
-            | add_weight(Cardinal(self.convert_number, self.enable_0_to_9, self.enable_million).tagger, 1.06)
-            | add_weight(Math().tagger, 1.10)
+            | add_weight(cardinal.tagger, 1.06)
+            | add_weight(Math(cardinal=cardinal).tagger, 1.10)
             | add_weight(LicensePlate().tagger, 1.0)
             | add_weight(Char().tagger, 100)
         ).optimize()
 
         tagger = tagger.star
-        # remove the last space
         self.tagger = tagger @ self.build_rule(delete(" "), "", "[EOS]")
 
-    def build_verbalizer(self):
         verbalizer = (
-            Cardinal(self.convert_number, self.enable_0_to_9, self.enable_million).verbalizer
+            cardinal.verbalizer
             | Char().verbalizer
             | Date().verbalizer
             | Fraction().verbalizer

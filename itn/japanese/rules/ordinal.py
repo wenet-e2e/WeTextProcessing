@@ -21,13 +21,14 @@ from tn.processor import Processor
 
 class Ordinal(Processor):
 
-    def __init__(self):
+    def __init__(self, cardinal=None):
         super().__init__(name="ordinal")
+        self.cardinal = cardinal or Cardinal()
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        cardinal = Cardinal().number
+        cardinal = self.cardinal.number
         ordinal = (cardinal + accep("番目")) | (accep("第") + cardinal)
         tagger = insert('value: "') + ordinal + insert('"')
         self.tagger = self.add_tokens(tagger)

@@ -54,43 +54,51 @@ class Normalizer(Processor):
             cache_dir = files("tn")
         self.build_fst("zh_tn", cache_dir, overwrite_cache)
 
-    def build_tagger(self):
+    def build_tagger_and_verbalizer(self):
         processor = PreProcessor(traditional_to_simple=self.traditional_to_simple).processor
+        cardinal = Cardinal()
+        date = Date()
+        whitelist = Whitelist()
+        sport = Sport(cardinal=cardinal)
+        fraction = Fraction(cardinal=cardinal)
+        measure = Measure(cardinal=cardinal)
+        money = Money(cardinal=cardinal)
+        time = Time()
+        math = Math(cardinal=cardinal)
+        char = Char()
 
-        date = add_weight(Date().tagger, 1.02)
-        whitelist = add_weight(Whitelist().tagger, 1.03)
-        sport = add_weight(Sport().tagger, 1.04)
-        fraction = add_weight(Fraction().tagger, 1.05)
-        measure = add_weight(Measure().tagger, 1.05)
-        money = add_weight(Money().tagger, 1.05)
-        time = add_weight(Time().tagger, 1.05)
-        cardinal = add_weight(Cardinal().tagger, 1.06)
-        math = add_weight(Math().tagger, 90)
-        char = add_weight(Char().tagger, 100)
-
-        tagger = (date | whitelist | sport | fraction | measure | money | time | cardinal | math | char).optimize()
+        tagger = (
+            add_weight(date.tagger, 1.02)
+            | add_weight(whitelist.tagger, 1.03)
+            | add_weight(sport.tagger, 1.04)
+            | add_weight(fraction.tagger, 1.05)
+            | add_weight(measure.tagger, 1.05)
+            | add_weight(money.tagger, 1.05)
+            | add_weight(time.tagger, 1.05)
+            | add_weight(cardinal.tagger, 1.06)
+            | add_weight(math.tagger, 90)
+            | add_weight(char.tagger, 100)
+        ).optimize()
         tagger = (processor @ tagger).star
-        # delete the last space
         self.tagger = tagger @ self.build_rule(delete(" "), r="[EOS]")
 
-    def build_verbalizer(self):
-        cardinal = Cardinal().verbalizer
-        char = Char().verbalizer
-        date = Date().verbalizer
-        fraction = Fraction().verbalizer
-        math = Math().verbalizer
-        measure = Measure().verbalizer
-        money = Money().verbalizer
-        sport = Sport().verbalizer
-        time = Time().verbalizer
-        whitelist = Whitelist(remove_erhua=self.remove_erhua).verbalizer
+        verbalizer = (
+            cardinal.verbalizer
+            | char.verbalizer
+            | date.verbalizer
+            | fraction.verbalizer
+            | math.verbalizer
+            | measure.verbalizer
+            | money.verbalizer
+            | sport.verbalizer
+            | time.verbalizer
+            | Whitelist(remove_erhua=self.remove_erhua).verbalizer
+        ).optimize()
 
-        verbalizer = (cardinal | char | date | fraction | math | measure | money | sport | time | whitelist).optimize()
-
-        processor = PostProcessor(
+        postprocessor = PostProcessor(
             remove_interjections=self.remove_interjections,
             remove_puncts=self.remove_puncts,
             full_to_half=self.full_to_half,
             tag_oov=self.tag_oov,
         ).processor
-        self.verbalizer = (verbalizer @ processor).star
+        self.verbalizer = (verbalizer @ postprocessor).star

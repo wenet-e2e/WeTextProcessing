@@ -22,13 +22,14 @@ from tn.utils import get_abs_path
 
 class Fraction(Processor):
 
-    def __init__(self):
+    def __init__(self, cardinal=None):
         super().__init__(name="fraction")
+        self.cardinal = cardinal or Cardinal()
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        number = Cardinal().number
+        number = self.cardinal.number
         sign = string_file(get_abs_path("../itn/chinese/data/number/sign.tsv"))  # + -
 
         # NOTE(xcsong): default weight = 1.0,  set to -1.0 means higher priority

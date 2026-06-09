@@ -22,9 +22,10 @@ from tn.utils import get_abs_path
 
 class Money(Processor):
 
-    def __init__(self, enable_0_to_9=True):
+    def __init__(self, enable_0_to_9=True, cardinal=None):
         super().__init__(name="money")
         self.enable_0_to_9 = enable_0_to_9
+        self.cardinal = cardinal or Cardinal()
         self.build_tagger()
         self.build_verbalizer()
 
@@ -33,7 +34,7 @@ class Money(Processor):
         symbol = string_file(get_abs_path("../itn/chinese/data/money/symbol.tsv"))
         digit = string_file(get_abs_path("../itn/chinese/data/number/digit.tsv"))  # 1 ~ 9
 
-        number = Cardinal().number if self.enable_0_to_9 else Cardinal().number_exclude_0_to_9
+        number = self.cardinal.number if self.enable_0_to_9 else self.cardinal.number_exclude_0_to_9
         # 七八美元 => $7~8
         number |= digit + insert("~") + digit
         # 三千三百八十元五毛八分 => ¥3380.58

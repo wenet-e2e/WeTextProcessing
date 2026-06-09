@@ -22,10 +22,11 @@ from tn.utils import get_abs_path
 
 class Measure(Processor):
 
-    def __init__(self, exclude_one=True, enable_0_to_9=True):
+    def __init__(self, exclude_one=True, enable_0_to_9=True, cardinal=None):
         super().__init__(name="measure")
         self.exclude_one = exclude_one
         self.enable_0_to_9 = enable_0_to_9
+        self.cardinal = cardinal or Cardinal()
         self.build_tagger()
         self.build_verbalizer()
 
@@ -43,15 +44,15 @@ class Measure(Processor):
             add_weight(units_en, -1.0)
         )
 
-        number = Cardinal().number if self.enable_0_to_9 else Cardinal().number_exclude_0_to_9
+        number = self.cardinal.number if self.enable_0_to_9 else self.cardinal.number_exclude_0_to_9
         # 百分之三十, 百分三十, 百分之百，百分之三十到四十, 百分之三十到百分之五十五
         percent = (
             (sign + delete("的").ques).ques
             + delete("百分")
             + delete("之").ques
             + (
-                (Cardinal().number + (to + Cardinal().number).ques)
-                | ((Cardinal().number + to).ques + cross("百", "100"))
+                (self.cardinal.number + (to + self.cardinal.number).ques)
+                | ((self.cardinal.number + to).ques + cross("百", "100"))
             )
             + insert("%")
         )

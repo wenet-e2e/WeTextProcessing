@@ -22,17 +22,17 @@ from tn.utils import get_abs_path
 
 class Math(Processor):
 
-    def __init__(self):
+    def __init__(self, cardinal=None):
         super().__init__(name="math")
+        self.cardinal = cardinal or Cardinal()
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
         operator = string_file(get_abs_path("chinese/data/math/operator.tsv"))
-        # When it appears alone, it is treated as punctuation
         symbols = cross("~", "到") | cross(":", "比") | cross("<", "小于") | cross(">", "大于")
 
-        number = Cardinal().number
+        number = self.cardinal.number
         tagger = number + (delete(" ").ques + (operator | symbols) + delete(" ").ques + number).star
         tagger |= operator
         tagger = insert('value: "') + tagger + insert('"')
