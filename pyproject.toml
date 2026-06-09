@@ -19,7 +19,7 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     # Core dependencies for text processing functionality
-    "pynini>=2.1.6,<2.1.7",
+    "pynini>=2.1.6",
     "importlib_resources"
 ]
 

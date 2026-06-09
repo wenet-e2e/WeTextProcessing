@@ -19,7 +19,7 @@ def parse_test_case(file_name):
     file = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + file_name
 
     delimiter = "=>"
-    with open(file) as fin:
+    with open(file, encoding="utf-8") as fin:
         for line in fin:
             assert delimiter in line
             arr = line.strip().split(delimiter)
