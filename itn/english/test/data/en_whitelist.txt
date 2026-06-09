@@ -1,0 +1,9 @@
+doctor dao => dr. dao
+misses smith => mrs. smith
+mister dao => mr. dao
+saint george => st. george
+i like for example ice cream => i like e.g. ice cream
+s and p five hundred => S&P 500
+r t x => RTX
+cat five e => CAT5e
+c u d n n => cuDNN
