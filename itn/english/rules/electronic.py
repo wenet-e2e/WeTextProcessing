@@ -28,90 +28,48 @@ class Electronic(Processor):
 
     def build_tagger(self):
         ds = delete(" ")
-
-        # Single characters: digits and letters
         digit = string_file(get_abs_path("../itn/english/data/numbers/digit.tsv"))
         zero = string_file(get_abs_path("../itn/english/data/numbers/zero.tsv"))
-        alpha_or_digit = self.ALPHA | digit | zero
+        symbols = invert(string_file(get_abs_path("../itn/english/data/electronic/symbols.tsv")))
 
-        # Symbols from TSV (symbol\tname): invert to get name -> symbol
-        symbols = invert(
-            string_file(get_abs_path("../itn/english/data/electronic/symbols.tsv"))
-        )
-
-        # A "token" is either a single char (letter/digit/symbol) or a
-        # multi-letter word kept verbatim (e.g. "gmail", "nvidia").
-        # Multi-letter words have lower priority so spelled-out letters are preferred.
-        word = add_weight(closure(self.ALPHA, 2), 0.01)
-        token = alpha_or_digit | symbols | word
-
-        # A component is one or more tokens separated by spaces
+        char = self.ALPHA | digit | zero
+        word = add_weight(closure(self.ALPHA, 2), 0.1)
+        token = char | symbols | word
         component = token + closure(ds + token)
 
-        username = insert('username: "') + component + insert('"')
-
-        # Domain: component(s) separated by "dot" => "."
         dot = cross("dot", ".")
-        domain_content = component + closure(ds + dot + ds + component)
-        domain = insert('domain: "') + domain_content + insert('"')
+        domain = component + (ds + dot + ds + component).plus
 
-        # Email: username at domain
-        graph_email = (
-            username
-            + ds
-            + delete("at")
-            + ds
-            + insert(" ")
-            + domain
-        )
+        username = insert('username: "') + component + insert('"')
+        domain_field = insert('domain: "') + domain + insert('"')
 
-        # URL protocol: "h t t p colon slash slash" or "h t t p s colon slash slash"
+        # Email: X at Y dot Z (requires "at" keyword)
+        graph_email = username + ds + delete("at") + ds + insert(" ") + domain_field
+
+        # URL: requires protocol or www prefix
         http = cross("h t t p", "http")
         https = cross("h t t p s", "https")
-        colon_slash_slash = cross(" colon slash slash ", "://")
-        protocol_start = (http | https) + colon_slash_slash
-
-        # www prefix
+        protocol = (http | https) + cross(" colon slash slash ", "://")
         www = cross("w w w", "www")
 
-        # URL: [protocol] [www.] domain
-        url_content = (
-            closure(protocol_start, 0, 1)
-            + closure(www + ds + dot + ds, 0, 1)
-            + domain_content
-        )
-        graph_url = insert('protocol: "') + url_content + insert('"')
+        # protocol + [www.] + domain
+        url_with_protocol = protocol + closure(www + ds + dot + ds, 0, 1) + domain
+        # www. + domain (no protocol)
+        url_with_www = www + ds + dot + ds + domain
+        # domain only (must have dot): nvidia dot com
+        url_domain_only = domain
+
+        graph_url = insert('protocol: "') + (url_with_protocol | url_with_www | url_domain_only) + insert('"')
 
         final_graph = graph_email | graph_url
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
-        username = (
-            delete("username:")
-            + self.DELETE_SPACE
-            + delete('"')
-            + self.NOT_QUOTE.plus
-            + delete('"')
-        )
-        domain = (
-            delete("domain:")
-            + self.DELETE_SPACE
-            + delete('"')
-            + self.NOT_QUOTE.plus
-            + delete('"')
-        )
-        protocol = (
-            delete("protocol:")
-            + self.DELETE_SPACE
-            + delete('"')
-            + self.NOT_QUOTE.plus
-            + delete('"')
-        )
+        username = delete("username:") + self.DELETE_SPACE + delete('"') + self.NOT_QUOTE.plus + delete('"')
+        domain = delete("domain:") + self.DELETE_SPACE + delete('"') + self.NOT_QUOTE.plus + delete('"')
+        protocol = delete("protocol:") + self.DELETE_SPACE + delete('"') + self.NOT_QUOTE.plus + delete('"')
 
-        # Email: username@domain
         graph_email = username + self.DELETE_SPACE + insert("@") + domain
-        # URL: just output the protocol content directly
         graph_url = protocol
 
-        graph = graph_email | graph_url
-        self.verbalizer = self.delete_tokens(graph)
+        self.verbalizer = self.delete_tokens(graph_email | graph_url)

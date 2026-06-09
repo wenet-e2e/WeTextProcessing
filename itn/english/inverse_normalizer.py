@@ -19,6 +19,7 @@ from itn.english.rules.cardinal import Cardinal
 from itn.english.rules.char import Char
 from itn.english.rules.date import Date
 from itn.english.rules.decimal import Decimal
+from itn.english.rules.electronic import Electronic
 from itn.english.rules.measure import Measure
 from itn.english.rules.money import Money
 from itn.english.rules.ordinal import Ordinal
@@ -46,6 +47,7 @@ class InverseNormalizer(Processor):
         measure = Measure(cardinal=cardinal, decimal=decimal)
         money = Money(cardinal=cardinal, decimal=decimal)
         telephone = Telephone(cardinal=cardinal)
+        electronic = Electronic()
         whitelist = Whitelist()
         word = Word()
         char = Char()
@@ -57,6 +59,7 @@ class InverseNormalizer(Processor):
             | add_weight(money.tagger, 1.1)
             | add_weight(whitelist.tagger, 1.01)
             | add_weight(telephone.tagger, 1.1)
+            | add_weight(electronic.tagger, 1.1)
             | add_weight(ordinal.tagger, 1.09)
             | add_weight(decimal.tagger, 1.1)
             | add_weight(cardinal.tagger, 1.1)
@@ -76,6 +79,7 @@ class InverseNormalizer(Processor):
             | measure.verbalizer
             | money.verbalizer
             | telephone.verbalizer
+            | electronic.verbalizer
             | whitelist.verbalizer
             | word.verbalizer
             | char.verbalizer
