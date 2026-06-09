@@ -14,19 +14,9 @@
 
 import argparse
 
-# TODO(xcsong): multi-language support
 from itn.chinese.inverse_normalizer import InverseNormalizer as ZhInverseNormalizer
 from itn.japanese.inverse_normalizer import InverseNormalizer as JaInverseNormalizer
-
-
-def str2bool(s, default=False):
-    s = s.lower()
-    if s == "true":
-        return True
-    elif s == "false":
-        return False
-    else:
-        return default
+from tn.utils import str2bool
 
 
 def main():
@@ -62,7 +52,7 @@ def main():
         print(normalizer.tag(args.text))
         print(normalizer.normalize(args.text))
     elif args.file:
-        with open(args.file) as fin:
+        with open(args.file, encoding="utf-8") as fin:
             for line in fin:
                 print(normalizer.tag(line.strip()))
                 print(normalizer.normalize(line.strip()))
