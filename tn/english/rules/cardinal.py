@@ -58,7 +58,9 @@ class Cardinal(Processor):
             single_digits_graph_zero = pynini.invert(graph_digit | graph_zero)
             single_digits_graph_oh = pynini.invert(graph_digit) | pynini.cross("0", "oh")
 
-            self.single_digits_graph = single_digits_graph_zero + (self.INSERT_SPACE + single_digits_graph_zero).star
+            self.single_digits_graph = pynutil.add_weight(
+                single_digits_graph_zero + (self.INSERT_SPACE + single_digits_graph_zero).star, 1.0
+            )
             self.single_digits_graph |= single_digits_graph_oh + (self.INSERT_SPACE + single_digits_graph_oh).star
 
             single_digits_graph_with_commas = (

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pynini import string_file
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import add_weight, delete, insert
 
 from itn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
@@ -42,7 +42,7 @@ class Money(Processor):
             + number
             + insert('"')
             + insert(' currency: "')
-            + (code | symbol)
+            + (symbol | add_weight(code, 1))
             + insert('"')
             + insert(' decimal: "')
             + (insert(".") + digit + (delete("毛") | delete("角")) + (digit + delete("分")).ques).ques

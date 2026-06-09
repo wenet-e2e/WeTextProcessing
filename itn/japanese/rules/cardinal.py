@@ -122,17 +122,13 @@ class Cardinal(Processor):
                 (ten_thousand_minus + accep("兆")).ques
                 + ten_thousand_minus
                 + accep("億")
-                + ten_thousand_minus
-                + accep("万").ques
-                + ten_thousand_minus.ques
+                + (ten_thousand_minus + (accep("万") + ten_thousand_minus.ques).ques).ques
             )
             | (
                 ten_thousand_minus
                 + accep("兆")
                 + (ten_thousand_minus + accep("億")).ques
-                + ten_thousand_minus
-                + accep("万").ques
-                + ten_thousand_minus.ques
+                + (ten_thousand_minus + (accep("万") + ten_thousand_minus.ques).ques).ques
             )
         )
         self.big_integer = number | big_integer
