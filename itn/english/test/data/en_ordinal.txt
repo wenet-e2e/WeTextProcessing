@@ -1,0 +1,13 @@
+first => 1st
+second => 2nd
+third => 3rd
+fourth => 4th
+fifth => 5th
+eleventh => 11th
+twelfth => 12th
+thirteenth => 13th
+twenty first => 21st
+thirty second => 32nd
+forty third => 43rd
+one hundredth => 100th
+one hundred and first => 101st

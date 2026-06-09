@@ -1,0 +1,8 @@
+twelve point five => 12.5
+three point one four => 3.14
+minus three point one four => -3.14
+point o five => .05
+point five => .5
+one point zero => 1.0
+zero point five => 0.5
+twenty three point four five six => 23.456
