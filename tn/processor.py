@@ -18,6 +18,9 @@ import string
 
 from pynini import Fst, cdrewrite, cross, difference, escape, invert, shortestpath, union
 from pynini.lib import byte, utf8
+from pynini.lib.pynutil import delete, insert
+
+from tn.token_parser import TokenParser
 
 logger = logging.getLogger("wetext")
 if not logger.handlers:
@@ -25,9 +28,6 @@ if not logger.handlers:
     handler.setFormatter(logging.Formatter("%(asctime)s WETEXT %(levelname)s %(message)s"))
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
-from pynini.lib.pynutil import delete, insert
-
-from tn.token_parser import TokenParser
 
 
 class Processor:

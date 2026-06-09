@@ -84,7 +84,6 @@ class Normalizer(Processor):
         tagger = (processor @ tagger).star
         self.tagger = tagger @ self.build_rule(delete(" "), r="[EOS]")
 
-        transliteration = Transliteration()
         verbalizer = (
             cardinal.verbalizer
             | char.verbalizer

@@ -64,7 +64,16 @@ class Cardinal(Processor):
         hundred_million = (
             (thousand | hundred | ten | digit)
             + insert("亿")
-            + (four_nonzero + insert("万") + four_any | rmzero**4 + four_nonzero | rmzero**8)
+            + (
+                four_nonzero + insert("万") + four_any
+                | rmzero**4 + (
+                    (zero + hundred)
+                    | (rmzero + zero + tens)
+                    | (rmzero**2 + zero + digit)
+                    | (insert("零") + thousand)
+                )
+                | rmzero**8
+            )
         )
 
         number = digits | ten | hundred | thousand | ten_thousand | hundred_million
