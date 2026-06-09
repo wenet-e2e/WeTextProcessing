@@ -25,3 +25,4 @@ half past twelve => 12:30
 quarter past one => 01:15
 quarter to one => 12:45
 quarter to twelve => 11:45
+set alarm at ten to eleven pm => set alarm at 10:50 p.m.

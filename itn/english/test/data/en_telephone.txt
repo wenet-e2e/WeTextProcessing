@@ -15,3 +15,4 @@ a b nine => ab9
 a b c => a b c
 five w k r a three one => 5wkra31
 x three eighty six => x386
+r t x forty fifty t i => RTX 4050ti

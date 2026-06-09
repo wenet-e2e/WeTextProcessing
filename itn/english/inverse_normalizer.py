@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from importlib_resources import files
+from pynini import closure
 from pynini.lib.pynutil import add_weight, delete
 
 from itn.english.rules.cardinal import Cardinal
@@ -67,8 +68,9 @@ class InverseNormalizer(Processor):
             | add_weight(char.tagger, 100)
         ).optimize()
 
-        tagger = tagger.star
-        self.tagger = tagger @ self.build_rule(delete(" "), "", "[EOS]")
+        token = tagger
+        graph = token + closure(self.DELETE_EXTRA_SPACE + token)
+        self.tagger = delete(" ").star + graph + delete(" ").star
 
         verbalizer = (
             cardinal.verbalizer
