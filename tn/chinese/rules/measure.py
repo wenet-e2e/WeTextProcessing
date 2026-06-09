@@ -47,12 +47,12 @@ class Measure(Processor):
             measure @= self.build_rule(cross("两" + unit, "二" + unit), l="[BOS]")
             measure @= self.build_rule(cross("到两" + unit, "到二" + unit), r="[EOS]")
 
-        # -xxxx年, -xx年
+        # xxxx年, xxxx-xxxx年
         digits = self.cardinal.digits
-        cardinal = digits**2 | digits**4
+        yyyy = digits**4
         unit = accep("年") | accep("年度") | accep("赛季")
-        prefix = cardinal + (rmspace + unit).ques + to
-        annual = prefix.ques + cardinal + unit
+        prefix = yyyy + (rmspace + unit).ques + to
+        annual = prefix.ques + yyyy + unit
 
         tagger = insert('value: "') + (measure | annual) + insert('"')
 
