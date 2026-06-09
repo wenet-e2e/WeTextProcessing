@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini import accep, closure
+from pynini import difference, union
 from pynini.lib.pynutil import insert
 
 from tn.processor import Processor
@@ -26,8 +26,6 @@ class Word(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        apostrophe = accep("'") | accep("’")
-        word = self.ALPHA.plus + closure(apostrophe + self.ALPHA.plus, 0, 1)
-        word |= self.ALPHA.plus + accep("!")
-        tagger = insert('value: "') + word + insert('"')
+        valid_char = difference(self.NOT_SPACE, union('"', "\\"))
+        tagger = insert('value: "') + valid_char.plus + insert('"')
         self.tagger = self.add_tokens(tagger)
