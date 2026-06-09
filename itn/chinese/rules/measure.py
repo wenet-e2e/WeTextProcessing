@@ -97,7 +97,12 @@ class Measure(Processor):
                 -0.5,
             )
 
-        tagger = insert('value: "') + (measure | measure_sp | percent) + insert('"')
+        # X块Y, X块Y毛: 十五块八 => 15块8, 三块五毛 => 3块5毛
+        money_colloquial = (
+            self.cardinal.number + accep("块") + digit + (accep("毛") | delete("角")).ques
+        )
+
+        tagger = insert('value: "') + (measure | measure_sp | percent | money_colloquial) + insert('"')
         # 每小时十千米 => 10km/h, 每小时三十到三百一十一千米 => 30~311km/h
         tagger |= insert('denominator: "') + delete("每") + units + insert('" numerator: "') + measure + insert('"')
 
