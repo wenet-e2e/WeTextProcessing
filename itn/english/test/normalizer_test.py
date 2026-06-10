@@ -28,6 +28,14 @@ class TestNormalizer:
         parse_test_case("data/en_cardinal.txt"),
         parse_test_case("data/en_ordinal.txt"),
         parse_test_case("data/en_decimal.txt"),
+        parse_test_case("data/en_date.txt"),
+        parse_test_case("data/en_time.txt"),
+        parse_test_case("data/en_money.txt"),
+        parse_test_case("data/en_measure.txt"),
+        parse_test_case("data/en_telephone.txt"),
+        parse_test_case("data/en_electronic.txt"),
+        parse_test_case("data/en_whitelist.txt"),
+        parse_test_case("data/en_word.txt"),
     )
 
     @pytest.mark.parametrize("spoken, written", normalizer_cases)
