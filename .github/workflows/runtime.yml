@@ -18,5 +18,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build runtime
         run: |
-          cmake -B build -S runtime -DBUILD_TESTING=OFF
-          cmake --build build -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+          cmake -B build -S runtime -DBUILD_TESTING=ON
+          cmake --build build --parallel

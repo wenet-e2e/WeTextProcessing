@@ -29,11 +29,8 @@ if(NOT ANDROID)
     FetchContent_Declare(openfst
     URL           https://github.com/csukuangfj/openfst/archive/refs/tags/v1.8.5-2026-04-11.tar.gz
     URL_HASH      SHA256=57fbc4b950ae81b1a0e1e298af15652da968a6723a592b7874e9b4027a80a5b4
-    # PATCH_COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/patch/openfst ${openfst_SOURCE_DIR}
   )
   FetchContent_MakeAvailable(openfst)
-  # add_dependencies(fst gflags glog)
-  # target_link_libraries(fst PUBLIC gflags_nothreads_static glog)
   include_directories(${openfst_SOURCE_DIR}/src/include)
 else()
   set(openfst_BINARY_DIR ${build_DIR}/wenet-openfst-android-1.0.2.aar/jni)
