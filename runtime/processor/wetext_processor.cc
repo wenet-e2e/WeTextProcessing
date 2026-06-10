@@ -14,15 +14,15 @@
 
 #include "processor/wetext_processor.h"
 
-using fst::StringTokenType;
+using fst::TokenType;
 
 namespace wetext {
 Processor::Processor(const std::string& tagger_path,
                      const std::string& verbalizer_path) {
   tagger_.reset(StdVectorFst::Read(tagger_path));
   verbalizer_.reset(StdVectorFst::Read(verbalizer_path));
-  compiler_ = std::make_shared<StringCompiler<StdArc>>(StringTokenType::BYTE);
-  printer_ = std::make_shared<StringPrinter<StdArc>>(StringTokenType::BYTE);
+  compiler_ = std::make_shared<StringCompiler<StdArc>>(TokenType::BYTE);
+  printer_ = std::make_shared<StringPrinter<StdArc>>(TokenType::BYTE);
 
   if (tagger_path.find("zh_tn_") != tagger_path.npos) {
     parse_type_ = ParseType::kZH_TN;
