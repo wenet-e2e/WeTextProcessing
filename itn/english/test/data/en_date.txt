@@ -31,3 +31,6 @@ nineteen seventy six => 1976
 june twentieth twenty fourteen => june 20 2014
 nineteen seventy three => 1973
 nineteen seventy five => 1975
+eleven fifty five => 1155
+second quarter of twenty twenty two => Q2 2022
+seven fifty b c => 750BC

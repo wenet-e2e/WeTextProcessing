@@ -9,3 +9,4 @@ r t x => RTX
 cat five e => CAT5e
 c u d n n => cuDNN
 p c i e x eight => PCIe x8
+l g a eleven fifty => LGA 1150

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pynini import closure, cross, difference, string_file, union
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import add_weight, delete, insert
 
 from tn.processor import Processor
 from tn.utils import get_abs_path
@@ -35,7 +35,7 @@ class Cardinal(Processor):
 
         # 1~9, 10~19, 20~99
         one_digit = digit
-        two_digit = teen | (ties + (ds + digit | insert("0")))
+        two_digit = teen | (ties + (ds + digit | add_weight(insert("0"), 0.1)))
         self.graph_two_digit = two_digit
         up_to_99 = one_digit | two_digit
 
@@ -117,7 +117,7 @@ class Cardinal(Processor):
 
         # exclude 0-12 from cardinal tagger (they stay as words)
         from itn.english.rules.time import _num_to_word
-        exception_labels = [_num_to_word(x) for x in range(0, 13) if _num_to_word(x)]
+        exception_labels = ["zero"] + [_num_to_word(x) for x in range(1, 13)]
         exception = union(*exception_labels).optimize()
         graph_with_exception = (difference(self.VSIGMA, exception) @ graph).optimize()
 

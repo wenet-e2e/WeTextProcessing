@@ -11,6 +11,7 @@ one quadrillion two hundred sixty four trillion three hundred one billion nine h
 minus sixty => -60
 forty six thousand six hundred sixty four => 46664
 sixty => 60
+zero => zero
 two million three => 2000003
 one thousand thirteen => 1013
 one thousand one => 1001

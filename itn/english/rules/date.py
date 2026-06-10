@@ -56,6 +56,8 @@ class Date(Processor):
 
         # Year as two groups of two digits: "twenty twelve" => 2012
         year_two_parts = (teen | two_digit) + ds + (two_digit | oh_digit | teen)
+        # 3-digit year: "seven fifty" => 750
+        year_three_digit = digit + ds + (two_digit | oh_digit | teen)
 
         # Year as "X thousand Y": "two thousand twelve" => 2012
         # Need zero-padded variants so "two thousand three" => 2003
@@ -116,7 +118,7 @@ class Date(Processor):
             + po
         )
         # Year only => "twenty twelve", "two thousand three"
-        graph_y = add_weight(year, 0.01) + po
+        graph_y = year + po
 
         # Decades: "nineteen eighties" => 1980s
         decade_suffix = closure(self.ALPHA, 1) + (cross("ies", "y") | delete("s"))
@@ -125,7 +127,23 @@ class Date(Processor):
             insert('year: "') + (teen | two_digit) + ds + decade_word + insert('0s"') + po
         )
 
-        final_graph = graph_mdy | graph_md | graph_my | graph_dmy | graph_dm | graph_y | graph_decade
+        # Quarter: "second quarter of twenty twenty two" => Q2 2022
+        quarter_num = (
+            cross("first", "1") | cross("second", "2")
+            | cross("third", "3") | cross("fourth", "4")
+        )
+        graph_quarter = (
+            insert('day: "Q') + quarter_num + insert('"')
+            + ds + delete("quarter") + ds + delete("of") + ds
+            + insert(' year: "') + year_graph + insert('"') + po
+        )
+
+        # BC/AD suffix
+        bc_ad = ds + (cross("b c", "BC") | cross("a d", "AD"))
+        year_graph_with_3digit = year_graph | year_three_digit
+        graph_y_bc = insert('year: "') + year_graph_with_3digit + bc_ad + insert('"') + po
+
+        final_graph = graph_mdy | graph_md | graph_my | graph_dmy | graph_dm | graph_y | graph_decade | graph_quarter | graph_y_bc
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
@@ -167,6 +185,8 @@ class Date(Processor):
         graph_dmy = day + self.DELETE_SPACE + insert(" ") + month + optional_year
         # year only
         graph_y = year
+        # day + year (for quarter: Q2 2022)
+        graph_dy = day + self.DELETE_SPACE + insert(" ") + year
 
-        graph = (graph_mdy | graph_dmy | graph_y) + self.DELETE_SPACE + delete_po
+        graph = (graph_mdy | graph_dmy | graph_dy | graph_y) + self.DELETE_SPACE + delete_po
         self.verbalizer = self.delete_tokens(graph)

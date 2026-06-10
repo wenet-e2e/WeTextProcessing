@@ -91,7 +91,7 @@ class Telephone(Processor):
 
         # serial: mixed alpha+digits, at least one digit, length >= 3
         serial_char = add_weight(single, 0.001) | add_weight(two_digit, -0.001) | self.ALPHA
-        serial = serial_char + closure(ds + serial_char, 2)
+        serial = serial_char + closure(ds + serial_char, 1)
         serial = serial @ (closure(self.ALPHA | self.DIGIT) + self.DIGIT + closure(self.ALPHA | self.DIGIT))
         graph |= insert('number_part: "') + add_weight(serial, 2.0) + insert('"')
 
