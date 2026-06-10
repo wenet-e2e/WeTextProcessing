@@ -1,0 +1,22 @@
+name: Runtime Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'runtime/**'
+      - '.github/workflows/runtime.yml'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build runtime
+        run: |
+          cmake -B build -S runtime -DBUILD_TESTING=OFF
+          cmake --build build -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
