@@ -225,21 +225,21 @@ class Date(Processor):
             cardinal_graph=cardinal_graph,
             single_digits_graph=cardinal.single_digits_graph,
         )
-        two_digit_year = pynutil.insert('year: "') + two_digit_year + pynini.union(",", ".").ques + pynutil.insert('"')
+        two_digit_year = pynutil.insert('year: "') + two_digit_year + pynutil.delete(",").ques + pynutil.insert('"')
 
         graph_year = (
             pynutil.insert(' year: "')
             + pynutil.delete(" ")
             + year_graph
-            + pynini.union(",", ".").ques
+            + pynutil.delete(",").ques
             + pynutil.insert('"')
         )
         graph_year |= (
             pynutil.insert(' year: "')
-            + pynini.accep(",")
-            + pynini.accep(" ").ques
+            + pynini.cross(",", ", ")
+            + pynutil.delete(" ").ques
             + year_graph
-            + pynini.union(",", ".").ques
+            + pynutil.delete(",").ques
             + pynutil.insert('"')
         )
         optional_graph_year = graph_year.ques
@@ -349,4 +349,5 @@ class Date(Processor):
         )
 
         final_graph = (graph_dmy | year | graph_fy) + self.DELETE_SPACE
+        final_graph = final_graph @ self.build_rule(pynini.cross(" ,", ","))
         self.verbalizer = self.delete_tokens(final_graph)
