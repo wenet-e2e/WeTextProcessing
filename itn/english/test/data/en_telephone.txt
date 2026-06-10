@@ -21,3 +21,4 @@ r t x forty fifty t i => RTX 4050ti
 four three two double seven three two one four three two one four three double zero five => 432 7732 143214 3005
 a thirty six => a 36
 a ten eighty p display => a 1080p display
+triple five one two three one two three four => 555-123-1234

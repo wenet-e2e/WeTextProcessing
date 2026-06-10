@@ -72,8 +72,10 @@ class Date(Processor):
 
         # Year as hundreds: "nineteen oh five" => 1905
         year_hundreds = (teen | two_digit) + ds + oh_digit
+        # Year as "X hundred": "nineteen hundred" => 1900
+        year_xx_hundred = (teen | two_digit) + ds + delete("hundred") + insert("00")
 
-        year_graph = year_two_parts | year_thousands | year_hundreds
+        year_graph = year_two_parts | year_thousands | year_hundreds | year_xx_hundred
 
         # Delete optional "and" within year
         delete_and = self.build_rule(delete("and "), " ", self.ALPHA)
@@ -138,12 +140,38 @@ class Date(Processor):
             + insert(' year: "') + year_graph + insert('"') + po
         )
 
-        # BC/AD suffix
-        bc_ad = ds + (cross("b c", "BC") | cross("a d", "AD"))
+        # BC/AD/BCE/CE suffix
+        bc_ad = ds + (
+            cross("b c e", "BCE") | cross("before common era", "BCE")
+            | cross("b c", "BC")
+            | cross("c e", "CE") | cross("common era", "CE")
+            | cross("a d", "AD")
+        )
         year_graph_with_3digit = year_graph | year_three_digit
         graph_y_bc = insert('year: "') + year_graph_with_3digit + bc_ad + insert('"') + po
 
-        final_graph = graph_mdy | graph_md | graph_my | graph_dmy | graph_dm | graph_y | graph_decade | graph_quarter | graph_y_bc
+        # Half: "first half of twenty twenty two" => H1 2022
+        half_num = cross("first", "1") | cross("second", "2")
+        graph_half = (
+            insert('day: "H') + half_num + insert('"')
+            + ds + delete("half") + ds + delete("of") + ds
+            + insert(' year: "') + year_graph + insert('"') + po
+        )
+
+        # Century: "nineteen hundreds" => 1900s
+        graph_century = (
+            insert('year: "') + (teen | two_digit) + ds + cross("hundreds", "00s") + insert('"') + po
+        )
+        # Millennium: "two thousands" => 2000s
+        graph_millennium = (
+            insert('year: "') + cross("two", "2") + ds + cross("thousands", "000s") + insert('"') + po
+        )
+
+        final_graph = (
+            graph_mdy | graph_md | graph_my | graph_dmy | graph_dm | graph_y
+            | graph_decade | graph_quarter | graph_half | graph_y_bc
+            | graph_century | graph_millennium
+        )
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
