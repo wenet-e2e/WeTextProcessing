@@ -14,7 +14,7 @@
 
 import pynini
 from pynini import closure, cross, invert, string_file
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import add_weight, delete, insert
 
 from itn.english.rules.cardinal import Cardinal
 from itn.english.rules.decimal import Decimal
@@ -35,24 +35,40 @@ class Measure(Processor):
         ds = delete(" ")
 
         # Load measurements: symbol\tname, invert to get name -> symbol
-        units_graph = invert(
-            string_file(get_abs_path("../itn/english/data/measurements.tsv"))
-        )
+        tsv_path = get_abs_path("../itn/english/data/measurements.tsv")
+        units_graph = invert(string_file(tsv_path))
 
-        # Handle plurals: strip trailing "s" to match singular form
-        # e.g. "meters" -> "meter" -> "m", "kilograms" -> "kilogram" -> "kg"
-        depluralize = pynini.cdrewrite(
-            cross("s", ""), "", "[EOS]", self.VSIGMA
-        )
-        # Handle irregular plurals: "feet" -> "foot"
-        irregular = pynini.string_map([("feet", "foot")])
+        # Handle plurals: generate plural->symbol mappings from the singular TSV entries
+        # Uses finite string_map instead of cdrewrite to avoid slow runtime compose
+        singular_names = {}
+        with open(tsv_path, encoding="utf-8") as f:
+            for line in f:
+                parts = line.strip().split("\t", 1)
+                if len(parts) == 2:
+                    singular_names.setdefault(parts[1], parts[0])
+
+        plural_pairs = []
+        irregular_plurals = {
+            "foot": "feet", "inch": "inches",
+            "ounce": "ounces",
+        }
+        for name, symbol in singular_names.items():
+            if name in irregular_plurals:
+                plural_pairs.append((irregular_plurals[name], symbol))
+            elif name.endswith(("s", "z", "sh", "ch", "x")):
+                plural_pairs.append((name + "es", symbol))
+            elif name.endswith("y") and len(name) > 1 and name[-2] not in "aeiou":
+                plural_pairs.append((name[:-1] + "ies", symbol))
+            else:
+                plural_pairs.append((name + "s", symbol))
+
         unit_singular = units_graph
-        unit_plural = (depluralize | irregular) @ units_graph
+        unit_plural = pynini.string_map(plural_pairs)
 
         unit = unit_singular | unit_plural
 
         # Handle "per" units: "per hour" -> "/h"
-        per_unit = insert("/") + delete("per") + ds + unit_singular
+        per_unit = add_weight(insert("/") + delete("per") + ds + unit_singular, 1)
         full_unit = unit + closure(ds + per_unit, 0, 1) | per_unit
 
         # Cardinal value

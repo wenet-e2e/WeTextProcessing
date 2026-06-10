@@ -110,3 +110,5 @@ eight point five megawatts => 8.5 mW
 eight point five meters => 8.5 m
 eight point five two percent => 8.52 %
 eight point four four percent => 8.44 %
+five ounces => 5 oz
+ten kilo calories => 10 kcal

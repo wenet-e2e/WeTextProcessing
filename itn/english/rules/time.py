@@ -15,6 +15,8 @@
 from pynini import closure, cross, invert, string_file, union
 from pynini.lib.pynutil import add_weight, delete, insert
 
+TO_OR_TILL = union("to", "till")
+
 from itn.english.rules.cardinal import Cardinal
 from tn.processor import Processor
 from tn.utils import get_abs_path
@@ -56,7 +58,7 @@ class Time(Processor):
         min_single_raw = union(*[cross(_num_to_word(x), str(x)) for x in range(1, 10)])
         min_double_raw = graph_min_double  # already no padding
 
-        oclock = cross("o'clock", "") | cross("oclock", "") | cross("hundred hours", "")
+        oclock = cross("o'clock", "") | cross("o' clock", "") | cross("o clock", "") | cross("oclock", "") | cross("hundred hours", "")
 
         hour = insert('hour: "') + hour_all + insert('"')
         hour12 = insert('hour: "') + hour_12 + insert('"')
@@ -80,23 +82,25 @@ class Time(Processor):
         graph_o_min_suffix = (
             hour + ds + insert(' minute: "') + delete("o") + ds + graph_min_single + insert('"') + suffix + zone_opt
         )
-        # "half past two", "quarter past two"
+        # "half past two", "quarter past two", "ten past four"
         graph_past = (
-            insert('minute: "') + graph_min_verbose + insert('"') + ds + delete("past") + ds + hour
+            insert('minute: "')
+            + (graph_min_single | graph_min_double | graph_min_verbose)
+            + insert('"') + ds + delete("past") + ds + hour
         )
-        # "quarter to one" => 12:45
+        # "quarter to one" / "quarter till one" => 12:45
         graph_quarter_to = (
             insert('minute: "') + cross("quarter", "45") + insert('"')
-            + ds + delete("to") + ds
+            + ds + delete(TO_OR_TILL) + ds
             + insert('hour: "') + to_hour + insert('"')
         )
-        # "ten to eleven pm" => 10:50 p.m.
+        # "ten to eleven pm" / "ten till eleven pm" => 10:50 p.m.
         graph_min_to = (
             insert('minute: "')
             + ((min_single_raw | min_double_raw) @ minute_to)
             + insert('"')
             + closure(ds + delete("min") + delete("ute").ques + delete("s").ques, 0, 1)
-            + ds + delete("to") + ds
+            + ds + delete(TO_OR_TILL) + ds
             + insert('hour: "') + to_hour + insert('"')
             + suffix
         )
