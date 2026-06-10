@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini import closure, cross, string_file, union
+from pynini import closure, cross, difference, string_file, union
 from pynini.lib.pynutil import add_weight, delete, insert
 
 from itn.english.rules.cardinal import Cardinal
@@ -82,17 +82,28 @@ class Telephone(Processor):
         ip = ip_token + (cross(" dot ", ".") + ip_token) ** 3
         graph |= insert('number_part: "') + add_weight(ip, -0.001) + insert('"')
 
-        # credit card: XXXX XXXX XXXX XXXX or XXXX XXXXXX XXXXX
-        cc = seq @ (
-            self.DIGIT ** 4 + insert(" ") + self.DIGIT ** 4
-            + insert(" ") + self.DIGIT ** 4 + insert(" ") + self.DIGIT ** 4
+        # credit card: 4-4-4-4 (16), 4-6-4 (14), 4-6-5 (15)
+        space = insert(" ")
+        D = self.DIGIT
+        cc_format = (
+            D ** 4 + space + D ** 4 + space + D ** 4 + space + D ** 4
+            | D ** 4 + space + D ** 6 + space + D ** 4
+            | D ** 4 + space + D ** 6 + space + D ** 5
         )
-        graph |= insert('number_part: "') + cc + insert('"')
+        cc = seq @ cc_format
+        graph |= optional_cc + insert('number_part: "') + cc + insert('"')
 
         # serial: mixed alpha+digits, at least one digit, length >= 3
-        serial_char = add_weight(single, 0.001) | add_weight(two_digit, -0.001) | self.ALPHA
-        serial = serial_char + closure(ds + serial_char, 1)
-        serial = serial @ (closure(self.ALPHA | self.DIGIT) + self.DIGIT + closure(self.ALPHA | self.DIGIT))
+        # Exclude "a" as first char to avoid "a thirty six" -> "a36"
+        not_a = difference(self.ALPHA, union("a", "A"))
+        serial_digit = single | add_weight(two_digit, -0.002)
+        serial_char = serial_digit | self.ALPHA
+        seq1 = (not_a | serial_digit) + closure(ds + serial_char, 2)
+        seq1 |= serial_char + closure(ds + (single | self.ALPHA), 2)
+        seq2 = self.ALPHA + closure(ds + self.ALPHA, 1) + closure(ds + two_digit, 1)
+        seq2 |= not_a + closure(ds + two_digit, 1)
+        seq2 |= two_digit + closure(ds + two_digit, 1) + closure(ds + self.ALPHA, 1)
+        serial = (seq1 | seq2) @ (closure(self.ALPHA | D) + D + closure(self.ALPHA | D))
         graph |= insert('number_part: "') + add_weight(serial, 2.0) + insert('"')
 
         self.tagger = self.add_tokens(graph)

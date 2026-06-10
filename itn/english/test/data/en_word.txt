@@ -3,6 +3,7 @@
 , one , two , three , four => , one , two , three , four
 e s three => es3
 yahoo! => yahoo!
+twenty! => 20 !
 x => x
 — => —
 aaa => aaa

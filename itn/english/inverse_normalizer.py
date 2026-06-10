@@ -24,6 +24,7 @@ from itn.english.rules.electronic import Electronic
 from itn.english.rules.measure import Measure
 from itn.english.rules.money import Money
 from itn.english.rules.ordinal import Ordinal
+from itn.english.rules.punctuation import Punctuation
 from itn.english.rules.telephone import Telephone
 from itn.english.rules.time import Time
 from itn.english.rules.whitelist import Whitelist
@@ -52,8 +53,9 @@ class InverseNormalizer(Processor):
         whitelist = Whitelist()
         word = Word()
         char = Char()
+        punctuation = Punctuation()
 
-        tagger = (
+        classify = (
             add_weight(date.tagger, 1.09)
             | add_weight(time.tagger, 1.1)
             | add_weight(measure.tagger, 1.1)
@@ -68,7 +70,8 @@ class InverseNormalizer(Processor):
             | add_weight(char.tagger, 100)
         ).optimize()
 
-        token = tagger
+        punct = add_weight(punctuation.tagger, 1.1)
+        token = closure(punct + delete(" ").ques) + classify + closure(delete(" ").ques + punct)
         graph = token + closure(self.DELETE_EXTRA_SPACE + token)
         self.tagger = delete(" ").star + graph + delete(" ").star
 
@@ -85,6 +88,7 @@ class InverseNormalizer(Processor):
             | whitelist.verbalizer
             | word.verbalizer
             | char.verbalizer
+            | punctuation.verbalizer
         ).optimize()
 
         self.verbalizer = (verbalizer + self.INSERT_SPACE).star @ self.build_rule(

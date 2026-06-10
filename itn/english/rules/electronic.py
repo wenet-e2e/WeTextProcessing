@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini import closure, cross, invert, string_file
+from pynini import accep, closure, cross, difference, invert, string_file
 from pynini.lib.pynutil import add_weight, delete, insert
 
 from tn.processor import Processor
@@ -35,7 +35,8 @@ class Electronic(Processor):
         char = self.ALPHA | digit | zero
         word = add_weight(closure(self.ALPHA, 2), 0.1)
         token = char | symbols | word
-        component = token + closure(ds + token)
+        first_token = char | difference(word, accep("dot"))
+        component = first_token + closure(ds + token)
 
         dot = cross("dot", ".")
         domain = component + (ds + dot + ds + component).plus

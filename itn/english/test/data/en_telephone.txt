@@ -18,3 +18,6 @@ five w k r a three one => 5wkra31
 x eighty six => x86
 x three eighty six => x386
 r t x forty fifty t i => RTX 4050ti
+four three two double seven three two one four three two one four three double zero five => 432 7732 143214 3005
+a thirty six => a 36
+a ten eighty p display => a 1080p display

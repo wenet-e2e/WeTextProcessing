@@ -37,14 +37,15 @@ class Money(Processor):
         ds = delete(" ")
 
         currency_labels = load_labels(get_abs_path("../itn/english/data/currency.tsv"))
-        currency_pairs = []
-        for symbol, name in currency_labels:
-            currency_pairs.append((name, symbol))
+        singular_pairs = [(name, symbol) for symbol, name in currency_labels]
+        plural_pairs = []
+        for name, symbol in singular_pairs:
             if name.endswith("s"):
-                currency_pairs.append((name + "es", symbol))
+                plural_pairs.append((name + "es", symbol))
             else:
-                currency_pairs.append((name + "s", symbol))
-        currency = union(*[cross(name, symbol) for name, symbol in currency_pairs]).optimize()
+                plural_pairs.append((name + "s", symbol))
+        currency_singular = union(*[cross(name, symbol) for name, symbol in singular_pairs]).optimize()
+        currency_plural = union(*[cross(name, symbol) for name, symbol in singular_pairs + plural_pairs]).optimize()
 
         cent = cross("cent", "") | cross("cents", "")
         magnitudes = load_labels(get_abs_path("../itn/english/data/magnitudes.tsv"))
@@ -57,15 +58,23 @@ class Money(Processor):
             compose(cardinal_graph, self.DIGIT ** 3),
         )
         cardinal_with_hundred = cardinal_graph | with_hundred
+        not_one = self.DIGIT ** (2, ...) | (self.DIGIT - accep("1"))
+        cardinal_plural = compose(cardinal_with_hundred, not_one)
+        # "one dollar" (singular) vs "two dollars" (plural)
+        one = cross("one", "1")
         integer_graph = (
-            insert('value: "') + cardinal_with_hundred + insert('"')
-            + ds + insert(' currency: "') + currency + insert('"')
+            insert('value: "') + cardinal_plural + insert('"')
+            + ds + insert(' currency: "') + currency_plural + insert('"')
+        )
+        integer_graph |= (
+            insert('value: "') + one + insert('"')
+            + ds + insert(' currency: "') + currency_singular + insert('"')
         )
         # "fifty million dollars" / "four hundred billion won"
         quantity_graph = (
             insert('value: "') + cardinal_small + insert('"')
             + ds + insert(' quantity: "') + magnitude + insert('"')
-            + ds + insert(' currency: "') + currency + insert('"')
+            + ds + insert(' currency: "') + currency_plural + insert('"')
         )
         # "two point five billion dollars"
         digit = string_file(get_abs_path("../itn/english/data/numbers/digit.tsv"))
@@ -76,30 +85,30 @@ class Money(Processor):
             insert('value: "') + cardinal_graph + insert(".")
             + ds + delete("point") + ds + frac + insert('"')
             + ds + insert(' quantity: "') + magnitude + insert('"')
-            + ds + insert(' currency: "') + currency + insert('"')
+            + ds + insert(' currency: "') + currency_plural + insert('"')
         )
         # "twenty point five o six dollars" (decimal without quantity)
         decimal_graph = (
             insert('value: "') + cardinal_graph + insert(".")
             + ds + delete("point") + ds + frac + insert('"')
-            + ds + insert(' currency: "') + currency + insert('"')
+            + ds + insert(' currency: "') + currency_plural + insert('"')
         )
         # "point five o six dollars"
         decimal_no_int = (
             insert('value: ".') + delete("point") + ds + frac + insert('"')
-            + ds + insert(' currency: "') + currency + insert('"')
+            + ds + insert(' currency: "') + currency_plural + insert('"')
         )
         # "one fifty five dollars" => $155 (missing "hundred")
         with_hundred = (
             insert('value: "') + cardinal_small + insert('"')
-            + ds + insert(' currency: "') + currency + insert('"')
+            + ds + insert(' currency: "') + currency_plural + insert('"')
         )
 
         # cents
         cents_graph = union(*[cross(_num_to_word(x), f"{x:02d}") for x in range(1, 100) if _num_to_word(x)])
         with_cents = (
             insert('value: "') + cardinal_graph + insert('"')
-            + ds + insert(' currency: "') + currency + insert('"')
+            + ds + insert(' currency: "') + currency_plural + insert('"')
             + ds + (delete("and") + ds).ques
             + insert(' decimal: "') + cents_graph + insert('"')
             + ds + cent
@@ -107,7 +116,7 @@ class Money(Processor):
         # "seventy five dollars sixty three" (no "cents" word)
         dollars_amount = (
             insert('value: "') + cardinal_graph + insert('"')
-            + ds + insert(' currency: "') + currency + insert('"')
+            + ds + insert(' currency: "') + currency_plural + insert('"')
             + ds + insert(' decimal: "') + cents_graph + insert('"')
         )
         cents_only = (

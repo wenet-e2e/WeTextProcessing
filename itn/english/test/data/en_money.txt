@@ -49,3 +49,4 @@ one fifty five dollars => $155
 fifteen hundred dollars => $1500
 ninety nine hundred dollars => $9900
 ninety nine hundred and fifteen dollars and one cent => $9915.01
+one dollars => one dollars
