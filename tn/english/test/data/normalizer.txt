@@ -6,3 +6,6 @@ Try searching for 'Toyota' or 'Investment' => Try searching for 'Toyota' or 'Inv
 "" => ""
 The HTML tag <p> defines a paragraph. => The HTML tag <p> defines a paragraph.
  hello world => hello world
+"So, one hundred thousand merit shouldn't be a problem." => "So, one hundred thousand merit shouldn't be a problem."
+"hello" => "hello"
+(hello) => (hello)
