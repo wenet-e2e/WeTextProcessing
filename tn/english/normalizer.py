@@ -13,8 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pynini
 from importlib_resources import files
-from pynini.lib.pynutil import add_weight, delete
+from pynini.lib import pynutil
 
 from tn.english.rules.cardinal import Cardinal
 from tn.english.rules.date import Date
@@ -59,24 +60,30 @@ class Normalizer(Processor):
         whitelist = WhiteList()
         rang = Range(date=date, time=time)
 
-        tagger = (
-            add_weight(cardinal.tagger, 1.0)
-            | add_weight(ordinal.tagger, 1.0)
-            | add_weight(word.tagger, 100)
-            | add_weight(date.tagger, 0.99)
-            | add_weight(decimal.tagger, 1.0)
-            | add_weight(fraction.tagger, 1.0)
-            | add_weight(time.tagger, 1.00)
-            | add_weight(measure.tagger, 1.00)
-            | add_weight(money.tagger, 1.00)
-            | add_weight(telephone.tagger, 1.00)
-            | add_weight(electronic.tagger, 1.00)
-            | add_weight(serial.tagger, 1.01)
-            | add_weight(whitelist.tagger, 1.00)
-            | add_weight(rang.tagger, 1.01)
-            | add_weight(punctuation.tagger, 2.00)
-        ).optimize() + (add_weight(punctuation.tagger, 2.00).plus | self.DELETE_SPACE)
-        self.tagger = (delete(" ").star + tagger.star) @ self.build_rule(delete(" "), r="[EOS]")
+        classify = (
+            pynutil.add_weight(cardinal.tagger, 1.0)
+            | pynutil.add_weight(ordinal.tagger, 1.0)
+            | pynutil.add_weight(word.tagger, 100)
+            | pynutil.add_weight(date.tagger, 0.99)
+            | pynutil.add_weight(decimal.tagger, 1.0)
+            | pynutil.add_weight(fraction.tagger, 1.0)
+            | pynutil.add_weight(time.tagger, 1.00)
+            | pynutil.add_weight(measure.tagger, 1.00)
+            | pynutil.add_weight(money.tagger, 1.00)
+            | pynutil.add_weight(telephone.tagger, 1.00)
+            | pynutil.add_weight(electronic.tagger, 1.00)
+            | pynutil.add_weight(serial.tagger, 1.01)
+            | pynutil.add_weight(whitelist.tagger, 1.00)
+            | pynutil.add_weight(rang.tagger, 1.01)
+        ).optimize()
+
+        punct = pynutil.add_weight(punctuation.tagger, 2.00)
+        token = pynini.closure(punct) + classify + pynini.closure(punct)
+        separator = pynutil.delete(self.SPACE) | punct
+        graph = (
+            self.DELETE_SPACE + token + pynini.closure(separator + token) + self.DELETE_SPACE
+        ) | punct
+        self.tagger = graph.optimize() @ self.build_rule(pynutil.delete(" "), r="[EOS]")
 
         classify = (
             cardinal.verbalizer
@@ -103,4 +110,4 @@ class Normalizer(Processor):
             classify + (punct.plus | self.INSERT_SPACE)
             | punct + (punct.plus | self.DELETE_SPACE)
         ).star
-        self.verbalizer = verbalizer @ self.build_rule(delete(" "), r="[EOS]")
+        self.verbalizer = verbalizer @ self.build_rule(pynutil.delete(" "), r="[EOS]")
