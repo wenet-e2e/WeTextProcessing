@@ -78,7 +78,7 @@ class Normalizer(Processor):
         ).optimize() + (add_weight(punctuation.tagger, 2.00).plus | self.DELETE_SPACE)
         self.tagger = (delete(" ").star + tagger.star) @ self.build_rule(delete(" "), r="[EOS]")
 
-        verbalizer = (
+        classify = (
             cardinal.verbalizer
             | ordinal.verbalizer
             | word.verbalizer
@@ -92,7 +92,15 @@ class Normalizer(Processor):
             | electronic.verbalizer
             | serial.verbalizer
             | whitelist.verbalizer
-            | punctuation.verbalizer
             | rang.verbalizer
-        ).optimize() + (punctuation.verbalizer.plus | self.INSERT_SPACE)
-        self.verbalizer = verbalizer.star @ self.build_rule(delete(" "), r="[EOS]")
+        ).optimize()
+        punct = punctuation.verbalizer.optimize()
+        # Punct tokens carry surrounding spacing in their values (the tagger's
+        # add_weight(accep(" "), -1.0).star absorbs spaces around punctuation).
+        # So punct tokens handle their own spacing and don't need INSERT_SPACE.
+        # Only classify tokens need INSERT_SPACE for inter-word spacing.
+        verbalizer = (
+            classify + (punct.plus | self.INSERT_SPACE)
+            | punct + (punct.plus | self.DELETE_SPACE)
+        ).star
+        self.verbalizer = verbalizer @ self.build_rule(delete(" "), r="[EOS]")
