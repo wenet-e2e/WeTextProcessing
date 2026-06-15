@@ -34,6 +34,7 @@ class Processor {
   std::string Tag(const std::string& input);
   std::string Verbalize(const std::string& input);
   std::string Normalize(const std::string& input);
+  std::string TagOOV(const std::string& input);
 
  private:
   std::string ShortestPath(const StdVectorFst& lattice);
