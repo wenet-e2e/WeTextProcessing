@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - 'runtime/**'
-      - '.github/workflows/runtime.yml'
+      - "runtime/**"
+      - ".github/workflows/runtime.yml"
 
 jobs:
   build:
@@ -18,5 +18,34 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build runtime
         run: |
-          cmake -B build -S runtime -DBUILD_TESTING=ON
+          cmake -B build -G Ninja -S runtime -DBUILD_TESTING=ON
+          cmake --build build --parallel
+
+  build-windows:
+    name: build (windows-latest)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: false
+          cache: true
+          install: >-
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-ninja
+
+      - name: Build runtime
+        run: |
+          cmake --version
+          gcc --version
+
+          cmake -S runtime -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF
           cmake --build build --parallel

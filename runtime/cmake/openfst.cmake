@@ -27,8 +27,8 @@ if(NOT ANDROID)
   # To build openfst with gflags and glog, we comment out some vars of {flags, log}.h and flags.cc.
   set(openfst_SOURCE_DIR ${fc_base}/openfst-src CACHE PATH "OpenFST source directory")
     FetchContent_Declare(openfst
-    URL           https://github.com/csukuangfj/openfst/archive/refs/tags/v1.8.5-2026-04-11.tar.gz
-    URL_HASH      SHA256=57fbc4b950ae81b1a0e1e298af15652da968a6723a592b7874e9b4027a80a5b4
+    URL           https://github.com/csukuangfj/openfst/archive/refs/tags/v1.8.5-2026-06-15.tar.gz
+    URL_HASH      SHA256=5f9323ded5c9cf4d4e23325dd92652b18b553556ad92b59996e687ebd9688490
   )
   FetchContent_MakeAvailable(openfst)
   include_directories(${openfst_SOURCE_DIR}/src/include)
