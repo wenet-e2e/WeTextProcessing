@@ -34,6 +34,7 @@ class TestNormalizer:
         parse_test_case("data/time.txt"),
         parse_test_case("data/whitelist.txt"),
         parse_test_case("data/normalizer.txt"),
+        parse_test_case("data/normalizer_tag_oov.txt"),
     )
 
     @pytest.mark.parametrize("written, spoken", normalizer_cases)
