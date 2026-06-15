@@ -14,6 +14,8 @@
 
 #include "processor/wetext_processor.h"
 
+#include "utils/wetext_log.h"
+
 namespace wetext {
 Processor::Processor(const std::string& tagger_path,
                      const std::string& verbalizer_path) {
