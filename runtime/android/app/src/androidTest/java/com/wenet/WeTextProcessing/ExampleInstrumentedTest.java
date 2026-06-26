@@ -1,4 +1,4 @@
-package com.mobvoi.WeTextProcessing;
+package com.wenet.WeTextProcessing;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.mobvoi.WeTextProcessing", appContext.getPackageName());
+        assertEquals("com.wenet.WeTextProcessing", appContext.getPackageName());
     }
 }

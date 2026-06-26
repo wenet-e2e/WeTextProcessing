@@ -1,17 +1,16 @@
 plugins {
-    id 'com.android.application'
+    alias(libs.plugins.android.application)
 }
 
-repositories {
-    jcenter()
-    maven {
-        url "https://oss.sonatype.org/content/repositories/snapshots"
-    }
+def nativeAbis() {
+    return (project.findProperty('abiFilters') ?: 'armeabi-v7a,arm64-v8a,x86,x86_64')
+        .split(',').collect { it.trim() }.findAll { it }
 }
 
 android {
-    lintOptions {
-        abortOnError false
+    namespace = "com.wenet.WeTextProcessing"
+    lint {
+        abortOnError = false
     }
     signingConfigs {
         release {
@@ -21,85 +20,49 @@ android {
             keyPassword '123456'
         }
     }
-    packagingOptions {
-        jniLibs {
-            pickFirsts += ['lib/arm64-v8a/libc++_shared.so']
-        }
-    }
-    configurations {
-        extractForNativeBuild
-    }
-    compileSdkVersion 30
-    buildToolsVersion "30.0.3"
+    compileSdk = 34
 
     defaultConfig {
-        applicationId "com.mobvoi.WeTextProcessing"
-        minSdkVersion 21
-        targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
+        applicationId = "com.wenet.WeTextProcessing"
+        minSdk = 21
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                targets  "wetextprocessing"
-                cppFlags "-std=c++14", "-DC10_USE_GLOG", "-DC10_USE_MINIMAL_GLOG", "-DANDROID", "-Wno-c++11-narrowing", "-fexceptions"
-            }
-        }
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        ndkVersion '21.1.6352462'
         ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            abiFilters.addAll(nativeAbis())
         }
     }
 
     buildTypes {
         release {
-            minifyEnabled false
-            signingConfig signingConfigs.release
+            minifyEnabled = false
+            signingConfig = signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-        }
-    }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.material:material:1.2.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
-    implementation 'com.github.pengzhendong:wenet-openfst-android:1.0.2'
-    extractForNativeBuild 'com.github.pengzhendong:wenet-openfst-android:1.0.2'
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    implementation libs.androidx.constraintlayout
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
 }
 
-task extractAARForNativeBuild {
-    doLast {
-        configurations.extractForNativeBuild.files.each {
-            def file = it.absoluteFile
-            copy {
-                from zipTree(file)
-                into "$buildDir/$file.name"
-                include "headers/**"
-                include "jni/**"
-            }
-        }
-    }
-}
-
-tasks.whenTaskAdded { task ->
-    if (task.name.contains('externalNativeBuild')) {
-        task.dependsOn(extractAARForNativeBuild)
-    }
-}
+// Native libs are NOT built by Gradle. Build them beforehand with CMake presets
+// (from repo root) so the .so files exist in app/src/main/jniLibs/<abi>/:
+//   export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/<version>
+//   cd runtime
+//   cmake --preset android-arm64-v8a
+//   cmake --build --preset android-arm64-v8a
+//   cmake --install build/aarch64-linux-android --component jni
+// Gradle only packages whatever is already present under jniLibs.
