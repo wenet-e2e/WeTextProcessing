@@ -20,6 +20,18 @@ jobs:
         run: |
           cmake -B build -G Ninja -S runtime -DBUILD_TESTING=ON
           cmake --build build --parallel
+      - uses: actions/setup-python@v5
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          python-version: '3.x'
+      - name: Install dependencies & Generate TN models
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          pip install pynini importlib_resources
+          python -m tn --language zh --overwrite_cache
+      - name: Run tests
+        if: matrix.os == 'ubuntu-latest'
+        run: ctest --test-dir build/test --output-on-failure
 
   build-windows:
     name: build (windows-latest)
@@ -45,6 +57,8 @@ jobs:
           cmake --version
           gcc --version
 
+          # Tests are skipped on Windows: processor_test needs zh_tn_*.fst, which
+          # are generated via pynini, and pynini has no Windows build.
           cmake -S runtime -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_TESTING=OFF

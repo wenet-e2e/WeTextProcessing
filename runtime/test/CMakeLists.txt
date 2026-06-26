@@ -15,4 +15,8 @@ endif()
 
 add_executable(processor_test processor_test.cc)
 target_link_libraries(processor_test PUBLIC wetext_processor)
+# Inject an absolute path to the *.fst models and golden data so the test does
+# not depend on the working directory.
+target_compile_definitions(processor_test PRIVATE
+  WETEXT_TN_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../tn")
 gtest_discover_tests(processor_test)

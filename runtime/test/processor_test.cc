@@ -20,6 +20,12 @@
 #include "processor/wetext_processor.h"
 #include "utils/wetext_string.h"
 
+// Absolute path to the dir with *.fst models and golden data, injected by CMake
+// so the test does not depend on the current working directory.
+#ifndef WETEXT_TN_DIR
+#define WETEXT_TN_DIR "../tn"
+#endif
+
 std::vector<std::pair<std::string, std::string>> ParseTestCase(
     const std::string& file_path) {
   const std::string delimiter = "=>";
@@ -52,8 +58,8 @@ class ProcessorTest
   std::string spoken;
 
   virtual void SetUp() {
-    std::string tagger_path = "../tn/zh_tn_tagger.fst";
-    std::string verbalizer_path = "../tn/zh_tn_verbalizer.fst";
+    std::string tagger_path = WETEXT_TN_DIR "/zh_tn_tagger.fst";
+    std::string verbalizer_path = WETEXT_TN_DIR "/zh_tn_verbalizer.fst";
     processor = new wetext::Processor(tagger_path, verbalizer_path);
     written = GetParam().first;
     spoken = GetParam().second;
@@ -67,6 +73,6 @@ TEST_P(ProcessorTest, NormalizeTest) {
 }
 
 std::vector<std::pair<std::string, std::string>> test_cases =
-    ParseTestCase("../tn/chinese/test/data/normalizer.txt");
+    ParseTestCase(WETEXT_TN_DIR "/chinese/test/data/normalizer.txt");
 INSTANTIATE_TEST_SUITE_P(NormalizeTest, ProcessorTest,
                          testing::ValuesIn(test_cases));
