@@ -36,7 +36,7 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: 'platforms;android-34 build-tools;34.0.0'
+          packages: 'platforms;android-36 build-tools;36.0.0'
 
       # sdkmanager has no bare "ndk" package — must install "ndk;X.Y.Z". Pick the
       # newest side-by-side NDK from the package list.
@@ -79,13 +79,13 @@ jobs:
           python -m tn  --language zh --overwrite_cache --cache_dir "$assets"
           python -m itn --language zh --overwrite_cache --cache_dir "$assets"
 
-      - name: Build APK
+      - name: Build release APK
         working-directory: runtime/android
-        run: ./gradlew :app:assembleDebug -PabiFilters=arm64-v8a --no-daemon
+        run: ./gradlew :app:assembleRelease -PabiFilters=arm64-v8a --no-daemon
 
-      - name: Upload APK
+      - name: Upload release APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-arm64-v8a
-          path: runtime/android/app/build/outputs/apk/debug/app-debug.apk
+          name: app-release-arm64-v8a
+          path: runtime/android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error

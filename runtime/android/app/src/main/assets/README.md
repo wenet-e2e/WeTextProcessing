@@ -1,6 +1,6 @@
 # Android model assets
 
-The app loads four FST models at runtime (see `MainActivity.java` and
+The app loads four FST models at runtime (see `MainActivity.kt` and
 `wetextprocessing.cc`). They are **not** checked into git and must be placed in
 this directory before building the APK:
 

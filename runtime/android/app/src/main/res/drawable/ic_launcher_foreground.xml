@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Connecting lines (filled rects for compatibility). -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M35,51 L47,51 L47,57 L35,57 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M61,51 L74,51 L74,57 L61,57 Z" />
+    <!-- start state (ring) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M28,54 m-7,0 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0
+                          M28,54 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0"
+        android:fillType="evenOdd" />
+    <!-- middle state -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,54 m-7,0 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0" />
+    <!-- accept state (double ring) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M81,54 m-7,0 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0
+                          M81,54 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+</vector>
