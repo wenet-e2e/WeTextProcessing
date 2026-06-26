@@ -1,4 +1,4 @@
-package com.mobvoi.WeTextProcessing;
+package com.wenet.WeTextProcessing;
 
 public class WeTextProcessing {
 

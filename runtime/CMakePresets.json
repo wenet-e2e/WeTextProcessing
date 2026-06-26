@@ -1,0 +1,69 @@
+{
+  "version": 10,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "binaryDir": "${sourceDir}/build/default.release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "android-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake",
+        "ANDROID_PLATFORM": "android-21",
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "android-armeabi-v7a",
+      "inherits": "android-base",
+      "binaryDir": "${sourceDir}/build/arm-linux-androideabi",
+      "cacheVariables": {
+        "ANDROID_ABI": "armeabi-v7a",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/android/app/src/main/jniLibs/armeabi-v7a"
+      }
+    },
+    {
+      "name": "android-arm64-v8a",
+      "inherits": "android-base",
+      "binaryDir": "${sourceDir}/build/aarch64-linux-android",
+      "cacheVariables": {
+        "ANDROID_ABI": "arm64-v8a",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/android/app/src/main/jniLibs/arm64-v8a"
+      }
+    },
+    {
+      "name": "android-x86",
+      "inherits": "android-base",
+      "binaryDir": "${sourceDir}/build/i686-linux-android",
+      "cacheVariables": {
+        "ANDROID_ABI": "x86",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/android/app/src/main/jniLibs/x86"
+      }
+    },
+    {
+      "name": "android-x86_64",
+      "inherits": "android-base",
+      "binaryDir": "${sourceDir}/build/x86_64-linux-android",
+      "cacheVariables": {
+        "ANDROID_ABI": "x86_64",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/android/app/src/main/jniLibs/x86_64"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "android-armeabi-v7a", "configurePreset": "android-armeabi-v7a" },
+    { "name": "android-arm64-v8a", "configurePreset": "android-arm64-v8a" },
+    { "name": "android-x86", "configurePreset": "android-x86" },
+    { "name": "android-x86_64", "configurePreset": "android-x86_64" }
+  ]
+}

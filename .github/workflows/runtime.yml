@@ -5,6 +5,10 @@ on:
   pull_request:
     paths:
       - "runtime/**"
+      # Android has its own workflow; don't rebuild the desktop runtime for
+      # Android-only changes (shared processor/utils/cmake still match above).
+      - "!runtime/android/**"
+      - "!runtime/bindings/android/**"
       - ".github/workflows/runtime.yml"
 
 jobs:

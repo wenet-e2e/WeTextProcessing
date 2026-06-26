@@ -1,4 +1,4 @@
-package com.mobvoi.WeTextProcessing;
+package com.wenet.WeTextProcessing;
 
 import android.Manifest;
 import android.content.Context;

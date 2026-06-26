@@ -9,8 +9,6 @@ option(BUILD_TESTING "whether to build unit test" OFF)
 
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
-get_filename_component(fc_base "fc_base-${CMAKE_CXX_COMPILER_ID}" REALPATH BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(FETCHCONTENT_BASE_DIR ${fc_base})
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -25,14 +23,27 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
   set(CMAKE_MACOSX_RPATH 1)
 endif()
 
+if(ANDROID)
+  set(BUILD_SHARED_LIBS OFF)
+endif()
+
 include(openfst)
+include(glog)
+include(gflags)
 include_directories(${PROJECT_SOURCE_DIR})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 add_subdirectory(utils)
 add_subdirectory(processor)
-add_subdirectory(bin)
+
+if(ANDROID)
+  # JNI shared library; only meaningful when cross-compiling with the NDK.
+  add_subdirectory(bindings/android)
+else()
+  # Command-line tools are host-only; skip them for Android.
+  add_subdirectory(bin)
+endif()
 
 if(BUILD_TESTING)
   include(gtest)
