@@ -41,7 +41,7 @@ class Normalizer(Processor):
         super().__init__(name="en_normalizer", ordertype="en_tn")
         if cache_dir is None:
             cache_dir = files("tn")
-        self.build_fst("en_tn", cache_dir, overwrite_cache)
+        self.build_fst("en_tn", cache_dir, overwrite_cache, {})
 
     def build_tagger_and_verbalizer(self):
         cardinal = Cardinal()

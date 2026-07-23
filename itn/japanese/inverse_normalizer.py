@@ -48,7 +48,17 @@ class InverseNormalizer(Processor):
         self.enable_million = enable_million
         if cache_dir is None:
             cache_dir = files("itn")
-        self.build_fst("ja_itn", cache_dir, overwrite_cache)
+        self.build_fst(
+            "ja_itn",
+            cache_dir,
+            overwrite_cache,
+            {
+                "enable_0_to_9": self.enable_0_to_9,
+                "enable_million": self.enable_million,
+                "enable_standalone_number": self.convert_number,
+                "full_to_half": self.full_to_half,
+            },
+        )
 
     def build_tagger_and_verbalizer(self):
         processor = PreProcessor(full_to_half=self.full_to_half).processor

@@ -15,6 +15,7 @@
 import argparse
 
 from itn.chinese.inverse_normalizer import InverseNormalizer as ZhInverseNormalizer
+from itn.english.inverse_normalizer import InverseNormalizer as EnInverseNormalizer
 from itn.japanese.inverse_normalizer import InverseNormalizer as JaInverseNormalizer
 from tn.utils import str2bool
 
@@ -28,7 +29,7 @@ def main():
     parser.add_argument("--enable_standalone_number", type=str, default="True", help="一百 = 100 if True else 一百")
     parser.add_argument("--enable_0_to_9", type=str, default="False", help="零和九 = 0和9 if True else 零和九")
     parser.add_argument("--enable_million", type=str, default="False", help="六百万 = 6000000 if True else 600万")
-    parser.add_argument("--language", type=str, default="zh", choices=["zh", "ja"], help="valid languages")
+    parser.add_argument("--language", type=str, default="zh", choices=["zh", "en", "ja"], help="valid languages")
     args = parser.parse_args()
 
     if args.language == "zh":
@@ -38,6 +39,11 @@ def main():
             enable_standalone_number=str2bool(args.enable_standalone_number),
             enable_0_to_9=str2bool(args.enable_0_to_9),
             enable_million=str2bool(args.enable_million),
+        )
+    elif args.language == "en":
+        normalizer = EnInverseNormalizer(
+            cache_dir=args.cache_dir,
+            overwrite_cache=args.overwrite_cache,
         )
     elif args.language == "ja":
         normalizer = JaInverseNormalizer(

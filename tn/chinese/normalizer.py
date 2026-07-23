@@ -52,7 +52,19 @@ class Normalizer(Processor):
         self.tag_oov = tag_oov
         if cache_dir is None:
             cache_dir = files("tn")
-        self.build_fst("zh_tn", cache_dir, overwrite_cache)
+        self.build_fst(
+            "zh_tn",
+            cache_dir,
+            overwrite_cache,
+            {
+                "full_to_half": self.full_to_half,
+                "remove_erhua": self.remove_erhua,
+                "remove_interjections": self.remove_interjections,
+                "remove_puncts": self.remove_puncts,
+                "tag_oov": self.tag_oov,
+                "traditional_to_simple": self.traditional_to_simple,
+            },
+        )
 
     def build_tagger_and_verbalizer(self):
         processor = PreProcessor(traditional_to_simple=self.traditional_to_simple).processor

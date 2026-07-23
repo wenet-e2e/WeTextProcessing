@@ -37,6 +37,10 @@ ITN_ORDERS = {
 }
 
 
+class TokenParseError(ValueError):
+    """Raised when a tagged token stream is malformed."""
+
+
 class Token:
 
     def __init__(self, name):
@@ -74,7 +78,8 @@ class TokenParser:
             raise NotImplementedError()
 
     def load(self, input):
-        assert len(input) > 0
+        if not input:
+            raise TokenParseError("token stream must not be empty")
         self.index = 0
         self.text = input
         self.char = input[0]
@@ -101,32 +106,48 @@ class TokenParser:
         return False
 
     def parse_chars(self, exp):
-        ok = False
+        start = self.index
         for x in exp:
-            ok |= self.parse_char(x)
-        return ok
+            if not self.parse_char(x):
+                self.index = start
+                self.char = self.text[start]
+                return False
+        return True
+
+    def expect_chars(self, exp):
+        if not self.parse_chars(exp):
+            raise TokenParseError(
+                'expected {!r} at position {}, got {!r}'.format(exp, self.index, self.char)
+            )
 
     def parse_key(self):
-        assert self.char != EOS
-        assert self.char not in string.whitespace
+        if self.char == EOS:
+            raise TokenParseError("expected key at end of token stream")
+        if self.char in string.whitespace:
+            raise TokenParseError("expected key at position {}".format(self.index))
 
         key = ""
         while self.char in string.ascii_letters + "_":
             key += self.char
             self.read()
+        if not key:
+            raise TokenParseError("invalid key at position {}".format(self.index))
         return key
 
     def parse_value(self):
-        assert self.char != EOS
-        escape = False
+        if self.char == EOS:
+            raise TokenParseError("expected value at end of token stream")
 
         value = ""
         while self.char != '"':
+            if self.char == EOS:
+                raise TokenParseError("unterminated value at position {}".format(self.index))
             value += self.char
-            escape = self.char == "\\"
+            escaped = self.char == "\\"
             self.read()
-            if escape:
-                escape = False
+            if escaped:
+                if self.char == EOS:
+                    raise TokenParseError("unterminated escape at position {}".format(self.index))
                 value += self.char
                 self.read()
         return value
@@ -135,18 +156,22 @@ class TokenParser:
         self.load(input)
         while self.parse_ws():
             name = self.parse_key()
-            self.parse_chars(" { ")
+            self.expect_chars(" { ")
 
             token = Token(name)
+            closed = False
             while self.parse_ws():
                 if self.char == "}":
                     self.parse_char("}")
+                    closed = True
                     break
                 key = self.parse_key()
-                self.parse_chars(': "')
+                self.expect_chars(': "')
                 value = self.parse_value()
-                self.parse_char('"')
+                self.expect_chars('"')
                 token.append(key, value)
+            if not closed:
+                raise TokenParseError("unterminated token {!r}".format(name))
             self.tokens.append(token)
 
     def reorder(self, input):

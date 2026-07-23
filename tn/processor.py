@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
+import json
 import logging
 import os
 import string
@@ -76,16 +78,88 @@ class Processor:
         verbalizer = delete('value: "') + self.SIGMA + delete('"')
         self.verbalizer = self.delete_tokens(verbalizer)
 
-    def build_fst(self, prefix, cache_dir, overwrite_cache):
+    @staticmethod
+    def _source_fingerprint(prefix):
+        language_code, mode = prefix.split("_", 1)
+        language = {"en": "english", "ja": "japanese", "zh": "chinese"}[language_code]
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        package_root = os.path.join(project_root, mode)
+        sources = [
+            os.path.join(project_root, "tn", "processor.py"),
+            os.path.join(project_root, "tn", "token_parser.py"),
+            os.path.join(project_root, "tn", "utils.py"),
+        ]
+        language_root = os.path.join(package_root, language)
+        entrypoint = "normalizer.py" if mode == "tn" else "inverse_normalizer.py"
+        sources.append(os.path.join(language_root, entrypoint))
+        source_roots = [
+            os.path.join(language_root, "data"),
+            os.path.join(language_root, "rules"),
+        ]
+        for source_root in source_roots:
+            for root, _, filenames in os.walk(source_root):
+                for filename in filenames:
+                    if filename.endswith((".py", ".tsv", ".far")):
+                        sources.append(os.path.join(root, filename))
+
+        digest = hashlib.sha256()
+        for source in sorted(sources):
+            relative_path = os.path.relpath(source, project_root)
+            digest.update(relative_path.encode("utf-8"))
+            with open(source, "rb") as source_file:
+                for chunk in iter(lambda: source_file.read(1024 * 1024), b""):
+                    digest.update(chunk)
+        return digest.hexdigest()
+
+    @staticmethod
+    def _cache_config_matches(manifest_path, prefix, cache_config, source_fingerprint):
+        try:
+            with open(manifest_path, encoding="utf-8") as manifest_file:
+                manifest = json.load(manifest_file)
+        except (OSError, ValueError):
+            return False
+        return (
+            manifest.get("version") == 1
+            and manifest.get("prefix") == prefix
+            and manifest.get("config") == cache_config
+            and manifest.get("source_fingerprint") == source_fingerprint
+        )
+
+    @staticmethod
+    def _write_cache_manifest(manifest_path, prefix, cache_config, source_fingerprint):
+        manifest = {
+            "version": 1,
+            "prefix": prefix,
+            "config": cache_config,
+            "source_fingerprint": source_fingerprint,
+        }
+        temporary_path = "{}.tmp.{}".format(manifest_path, os.getpid())
+        with open(temporary_path, "w", encoding="utf-8") as manifest_file:
+            json.dump(manifest, manifest_file, ensure_ascii=False, sort_keys=True)
+            manifest_file.write("\n")
+        os.replace(temporary_path, manifest_path)
+
+    def build_fst(self, prefix, cache_dir, overwrite_cache, cache_config=None):
+        cache_dir = os.fspath(cache_dir)
         os.makedirs(cache_dir, exist_ok=True)
+        cache_config = {} if cache_config is None else cache_config
+        source_fingerprint = self._source_fingerprint(prefix)
         tagger_name = "{}_tagger.fst".format(prefix)
         verbalizer_name = "{}_verbalizer.fst".format(prefix)
+        manifest_name = "{}_cache.json".format(prefix)
 
         tagger_path = os.path.join(cache_dir, tagger_name)
         verbalizer_path = os.path.join(cache_dir, verbalizer_name)
+        manifest_path = os.path.join(cache_dir, manifest_name)
 
         exists = os.path.exists(tagger_path) and os.path.exists(verbalizer_path)
-        if exists and not overwrite_cache:
+        cache_matches = self._cache_config_matches(
+            manifest_path,
+            prefix,
+            cache_config,
+            source_fingerprint,
+        )
+        if exists and cache_matches and not overwrite_cache:
             logger.info("found existing fst: {}".format(tagger_path))
             logger.info("                    {}".format(verbalizer_path))
             logger.info("skip building fst for {} ...".format(self.name))
@@ -100,6 +174,12 @@ class Processor:
                 self.build_verbalizer()
             self.tagger.optimize().write(tagger_path)
             self.verbalizer.optimize().write(verbalizer_path)
+            self._write_cache_manifest(
+                manifest_path,
+                prefix,
+                cache_config,
+                source_fingerprint,
+            )
             logger.info("done")
             logger.info("fst path: {}".format(tagger_path))
             logger.info("          {}".format(verbalizer_path))

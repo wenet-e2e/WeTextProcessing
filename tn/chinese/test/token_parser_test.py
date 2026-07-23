@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tn.token_parser import EOS, TokenParser
+import pytest
+
+from tn.token_parser import EOS, TokenParseError, TokenParser
 
 
 class TestTokenParser:
@@ -74,3 +76,15 @@ class TestTokenParser:
         input = 'time { minute: "零二分" hour: "两点" } char { value: "走" }'
         expected = 'time { hour: "两点" minute: "零二分" } char { value: "走" }'
         assert self.parser.reorder(input) == expected
+
+    @pytest.mark.parametrize(
+        "tagged",
+        [
+            'time { hour: "12 }',
+            'time { hour "12" }',
+            'time { hour: "12" ',
+        ],
+    )
+    def test_malformed_input(self, tagged):
+        with pytest.raises(TokenParseError):
+            self.parser.reorder(tagged)

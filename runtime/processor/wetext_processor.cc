@@ -30,8 +30,12 @@ Processor::Processor(const std::string& tagger_path,
     parse_type_ = ParseType::kZH_ITN;
   } else if (tagger_path.find("en_tn_") != tagger_path.npos) {
     parse_type_ = ParseType::kEN_TN;
+  } else if (tagger_path.find("en_itn_") != tagger_path.npos) {
+    parse_type_ = ParseType::kEN_ITN;
   } else if (tagger_path.find("ja_tn_") != tagger_path.npos) {
     parse_type_ = ParseType::kJA_TN;
+  } else if (tagger_path.find("ja_itn_") != tagger_path.npos) {
+    parse_type_ = ParseType::kJA_ITN;
   } else {
     LOG(FATAL) << "Invalid fst prefix, prefix should contain"
                << " either \"_tn_\" or \"_itn_\".";

@@ -38,7 +38,7 @@ class InverseNormalizer(Processor):
         super().__init__(name="en_inverse_normalizer", ordertype="itn")
         if cache_dir is None:
             cache_dir = files("itn")
-        self.build_fst("en_itn", cache_dir, overwrite_cache)
+        self.build_fst("en_itn", cache_dir, overwrite_cache, {})
 
     def build_tagger_and_verbalizer(self):
         cardinal = Cardinal()

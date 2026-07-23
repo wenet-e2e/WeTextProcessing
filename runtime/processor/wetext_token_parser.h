@@ -28,9 +28,9 @@ extern const std::set<std::string> ASCII_LETTERS;
 extern const std::unordered_map<std::string, std::vector<std::string>>
     ZH_TN_ORDERS;
 extern const std::unordered_map<std::string, std::vector<std::string>>
-    ZH_ITN_ORDERS;
-extern const std::unordered_map<std::string, std::vector<std::string>>
     EN_TN_ORDERS;
+extern const std::unordered_map<std::string, std::vector<std::string>>
+    ITN_ORDERS;
 
 struct Token {
   std::string name;
@@ -47,7 +47,8 @@ struct Token {
   std::string String(
       const std::unordered_map<std::string, std::vector<std::string>>& orders) {
     std::string output = name + " {";
-    if (orders.count(name) > 0) {
+    if (orders.count(name) > 0 && (members.count("preserve_order") == 0 ||
+                                   members.at("preserve_order") != "true")) {
       order = orders.at(name);
     }
 
@@ -65,8 +66,9 @@ enum ParseType {
   kZH_TN = 0x00,   // Chinese Text Normalization
   kZH_ITN = 0x01,  // Chinese Inverse Text Normalization
   kEN_TN = 0x02,   // English Text Normalization
-  kEN_ITN = 0x03,  // English Inverse Text Normalization (Unsupported)
-  kJA_TN = 0x04    // Japanese Text Normalization
+  kEN_ITN = 0x03,  // English Inverse Text Normalization
+  kJA_TN = 0x04,   // Japanese Text Normalization
+  kJA_ITN = 0x05   // Japanese Inverse Text Normalization
 };
 
 class TokenParser {
@@ -84,7 +86,7 @@ class TokenParser {
   std::string ParseValue();
   void Parse(const std::string& input);
 
-  int index_;
+  size_t index_;
   std::string ch_;
   std::vector<std::string> text_;
   std::vector<Token> tokens_;

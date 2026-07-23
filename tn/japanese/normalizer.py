@@ -51,7 +51,18 @@ class Normalizer(Processor):
         self.tag_oov = tag_oov
         if cache_dir is None:
             cache_dir = files("tn")
-        self.build_fst("ja_tn", cache_dir, overwrite_cache)
+        self.build_fst(
+            "ja_tn",
+            cache_dir,
+            overwrite_cache,
+            {
+                "full_to_half": self.full_to_half,
+                "remove_interjections": self.remove_interjections,
+                "remove_puncts": self.remove_puncts,
+                "tag_oov": self.tag_oov,
+                "transliterate": self.transliterate,
+            },
+        )
 
     def build_tagger_and_verbalizer(self):
         processor = PreProcessor(full_to_half=self.full_to_half).processor

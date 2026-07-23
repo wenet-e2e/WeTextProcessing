@@ -14,6 +14,8 @@
 
 #include "processor/wetext_token_parser.h"
 
+#include <stdexcept>
+
 #include "utils/wetext_log.h"
 #include "utils/wetext_string.h"
 
@@ -33,24 +35,26 @@ const std::unordered_map<std::string, std::vector<std::string>> ZH_TN_ORDERS = {
     {"money", {"value", "currency"}},
     {"time", {"noon", "hour", "minute", "second"}}};
 const std::unordered_map<std::string, std::vector<std::string>> JA_TN_ORDERS = {
-    {"date", {"year", "month", "day"}},
-    {"money", {"value", "currency"}}};
+    {"date", {"year", "month", "day"}}, {"money", {"value", "currency"}}};
 
 const std::unordered_map<std::string, std::vector<std::string>> EN_TN_ORDERS = {
     {"date", {"preserve_order", "text", "day", "month", "year"}},
     {"money", {"integer_part", "fractional_part", "quantity", "currency_maj"}}};
-const std::unordered_map<std::string, std::vector<std::string>> ZH_ITN_ORDERS =
-    {{"date", {"year", "month", "day"}},
-     {"fraction", {"sign", "numerator", "denominator"}},
-     {"measure", {"numerator", "denominator", "value"}},
-     {"money", {"currency", "value", "decimal"}},
-     {"time", {"hour", "minute", "second", "noon"}}};
+const std::unordered_map<std::string, std::vector<std::string>> ITN_ORDERS = {
+    {"date", {"year", "month", "day", "preserve_order"}},
+    {"fraction", {"sign", "numerator", "denominator"}},
+    {"measure", {"numerator", "denominator", "value", "units"}},
+    {"money", {"currency", "value", "decimal", "quantity"}},
+    {"time", {"hour", "minute", "second", "noon", "zone"}},
+    {"telephone", {"country_code", "number_part"}},
+    {"electronic", {"username", "domain", "protocol"}}};
 
 TokenParser::TokenParser(ParseType type) {
   if (type == ParseType::kZH_TN) {
     orders_ = ZH_TN_ORDERS;
-  } else if (type == ParseType::kZH_ITN) {
-    orders_ = ZH_ITN_ORDERS;
+  } else if (type == ParseType::kZH_ITN || type == ParseType::kEN_ITN ||
+             type == ParseType::kJA_ITN) {
+    orders_ = ITN_ORDERS;
   } else if (type == ParseType::kEN_TN) {
     orders_ = EN_TN_ORDERS;
   } else if (type == ParseType::kJA_TN) {
@@ -62,9 +66,12 @@ TokenParser::TokenParser(ParseType type) {
 
 void TokenParser::Load(const std::string& input) {
   wetext::SplitUTF8StringToChars(input, &text_);
-  CHECK_GT(text_.size(), 0);
+  if (text_.empty()) {
+    throw std::invalid_argument("token stream must not be empty");
+  }
   index_ = 0;
   ch_ = text_[0];
+  tokens_.clear();
 }
 
 bool TokenParser::Read() {
@@ -94,38 +101,54 @@ bool TokenParser::ParseChar(const std::string& exp) {
 }
 
 bool TokenParser::ParseChars(const std::string& exp) {
-  bool ok = false;
+  size_t start = index_;
   std::vector<std::string> chars;
   wetext::SplitUTF8StringToChars(exp, &chars);
   for (const auto& x : chars) {
-    ok |= ParseChar(x);
+    if (!ParseChar(x)) {
+      index_ = start;
+      ch_ = text_[start];
+      return false;
+    }
   }
-  return ok;
+  return true;
 }
 
 std::string TokenParser::ParseKey() {
-  CHECK_NE(ch_, EOS);
-  CHECK_EQ(UTF8_WHITESPACE.count(ch_), 0);
+  if (ch_ == EOS || UTF8_WHITESPACE.count(ch_) > 0) {
+    throw std::invalid_argument("expected token key at position " +
+                                std::to_string(index_));
+  }
 
   std::string key = "";
   while (ASCII_LETTERS.count(ch_) > 0) {
     key += ch_;
     Read();
   }
+  if (key.empty()) {
+    throw std::invalid_argument("invalid token key at position " +
+                                std::to_string(index_));
+  }
   return key;
 }
 
 std::string TokenParser::ParseValue() {
-  CHECK_NE(ch_, EOS);
-  bool escape = false;
+  if (ch_ == EOS) {
+    throw std::invalid_argument("expected token value at end of stream");
+  }
 
   std::string value = "";
   while (ch_ != "\"") {
+    if (ch_ == EOS) {
+      throw std::invalid_argument("unterminated token value");
+    }
     value += ch_;
-    escape = ch_ == "\\";
+    bool escape = ch_ == "\\";
     Read();
     if (escape) {
-      escape = false;
+      if (ch_ == EOS) {
+        throw std::invalid_argument("unterminated escape in token value");
+      }
       value += ch_;
       Read();
     }
@@ -137,19 +160,30 @@ void TokenParser::Parse(const std::string& input) {
   Load(input);
   while (ParseWs()) {
     std::string name = ParseKey();
-    ParseChars(" { ");
+    if (!ParseChars(" { ")) {
+      throw std::invalid_argument("expected token opening delimiter");
+    }
 
     Token token(name);
+    bool closed = false;
     while (ParseWs()) {
       if (ch_ == "}") {
         ParseChar("}");
+        closed = true;
         break;
       }
       std::string key = ParseKey();
-      ParseChars(": \"");
+      if (!ParseChars(": \"")) {
+        throw std::invalid_argument("expected token field delimiter");
+      }
       std::string value = ParseValue();
-      ParseChar("\"");
+      if (!ParseChar("\"")) {
+        throw std::invalid_argument("expected closing quote");
+      }
       token.Append(key, value);
+    }
+    if (!closed) {
+      throw std::invalid_argument("unterminated token " + name);
     }
     tokens_.emplace_back(token);
   }

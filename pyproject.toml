@@ -53,5 +53,12 @@ include = ["tn*", "itn*"]
 namespaces = false
 
 [tool.setuptools.package-data]
-tn = ["*.fst", "chinese/data/*/*.tsv", "english/data/*/*.tsv", "english/data/*.tsv", "english/data/*/*.far", "japanese/data/*/*.tsv"]
-itn = ["*.fst", "chinese/data/*/*.tsv", "japanese/data/*/*.tsv"]
+tn = ["*.fst", "*_cache.json", "chinese/data/*/*.tsv", "english/data/*/*.tsv", "english/data/*.tsv", "english/data/*/*.far", "japanese/data/*/*.tsv"]
+itn = [
+    "*.fst",
+    "*_cache.json",
+    "chinese/data/*/*.tsv",
+    "english/data/*.tsv",
+    "english/data/*/*.tsv",
+    "japanese/data/*/*.tsv",
+]

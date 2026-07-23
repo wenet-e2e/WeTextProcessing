@@ -101,3 +101,22 @@ TEST_F(TokenParserTest, ReorderTest) {
       "time { hour: \"两点\" minute: \"零二分\" } char { value: \"走\" }";
   ASSERT_EQ(parser->Reorder(input), expected);
 }
+
+TEST_F(TokenParserTest, MalformedInputTest) {
+  ASSERT_THROW(parser->Reorder("time { hour: \"12 }"), std::invalid_argument);
+  ASSERT_THROW(parser->Reorder("time { hour \"12\" }"), std::invalid_argument);
+  ASSERT_THROW(parser->Reorder("time { hour: \"12\" "), std::invalid_argument);
+}
+
+TEST_F(TokenParserTest, ReorderDoesNotAccumulateTokens) {
+  std::string input = "char { value: \"走\" }";
+  ASSERT_EQ(parser->Reorder(input), input);
+  ASSERT_EQ(parser->Reorder(input), input);
+}
+
+TEST(TokenParserSchemaTest, ItnPreserveOrder) {
+  wetext::TokenParser parser(wetext::ParseType::kEN_ITN);
+  std::string input =
+      "date { day: \"1\" month: \"2\" preserve_order: \"true\" }";
+  ASSERT_EQ(parser.Reorder(input), input);
+}

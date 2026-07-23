@@ -35,21 +35,25 @@ Python usage:
 
 ```py
 from itn.chinese.inverse_normalizer import InverseNormalizer
+from itn.english.inverse_normalizer import InverseNormalizer as EnInverseNormalizer
 from tn.chinese.normalizer import Normalizer as ZhNormalizer
 from tn.english.normalizer import Normalizer as EnNormalizer
 
-# NOTE(xcsong): 和默认参数不一致时，必须重新构图，要重新构图请务必指定 `overwrite_cache=True`
-#               When the parameters differ from the defaults, it is mandatory to re-compose. To re-compose, please ensure you specify `overwrite_cache=True`.
+# FST 缓存会记录构建参数及规则数据指纹；配置或规则变化时会自动重新构图。
+# Set `overwrite_cache=True` only when an unconditional rebuild is required.
 
 zh_tn_text = "你好 WeTextProcessing 1.0，船新版本儿，船新体验儿，简直666，9和10"
 zh_itn_text = "你好 WeTextProcessing 一点零，船新版本儿，船新体验儿，简直六六六，九和六"
 en_tn_text = "Hello WeTextProcessing 1.0, life is short, just use wetext, 666, 9 and 10"
+en_itn_text = "call me at five five five one two three four"
 zh_tn_model = ZhNormalizer(remove_erhua=True, overwrite_cache=True)
 zh_itn_model = InverseNormalizer(enable_0_to_9=False, overwrite_cache=True)
 en_tn_model = EnNormalizer(overwrite_cache=True)
+en_itn_model = EnInverseNormalizer(overwrite_cache=True)
 print("中文 TN (去除儿化音，重新在线构图):\n\t{} => {}".format(zh_tn_text, zh_tn_model.normalize(zh_tn_text)))
 print("中文ITN (小于10的单独数字不转换，重新在线构图):\n\t{} => {}".format(zh_itn_text, zh_itn_model.normalize(zh_itn_text)))
 print("英文 TN (暂时还没有可控的选项，后面会加...):\n\t{} => {}\n".format(en_tn_text, en_tn_model.normalize(en_tn_text)))
+print("英文 ITN:\n\t{} => {}\n".format(en_itn_text, en_itn_model.normalize(en_itn_text)))
 
 zh_tn_model = ZhNormalizer(overwrite_cache=False)
 zh_itn_model = InverseNormalizer(overwrite_cache=False)

@@ -33,6 +33,7 @@ __pycache__/
 
 # Clangd files
 .cache
+.venv/
 compile_commands.json
 
 

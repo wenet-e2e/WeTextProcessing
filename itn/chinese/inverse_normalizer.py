@@ -48,7 +48,17 @@ class InverseNormalizer(Processor):
         self.enable_million = enable_million
         if cache_dir is None:
             cache_dir = files("itn")
-        self.build_fst("zh_itn", cache_dir, overwrite_cache)
+        self.build_fst(
+            "zh_itn",
+            cache_dir,
+            overwrite_cache,
+            {
+                "enable_0_to_9": self.enable_0_to_9,
+                "enable_million": self.enable_million,
+                "enable_standalone_number": self.convert_number,
+                "remove_interjections": self.remove_interjections,
+            },
+        )
 
     def build_tagger_and_verbalizer(self):
         cardinal = Cardinal(self.convert_number, self.enable_0_to_9, self.enable_million)
