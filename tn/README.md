@@ -3,26 +3,38 @@
 ### 1. How To Use
 
 ``` bash
-$ python normalize.py --text "text to be normalized"
+$ python -m tn --language zh --text "2.5平方电线"
+# Or, after installation:
+$ wetn --language zh --text "2.5平方电线"
 ```
 
 ### 2. TN Pipeline
 
-There are 3 components in TN pipeline:
+There are 3 logical components in the TN pipeline:
 
-* pre-processing (before tagger)
-* non-standard word normalization
-* post-processing (after verbalizer)
+* classification and raw-field tagging
+* non-standard word verbalization
+* output post-processing
 
-#### 2.1 Pre-Processing
+The tagger must preserve the written form in its fields. Character-width
+conversion, traditional-to-simplified conversion, interjection removal, and
+other output transformations belong to the verbalizer/postprocessor. This
+separation enables exact input/output span mapping through
+`normalize_with_mapping()`.
 
-| Pre-Processing                       | Raw                        | Normalized              | Note                                       |
+See the
+[Python rule architecture and contribution guide](../docs/python-rule-architecture.md)
+before adding or modifying a rule.
+
+#### 2.1 Output Post-Processing
+
+| Post-Processing                      | Raw                        | Normalized              | Note                                       |
 | ------------------------------------ | -------------------------- | ----------------------- | ------------------------------------------ |
 | Char Width Conversion (全角 => 半角) | 苹果宣布发布新ＩＰＨＯＮＥ | 苹果宣布发布新IPHONE    |                                            |
 | Mapping symbols                      | 他说：“我们已经吃过了！”。 | 他说:"我们已经吃过了!". | via `data/char/fullwidth_to_halfwidth.tsv` |
 | Blacklist (Removal)                  | 呃这个呃啊我不知道         | 这个我不知道            | via `data/default/blacklist.tsv`           |
 
-#### 2.2 Non-Standard-Words (NSW) Normalization
+#### 2.2 Non-Standard-Words (NSW) Verbalization
 
 | NSW type                | Raw                 | Normalized                       | Note                           |
 | ----------------------- | ------------------- | -------------------------------- | ------------------------------ |

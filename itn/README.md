@@ -3,15 +3,23 @@
 ### 1. How To Use
 
 ``` bash
-$ python inverse_normalize.py --text "text to be denormalized"
+$ python -m itn --language zh --text "二点五平方电线"
+# Or, after installation:
+$ weitn --language zh --text "二点五平方电线"
 ```
 
 ### 2. ITN Pipeline
 
-There are 2 components in ITN pipeline:
+There are 3 logical components in the ITN pipeline:
 
-* pre-processing (before tagger)
-* non-standard word denormalization
+* optional input canonicalization
+* classification and raw-field tagging
+* non-standard word verbalization and output post-processing
+
+The tagger must preserve the spoken input in its fields. Converting those
+fields to written forms belongs to the verbalizer. See the
+[Python rule architecture and contribution guide](../docs/python-rule-architecture.md)
+before adding or modifying a rule.
 
 #### 2.1 Pre-Processing
 

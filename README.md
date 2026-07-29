@@ -40,27 +40,20 @@ from tn.chinese.normalizer import Normalizer as ZhNormalizer
 from tn.english.normalizer import Normalizer as EnNormalizer
 
 # FST 缓存会记录构建参数及规则数据指纹；配置或规则变化时会自动重新构图。
-# Set `overwrite_cache=True` only when an unconditional rebuild is required.
+# 日常使用不需要 overwrite_cache；只在需要无条件重建时将它设为 True。
 
 zh_tn_text = "你好 WeTextProcessing 1.0，船新版本儿，船新体验儿，简直666，9和10"
 zh_itn_text = "你好 WeTextProcessing 一点零，船新版本儿，船新体验儿，简直六六六，九和六"
 en_tn_text = "Hello WeTextProcessing 1.0, life is short, just use wetext, 666, 9 and 10"
 en_itn_text = "call me at five five five one two three four"
-zh_tn_model = ZhNormalizer(remove_erhua=True, overwrite_cache=True)
-zh_itn_model = InverseNormalizer(enable_0_to_9=False, overwrite_cache=True)
-en_tn_model = EnNormalizer(overwrite_cache=True)
-en_itn_model = EnInverseNormalizer(overwrite_cache=True)
+zh_tn_model = ZhNormalizer(remove_erhua=True)
+zh_itn_model = InverseNormalizer(enable_0_to_9=False)
+en_tn_model = EnNormalizer()
+en_itn_model = EnInverseNormalizer()
 print("中文 TN (去除儿化音，重新在线构图):\n\t{} => {}".format(zh_tn_text, zh_tn_model.normalize(zh_tn_text)))
 print("中文ITN (小于10的单独数字不转换，重新在线构图):\n\t{} => {}".format(zh_itn_text, zh_itn_model.normalize(zh_itn_text)))
 print("英文 TN (暂时还没有可控的选项，后面会加...):\n\t{} => {}\n".format(en_tn_text, en_tn_model.normalize(en_tn_text)))
 print("英文 ITN:\n\t{} => {}\n".format(en_itn_text, en_itn_model.normalize(en_itn_text)))
-
-zh_tn_model = ZhNormalizer(overwrite_cache=False)
-zh_itn_model = InverseNormalizer(overwrite_cache=False)
-en_tn_model = EnNormalizer(overwrite_cache=False)
-print("中文 TN (复用之前编译好的图):\n\t{} => {}".format(zh_tn_text, zh_tn_model.normalize(zh_tn_text)))
-print("中文ITN (复用之前编译好的图):\n\t{} => {}".format(zh_itn_text, zh_itn_model.normalize(zh_itn_text)))
-print("英文 TN (复用之前编译好的图):\n\t{} => {}\n".format(en_tn_text, en_tn_model.normalize(en_tn_text)))
 
 zh_tn_model = ZhNormalizer(remove_erhua=False, overwrite_cache=True)
 zh_itn_model = InverseNormalizer(enable_0_to_9=True, overwrite_cache=True)
@@ -133,7 +126,23 @@ print(result.as_dict())
 The offsets are Unicode character offsets. The mapping is traced through the
 tagger and verbalizer WFST paths, and `token_type` identifies the grammar rule
 that produced it. There is no surface-text diff fallback. Pass
-`include_identity=True` to also return unchanged tagged tokens.
+`include_identity=True` to also return unchanged tagged tokens. Text that is
+not captured by a tagged token does not produce a mapping entry.
+
+Both normalization APIs support exact joint tagger/verbalizer n-best output:
+
+```py
+outputs = zh_tn_model.normalize("输入文本", nbest=3)
+# nbest=1 returns a string; nbest>1 returns a list of strings.
+
+results = zh_tn_model.normalize_with_mapping("输入文本", nbest=3)
+# nbest=1 returns NormalizationResult; nbest>1 returns
+# list[NormalizationResult].
+```
+
+`NormalizationMapping.input_start` / `input_end` and their output counterparts
+use Python Unicode character offsets (half-open intervals), not UTF-8 byte
+offsets.
 
 #### 1.2 Advanced Usage:
 
@@ -194,6 +203,11 @@ export. Do not pass paths from the bundle directly to `processor_main`.
 A dedicated explicit runtime-export workflow is deferred to the runtime/export
 phase; until then, the C++ runtime must be given a separately exported,
 compatible tagger/verbalizer pair.
+
+Rule authors should read
+[Python rule architecture and contribution guide](docs/python-rule-architecture.md)
+before changing a grammar. Its central contract is that taggers classify and
+preserve raw input fields, while verbalizers own semantic text conversion.
 
 ### 2. TN Pipeline
 
