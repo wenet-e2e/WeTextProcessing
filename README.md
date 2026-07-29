@@ -61,43 +61,10 @@ print("中文 TN (不去除儿化音，重新在线构图):\n\t{} => {}".format(
 print("中文ITN (小于10的单独数字也进行转换，重新在线构图):\n\t{} => {}\n".format(zh_itn_text, zh_itn_model.normalize(zh_itn_text)))
 ```
 
-Python graph caches are content-addressed bundles. By default, mutable cache
-files are written to the platform user-cache directory, never into the source
-tree or installed package:
-
-- `$XDG_CACHE_HOME/wetextprocessing` when `XDG_CACHE_HOME` is set;
-- `~/Library/Caches/wetextprocessing` on macOS;
-- `%LOCALAPPDATA%\wetextprocessing` on Windows;
-- `~/.cache/wetextprocessing` on other platforms.
-
-Pass `cache_dir="/path/to/cache-root"` to choose another trusted cache root,
-or `cache_dir=False` to build in memory without reading or writing a persistent
-cache. The cache key includes all graph configuration, production Python
-grammar sources, TSV/FAR resources, and builder-format information. A hit is
-accepted only after the manifest and both FST checksums are verified.
-`overwrite_cache=True` forces a rebuild for the current key. Cache builders
-wait up to ten minutes for the same key by default; set
-`WETEXTPROCESSING_CACHE_LOCK_TIMEOUT` to a non-negative number of seconds to
-change that timeout. Each key has a persistent `.lock` anchor that is normal
-cache metadata, not a leftover active lock. Builders hold an operating-system
-advisory lock on its open file descriptor (`flock` on POSIX and
-`msvcrt.locking` on Windows), so a crash releases ownership automatically. The
-bounded JSON payload in the anchor is used only to make timeout diagnostics
-more useful; the operating system lock is the source of truth.
-
-The platform default and every explicit `cache_dir` are trusted local storage:
-the caller owns the directory and controls who may mutate it. The cache rejects
-links and special files within that boundary, and POSIX readers bind each
-bundle ancestor with no-follow directory descriptors. It is not intended to
-defend against another user who can concurrently replace entries inside the
-cache root. On Windows, automatic cleanup of interrupted-build residuals is
-disabled because equivalent race-free no-follow directory operations are not
-available; such residuals are harmless and can be removed manually while no
-process is using the cache.
-
-Legacy flat `*_tagger.fst`, `*_verbalizer.fst`, and `*_cache.json` v1 caches
-cannot prove that both graphs belong to one build. They are left untouched but
-are not loaded by Python.
+FST graphs are cached automatically outside the source tree. Use
+`cache_dir="/path/to/cache"` to choose another cache directory,
+`cache_dir=False` to disable persistent caching, or `overwrite_cache=True` to
+force a rebuild.
 
 To get the changed spans between the input and normalized text:
 
@@ -123,26 +90,17 @@ print(result.as_dict())
 # }
 ```
 
-The offsets are Unicode character offsets. The mapping is traced through the
-tagger and verbalizer WFST paths, and `token_type` identifies the grammar rule
-that produced it. There is no surface-text diff fallback. Pass
-`include_identity=True` to also return unchanged tagged tokens. Text that is
-not captured by a tagged token does not produce a mapping entry.
+Offsets are Unicode character offsets, and `token_type` identifies the matched
+grammar rule. Use `include_identity=True` to include unchanged tokens.
 
-Both normalization APIs support exact joint tagger/verbalizer n-best output:
+Both APIs also support n-best output:
 
 ```py
 outputs = zh_tn_model.normalize("输入文本", nbest=3)
-# nbest=1 returns a string; nbest>1 returns a list of strings.
-
 results = zh_tn_model.normalize_with_mapping("输入文本", nbest=3)
-# nbest=1 returns NormalizationResult; nbest>1 returns
-# list[NormalizationResult].
 ```
 
-`NormalizationMapping.input_start` / `input_end` and their output counterparts
-use Python Unicode character offsets (half-open intervals), not UTF-8 byte
-offsets.
+`nbest=1` returns a single result; `nbest>1` returns a list.
 
 #### 1.2 Advanced Usage:
 
@@ -198,16 +156,8 @@ To use an explicit Python cache root:
 >>> uncached = Normalizer(cache_dir=False)
 ```
 
-The Python cache bundle is an internal cache format, not a stable C++ runtime
-export. Do not pass paths from the bundle directly to `processor_main`.
-A dedicated explicit runtime-export workflow is deferred to the runtime/export
-phase; until then, the C++ runtime must be given a separately exported,
-compatible tagger/verbalizer pair.
-
-Rule authors should read
-[Python rule architecture and contribution guide](docs/python-rule-architecture.md)
-before changing a grammar. Its central contract is that taggers classify and
-preserve raw input fields, while verbalizers own semantic text conversion.
+Python cache files are not C++ runtime exports. Rule contributors should read
+the [Python rule architecture guide](docs/python-rule-architecture.md).
 
 ### 2. TN Pipeline
 
