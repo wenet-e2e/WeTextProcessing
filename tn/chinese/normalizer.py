@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from importlib_resources import files
-from pynini.lib.pynutil import add_weight, delete
+from pynini.lib.pynutil import delete
 
 from tn.chinese.rules.cardinal import Cardinal
 from tn.chinese.rules.char import Char
@@ -23,11 +22,19 @@ from tn.chinese.rules.math import Math
 from tn.chinese.rules.measure import Measure
 from tn.chinese.rules.money import Money
 from tn.chinese.rules.postprocessor import PostProcessor
-from tn.chinese.rules.preprocessor import PreProcessor
+from tn.chinese.rules.range import Range
 from tn.chinese.rules.sport import Sport
 from tn.chinese.rules.time import Time
 from tn.chinese.rules.whitelist import Whitelist
-from tn.processor import Processor
+from tn.processor import Processor, RuleSpec
+
+TOKEN_ORDERS = {
+    "date": ["year", "month", "day"],
+    "fraction": ["denominator", "numerator"],
+    "measure": ["denominator", "numerator", "value"],
+    "money": ["value", "currency"],
+    "time": ["noon", "hour", "minute", "second"],
+}
 
 
 class Normalizer(Processor):
@@ -43,15 +50,13 @@ class Normalizer(Processor):
         full_to_half=True,
         tag_oov=False,
     ):
-        super().__init__(name="zh_normalizer")
+        super().__init__(name="zh_normalizer", token_orders=TOKEN_ORDERS)
         self.remove_interjections = remove_interjections
         self.remove_erhua = remove_erhua
         self.traditional_to_simple = traditional_to_simple
         self.remove_puncts = remove_puncts
         self.full_to_half = full_to_half
         self.tag_oov = tag_oov
-        if cache_dir is None:
-            cache_dir = files("tn")
         self.build_fst(
             "zh_tn",
             cache_dir,
@@ -67,50 +72,41 @@ class Normalizer(Processor):
         )
 
     def build_tagger_and_verbalizer(self):
-        processor = PreProcessor(traditional_to_simple=self.traditional_to_simple).processor
         cardinal = Cardinal()
-        date = Date()
+        range_rule = Range()
+        date = Date(range_tagger=range_rule.tagger)
         whitelist = Whitelist(remove_erhua=self.remove_erhua)
         sport = Sport(cardinal=cardinal)
         fraction = Fraction(cardinal=cardinal)
         measure = Measure(cardinal=cardinal)
         money = Money(cardinal=cardinal)
-        time = Time()
+        time = Time(range_tagger=range_rule.tagger)
         math = Math(cardinal=cardinal)
         char = Char()
 
-        tagger = (
-            add_weight(date.tagger, 1.02)
-            | add_weight(whitelist.tagger, 1.03)
-            | add_weight(sport.tagger, 1.04)
-            | add_weight(fraction.tagger, 1.05)
-            | add_weight(measure.tagger, 1.05)
-            | add_weight(money.tagger, 1.05)
-            | add_weight(time.tagger, 1.05)
-            | add_weight(cardinal.tagger, 1.06)
-            | add_weight(math.tagger, 90)
-            | add_weight(char.tagger, 100)
-        ).optimize()
-        tagger = (processor @ tagger).star
+        rules = (
+            RuleSpec(date, 1.02),
+            RuleSpec(whitelist, 1.03),
+            RuleSpec(sport, 1.04),
+            RuleSpec(fraction, 1.05),
+            RuleSpec(measure, 1.05),
+            RuleSpec(money, 1.05),
+            RuleSpec(time, 1.05),
+            RuleSpec(cardinal, 1.06),
+            RuleSpec(math, 90),
+            RuleSpec(char, 100),
+            RuleSpec(range_rule),
+        )
+        tagger = self.tagger_union(rules).star
         self.tagger = tagger @ self.build_rule(delete(" "), r="[EOS]")
 
-        verbalizer = (
-            cardinal.verbalizer
-            | char.verbalizer
-            | date.verbalizer
-            | fraction.verbalizer
-            | math.verbalizer
-            | measure.verbalizer
-            | money.verbalizer
-            | sport.verbalizer
-            | time.verbalizer
-            | whitelist.verbalizer
-        ).optimize()
+        verbalizer = self.verbalizer_union(rules)
 
         postprocessor = PostProcessor(
             remove_interjections=self.remove_interjections,
             remove_puncts=self.remove_puncts,
             full_to_half=self.full_to_half,
             tag_oov=self.tag_oov,
+            traditional_to_simple=self.traditional_to_simple,
         ).processor
         self.verbalizer = (verbalizer @ postprocessor).star

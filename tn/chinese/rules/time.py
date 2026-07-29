@@ -21,8 +21,13 @@ from tn.utils import get_abs_path
 
 class Time(Processor):
 
-    def __init__(self):
+    def __init__(self, range_tagger=None):
         super().__init__(name="time")
+        self.range_tagger = range_tagger
+        self.hour = None
+        self.minute = None
+        self.second = None
+        self.noon = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -33,27 +38,25 @@ class Time(Processor):
         noon = string_file(get_abs_path("chinese/data/time/noon.tsv"))
         colon = delete(":") | delete("：")
 
-        tagger = (
-            insert('hour: "')
-            + h
-            + insert('" ')
-            + colon
-            + insert('minute: "')
-            + m
-            + insert('"')
-            + (colon + insert(' second: "') + s + insert('"')).ques
-            + delete(" ").ques
-            + (insert(' noon: "') + noon + insert('"')).ques
-        )
+        self.hour = h.optimize()
+        self.minute = m.optimize()
+        self.second = s.optimize()
+        self.noon = noon.optimize()
+
+        tagger = (self.tag_field("hour", self.hour) + insert(" ") + colon + self.tag_field("minute", self.minute) +
+                  (colon + insert(" ") + self.tag_field("second", self.second)).ques + delete(" ").ques +
+                  (insert(" ") + self.tag_field("noon", self.noon)).ques)
         tagger = self.add_tokens(tagger)
 
-        to = (delete("-") | delete("~")) + insert(' char { value: "到" } ')
-        self.tagger = tagger + (to + tagger).ques
+        if self.range_tagger is None:
+            self.tagger = tagger
+        else:
+            self.tagger = tagger + (self.range_tagger + tagger).ques
 
     def build_verbalizer(self):
-        noon = delete('noon: "') + self.SIGMA + delete('" ')
-        hour = delete('hour: "') + self.SIGMA + delete('" ')
-        minute = delete('minute: "') + self.SIGMA + delete('"')
-        second = delete(' second: "') + self.SIGMA + delete('"')
+        noon = delete('noon: "') + self.noon + delete('" ')
+        hour = delete('hour: "') + self.hour + delete('" ')
+        minute = delete('minute: "') + self.minute + delete('"')
+        second = delete(' second: "') + self.second + delete('"')
         verbalizer = noon.ques + hour + minute + second.ques
         self.verbalizer = self.delete_tokens(verbalizer)

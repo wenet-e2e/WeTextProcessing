@@ -22,9 +22,12 @@ from tn.utils import get_abs_path
 
 class Sport(Processor):
 
-    def __init__(self, cardinal=None):
+    def __init__(self, cardinal=None, input_normalizer=None):
         super().__init__(name="sport")
-        self.cardinal = cardinal or Cardinal()
+        self.input_normalizer = input_normalizer
+        self.cardinal = cardinal or Cardinal(input_normalizer=input_normalizer)
+        self.team = None
+        self.score = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -32,19 +35,24 @@ class Sport(Processor):
         country = string_file(get_abs_path("japanese/data/sport/country.tsv"))
         club = string_file(get_abs_path("japanese/data/sport/club.tsv"))
         rmsign = delete("/") | delete("-") | delete(":")
-        rmspace = delete(" ").ques
 
         number = self.cardinal.positive_integer
-        score = rmspace + number + rmsign + insert("対") + number + rmspace
-        only_score = rmspace + number + cross(":", "対") + number + rmspace
-        tagger = (insert('team: "') + (country | club) + insert('" score: "') + score + insert('"')) | (
-            insert('score: "') + only_score + insert('"')
+        self.team = self.apply_input_processor(country | club, self.input_normalizer)
+        score = self.apply_input_processor(
+            number + rmsign + insert("対") + number,
+            self.input_normalizer,
         )
+        only_score = self.apply_input_processor(
+            number + cross(":", "対") + number,
+            self.input_normalizer,
+        )
+        self.score = (score | only_score).optimize()
+        tagger = (self.tag_field("team", self.team) + delete(" ").ques + insert(" ") + self.tag_field("score", score)
+                  | self.tag_field("score", only_score))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        super().build_verbalizer()
-        team = delete('team: "') + self.SIGMA + delete('" ')
-        score = delete('score: "') + self.SIGMA + delete('"')
+        team = delete('team: "') + self.team + delete('" ')
+        score = delete('score: "') + self.score + delete('"')
         verbalizer = team.ques + score
         self.verbalizer = self.delete_tokens(verbalizer)

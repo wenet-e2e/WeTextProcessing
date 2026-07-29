@@ -16,7 +16,7 @@ from pynini import string_file
 from pynini.lib.pynutil import delete, insert
 
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Time(Processor):
@@ -27,34 +27,33 @@ class Time(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        h = string_file(get_abs_path("../itn/chinese/data/time/hour.tsv"))
-        m = string_file(get_abs_path("../itn/chinese/data/time/minute.tsv"))
-        m_zero = string_file(get_abs_path("../itn/chinese/data/time/minute_zero.tsv"))
-        s = string_file(get_abs_path("../itn/chinese/data/time/second.tsv"))
-        noon = string_file(get_abs_path("../itn/chinese/data/time/noon.tsv"))
+        h = string_file(get_abs_path("chinese/data/time/hour.tsv"))
+        m = string_file(get_abs_path("chinese/data/time/minute.tsv"))
+        m_zero = string_file(get_abs_path("chinese/data/time/minute_zero.tsv"))
+        s = string_file(get_abs_path("chinese/data/time/second.tsv"))
+        noon = string_file(get_abs_path("chinese/data/time/noon.tsv"))
 
-        hour = insert('hour: "') + h + insert('"')
-        minute = insert(' minute: "') + m + delete("分").ques + insert('"')
-        minute |= insert(' minute: "') + m_zero + delete("分") + insert('"')
-        minute_zero_no_fen = insert(' minute: "') + m_zero + insert('"')
-        second = (insert(' second: "') + s + insert('"')).ques
+        self.hour = h
+        self.minute_tagger = m + delete("分").ques | m_zero + delete("分")
+        self.minute = self.minute_tagger | m_zero
+        self.minute_zero_no_fen = m_zero
+        self.second = s
+        self.noon = noon
+        hour = self.tag_field("hour", self.hour)
+        minute = insert(" ") + self.tag_field("minute", self.minute_tagger)
+        minute_zero_no_fen = insert(" ") + self.tag_field("minute", self.minute_zero_no_fen)
+        second = (insert(" ") + self.tag_field("second", self.second)).ques
 
-        tagger = (
-            (insert('noon: "') + noon + insert('" ')).ques
-            + hour + minute + second
-        )
+        tagger = ((self.tag_field("noon", self.noon) + insert(" ")).ques + hour + minute + second)
         # "X点零Y" without "分" requires noon prefix to disambiguate from decimal
-        tagger |= (
-            insert('noon: "') + noon + insert('" ')
-            + hour + minute_zero_no_fen + second
-        )
+        tagger |= (self.tag_field("noon", self.noon) + insert(" ") + hour + minute_zero_no_fen + second)
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
         addcolon = insert(":")
-        hour = delete('hour: "') + self.SIGMA + delete('"')
-        minute = delete(' minute: "') + self.SIGMA + delete('"')
-        second = delete(' second: "') + self.SIGMA + delete('"')
-        noon = delete(' noon: "') + self.SIGMA + delete('"')
+        hour = self.verbalize_field("hour", self.hour)
+        minute = self.verbalize_field("minute", self.minute, leading_space=True)
+        second = self.verbalize_field("second", self.second, leading_space=True)
+        noon = self.verbalize_field("noon", self.noon, leading_space=True)
         verbalizer = hour + addcolon + minute + (addcolon + second).ques + noon.ques
         self.verbalizer = self.delete_tokens(verbalizer)

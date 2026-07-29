@@ -35,14 +35,12 @@ class Range(Processor):
 
     def build_tagger(self):
         """
-        Finite state transducer for verbalizing range, e.g.
-            2-3 => range { value "two to three" }
+        Finite state transducer for classifying range, e.g.
+            2-3 -> range { value: "2-3" }
         """
         cardinal = Cardinal(deterministic=True).graph_with_and
-        time = self.time
-        time = time.tagger @ time.verbalizer
-        date = self.date
-        date = date.tagger @ date.verbalizer
+        time = self.time.graph
+        date = self.date.graph
         week = pynini.string_file(get_abs_path("english/data/date/week.tsv"))
         delete_space = pynutil.delete(" ").ques
 
@@ -58,13 +56,8 @@ class Range(Processor):
         # YEAR
         date_year_four_digit = (self.DIGIT**4 + pynini.accep("s").ques) @ date
         date_year_two_digit = (self.DIGIT**2 + pynini.accep("s").ques) @ date
-        year_to_year_graph = (
-            date_year_four_digit
-            + delete_space
-            + pynini.cross("-", " to ")
-            + delete_space
-            + (date_year_four_digit | date_year_two_digit | (self.DIGIT**2 @ cardinal))
-        )
+        year_to_year_graph = (date_year_four_digit + delete_space + pynini.cross("-", " to ") + delete_space +
+                              (date_year_four_digit | date_year_two_digit | (self.DIGIT**2 @ cardinal)))
         mid_year_graph = pynini.accep("mid") + pynini.cross("-", " ") + (date_year_four_digit | date_year_two_digit)
 
         self.graph |= year_to_year_graph
@@ -76,15 +69,15 @@ class Range(Processor):
         range_graph |= approx + cardinal
         range_graph |= cardinal + (pynini.cross("...", " ... ") | pynini.accep(" ... ")) + cardinal
 
-        if not self.deterministic:
-            # cardinal ----
-            cardinal_to_cardinal_graph = (
-                cardinal + delete_space + pynini.cross("-", pynini.union(" to ", " minus ")) + delete_space + cardinal
-            )
+        # The canonical cardinal range is deterministic; only alternative
+        # readings such as "minus" are gated by non-deterministic mode.
+        cardinal_to_cardinal_graph = (cardinal + delete_space + pynini.cross("-", " to ") + delete_space + cardinal)
+        range_graph |= cardinal_to_cardinal_graph
 
-            range_graph |= cardinal_to_cardinal_graph | (
-                cardinal + delete_space + pynini.cross(":", " to ") + delete_space + cardinal
-            )
+        if not self.deterministic:
+            cardinal_minus_cardinal_graph = (cardinal + delete_space + pynini.cross("-", " minus ") + delete_space + cardinal)
+            range_graph |= pynutil.add_weight(cardinal_minus_cardinal_graph, 0.0001)
+            range_graph |= cardinal + delete_space + pynini.cross(":", " to ") + delete_space + cardinal
 
             # MULTIPLY
             for x in [" x ", "x"]:
@@ -95,37 +88,30 @@ class Range(Processor):
                 range_graph |= cardinal + pynini.cross(x, " times")
 
                 # 5x to 7x-> five to seven x/times
-                range_graph |= (
-                    cardinal
-                    + pynutil.delete(x)
-                    + pynini.union(" to ", "-", " - ")
-                    + cardinal
-                    + pynini.cross(x, pynini.union(" x", " times"))
-                )
+                range_graph |= (cardinal + pynutil.delete(x) + pynini.union(" to ", "-", " - ") + cardinal +
+                                pynini.cross(x, pynini.union(" x", " times")))
 
             for x in ["*", " * "]:
                 range_graph |= cardinal + (pynini.cross(x, " times ") + cardinal).plus
 
             # supports "No. 12" -> "Number 12"
-            range_graph |= (
-                (pynini.cross(pynini.union("NO", "No"), "Number") | pynini.cross("no", "number"))
-                + pynini.union(". ", " ").ques
-                + cardinal
-            )
+            range_graph |= ((pynini.cross(pynini.union("NO", "No"), "Number") | pynini.cross("no", "number")) +
+                            pynini.union(". ", " ").ques + cardinal)
 
             for x in ["/", " / "]:
                 range_graph |= cardinal + (pynini.cross(x, " divided by ") + cardinal).plus
 
             # 10% to 20% -> ten to twenty percent
             range_graph |= (
-                cardinal
-                + (pynini.cross("%", " percent") | pynutil.delete("%")).ques  # noqa
-                + pynini.union(" to ", "-", " - ")
-                + cardinal  # noqa
-                + pynini.cross("%", " percent")
-            )  # noqa
+                cardinal + (pynini.cross("%", " percent") | pynutil.delete("%")).ques  # noqa
+                + pynini.union(" to ", "-", " - ") + cardinal  # noqa
+                + pynini.cross("%", " percent"))  # noqa
 
         self.graph |= range_graph
 
-        final_graph = pynutil.insert('value: "') + self.graph + pynutil.insert('"')
+        final_graph = self.tag_field("value", self.graph)
         self.tagger = self.add_tokens(final_graph)
+
+    def build_verbalizer(self):
+        graph = pynutil.delete('value: "') + self.graph + pynutil.delete('"')
+        self.verbalizer = self.delete_tokens(graph)

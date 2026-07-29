@@ -17,19 +17,19 @@ from pynini.lib.pynutil import delete
 from pynini.lib.tagger import Tagger
 
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class PostProcessor(Processor):
 
     def __init__(self, remove_interjections=False, remove_puncts=False, tag_oov=False):
         super().__init__(name="postprocessor")
-        blacklist = string_file(get_abs_path("../itn/japanese/data/default/blacklist.tsv"))
-        puncts = string_file(get_abs_path("../itn/japanese/data/char/punctuations_ja.tsv"))
+        blacklist = string_file(get_abs_path("japanese/data/default/blacklist.tsv"))
+        puncts = string_file(get_abs_path("japanese/data/char/punctuations_ja.tsv"))
         # 片假名/平假名/浊音/半浊音/小写假名
-        ja_charset_std = string_file(get_abs_path("../itn/japanese/data/char/hiragana_and_katakana.tsv"))
+        ja_charset_std = string_file(get_abs_path("japanese/data/char/hiragana_and_katakana.tsv"))
         # 日语常用汉字表
-        ja_charset_ext = string_file(get_abs_path("../itn/japanese/data/char/common_chinese_char.tsv"))
+        ja_charset_ext = string_file(get_abs_path("japanese/data/char/common_chinese_char.tsv"))
 
         processor = self.build_rule("")
         if remove_interjections:

@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from importlib_resources import files
-from pynini.lib.pynutil import add_weight, delete
+from pynini.lib.pynutil import delete
 
 from tn.japanese.rules.cardinal import Cardinal
 from tn.japanese.rules.char import Char
@@ -24,11 +23,20 @@ from tn.japanese.rules.measure import Measure
 from tn.japanese.rules.money import Money
 from tn.japanese.rules.postprocessor import PostProcessor
 from tn.japanese.rules.preprocessor import PreProcessor
+from tn.japanese.rules.range import Range
 from tn.japanese.rules.sport import Sport
 from tn.japanese.rules.time import Time
 from tn.japanese.rules.transliteration import Transliteration
 from tn.japanese.rules.whitelist import Whitelist
-from tn.processor import Processor
+from tn.processor import Processor, RuleSpec
+
+TOKEN_ORDERS = {
+    "date": ["year", "month", "day"],
+    "fraction": ["denominator", "numerator"],
+    "measure": ["denominator", "numerator", "value"],
+    "money": ["value", "currency"],
+    "time": ["noon", "hour", "minute", "second"],
+}
 
 
 class Normalizer(Processor):
@@ -43,14 +51,12 @@ class Normalizer(Processor):
         full_to_half=True,
         tag_oov=False,
     ):
-        super().__init__(name="ja_normalizer")
+        super().__init__(name="ja_normalizer", token_orders=TOKEN_ORDERS)
         self.transliterate = transliterate
         self.remove_interjections = remove_interjections
         self.remove_puncts = remove_puncts
         self.full_to_half = full_to_half
         self.tag_oov = tag_oov
-        if cache_dir is None:
-            cache_dir = files("tn")
         self.build_fst(
             "ja_tn",
             cache_dir,
@@ -65,52 +71,44 @@ class Normalizer(Processor):
         )
 
     def build_tagger_and_verbalizer(self):
-        processor = PreProcessor(full_to_half=self.full_to_half).processor
-        cardinal = Cardinal()
+        input_normalizer = PreProcessor(full_to_half=self.full_to_half).processor
+        cardinal = Cardinal(input_normalizer=input_normalizer)
         char = Char()
-        date = Date(cardinal=cardinal)
-        fraction = Fraction(cardinal=cardinal)
-        math = Math(cardinal=cardinal)
-        measure = Measure(cardinal=cardinal)
-        money = Money(cardinal=cardinal)
-        sport = Sport(cardinal=cardinal)
-        time = Time()
-        whitelist = Whitelist()
+        range_rule = Range(input_normalizer=input_normalizer)
+        date = Date(cardinal=cardinal, input_normalizer=input_normalizer, range_tagger=range_rule.tagger)
+        fraction = Fraction(cardinal=cardinal, input_normalizer=input_normalizer)
+        math = Math(cardinal=cardinal, input_normalizer=input_normalizer)
+        measure = Measure(cardinal=cardinal, input_normalizer=input_normalizer)
+        money = Money(cardinal=cardinal, input_normalizer=input_normalizer)
+        sport = Sport(cardinal=cardinal, input_normalizer=input_normalizer)
+        time = Time(input_normalizer=input_normalizer, range_tagger=range_rule.tagger)
+        whitelist = Whitelist(input_normalizer=input_normalizer)
 
-        tagger = (
-            add_weight(cardinal.tagger, 1.06)
-            | add_weight(char.tagger, 100)
-            | add_weight(date.tagger, 1.02)
-            | add_weight(fraction.tagger, 1.05)
-            | add_weight(math.tagger, 90)
-            | add_weight(measure.tagger, 1.05)
-            | add_weight(money.tagger, 1.05)
-            | add_weight(sport.tagger, 1.06)
-            | add_weight(time.tagger, 1.05)
-            | add_weight(whitelist.tagger, 1.03)
-        ).optimize()
+        rules = [
+            RuleSpec(cardinal, 1.06),
+            RuleSpec(char, 100),
+            RuleSpec(date, 1.02),
+            RuleSpec(fraction, 1.05),
+            RuleSpec(math, 90),
+            RuleSpec(measure, 1.05),
+            RuleSpec(money, 1.05),
+            RuleSpec(sport, 1.06),
+            RuleSpec(time, 1.05),
+            RuleSpec(whitelist, 1.03),
+            RuleSpec(range_rule),
+        ]
         if self.transliterate:
-            transliteration = Transliteration()
-            tagger = (tagger | add_weight(transliteration.tagger, 1.04)).optimize()
-        tagger = (processor @ tagger).star
+            transliteration = Transliteration(input_normalizer=input_normalizer)
+            rules.append(RuleSpec(transliteration, 1.04))
+        tagger = self.tagger_union(rules).star
         self.tagger = tagger @ self.build_rule(delete(" "), r="[EOS]")
 
-        verbalizer = (
-            cardinal.verbalizer
-            | char.verbalizer
-            | date.verbalizer
-            | fraction.verbalizer
-            | math.verbalizer
-            | measure.verbalizer
-            | money.verbalizer
-            | sport.verbalizer
-            | time.verbalizer
-            | whitelist.verbalizer
-        ).optimize()
-        if self.transliterate:
-            verbalizer = (verbalizer | transliteration.verbalizer).optimize()
+        verbalizer = self.verbalizer_union(rules)
 
         postprocessor = PostProcessor(
-            remove_interjections=self.remove_interjections, remove_puncts=self.remove_puncts, tag_oov=self.tag_oov
+            remove_interjections=self.remove_interjections,
+            remove_puncts=self.remove_puncts,
+            full_to_half=self.full_to_half,
+            tag_oov=self.tag_oov,
         ).processor
         self.verbalizer = (verbalizer @ postprocessor).star

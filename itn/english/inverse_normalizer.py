@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from importlib_resources import files
 from pynini import closure
 from pynini.lib.pynutil import add_weight, delete
 
@@ -29,15 +28,23 @@ from itn.english.rules.telephone import Telephone
 from itn.english.rules.time import Time
 from itn.english.rules.whitelist import Whitelist
 from itn.english.rules.word import Word
-from tn.processor import Processor
+from tn.processor import Processor, RuleSpec
+
+TOKEN_ORDERS = {
+    "date": ["year", "month", "day", "preserve_order"],
+    "fraction": ["sign", "numerator", "denominator"],
+    "measure": ["numerator", "denominator", "value", "units"],
+    "money": ["currency", "value", "decimal", "quantity"],
+    "time": ["hour", "minute", "second", "noon", "zone"],
+    "telephone": ["country_code", "number_part"],
+    "electronic": ["username", "domain", "protocol"],
+}
 
 
 class InverseNormalizer(Processor):
 
     def __init__(self, cache_dir=None, overwrite_cache=False):
-        super().__init__(name="en_inverse_normalizer", ordertype="itn")
-        if cache_dir is None:
-            cache_dir = files("itn")
+        super().__init__(name="en_inverse_normalizer", ordertype="itn", token_orders=TOKEN_ORDERS)
         self.build_fst("en_itn", cache_dir, overwrite_cache, {})
 
     def build_tagger_and_verbalizer(self):
@@ -55,42 +62,30 @@ class InverseNormalizer(Processor):
         char = Char()
         punctuation = Punctuation()
 
-        classify = (
-            add_weight(date.tagger, 1.09)
-            | add_weight(time.tagger, 1.1)
-            | add_weight(measure.tagger, 1.1)
-            | add_weight(money.tagger, 1.08)
-            | add_weight(whitelist.tagger, 1.01)
-            | add_weight(telephone.tagger, 1.1)
-            | add_weight(electronic.tagger, 1.1)
-            | add_weight(ordinal.tagger, 1.09)
-            | add_weight(decimal.tagger, 1.1)
-            | add_weight(cardinal.tagger, 1.1)
-            | add_weight(word.tagger, 50)
-            | add_weight(char.tagger, 100)
-        ).optimize()
+        rules = (
+            RuleSpec(date, 1.09),
+            RuleSpec(time, 1.1),
+            RuleSpec(measure, 1.1),
+            RuleSpec(money, 1.08),
+            RuleSpec(whitelist, 1.01),
+            RuleSpec(telephone, 1.1),
+            RuleSpec(electronic, 1.1),
+            RuleSpec(ordinal, 1.09),
+            RuleSpec(decimal, 1.1),
+            RuleSpec(cardinal, 1.1),
+            RuleSpec(word, 50),
+            RuleSpec(char, 100),
+        )
+        classify = self.tagger_union(rules)
 
         punct = add_weight(punctuation.tagger, 1.1)
         token = closure(punct + delete(" ").ques) + classify + closure(delete(" ").ques + punct)
         graph = token + closure(self.DELETE_EXTRA_SPACE + token)
         self.tagger = delete(" ").star + graph + delete(" ").star
 
-        verbalizer = (
-            cardinal.verbalizer
-            | ordinal.verbalizer
-            | decimal.verbalizer
-            | date.verbalizer
-            | time.verbalizer
-            | measure.verbalizer
-            | money.verbalizer
-            | telephone.verbalizer
-            | electronic.verbalizer
-            | whitelist.verbalizer
-            | word.verbalizer
-            | char.verbalizer
-            | punctuation.verbalizer
-        ).optimize()
+        verbalizer_rules = list(rules)
+        verbalizer_rules.append(RuleSpec(punctuation))
+        verbalizer = self.verbalizer_union(verbalizer_rules)
 
-        self.verbalizer = (verbalizer + self.INSERT_SPACE).star @ self.build_rule(
-            self.DELETE_EXTRA_SPACE
-        ) @ self.build_rule(delete(" "), r="[EOS]")
+        self.verbalizer = (verbalizer + self.INSERT_SPACE).star @ self.build_rule(self.DELETE_EXTRA_SPACE) @ self.build_rule(
+            delete(" "), r="[EOS]")

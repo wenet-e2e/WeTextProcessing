@@ -16,7 +16,7 @@ from pynini import closure, cross, difference, string_file, union
 from pynini.lib.pynutil import add_weight, delete, insert
 
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Cardinal(Processor):
@@ -27,10 +27,10 @@ class Cardinal(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        zero = string_file(get_abs_path("../itn/english/data/numbers/zero.tsv"))
-        digit = string_file(get_abs_path("../itn/english/data/numbers/digit.tsv"))
-        teen = string_file(get_abs_path("../itn/english/data/numbers/teen.tsv"))
-        ties = string_file(get_abs_path("../itn/english/data/numbers/ties.tsv"))
+        zero = string_file(get_abs_path("english/data/numbers/zero.tsv"))
+        digit = string_file(get_abs_path("english/data/numbers/digit.tsv"))
+        teen = string_file(get_abs_path("english/data/numbers/teen.tsv"))
+        ties = string_file(get_abs_path("english/data/numbers/ties.tsv"))
         ds = delete(" ")
 
         # 1~9, 10~19, 20~99
@@ -43,8 +43,7 @@ class Cardinal(Processor):
         hundreds = digit + ds + delete("hundred") + (ds + two_digit | ds + insert("0") + one_digit | insert("00"))
         # eleven hundred => 1100, twenty one hundred => 2100
         hundreds_as_thousand = (teen | ties + ds + digit) + ds + delete("hundred") + (
-            ds + two_digit | ds + insert("0") + one_digit | insert("00")
-        )
+            ds + two_digit | ds + insert("0") + one_digit | insert("00"))
 
         # 1~999
         up_to_999 = up_to_99 | hundreds
@@ -60,51 +59,25 @@ class Cardinal(Processor):
 
         graph = zero | up_to_999 | hundreds_as_thousand
         graph |= _with_mag("thousand") + (ds + up_to_999_padded | insert("000"))
-        graph |= (
-            _with_mag("million")
-            + (ds + _with_mag_padded("thousand") | insert("000"))
-            + (ds + up_to_999_padded | insert("000"))
-        )
-        graph |= (
-            _with_mag("billion")
-            + (ds + _with_mag_padded("million") | insert("000"))
-            + (ds + _with_mag_padded("thousand") | insert("000"))
-            + (ds + up_to_999_padded | insert("000"))
-        )
-        graph |= (
-            _with_mag("trillion")
-            + (ds + _with_mag_padded("billion") | insert("000"))
-            + (ds + _with_mag_padded("million") | insert("000"))
-            + (ds + _with_mag_padded("thousand") | insert("000"))
-            + (ds + up_to_999_padded | insert("000"))
-        )
-        graph |= (
-            _with_mag("quadrillion")
-            + (ds + _with_mag_padded("trillion") | insert("000"))
-            + (ds + _with_mag_padded("billion") | insert("000"))
-            + (ds + _with_mag_padded("million") | insert("000"))
-            + (ds + _with_mag_padded("thousand") | insert("000"))
-            + (ds + up_to_999_padded | insert("000"))
-        )
-        graph |= (
-            _with_mag("quintillion")
-            + (ds + _with_mag_padded("quadrillion") | insert("000"))
-            + (ds + _with_mag_padded("trillion") | insert("000"))
-            + (ds + _with_mag_padded("billion") | insert("000"))
-            + (ds + _with_mag_padded("million") | insert("000"))
-            + (ds + _with_mag_padded("thousand") | insert("000"))
-            + (ds + up_to_999_padded | insert("000"))
-        )
-        graph |= (
-            _with_mag("sextillion")
-            + (ds + _with_mag_padded("quintillion") | insert("000"))
-            + (ds + _with_mag_padded("quadrillion") | insert("000"))
-            + (ds + _with_mag_padded("trillion") | insert("000"))
-            + (ds + _with_mag_padded("billion") | insert("000"))
-            + (ds + _with_mag_padded("million") | insert("000"))
-            + (ds + _with_mag_padded("thousand") | insert("000"))
-            + (ds + up_to_999_padded | insert("000"))
-        )
+        graph |= (_with_mag("million") + (ds + _with_mag_padded("thousand") | insert("000")) +
+                  (ds + up_to_999_padded | insert("000")))
+        graph |= (_with_mag("billion") + (ds + _with_mag_padded("million") | insert("000")) +
+                  (ds + _with_mag_padded("thousand") | insert("000")) + (ds + up_to_999_padded | insert("000")))
+        graph |= (_with_mag("trillion") + (ds + _with_mag_padded("billion") | insert("000")) +
+                  (ds + _with_mag_padded("million") | insert("000")) + (ds + _with_mag_padded("thousand") | insert("000")) +
+                  (ds + up_to_999_padded | insert("000")))
+        graph |= (_with_mag("quadrillion") + (ds + _with_mag_padded("trillion") | insert("000")) +
+                  (ds + _with_mag_padded("billion") | insert("000")) + (ds + _with_mag_padded("million") | insert("000")) +
+                  (ds + _with_mag_padded("thousand") | insert("000")) + (ds + up_to_999_padded | insert("000")))
+        graph |= (_with_mag("quintillion") + (ds + _with_mag_padded("quadrillion") | insert("000")) +
+                  (ds + _with_mag_padded("trillion") | insert("000")) + (ds + _with_mag_padded("billion") | insert("000")) +
+                  (ds + _with_mag_padded("million") | insert("000")) + (ds + _with_mag_padded("thousand") | insert("000")) +
+                  (ds + up_to_999_padded | insert("000")))
+        graph |= (_with_mag("sextillion") + (ds + _with_mag_padded("quintillion") | insert("000")) +
+                  (ds + _with_mag_padded("quadrillion") | insert("000")) +
+                  (ds + _with_mag_padded("trillion") | insert("000")) + (ds + _with_mag_padded("billion") | insert("000")) +
+                  (ds + _with_mag_padded("million") | insert("000")) + (ds + _with_mag_padded("thousand") | insert("000")) +
+                  (ds + up_to_999_padded | insert("000")))
 
         # strip leading zeros
         graph = graph @ union(delete(closure("0")) + (self.DIGIT - "0") + closure(self.DIGIT), "0")
@@ -121,16 +94,18 @@ class Cardinal(Processor):
         exception = union(*exception_labels).optimize()
         graph_with_exception = (difference(self.VSIGMA, exception) @ graph).optimize()
 
-        minus = delete("minus") | delete("negative")
-        optional_minus = closure(insert('negative: "-" ') + minus + ds, 0, 1)
-        final_graph = optional_minus + insert('integer: "') + graph_with_exception + insert('"')
+        self.negative = cross("minus", "-") | cross("negative", "-")
+        self.integer = graph_with_exception
+        optional_minus = closure(self.tag_field("negative", self.negative) + ds + insert(" "), 0, 1)
+        final_graph = optional_minus + self.tag_field("integer", self.integer)
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
         optional_sign = closure(
-            delete('negative:') + self.DELETE_SPACE + delete('"') + self.NOT_QUOTE + delete('"') + self.DELETE_SPACE,
-            0, 1,
+            self.verbalize_field("negative", self.negative) + self.DELETE_SPACE,
+            0,
+            1,
         )
-        integer = delete("integer:") + self.DELETE_SPACE + delete('"') + self.NOT_QUOTE.plus + delete('"')
+        integer = self.verbalize_field("integer", self.integer)
         self.numbers = integer
         self.verbalizer = self.delete_tokens(optional_sign + integer)

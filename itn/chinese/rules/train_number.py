@@ -13,10 +13,8 @@
 # limitations under the License.
 
 from pynini import string_file
-from pynini.lib.pynutil import insert
-
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class TrainNumber(Processor):
@@ -27,10 +25,13 @@ class TrainNumber(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        digit = string_file(get_abs_path("../itn/chinese/data/number/digit.tsv"))
-        zero = string_file(get_abs_path("../itn/chinese/data/number/zero.tsv"))
+        digit = string_file(get_abs_path("chinese/data/number/digit.tsv"))
+        zero = string_file(get_abs_path("chinese/data/number/zero.tsv"))
         digits = zero | digit
-        prefix = string_file(get_abs_path("../itn/chinese/data/train_number/prefix.tsv"))
+        prefix = string_file(get_abs_path("chinese/data/train_number/prefix.tsv"))
         number = digits + digits + (digits + digits.ques).ques
-        tagger = insert('value: "') + prefix + number + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.graph = prefix + number
+        self.tagger = self.add_tokens(self.tag_field("value", self.graph))
+
+    def build_verbalizer(self):
+        self.verbalizer = self.delete_tokens(self.verbalize_field("value", self.graph))

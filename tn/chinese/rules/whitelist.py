@@ -24,20 +24,21 @@ class Whitelist(Processor):
     def __init__(self, remove_erhua=True):
         super().__init__(name="whitelist")
         self.remove_erhua = remove_erhua
+        self.whitelist = None
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        whitelist = string_file(get_abs_path("chinese/data/default/whitelist.tsv")) | string_file(
-            get_abs_path("chinese/data/erhua/whitelist.tsv")
-        )
+        self.whitelist = (string_file(get_abs_path("chinese/data/default/whitelist.tsv"))
+                          | string_file(get_abs_path("chinese/data/erhua/whitelist.tsv"))).optimize()
 
-        erhua = add_weight(insert('erhua: "') + accep("儿"), 0.1)
-        tagger = (erhua | (insert('value: "') + whitelist)) + insert('"')
+        erhua = add_weight(insert('erhua: "') + accep("儿") + insert('"'), 0.1)
+        tagger = (erhua | self.tag_field("value", self.whitelist))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        super().build_verbalizer()
+        verbalizer = delete('value: "') + self.whitelist + delete('"')
+        self.verbalizer = self.delete_tokens(verbalizer)
         if self.remove_erhua:
             verbalizer = self.delete_tokens(delete('erhua: "儿"'))
         else:

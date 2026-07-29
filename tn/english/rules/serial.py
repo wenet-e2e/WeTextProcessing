@@ -34,11 +34,9 @@ class Serial(Processor):
     def build_tagger(self):
         cardinal = self.cardinal
 
-        num_graph = pynini.compose(self.DIGIT ** (6, ...), cardinal.single_digits_graph).optimize()
-        num_graph |= pynini.compose(self.DIGIT ** (1, 5), cardinal.graph).optimize()
-        num_graph |= pynini.compose(
-            pynini.accep("0") + pynini.closure(self.DIGIT), cardinal.single_digits_graph
-        ).optimize()
+        num_graph = pynini.compose(self.DIGIT**(6, ...), cardinal.single_digits_graph).optimize()
+        num_graph |= pynini.compose(self.DIGIT**(1, 5), cardinal.graph).optimize()
+        num_graph |= pynini.compose(pynini.accep("0") + pynini.closure(self.DIGIT), cardinal.single_digits_graph).optimize()
 
         symbols_graph = pynini.string_file(get_abs_path("english/data/whitelist/symbol.tsv")).optimize()
         symbols_graph |= pynini.cross("#", "hash")
@@ -62,45 +60,30 @@ class Serial(Processor):
 
         serial_graph = letter_num + next_alpha_or_num
         serial_graph |= num_letter + next_alpha_or_num
-        serial_graph |= (
-            num_graph + delimiter + num_graph + delimiter + num_graph + pynini.closure(delimiter + num_graph)
-        )
+        serial_graph |= (num_graph + delimiter + num_graph + delimiter + num_graph + pynini.closure(delimiter + num_graph))
 
-        serial_graph = pynini.compose(
-            pynini.difference(self.VSIGMA, pynini.project(self.ordinal.graph, "input")), serial_graph
-        ).optimize()
+        serial_graph = pynini.compose(pynini.difference(self.VSIGMA, pynini.project(self.ordinal.graph, "input")),
+                                      serial_graph).optimize()
 
-        serial_graph |= (
-            pynini.closure(self.NOT_SPACE, 1)
-            + (pynini.cross("^2", " squared") | pynini.cross("^3", " cubed")).optimize()
-        )
+        serial_graph |= (pynini.closure(self.NOT_SPACE, 1) +
+                         (pynini.cross("^2", " squared") | pynini.cross("^3", " cubed")).optimize())
 
-        serial_graph = (
-            pynini.closure((serial_graph | num_graph | alphas) + delimiter)
-            + serial_graph
-            + pynini.closure(delimiter + (serial_graph | num_graph | alphas))
-        )
+        serial_graph = (pynini.closure((serial_graph | num_graph | alphas) + delimiter) + serial_graph +
+                        pynini.closure(delimiter + (serial_graph | num_graph | alphas)))
 
         serial_graph |= pynini.compose(graph_with_space, serial_graph.optimize()).optimize()
         serial_graph = pynini.compose(pynini.closure(self.NOT_SPACE, 2), serial_graph).optimize()
 
         serial_graph = pynini.compose(
-            pynini.difference(
-                self.VSIGMA, pynini.closure(self.ALPHA, 1) + pynini.accep("/") + pynini.closure(self.ALPHA, 1)
-            ),
+            pynini.difference(self.VSIGMA,
+                              pynini.closure(self.ALPHA, 1) + pynini.accep("/") + pynini.closure(self.ALPHA, 1)),
             serial_graph,
         )
 
         self.graph = serial_graph.optimize()
-        graph = pynutil.insert('name: "') + self.graph + pynutil.insert('"')
+        graph = self.tag_field("name", self.graph)
         self.tagger = self.add_tokens(graph)
 
     def build_verbalizer(self):
-        graph = (
-            pynutil.delete("name:")
-            + self.DELETE_SPACE
-            + pynutil.delete('"')
-            + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
-        )
+        graph = (pynutil.delete("name:") + self.DELETE_SPACE + pynutil.delete('"') + self.graph + pynutil.delete('"'))
         self.verbalizer = self.delete_tokens(graph)

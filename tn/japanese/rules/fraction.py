@@ -20,30 +20,24 @@ from tn.processor import Processor
 
 class Fraction(Processor):
 
-    def __init__(self, cardinal=None):
+    def __init__(self, cardinal=None, input_normalizer=None):
         super().__init__(name="fraction")
-        self.cardinal = cardinal or Cardinal()
+        self.input_normalizer = input_normalizer
+        self.cardinal = cardinal or Cardinal(input_normalizer=input_normalizer)
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
         rmspace = delete(" ").ques
         number = self.cardinal.number
+        slash = self.apply_input_processor(delete("/"), self.input_normalizer)
 
-        tagger = (
-            insert('numerator: "')
-            + number
-            + rmspace
-            + delete("/")
-            + rmspace
-            + insert('" denominator: "')
-            + number
-            + insert('"')
-        ).optimize()
+        tagger = (self.tag_field("numerator", number) + rmspace + slash + rmspace + insert(" ") +
+                  self.tag_field("denominator", number)).optimize()
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        denominator = delete('denominator: "') + self.SIGMA + delete('" ')
-        numerator = delete('numerator: "') + self.SIGMA + delete('"')
+        denominator = delete('denominator: "') + self.cardinal.number + delete('" ')
+        numerator = delete('numerator: "') + self.cardinal.number + delete('"')
         verbalizer = denominator + insert("分の") + numerator
         self.verbalizer = self.delete_tokens(verbalizer)

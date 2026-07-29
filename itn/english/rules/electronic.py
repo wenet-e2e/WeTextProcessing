@@ -16,7 +16,7 @@ from pynini import accep, closure, cross, difference, invert, string_file
 from pynini.lib.pynutil import add_weight, delete, insert
 
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Electronic(Processor):
@@ -28,9 +28,9 @@ class Electronic(Processor):
 
     def build_tagger(self):
         ds = delete(" ")
-        digit = string_file(get_abs_path("../itn/english/data/numbers/digit.tsv"))
-        zero = string_file(get_abs_path("../itn/english/data/numbers/zero.tsv"))
-        symbols = invert(string_file(get_abs_path("../itn/english/data/electronic/symbols.tsv")))
+        digit = string_file(get_abs_path("english/data/numbers/digit.tsv"))
+        zero = string_file(get_abs_path("english/data/numbers/zero.tsv"))
+        symbols = invert(string_file(get_abs_path("english/data/electronic/symbols.tsv")))
 
         char = self.ALPHA | digit | zero
         word = add_weight(closure(self.ALPHA, 2), 0.1)
@@ -41,11 +41,13 @@ class Electronic(Processor):
         dot = cross("dot", ".")
         domain = component + (ds + dot + ds + component).plus
 
-        username = insert('username: "') + component + insert('"')
-        domain_field = insert('domain: "') + domain + insert('"')
+        self.username = component
+        self.domain = delete("at") + ds + domain
+        username = self.tag_field("username", self.username)
+        domain_field = self.tag_field("domain", self.domain)
 
         # Email: X at Y dot Z (requires "at" keyword)
-        graph_email = username + ds + delete("at") + ds + insert(" ") + domain_field
+        graph_email = add_weight(username + ds + insert(" ") + domain_field, -0.001)
 
         # URL: requires protocol or www prefix
         http = cross("h t t p", "http")
@@ -60,15 +62,16 @@ class Electronic(Processor):
         # domain only (must have dot): nvidia dot com
         url_domain_only = domain
 
-        graph_url = insert('protocol: "') + (url_with_protocol | url_with_www | url_domain_only) + insert('"')
+        self.protocol = url_with_protocol | url_with_www | url_domain_only
+        graph_url = self.tag_field("protocol", self.protocol)
 
         final_graph = graph_email | graph_url
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
-        username = delete("username:") + self.DELETE_SPACE + delete('"') + self.NOT_QUOTE.plus + delete('"')
-        domain = delete("domain:") + self.DELETE_SPACE + delete('"') + self.NOT_QUOTE.plus + delete('"')
-        protocol = delete("protocol:") + self.DELETE_SPACE + delete('"') + self.NOT_QUOTE.plus + delete('"')
+        username = self.verbalize_field("username", self.username)
+        domain = self.verbalize_field("domain", self.domain)
+        protocol = self.verbalize_field("protocol", self.protocol)
 
         graph_email = username + self.DELETE_SPACE + insert("@") + domain
         graph_url = protocol

@@ -59,6 +59,10 @@ class TestTokenParser:
         self.parser.load('value"')
         assert self.parser.parse_value() == "value"
 
+    def test_parse_value_decodes_wire_escapes(self):
+        self.parser.load('中\\"文\\\\尾"')
+        assert self.parser.parse_value() == '中"文\\尾'
+
     def test_parse(self):
         input = 'time { minute: "零二分" hour: "两点" } char { value: "走" }'
         self.parser.parse(input)
@@ -76,6 +80,22 @@ class TestTokenParser:
         input = 'time { minute: "零二分" hour: "两点" } char { value: "走" }'
         expected = 'time { hour: "两点" minute: "零二分" } char { value: "走" }'
         assert self.parser.reorder(input) == expected
+
+    def test_reorder_preserves_unknown_fields(self):
+        input = 'money { unexpected: "keep" currency: "元" value: "十" }'
+        expected = 'money { value: "十" currency: "元" unexpected: "keep" }'
+        assert self.parser.reorder(input) == expected
+
+    def test_reorder_round_trips_escaped_unicode_value(self):
+        tagged = 'char { value: "中\\"文\\\\尾" }'
+
+        self.parser.parse(tagged)
+        assert self.parser.tokens[0].members["value"] == '中"文\\尾'
+        assert self.parser.reorder(tagged) == tagged
+
+    def test_duplicate_field_is_rejected(self):
+        with pytest.raises(TokenParseError, match="duplicate field"):
+            self.parser.reorder('char { value: "first" value: "second" }')
 
     @pytest.mark.parametrize(
         "tagged",

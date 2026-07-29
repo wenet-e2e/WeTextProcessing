@@ -22,7 +22,14 @@ from tn.utils import get_abs_path
 
 class PostProcessor(Processor):
 
-    def __init__(self, remove_interjections=True, remove_puncts=False, full_to_half=True, tag_oov=False):
+    def __init__(
+        self,
+        remove_interjections=True,
+        remove_puncts=False,
+        full_to_half=True,
+        tag_oov=False,
+        traditional_to_simple=False,
+    ):
         super().__init__(name="postprocessor")
         blacklist = string_file(get_abs_path("chinese/data/default/blacklist.tsv"))
         puncts = string_file(get_abs_path("chinese/data/char/punctuations_zh.tsv"))
@@ -31,6 +38,10 @@ class PostProcessor(Processor):
         zh_charset_ext = string_file(get_abs_path("chinese/data/char/charset_extension.tsv"))
 
         processor = self.build_rule("")
+        if traditional_to_simple:
+            traditional2simple = string_file(get_abs_path("chinese/data/char/traditional_to_simple.tsv"))
+            processor @= self.build_rule(traditional2simple)
+
         if remove_interjections:
             processor @= self.build_rule(delete(blacklist))
 

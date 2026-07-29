@@ -25,6 +25,8 @@ class Sport(Processor):
     def __init__(self, cardinal=None):
         super().__init__(name="sport")
         self.cardinal = cardinal or Cardinal()
+        self.team = None
+        self.score = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -35,13 +37,13 @@ class Sport(Processor):
         rmspace = delete(" ").ques
 
         number = self.cardinal.number
-        score = rmspace + number + rmsign + insert("比") + number + rmspace
-        tagger = insert('team: "') + (country | club) + insert('" score: "') + score + insert('"')
+        self.team = (country | club).optimize()
+        self.score = (rmspace + number + rmsign + insert("比") + number + rmspace).optimize()
+        tagger = self.tag_field("team", self.team) + insert(" ") + self.tag_field("score", self.score)
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        super().build_verbalizer()
-        team = delete('team: "') + self.SIGMA + delete('" ')
-        score = delete('score: "') + self.SIGMA + delete('"')
+        team = delete('team: "') + self.team + delete('" ')
+        score = delete('score: "') + self.score + delete('"')
         verbalizer = team + score
-        self.verbalizer |= self.delete_tokens(verbalizer)
+        self.verbalizer = self.delete_tokens(verbalizer)

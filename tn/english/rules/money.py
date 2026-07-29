@@ -38,14 +38,14 @@ class Money(Processor):
     def build_tagger(self):
         """
         Finite state transducer for classifying money, suppletive aware, e.g.
-            $12.05 -> money { currency_maj: "dollars" integer_part: "twelve"  fractional_part: "oh five" }
-            $12.0500 -> money { currency_maj: "dollars" integer_part: "twelve"  fractional_part: "oh five" }
-            $1 -> money { currency_maj: "dollar" integer_part: "one" }
-            $1.00 -> money { currency_maj: "dollar" integer_part: "one" }
-            $0.05 -> money { currency_maj: "dollars" integer_part: "zero"  fractional_part: "oh five" }
-            $1 million -> money { currency_maj: "dollars" integer_part: "one" quantity: "million" }
-            $1.2 million -> money { currency_maj: "dollars" integer_part: "one"  fractional_part: "two" quantity: "million" }
-            $1.2320 -> money { currency_maj: "dollars" integer_part: "one"  fractional_part: "two three two" }
+            $12.05 -> money { currency_maj: "$" integer_part: "12" fractional_part: "05" }
+            $12.0500 -> money { currency_maj: "$" integer_part: "12" fractional_part: "0500" }
+            $1 -> money { currency_maj: "$" integer_part: "1" }
+            $1.00 -> money { currency_maj: "$" integer_part: "1" fractional_part: "00" }
+            $0.05 -> money { currency_maj: "$" integer_part: "0" fractional_part: "05" }
+            $1 million -> money { currency_maj: "$" integer_part: "1" quantity: "million" }
+            $1.2 million -> money { currency_maj: "$" integer_part: "1" fractional_part: "2" quantity: "million" }
+            $1.2320 -> money { currency_maj: "$" integer_part: "1" fractional_part: "2320" }
         """
         cardinal = self.cardinal
         decimal = self.decimal
@@ -56,57 +56,61 @@ class Money(Processor):
         maj_unit_plural = maj_singular @ SINGULAR_TO_PLURAL
         maj_unit_singular = maj_singular
 
-        graph_maj_singular = pynutil.insert('currency_maj: "') + maj_unit_singular + pynutil.insert('"')
-        graph_maj_plural = pynutil.insert('currency_maj: "') + maj_unit_plural + pynutil.insert('"')
+        self.maj_unit_singular = maj_unit_singular
+        self.maj_unit_plural = maj_unit_plural
+        graph_maj_singular = self.tag_field("currency_maj", self.maj_unit_singular)
+        graph_maj_plural = self.tag_field("currency_maj", self.maj_unit_plural)
 
-        optional_delete_fractional_zeros = (
-            pynutil.delete(".") + pynutil.add_weight(pynutil.delete("0"), -0.2).plus
-        ).ques
-
-        graph_integer_one = pynutil.insert('integer_part: "') + pynini.cross("1", "one") + pynutil.insert('"')
-        decimal_delete_last_zeros = (
-            (self.DIGIT | pynutil.delete(",")).star
-            + pynini.accep(".")
-            + self.DIGIT.plus
-            + pynutil.add_weight(pynutil.delete("0"), -0.01).star
-        )
+        self.integer_one_graph = pynini.cross("1", "one")
+        graph_integer_one = self.tag_field("integer_part", self.integer_one_graph)
+        decimal_nonzero = ((self.DIGIT | pynini.accep(",")).star + pynini.accep(".") + self.DIGIT.star + (self.DIGIT - "0") +
+                           self.DIGIT.star)
         decimal_with_quantity = self.VCHAR.star + self.ALPHA
 
-        graph_decimal = (
-            graph_maj_plural
-            + self.INSERT_SPACE
-            + (decimal_delete_last_zeros | decimal_with_quantity) @ graph_decimal_final
-        )
+        graph_decimal = (graph_maj_plural + self.INSERT_SPACE +
+                         (decimal_nonzero | decimal_with_quantity) @ graph_decimal_final)
 
-        graph_integer = (
-            pynutil.insert('integer_part: "') + ((self.VCHAR.star - "1") @ cardinal_graph) + pynutil.insert('"')
-        )  # noqa
+        self.integer_other_graph = (self.VCHAR.star - "1") @ cardinal_graph
+        graph_integer = self.tag_field("integer_part", self.integer_other_graph)
 
         graph_integer_only = graph_maj_singular + self.INSERT_SPACE + graph_integer_one
         graph_integer_only |= graph_maj_plural + self.INSERT_SPACE + graph_integer
 
-        final_graph = (graph_integer_only + optional_delete_fractional_zeros) | graph_decimal
+        self.zero_fraction_graph = pynutil.delete("0").plus
+        optional_zero_fraction = (pynutil.delete(".") + self.INSERT_SPACE +
+                                  self.tag_field("fractional_part", self.zero_fraction_graph)).ques
+
+        final_graph = (graph_integer_only + optional_zero_fraction) | graph_decimal
 
         self.tagger = self.add_tokens(final_graph.optimize())
 
     def build_verbalizer(self):
         """
         Finite state transducer for verbalizing money, e.g.
-            money { integer_part: "twelve" fractional_part: "o five" currency: "dollars" } -> twelve o five dollars
+            money { currency_maj: "$" integer_part: "12" fractional_part: "05" } -> twelve point oh five dollars
         """
         decimal = self.decimal
         keep_space = pynini.accep(" ")
-        maj = pynutil.delete('currency_maj: "') + self.NOT_QUOTE.plus + pynutil.delete('"')
+        maj_singular = (pynutil.delete('currency_maj: "') + self.maj_unit_singular + pynutil.delete('"'))
+        maj_plural = (pynutil.delete('currency_maj: "') + self.maj_unit_plural + pynutil.delete('"'))
+        integer_one = (pynutil.delete("integer_part:") + self.DELETE_SPACE + pynutil.delete('"') + self.integer_one_graph +
+                       pynutil.delete('"'))
+        integer_other = (pynutil.delete("integer_part:") + self.DELETE_SPACE + pynutil.delete('"') + self.integer_other_graph +
+                         pynutil.delete('"'))
+        zero_fraction = (self.DELETE_SPACE + pynutil.delete('fractional_part: "') + self.zero_fraction_graph +
+                         pynutil.delete('"'))
 
-        fractional_part = pynutil.delete('fractional_part: "') + self.NOT_QUOTE.plus + pynutil.delete('"')
+        graph_integer = integer_one + zero_fraction.ques + keep_space + maj_singular
+        graph_integer |= integer_other + zero_fraction.ques + keep_space + maj_plural
 
-        integer_part = decimal.integer
-
-        #  *** currency_maj
-        graph_integer = integer_part + keep_space + maj
-
-        # *** point *** currency_maj
-        graph_decimal = decimal.numbers + keep_space + maj
+        trimmed_fraction = (self.DIGIT.star + (self.DIGIT - "0") + pynutil.delete("0").star) @ decimal.graph
+        fractional = (pynutil.insert("point ") + pynutil.delete("fractional_part:") + self.DELETE_SPACE + pynutil.delete('"') +
+                      trimmed_fraction + pynutil.delete('"'))
+        optional_integer = (decimal.integer + self.DELETE_SPACE + self.INSERT_SPACE).ques
+        money_decimal = (decimal.integer
+                         | decimal.integer + decimal.quantity
+                         | optional_integer + fractional + decimal.optional_quantity)
+        graph_decimal = money_decimal + keep_space + maj_plural
 
         graph = graph_integer | graph_decimal
 

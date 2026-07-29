@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import string
+from collections.abc import Mapping
 
 EOS = "<EOS>"
 TN_ORDERS = {
@@ -35,6 +36,13 @@ ITN_ORDERS = {
     "telephone": ["country_code", "number_part"],
     "electronic": ["username", "domain", "protocol"],
 }
+# Backward-compatible defaults for directly instantiated rules. Top-level
+# production pipelines pass their own schema mapping to ``TokenParser``.
+
+
+def escape_value(value):
+    """Escapes a raw field value for the tagged-token wire format."""
+    return value.replace("\\", "\\\\").replace('"', '\\"')
 
 
 class TokenParseError(ValueError):
@@ -43,32 +51,41 @@ class TokenParseError(ValueError):
 
 class Token:
 
-    def __init__(self, name):
+    def __init__(self, name, start=None):
         self.name = name
+        self.start = start
+        self.end = None
         self.order = []
         self.members = {}
 
     def append(self, key, value):
+        if key in self.members:
+            raise TokenParseError("duplicate field {!r} in token {!r}".format(key, self.name))
         self.order.append(key)
         self.members[key] = value
 
     def string(self, orders):
         output = self.name + " {"
+        order = self.order
         if self.name in orders.keys():
             if "preserve_order" not in self.members.keys() or self.members["preserve_order"] != "true":
-                self.order = orders[self.name]
+                canonical_order = orders[self.name]
+                extra_fields = [key for key in self.order if key not in canonical_order]
+                order = canonical_order + extra_fields
 
-        for key in self.order:
+        for key in order:
             if key not in self.members.keys():
                 continue
-            output += ' {}: "{}"'.format(key, self.members[key])
+            output += ' {}: "{}"'.format(key, escape_value(self.members[key]))
         return output + " }"
 
 
 class TokenParser:
 
     def __init__(self, ordertype="tn"):
-        if ordertype == "tn":
+        if isinstance(ordertype, Mapping):
+            self.orders = dict(ordertype)
+        elif ordertype == "tn":
             self.orders = TN_ORDERS
         elif ordertype == "itn":
             self.orders = ITN_ORDERS
@@ -116,9 +133,7 @@ class TokenParser:
 
     def expect_chars(self, exp):
         if not self.parse_chars(exp):
-            raise TokenParseError(
-                'expected {!r} at position {}, got {!r}'.format(exp, self.index, self.char)
-            )
+            raise TokenParseError('expected {!r} at position {}, got {!r}'.format(exp, self.index, self.char))
 
     def parse_key(self):
         if self.char == EOS:
@@ -142,23 +157,28 @@ class TokenParser:
         while self.char != '"':
             if self.char == EOS:
                 raise TokenParseError("unterminated value at position {}".format(self.index))
-            value += self.char
             escaped = self.char == "\\"
+            if not escaped:
+                value += self.char
             self.read()
             if escaped:
                 if self.char == EOS:
                     raise TokenParseError("unterminated escape at position {}".format(self.index))
-                value += self.char
+                if self.char in ('"', "\\"):
+                    value += self.char
+                else:
+                    value += "\\" + self.char
                 self.read()
         return value
 
     def parse(self, input):
         self.load(input)
         while self.parse_ws():
+            token_start = self.index
             name = self.parse_key()
             self.expect_chars(" { ")
 
-            token = Token(name)
+            token = Token(name, token_start)
             closed = False
             while self.parse_ws():
                 if self.char == "}":
@@ -172,11 +192,26 @@ class TokenParser:
                 token.append(key, value)
             if not closed:
                 raise TokenParseError("unterminated token {!r}".format(name))
+            token.end = len(self.text) if self.char == EOS else self.index
             self.tokens.append(token)
 
     def reorder(self, input):
+        output, _ = self.reorder_with_spans(input)
+        return output
+
+    def reorder_with_spans(self, input):
+        """Returns reordered text and each token's span in that text."""
+
         self.parse(input)
-        output = ""
+        serialized = []
+        spans = []
+        offset = 0
         for token in self.tokens:
-            output += token.string(self.orders) + " "
-        return output.strip()
+            value = token.string(self.orders)
+            if serialized:
+                offset += 1
+            start = offset
+            offset += len(value)
+            spans.append((start, offset))
+            serialized.append(value)
+        return " ".join(serialized), tuple(spans)

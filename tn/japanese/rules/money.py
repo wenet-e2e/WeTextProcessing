@@ -22,9 +22,11 @@ from tn.utils import get_abs_path
 
 class Money(Processor):
 
-    def __init__(self, cardinal=None):
+    def __init__(self, cardinal=None, input_normalizer=None):
         super().__init__(name="money")
-        self.cardinal = cardinal or Cardinal()
+        self.input_normalizer = input_normalizer
+        self.cardinal = cardinal or Cardinal(input_normalizer=input_normalizer)
+        self.currency = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -32,20 +34,13 @@ class Money(Processor):
         code = string_file(get_abs_path("japanese/data/money/code.tsv"))
         symbol = string_file(get_abs_path("japanese/data/money/symbol.tsv"))
 
-        number = self.cardinal.number
-        tagger = (
-            insert('currency: "')
-            + (code | symbol)
-            + delete(" ").ques
-            + insert('" ')
-            + insert('value: "')
-            + number
-            + insert('"')
-        )
+        self.currency = self.apply_input_processor(code | symbol, self.input_normalizer)
+        tagger = (self.tag_field("currency", self.currency) + delete(" ").ques + insert(" ") +
+                  self.tag_field("value", self.cardinal.number))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        value = delete('value: "') + self.SIGMA + delete('" ')
-        currency = delete('currency: "') + self.SIGMA + delete('"')
+        value = delete('value: "') + self.cardinal.number + delete('" ')
+        currency = delete('currency: "') + self.currency + delete('"')
         verbalizer = value + currency
         self.verbalizer = self.delete_tokens(verbalizer)

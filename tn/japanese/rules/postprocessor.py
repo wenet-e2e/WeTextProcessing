@@ -22,7 +22,7 @@ from tn.utils import get_abs_path
 
 class PostProcessor(Processor):
 
-    def __init__(self, remove_interjections=True, remove_puncts=False, tag_oov=False):
+    def __init__(self, remove_interjections=True, remove_puncts=False, full_to_half=True, tag_oov=False):
         super().__init__(name="postprocessor")
         blacklist = string_file(get_abs_path("japanese/data/default/blacklist.tsv"))
         puncts = string_file(get_abs_path("japanese/data/char/punctuations_ja.tsv"))
@@ -32,6 +32,10 @@ class PostProcessor(Processor):
         ja_charset_ext = string_file(get_abs_path("japanese/data/char/common_chinese_char.tsv"))
 
         processor = self.build_rule("")
+        if full_to_half:
+            full2half = string_file(get_abs_path("japanese/data/char/fullwidth_to_halfwidth.tsv"))
+            processor @= self.build_rule(full2half)
+
         if remove_interjections:
             processor @= self.build_rule(delete(blacklist))
 

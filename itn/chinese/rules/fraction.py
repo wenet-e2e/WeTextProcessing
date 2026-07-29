@@ -17,7 +17,7 @@ from pynini.lib.pynutil import add_weight, delete, insert
 
 from itn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Fraction(Processor):
@@ -30,27 +30,28 @@ class Fraction(Processor):
 
     def build_tagger(self):
         number = self.cardinal.number
-        sign = string_file(get_abs_path("../itn/chinese/data/number/sign.tsv"))  # + -
+        sign = string_file(get_abs_path("chinese/data/number/sign.tsv"))  # + -
 
         # NOTE(xcsong): default weight = 1.0,  set to -1.0 means higher priority
         #   For example,
         #       1.0, 负二分之三 -> { sign: "" denominator: "-2" numerator: "3" }
         #       -1.0,负二分之三 -> { sign: "-" denominator: "2" numerator: "3" }
-        tagger = (
-            insert('sign: "')
-            + add_weight(sign, -1.0).ques
-            + insert('" denominator: "')
-            + number
-            + delete("分之")
-            + insert('" numerator: "')
-            + number
-            + insert('"')
+        self.sign = sign.ques
+        self.denominator = number + delete("分之")
+        self.numerator = number
+        signed = add_weight(
+            self.tag_field("sign", sign) + insert(" ") + self.tag_field("denominator", self.denominator) + insert(" ") +
+            self.tag_field("numerator", self.numerator),
+            -1.0,
         )
+        unsigned = (self.tag_field("sign", self.sign) + insert(" ") + self.tag_field("denominator", self.denominator) +
+                    insert(" ") + self.tag_field("numerator", self.numerator))
+        tagger = signed | unsigned
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        sign = delete('sign: "') + self.SIGMA + delete('"')
-        numerator = delete(' numerator: "') + self.SIGMA + delete('"')
-        denominator = delete(' denominator: "') + self.SIGMA + delete('"')
+        sign = self.verbalize_field("sign", self.sign)
+        numerator = self.verbalize_field("numerator", self.numerator, leading_space=True)
+        denominator = self.verbalize_field("denominator", self.denominator, leading_space=True)
         verbalizer = sign + numerator + insert("/") + denominator
         self.verbalizer = self.delete_tokens(verbalizer)

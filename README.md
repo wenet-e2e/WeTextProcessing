@@ -68,6 +68,73 @@ print("中文 TN (不去除儿化音，重新在线构图):\n\t{} => {}".format(
 print("中文ITN (小于10的单独数字也进行转换，重新在线构图):\n\t{} => {}\n".format(zh_itn_text, zh_itn_model.normalize(zh_itn_text)))
 ```
 
+Python graph caches are content-addressed bundles. By default, mutable cache
+files are written to the platform user-cache directory, never into the source
+tree or installed package:
+
+- `$XDG_CACHE_HOME/wetextprocessing` when `XDG_CACHE_HOME` is set;
+- `~/Library/Caches/wetextprocessing` on macOS;
+- `%LOCALAPPDATA%\wetextprocessing` on Windows;
+- `~/.cache/wetextprocessing` on other platforms.
+
+Pass `cache_dir="/path/to/cache-root"` to choose another trusted cache root,
+or `cache_dir=False` to build in memory without reading or writing a persistent
+cache. The cache key includes all graph configuration, production Python
+grammar sources, TSV/FAR resources, and builder-format information. A hit is
+accepted only after the manifest and both FST checksums are verified.
+`overwrite_cache=True` forces a rebuild for the current key. Cache builders
+wait up to ten minutes for the same key by default; set
+`WETEXTPROCESSING_CACHE_LOCK_TIMEOUT` to a non-negative number of seconds to
+change that timeout. Each key has a persistent `.lock` anchor that is normal
+cache metadata, not a leftover active lock. Builders hold an operating-system
+advisory lock on its open file descriptor (`flock` on POSIX and
+`msvcrt.locking` on Windows), so a crash releases ownership automatically. The
+bounded JSON payload in the anchor is used only to make timeout diagnostics
+more useful; the operating system lock is the source of truth.
+
+The platform default and every explicit `cache_dir` are trusted local storage:
+the caller owns the directory and controls who may mutate it. The cache rejects
+links and special files within that boundary, and POSIX readers bind each
+bundle ancestor with no-follow directory descriptors. It is not intended to
+defend against another user who can concurrently replace entries inside the
+cache root. On Windows, automatic cleanup of interrupted-build residuals is
+disabled because equivalent race-free no-follow directory operations are not
+available; such residuals are harmless and can be removed manually while no
+process is using the cache.
+
+Legacy flat `*_tagger.fst`, `*_verbalizer.fst`, and `*_cache.json` v1 caches
+cannot prove that both graphs belong to one build. They are left untouched but
+are not loaded by Python.
+
+To get the changed spans between the input and normalized text:
+
+```py
+result = zh_tn_model.normalize_with_mapping("今天中午12点")
+print(result.output_text)
+# 今天中午十二点
+
+for mapping in result.mappings:
+    print(mapping.token_type, mapping.input_text, "=>", mapping.output_text)
+# math 12 => 十二
+
+print(result.as_dict())
+# {
+#   "input": "今天中午12点",
+#   "output": "今天中午十二点",
+#   "mappings": [{
+#     "kind": "replace",
+#     "token_type": "math",
+#     "input": {"start": 4, "end": 6, "text": "12"},
+#     "output": {"start": 4, "end": 6, "text": "十二"}
+#   }]
+# }
+```
+
+The offsets are Unicode character offsets. The mapping is traced through the
+tagger and verbalizer WFST paths, and `token_type` identifies the grammar rule
+that produced it. There is no surface-text diff fallback. Pass
+`include_identity=True` to also return unchanged tagged tokens.
+
 #### 1.2 Advanced Usage:
 
 DIY your own rules && Deploy WeTextProcessing with cpp runtime !!
@@ -81,36 +148,52 @@ pip install -r requirements.txt
 pre-commit install # for clean and tidy code
 # `overwrite_cache` will rebuild all rules according to
 #   your modifications on tn/chinese/rules/xx.py (itn/chinese/rules/xx.py).
-#   After rebuild, you can find new far files at `$PWD/tn` and `$PWD/itn`.
+#   The resulting content-addressed bundle is stored in your user cache.
 python -m tn --text "2.5平方电线" --overwrite_cache
 python -m itn --text "二点五平方电线" --overwrite_cache
 ```
 
-Once you successfully rebuild your rules, you can deploy them either with your installed pypi packages:
+Both commands also accept `--file PATH`, or read UTF-8 text from standard
+input when neither `--text` nor `--file` is supplied. Each input line produces
+two output lines: the tagged representation followed by the verbalized result.
+Only the input line ending is removed; leading, trailing, and internal spaces
+are preserved.
+
+Options are limited to the selected direction and language. For example:
+
+```bash
+python -m tn --language zh --no-remove-erhua --text "这儿"
+python -m tn --language ja --transliterate --text "WeNet"
+python -m itn --language zh --enable-0-to-9 --text "一二三"
+python -m itn --language ja --full-to-half True --text "１２時"
+```
+
+Boolean options support both switch-style `--option` / `--no-option` and the
+legacy `--option True|False` form. Use `python -m tn --language LANG --help`
+or `python -m itn --language LANG --help` to see only the options supported by
+that pipeline. The installed `wetn` and `weitn` commands expose the same
+interfaces.
+
+To use an explicit Python cache root:
 
 ```py
 # tn usage
 >>> from tn.chinese.normalizer import Normalizer
->>> normalizer = Normalizer(cache_dir="PATH_TO_GIT_CLONED_WETEXTPROCESSING/tn")
+>>> normalizer = Normalizer(cache_dir="/path/to/wetext-cache")
 >>> normalizer.normalize("2.5平方电线")
 # itn usage
 >>> from itn.chinese.inverse_normalizer import InverseNormalizer
->>> invnormalizer = InverseNormalizer(cache_dir="PATH_TO_GIT_CLONED_WETEXTPROCESSING/itn")
+>>> invnormalizer = InverseNormalizer(cache_dir="/path/to/wetext-cache")
 >>> invnormalizer.normalize("二点五平方电线")
+# Disable persistent caching:
+>>> uncached = Normalizer(cache_dir=False)
 ```
 
-Or with cpp runtime:
-
-```bash
-cmake -B build -S runtime -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-# tn usage
-cache_dir=PATH_TO_GIT_CLONED_WETEXTPROCESSING/tn
-./build/processor_main --tagger $cache_dir/zh_tn_tagger.fst --verbalizer $cache_dir/zh_tn_verbalizer.fst --text "2.5平方电线"
-# itn usage
-cache_dir=PATH_TO_GIT_CLONED_WETEXTPROCESSING/itn
-./build/processor_main --tagger $cache_dir/zh_itn_tagger.fst --verbalizer $cache_dir/zh_itn_verbalizer.fst --text "二点五平方电线"
-```
+The Python cache bundle is an internal cache format, not a stable C++ runtime
+export. Do not pass paths from the bundle directly to `processor_main`.
+A dedicated explicit runtime-export workflow is deferred to the runtime/export
+phase; until then, the C++ runtime must be given a separately exported,
+compatible tagger/verbalizer pair.
 
 ### 2. TN Pipeline
 

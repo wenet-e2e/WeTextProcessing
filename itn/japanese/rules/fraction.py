@@ -17,48 +17,50 @@ from pynini.lib.pynutil import delete, insert
 
 from itn.japanese.rules.cardinal import Cardinal
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Fraction(Processor):
 
-    def __init__(self, cardinal=None):
+    def __init__(self, cardinal=None, input_processor=None):
         super().__init__(name="fraction")
         self.cardinal = cardinal or Cardinal(enable_million=True)
+        self.input_processor = input_processor
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
         cardinal = self.cardinal.number
         decimal = self.cardinal.decimal
-        sign = string_file(get_abs_path("../itn/japanese/data/number/sign.tsv"))
-        sign = insert('sign: "') + sign + insert('"')
+        self.sign = self.apply_input_processor(
+            string_file(get_abs_path("japanese/data/number/sign.tsv")),
+            self.input_processor,
+        )
 
         fraction_word = delete("分の") | delete(" 分 の　") | delete("分 の　") | delete("分 の")
         root_word = accep("√") | cross("ルート", "√")
 
         # denominator
-        denominator = (decimal | (cardinal + root_word + cardinal) | (root_word + cardinal) | cardinal) + delete(
-            " "
-        ).ques
-        denominator = insert('denominator: "') + denominator + insert('"')
+        self.denominator = self.apply_input_processor(
+            (decimal | (cardinal + root_word + cardinal) | (root_word + cardinal) | cardinal) + delete(" ").ques +
+            fraction_word,
+            self.input_processor,
+        )
 
         # numerator
-        numerator = closure(delete(" ")) + (decimal | cardinal + root_word + cardinal | root_word + cardinal | cardinal)
-        numerator = insert('numerator: "') + numerator + insert('"')
+        self.numerator = self.apply_input_processor(
+            closure(delete(" ")) + (decimal | cardinal + root_word + cardinal | root_word + cardinal | cardinal),
+            self.input_processor,
+        )
 
         # fraction
-        fraction_sign = sign + insert(" ") + denominator + insert(" ") + fraction_word + numerator
-        fraction_no_sign = denominator + insert(" ") + fraction_word + numerator
-        regular_fractions = fraction_sign | fraction_no_sign
-
-        integer_fraction_sign = (sign + insert(" ")).ques + denominator + insert(" ") + fraction_word + numerator
-        fraction = regular_fractions | integer_fraction_sign
+        fraction = ((self.tag_field("sign", self.sign) + insert(" ")).ques + self.tag_field("denominator", self.denominator) +
+                    insert(" ") + self.tag_field("numerator", self.numerator))
         self.tagger = self.add_tokens(fraction).optimize()
 
     def build_verbalizer(self):
-        sign = delete('sign: "') + self.SIGMA + delete('"')
-        denominator = delete('denominator: "') + self.SIGMA + delete('"')
-        numerator = delete('numerator: "') + self.SIGMA + delete('"')
+        sign = self.verbalize_field("sign", self.sign)
+        denominator = self.verbalize_field("denominator", self.denominator)
+        numerator = self.verbalize_field("numerator", self.numerator)
         fraction = (sign + delete(" ")).ques + numerator + delete(" ") + insert("/") + denominator
         self.verbalizer = self.delete_tokens(fraction).optimize()

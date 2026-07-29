@@ -21,8 +21,14 @@ from tn.utils import get_abs_path
 
 class Time(Processor):
 
-    def __init__(self):
+    def __init__(self, input_normalizer=None, range_tagger=None):
         super().__init__(name="time")
+        self.input_normalizer = input_normalizer
+        self.range_tagger = range_tagger
+        self.hour = None
+        self.minute = None
+        self.second = None
+        self.noon = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -32,23 +38,28 @@ class Time(Processor):
         s = string_file(get_abs_path("japanese/data/time/second.tsv"))
         noon = string_file(get_abs_path("japanese/data/time/noon.tsv"))
 
-        colon = delete(":") | delete("：")
-        h_noon = insert('hour: "') + h + insert('" noon: "') + noon + insert('"')
-        h = insert('hour: "') + h + insert('" ')
-        m = insert('minute: "') + m + insert('"')
-        s = insert(' second: "') + s + insert('"')
-        noon = insert(' noon: "') + noon + insert('"')
+        colon = self.apply_input_processor(delete(":") | delete("："), self.input_normalizer)
+        self.hour = self.apply_input_processor(h, self.input_normalizer)
+        self.minute = self.apply_input_processor(m, self.input_normalizer)
+        self.second = self.apply_input_processor(s, self.input_normalizer)
+        self.noon = self.apply_input_processor(noon, self.input_normalizer)
 
-        tagger = (h + colon + m + (colon + s).ques + delete(" ").ques + noon.ques) | h_noon
+        h_noon = self.tag_field("hour", self.hour) + insert(" ") + self.tag_field("noon", self.noon)
+        tagger = (self.tag_field("hour", self.hour) + insert(" ") + colon + self.tag_field("minute", self.minute) +
+                  (colon + insert(" ") + self.tag_field("second", self.second)).ques +
+                  (delete(" ").ques + insert(" ") + self.tag_field("noon", self.noon)).ques
+                  | h_noon)
         tagger = self.add_tokens(tagger)
 
-        to = (delete("-") | delete("~")) + insert(' char { value: "から" } ')
-        self.tagger = tagger + (to + tagger).ques
+        if self.range_tagger is None:
+            self.tagger = tagger
+        else:
+            self.tagger = tagger + (self.range_tagger + tagger).ques
 
     def build_verbalizer(self):
-        noon = delete('noon: "') + self.SIGMA + delete('" ')
-        hour = delete('hour: "') + self.SIGMA + delete('"')
-        minute = delete(' minute: "') + self.SIGMA + delete('"')
-        second = delete(' second: "') + self.SIGMA + delete('"')
+        noon = delete('noon: "') + self.noon + delete('" ')
+        hour = delete('hour: "') + self.hour + delete('"')
+        minute = delete(' minute: "') + self.minute + delete('"')
+        second = delete(' second: "') + self.second + delete('"')
         verbalizer = noon.ques + hour + minute + second.ques | noon + hour
         self.verbalizer = self.delete_tokens(verbalizer)

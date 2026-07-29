@@ -17,7 +17,7 @@ from pynini.lib.pynutil import add_weight, delete, insert
 
 from itn.english.rules.cardinal import Cardinal
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Telephone(Processor):
@@ -30,21 +30,39 @@ class Telephone(Processor):
 
     def build_tagger(self):
         ds = delete(" ")
-        digit = string_file(get_abs_path("../itn/english/data/numbers/digit.tsv"))
-        zero = string_file(get_abs_path("../itn/english/data/numbers/zero.tsv"))
+        digit = string_file(get_abs_path("english/data/numbers/digit.tsv"))
+        zero = string_file(get_abs_path("english/data/numbers/zero.tsv"))
         single = digit | zero | cross("o", "0") | cross("oh", "0")
 
         # "double X" => XX
-        double = union(*[cross(f"double {w}", f"{d}{d}")
-                         for w, d in [("one","1"),("two","2"),("three","3"),("four","4"),
-                                      ("five","5"),("six","6"),("seven","7"),("eight","8"),
-                                      ("nine","9"),("zero","0"),("oh","0"),("o","0")]])
+        double = union(*[
+            cross(f"double {w}", f"{d}{d}")
+            for w, d in [("one", "1"), ("two", "2"), ("three",
+                                                      "3"), ("four",
+                                                             "4"), ("five",
+                                                                    "5"), ("six",
+                                                                           "6"), ("seven",
+                                                                                  "7"), ("eight",
+                                                                                         "8"), ("nine",
+                                                                                                "9"), ("zero",
+                                                                                                       "0"), ("oh",
+                                                                                                              "0"), ("o", "0")]
+        ])
 
         # "triple X" => XXX
-        triple = union(*[cross(f"triple {w}", f"{d}{d}{d}")
-                         for w, d in [("one","1"),("two","2"),("three","3"),("four","4"),
-                                      ("five","5"),("six","6"),("seven","7"),("eight","8"),
-                                      ("nine","9"),("zero","0"),("oh","0"),("o","0")]])
+        triple = union(*[
+            cross(f"triple {w}", f"{d}{d}{d}")
+            for w, d in [("one", "1"), ("two", "2"), ("three",
+                                                      "3"), ("four",
+                                                             "4"), ("five",
+                                                                    "5"), ("six",
+                                                                           "6"), ("seven",
+                                                                                  "7"), ("eight",
+                                                                                         "8"), ("nine",
+                                                                                                "9"), ("zero",
+                                                                                                       "0"), ("oh",
+                                                                                                              "0"), ("o", "0")]
+        ])
 
         # two-digit cardinal: twenty three => 23 (uses graph_two_digit for proper space handling)
         two_digit = self.cardinal.graph_two_digit
@@ -56,49 +74,48 @@ class Telephone(Processor):
         seq = token + closure(ds + token)
 
         # phone: XXX-XXX-XXXX
-        phone = seq @ (
-            self.DIGIT ** 3 + insert("-") + self.DIGIT ** 3 + insert("-") + self.DIGIT ** 4
-        )
+        phone = seq @ (self.DIGIT**3 + insert("-") + self.DIGIT**3 + insert("-") + self.DIGIT**4)
 
         # country code
-        country_code = (
-            insert('country_code: "')
-            + closure(cross("plus ", "+"), 0, 1)
-            + (closure(single + ds, 0, 2) + single | add_weight(two_digit, 0.002))
-            + insert('"')
-        )
+        country_digits = (single
+                          | add_weight(single + ds + single, -0.001)
+                          | add_weight(single + ds + single + ds + single, -0.002)
+                          | add_weight(two_digit, 0.002))
+        self.country_code = closure(cross("plus ", "+"), 0, 1) + country_digits
+        country_code = self.tag_field("country_code", self.country_code)
         optional_cc = closure(country_code + ds + insert(" "), 0, 1)
 
-        graph = optional_cc + insert('number_part: "') + phone + insert('"')
+        def number_field(graph, kind):
+            return self.tag_field("number_part", graph) + insert(f' kind: "{kind}"')
+
+        self.number_parts = {"phone": phone}
+        graph = optional_cc + number_field(phone, "phone")
 
         # SSN: XXX-XX-XXXX
-        ssn = seq @ (
-            self.DIGIT ** 3 + insert("-") + self.DIGIT ** 2 + insert("-") + self.DIGIT ** 4
-        )
-        graph |= insert('number_part: "') + ssn + insert('"')
+        ssn = seq @ (self.DIGIT**3 + insert("-") + self.DIGIT**2 + insert("-") + self.DIGIT**4)
+        self.number_parts["ssn"] = ssn
+        graph |= number_field(ssn, "ssn")
 
         # IP: X.X.X.X
-        ip_token = (
-            single + closure(ds + single, 0, 2)
-            | double
-            | triple
-            | add_weight(two_digit, 0.002)
-            | single + ds + two_digit
-            | two_digit + ds + single
-        )
-        ip = ip_token + (cross(" dot ", ".") + ip_token) ** 3
-        graph |= insert('number_part: "') + add_weight(ip, -0.001) + insert('"')
+        ip_token = (single + closure(ds + single, 0, 2)
+                    | double
+                    | triple
+                    | add_weight(two_digit, 0.002)
+                    | single + ds + two_digit
+                    | two_digit + ds + single)
+        ip = ip_token + (cross(" dot ", ".") + ip_token)**3
+        self.number_parts["ip"] = ip
+        graph |= add_weight(number_field(ip, "ip"), -0.001)
 
         # credit card: 4-4-4-4 (16), 4-6-4 (14), 4-6-5 (15)
         space = insert(" ")
         D = self.DIGIT
-        cc_format = (
-            D ** 4 + space + D ** 4 + space + D ** 4 + space + D ** 4
-            | D ** 4 + space + D ** 6 + space + D ** 4
-            | D ** 4 + space + D ** 6 + space + D ** 5
-        )
+        cc_format = (D**4 + space + D**4 + space + D**4 + space + D**4
+                     | D**4 + space + D**6 + space + D**4
+                     | D**4 + space + D**6 + space + D**5)
         cc = seq @ cc_format
-        graph |= optional_cc + insert('number_part: "') + cc + insert('"')
+        self.number_parts["credit_card"] = cc
+        graph |= optional_cc + number_field(cc, "credit_card")
 
         # serial: mixed alpha+digits, at least one digit, length >= 3
         # Exclude "a" as first char to avoid "a thirty six" -> "a36"
@@ -111,13 +128,20 @@ class Telephone(Processor):
         seq2 |= not_a + closure(ds + two_digit, 1)
         seq2 |= two_digit + closure(ds + two_digit, 1) + closure(ds + self.ALPHA, 1)
         serial = (seq1 | seq2) @ (closure(self.ALPHA | D) + D + closure(self.ALPHA | D))
-        graph |= insert('number_part: "') + add_weight(serial, 2.0) + insert('"')
+        serial = add_weight(serial, 2.0)
+        self.number_parts["serial"] = serial
+        graph |= number_field(serial, "serial")
 
         self.tagger = self.add_tokens(graph)
 
     def build_verbalizer(self):
-        cc = delete('country_code: "') + self.NOT_QUOTE.plus + delete('"')
-        num = delete(' number_part: "') + self.NOT_QUOTE.plus + delete('"')
-        num_only = delete('number_part: "') + self.NOT_QUOTE.plus + delete('"')
-        graph = cc + self.DELETE_SPACE + insert(" ") + num | num_only
+        cc = self.verbalize_field("country_code", self.country_code)
+        graphs = []
+        for kind, number_part in self.number_parts.items():
+            num = self.verbalize_field("number_part", number_part, leading_space=True)
+            num_only = self.verbalize_field("number_part", number_part)
+            marker = delete(f' kind: "{kind}"')
+            graphs.append(cc + self.DELETE_SPACE + insert(" ") + num + marker)
+            graphs.append(num_only + marker)
+        graph = union(*graphs)
         self.verbalizer = self.delete_tokens(graph)

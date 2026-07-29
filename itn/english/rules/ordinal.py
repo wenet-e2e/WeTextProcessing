@@ -14,11 +14,11 @@
 
 import pynini
 from pynini import closure, cross, string_file
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import insert
 
 from itn.english.rules.cardinal import Cardinal
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Ordinal(Processor):
@@ -30,23 +30,21 @@ class Ordinal(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        graph_digit = string_file(get_abs_path("../itn/english/data/ordinals/digit.tsv"))
-        graph_teen = string_file(get_abs_path("../itn/english/data/ordinals/teen.tsv"))
+        graph_digit = string_file(get_abs_path("english/data/ordinals/digit.tsv"))
+        graph_teen = string_file(get_abs_path("english/data/ordinals/teen.tsv"))
         # first => one => 1, twelfth => twelve => 12, twentieth => twenty => 2(0)
         suffix = graph_digit | graph_teen | cross("tieth", "ty") | cross("th", "")
         graph = closure(self.VCHAR) + suffix
         self.graph = pynini.compose(graph, self.cardinal.graph)
 
-        final_graph = insert('integer: "') + self.graph + insert('"')
+        final_graph = self.tag_field("integer", self.graph)
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
-        integer = delete("integer:") + self.DELETE_SPACE + delete('"') + self.NOT_QUOTE.plus + delete('"')
+        integer = self.verbalize_field("integer", self.graph)
         # 1 => 1st, 2 => 2nd, 3 => 3rd, 11 => 11th, 12 => 12th, 13 => 13th, rest => Xth
-        ordinal_suffix = (
-            cross("11", "11th") | cross("12", "12th") | cross("13", "13th")
-            | cross("1", "1st") | cross("2", "2nd") | cross("3", "3rd")
-            | insert("th", weight=0.01)
-        )
+        ordinal_suffix = (cross("11", "11th") | cross("12", "12th") | cross("13", "13th")
+                          | cross("1", "1st") | cross("2", "2nd") | cross("3", "3rd")
+                          | insert("th", weight=0.01))
         graph = integer @ pynini.cdrewrite(ordinal_suffix, "", "[EOS]", self.VSIGMA)
         self.verbalizer = self.delete_tokens(graph)

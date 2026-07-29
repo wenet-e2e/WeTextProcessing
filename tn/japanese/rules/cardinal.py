@@ -21,12 +21,14 @@ from tn.utils import get_abs_path
 
 class Cardinal(Processor):
 
-    def __init__(self):
+    def __init__(self, input_normalizer=None):
         super().__init__(name="cardinal")
+        self.input_normalizer = input_normalizer
         self.thousand = None  # used for year of date
         self.positive_integer = None  # used for sport
         self.number = None
         self.digits = None
+        self.cardinal = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -45,7 +47,7 @@ class Cardinal(Processor):
 
         # 0-9
         digits = zero | digit
-        self.digits = digits
+        self.digits = self.apply_input_processor(digits, self.input_normalizer)
         # 10-99
         ten = teen + insert("十") + (digit | rmzero)
 
@@ -57,69 +59,42 @@ class Cardinal(Processor):
         # 1000-9999
         thousand = teen + insert("千") + rmpunct + (hundred | (rmzero + ten) | (rmzero**2 + digit) | rmzero**3)
         # thousand prefix containing "," like "10,00" in "10,000,000"
-        thousand_prefix = (
-            digit
-            + insert("千")
-            + (
-                hundred_prefix
-                | (rmzero + rmpunct + ten)
-                | (rmzero + rmpunct + rmzero + digit)
-                | rmzero + rmpunct + rmzero**2
-            )
-        )
-        self.thousand = thousand
+        thousand_prefix = (digit + insert("千") + (hundred_prefix
+                                                  | (rmzero + rmpunct + ten)
+                                                  | (rmzero + rmpunct + rmzero + digit)
+                                                  | rmzero + rmpunct + rmzero**2))
+        self.thousand = self.apply_input_processor(thousand, self.input_normalizer)
 
         # 10000-99999999  e.g. 1,115,000  10,000,000
-        ten_thousand = (
-            (thousand_prefix | hundred_prefix | ten | digit)
-            + insert("万")
-            + (
-                thousand
-                | (rmzero + rmpunct + hundred)
-                | (rmzero + rmpunct + rmzero + ten)
-                | (rmzero + rmpunct + rmzero + rmzero + digit)
-                | rmzero + rmpunct + rmzero**3
-            )
-        )
+        ten_thousand = ((thousand_prefix | hundred_prefix | ten | digit) + insert("万") +
+                        (thousand
+                         | (rmzero + rmpunct + hundred)
+                         | (rmzero + rmpunct + rmzero + ten)
+                         | (rmzero + rmpunct + rmzero + rmzero + digit)
+                         | rmzero + rmpunct + rmzero**3))
         # 100,000,000+
-        hundred_millon = (
-            (thousand_prefix | hundred_prefix | ten | digit)
-            + insert("億")
-            + rmzero**2
-            + rmpunct
-            + rmzero**2
-            + (
-                thousand
-                | (rmzero + rmpunct + hundred)
-                | (rmzero + rmpunct + rmzero + ten)
-                | (rmzero + rmpunct + rmzero + rmzero + digit)
-                | rmzero + rmpunct + rmzero**3
-            )
-        )
+        hundred_millon = ((thousand_prefix | hundred_prefix | ten | digit) + insert("億") + rmzero**2 + rmpunct + rmzero**2 +
+                          (thousand
+                           | (rmzero + rmpunct + hundred)
+                           | (rmzero + rmpunct + rmzero + ten)
+                           | (rmzero + rmpunct + rmzero + rmzero + digit)
+                           | rmzero + rmpunct + rmzero**3))
         # 0-99999999
         number = digits | ten | hundred | thousand | ten_thousand | hundred_millon
-        self.positive_integer = number
+        self.positive_integer = self.apply_input_processor(number, self.input_normalizer)
         # ±0.0 - ±99999999.99999999
         number = sign.ques + number + (dot + digits.plus).ques
-        self.number = number
+        self.number = self.apply_input_processor(number, self.input_normalizer)
 
         # % like -27.00%
         percent = number + delete("%") + insert("パーセント")
         # ip like 127.0.0.1
-        ip = digits.plus + (dot + digits.plus) ** 3
+        ip = digits.plus + (dot + digits.plus)**3
         # phone like 0xx-xxxx-xxxx
         country_code = cross("+81", "プラス八一") + cross("-", "の").ques + rmspace
         en_digits = en_zero | digit
-        phone = (
-            en_zero
-            + digit
-            + en_zero.ques
-            + cross("-", "の")
-            + en_digits**3
-            + en_digits.ques
-            + cross("-", "の").ques
-            + en_digits**4
-        )
+        phone = (en_zero + digit + en_zero.ques + cross("-", "の") + en_digits**3 + en_digits.ques + cross("-", "の").ques +
+                 en_digits**4)
         phone = country_code.ques + (phone | en_zero + digit + en_zero.ques + en_digits**8)
         # No. 番号
         ordinal = (accep("No.") | accep("番号") | accep("番号は")) + digits.plus
@@ -127,6 +102,12 @@ class Cardinal(Processor):
         # others like 342388491
         others = digits**8 + digits.plus
 
-        number = number | percent | ip | phone | ordinal | room | others
-        tagger = insert('value: "') + number.optimize() + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.cardinal = self.apply_input_processor(
+            number | percent | ip | phone | ordinal | room | others,
+            self.input_normalizer,
+        )
+        self.tagger = self.add_tokens(self.tag_field("value", self.cardinal))
+
+    def build_verbalizer(self):
+        verbalizer = delete('value: "') + self.cardinal + delete('"')
+        self.verbalizer = self.delete_tokens(verbalizer)

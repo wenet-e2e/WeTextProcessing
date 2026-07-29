@@ -16,7 +16,7 @@ from pynini import accep, cross, string_file
 from pynini.lib.pynutil import add_weight, delete, insert
 
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Cardinal(Processor):
@@ -32,14 +32,14 @@ class Cardinal(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        zero = string_file(get_abs_path("../itn/chinese/data/number/zero.tsv"))  # 0
-        digit = string_file(get_abs_path("../itn/chinese/data/number/digit.tsv"))  # 1 ~ 9
-        special_tilde = string_file(get_abs_path("../itn/chinese/data/number/special_tilde.tsv"))  # 七八十->70~80
+        zero = string_file(get_abs_path("chinese/data/number/zero.tsv"))  # 0
+        digit = string_file(get_abs_path("chinese/data/number/digit.tsv"))  # 1 ~ 9
+        special_tilde = string_file(get_abs_path("chinese/data/number/special_tilde.tsv"))  # 七八十->70~80
         special_tilde = special_tilde + add_weight((accep("万") | accep("亿")), -0.1).ques
-        special_dash = string_file(get_abs_path("../itn/chinese/data/number/special_dash.tsv"))  # 七八十->70-80
+        special_dash = string_file(get_abs_path("chinese/data/number/special_dash.tsv"))  # 七八十->70-80
         special_dash = special_dash + add_weight((accep("万") | accep("亿")), -0.1).ques
-        sign = string_file(get_abs_path("../itn/chinese/data/number/sign.tsv"))  # + -
-        dot = string_file(get_abs_path("../itn/chinese/data/number/dot.tsv"))  # .
+        sign = string_file(get_abs_path("chinese/data/number/sign.tsv"))  # + -
+        dot = string_file(get_abs_path("chinese/data/number/dot.tsv"))  # .
 
         # 0. 基础数字
         addzero = insert("0")
@@ -49,71 +49,42 @@ class Cardinal(Processor):
         # 一十一 => 11, 二十一 => 21, 三十 => 30
         tens = digit + delete("十") + (digit | add_weight(addzero, 0.1))
         # 一百一十 => 110, 一百零一 => 101, 一百一 => 110, 一百 => 100
-        hundred = (
-            digit
-            + delete("百")
-            + (
-                tens
-                | teen
-                | add_weight(zero + digit, 0.1)
-                | add_weight(digit + addzero, 0.5)
-                | add_weight(addzero**2, 1.0)
-            )
-        )
+        hundred = (digit + delete("百") + (tens
+                                          | teen
+                                          | add_weight(zero + digit, 0.1)
+                                          | add_weight(digit + addzero, 0.5)
+                                          | add_weight(addzero**2, 1.0)))
         # 一千一百一十一 => 1111, 一千零一十一 => 1011, 一千零一 => 1001
         # 一千一 => 1100, 一千 => 1000
-        thousand = (
-            digit
-            + delete("千")
-            + (
-                hundred
-                | add_weight(zero + (tens | teen), 0.1)
-                | add_weight(addzero + zero + digit, 0.5)
-                | add_weight(digit + addzero**2, 0.8)
-                | add_weight(addzero**3, 1.0)
-            )
-        )
+        thousand = (digit + delete("千") + (hundred
+                                           | add_weight(zero + (tens | teen), 0.1)
+                                           | add_weight(addzero + zero + digit, 0.5)
+                                           | add_weight(digit + addzero**2, 0.8)
+                                           | add_weight(addzero**3, 1.0)))
         # 10001111, 1001111, 101111, 11111, 10111, 10011, 10001, 10000
         if self.enable_million:
-            ten_thousand = (
-                (thousand | hundred | teen | tens | digit)
-                + delete("万")
-                + (
-                    thousand
-                    | add_weight(zero + hundred, 0.1)
-                    | add_weight(addzero + zero + (tens | teen), 0.5)
-                    | add_weight(addzero + addzero + zero + digit, 0.5)
-                    | add_weight(digit + addzero**3, 0.8)
-                    | add_weight(addzero**4, 1.0)
-                )
-            )
+            ten_thousand = ((thousand | hundred | teen | tens | digit) + delete("万") +
+                            (thousand
+                             | add_weight(zero + hundred, 0.1)
+                             | add_weight(addzero + zero + (tens | teen), 0.5)
+                             | add_weight(addzero + addzero + zero + digit, 0.5)
+                             | add_weight(digit + addzero**3, 0.8)
+                             | add_weight(addzero**4, 1.0)))
         else:
-            ten_thousand = (
-                (teen | tens | digit)
-                + delete("万")
-                + (
-                    thousand
-                    | add_weight(zero + hundred, 0.1)
-                    | add_weight(addzero + zero + (tens | teen), 0.5)
-                    | add_weight(addzero + addzero + zero + digit, 0.5)
-                    | add_weight(digit + addzero**3, 0.8)
-                    | add_weight(addzero**4, 1.0)
-                )
-            )
-            ten_thousand |= (
-                (thousand | hundred)
-                + accep("万")
-                + delete("零").ques
-                + (thousand | hundred | tens | teen | digits).ques
-            )
+            ten_thousand = ((teen | tens | digit) + delete("万") + (thousand
+                                                                   | add_weight(zero + hundred, 0.1)
+                                                                   | add_weight(addzero + zero + (tens | teen), 0.5)
+                                                                   | add_weight(addzero + addzero + zero + digit, 0.5)
+                                                                   | add_weight(digit + addzero**3, 0.8)
+                                                                   | add_weight(addzero**4, 1.0)))
+            ten_thousand |= ((thousand | hundred) + accep("万") + delete("零").ques +
+                             (thousand | hundred | tens | teen | digits).ques)
 
         # 1. 利用基础数字所构建的包含0~9的标准数字
         # 个/十/百/千/万
         number = digits | teen | tens | hundred | thousand | ten_thousand
         # 兆/亿
-        number = (
-            (number + accep("兆") + delete("零").ques).ques + (number + accep("亿") + delete("零").ques).ques + number
-        )
+        number = ((number + accep("兆") + delete("零").ques).ques + (number + accep("亿") + delete("零").ques).ques + number)
         # 负的xxx 1.11, 1.01
         number = sign.ques + number + (dot + digits.plus).ques
         # 五六万 => 5~6万，三五千 => 3000~5000，六七百 => 600~700，三四十 => 30~40, 三四十亿 => 30~40亿
@@ -133,11 +104,9 @@ class Cardinal(Processor):
         # 十/百/千/万
         number_exclude_0_to_9 = teen | tens | hundred | thousand | ten_thousand
         # 兆/亿
-        number_exclude_0_to_9 = (
-            ((number_exclude_0_to_9 | digits) + accep("兆") + delete("零").ques).ques
-            + ((number_exclude_0_to_9 | digits) + accep("亿") + delete("零").ques).ques
-            + number_exclude_0_to_9
-        )
+        number_exclude_0_to_9 = (((number_exclude_0_to_9 | digits) + accep("兆") + delete("零").ques).ques +
+                                 ((number_exclude_0_to_9 | digits) + accep("亿") + delete("零").ques).ques +
+                                 number_exclude_0_to_9)
         # 负的xxx 1.11, 1.01
         number_exclude_0_to_9 |= (number_exclude_0_to_9 | digits) + (dot + digits.plus).plus
         # 五六万，三五千，六七百，三四十
@@ -150,7 +119,7 @@ class Cardinal(Processor):
 
         # 3. 特殊格式的数字
         # "N个X" repeat pattern for digit sequences, e.g. 四个八 => 8888
-        repeat_digit = string_file(get_abs_path("../itn/chinese/data/number/repeat_digit.tsv"))
+        repeat_digit = string_file(get_abs_path("chinese/data/number/repeat_digit.tsv"))
         digit_token = digits | repeat_digit
 
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
@@ -174,5 +143,9 @@ class Cardinal(Processor):
                 cardinal |= add_weight(number, 0.1)
             else:
                 cardinal |= add_weight(number_exclude_0_to_9, 0.1)
-        tagger = insert('value: "') + cardinal + (insert(" ") + cardinal).star + insert('"')
+        self.cardinal = (cardinal | add_weight(cardinal + (insert(" ") + cardinal).plus, 0.1))
+        tagger = self.tag_field("value", self.cardinal)
         self.tagger = self.add_tokens(tagger)
+
+    def build_verbalizer(self):
+        self.verbalizer = self.delete_tokens(self.verbalize_field("value", self.cardinal))

@@ -13,10 +13,8 @@
 # limitations under the License.
 
 from pynini import string_file
-from pynini.lib.pynutil import insert
-
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class LicensePlate(Processor):
@@ -27,11 +25,14 @@ class LicensePlate(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        digit = string_file(get_abs_path("../itn/chinese/data/number/digit.tsv"))  # 1 ~ 9
-        zero = string_file(get_abs_path("../itn/chinese/data/number/zero.tsv"))  # 0
+        digit = string_file(get_abs_path("chinese/data/number/digit.tsv"))  # 1 ~ 9
+        zero = string_file(get_abs_path("chinese/data/number/zero.tsv"))  # 0
         digits = zero | digit
-        province = string_file(get_abs_path("../itn/chinese/data/license_plate/province.tsv"))  # 皖
-        license_plate = province + self.ALPHA + (self.ALPHA | digits) ** 5
-        license_plate |= province + self.ALPHA + (self.ALPHA | digits) ** 6
-        tagger = insert('value: "') + license_plate + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        province = string_file(get_abs_path("chinese/data/license_plate/province.tsv"))  # 皖
+        license_plate = province + self.ALPHA + (self.ALPHA | digits)**5
+        license_plate |= province + self.ALPHA + (self.ALPHA | digits)**6
+        self.graph = license_plate
+        self.tagger = self.add_tokens(self.tag_field("value", self.graph))
+
+    def build_verbalizer(self):
+        self.verbalizer = self.delete_tokens(self.verbalize_field("value", self.graph))

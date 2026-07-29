@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pynini import cross, string_file
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import delete
 
 from tn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
@@ -25,6 +25,7 @@ class Math(Processor):
     def __init__(self, cardinal=None):
         super().__init__(name="math")
         self.cardinal = cardinal or Cardinal()
+        self.math = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -34,7 +35,10 @@ class Math(Processor):
         symbols = cross("~", "到") | cross(":", "比") | cross("<", "小于") | cross(">", "大于")
 
         number = self.cardinal.number
-        tagger = number + (delete(" ").ques + (operator | symbols) + delete(" ").ques + number).star
-        tagger |= unambiguous_operator
-        tagger = insert('value: "') + tagger + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.math = (number + (delete(" ").ques + (operator | symbols) + delete(" ").ques + number).star
+                     | unambiguous_operator).optimize()
+        self.tagger = self.add_tokens(self.tag_field("value", self.math))
+
+    def build_verbalizer(self):
+        verbalizer = delete('value: "') + self.math + delete('"')
+        self.verbalizer = self.delete_tokens(verbalizer)

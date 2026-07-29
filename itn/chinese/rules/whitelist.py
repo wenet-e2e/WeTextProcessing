@@ -13,10 +13,8 @@
 # limitations under the License.
 
 from pynini import string_file
-from pynini.lib.pynutil import insert
-
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Whitelist(Processor):
@@ -27,7 +25,10 @@ class Whitelist(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        whitelist = string_file(get_abs_path("../itn/chinese/data/default/whitelist.tsv"))
+        whitelist = string_file(get_abs_path("chinese/data/default/whitelist.tsv"))
 
-        tagger = insert('value: "') + whitelist + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.graph = whitelist
+        self.tagger = self.add_tokens(self.tag_field("value", self.graph))
+
+    def build_verbalizer(self):
+        self.verbalizer = self.delete_tokens(self.verbalize_field("value", self.graph))

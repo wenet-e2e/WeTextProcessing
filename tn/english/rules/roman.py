@@ -22,6 +22,13 @@ from tn.utils import get_abs_path, load_labels
 
 
 class Roman(Processor):
+    """Standalone Roman-numeral normalizer.
+
+    This rule is intentionally not part of the default English pipeline:
+    isolated uppercase words such as ``IV`` are ambiguous without product-level
+    context. Callers that want Roman-numeral expansion can opt into this rule
+    directly.
+    """
 
     def __init__(self, deterministic: bool = False):
         """
@@ -37,7 +44,7 @@ class Roman(Processor):
     def build_tagger(self):
         """
         Finite state transducer for classifying roman numbers:
-            e.g. "IV" -> roman { integer: "four" }
+            e.g. IV -> roman { value: "IV" }
         """
         roman_dict = load_labels(get_abs_path("english/data/roman/roman_to_spoken.tsv"))
         default_graph = pynini.string_map(roman_dict).optimize()
@@ -54,13 +61,8 @@ class Roman(Processor):
 
         # roman numerals up to ordinal_limit with a preceding name are converted to ordinal form
         names = get_names()
-        graph = (
-            pynutil.insert('key_the_ordinal: "')
-            + names
-            + pynutil.insert('"')
-            + pynini.accep(" ")
-            + graph_teens @ default_graph
-        ).optimize()
+        graph = (pynutil.insert('key_the_ordinal: "') + names + pynutil.insert('"') + pynini.accep(" ") +
+                 graph_teens @ default_graph).optimize()
 
         # single symbol roman numerals with preceding key words (multiple formats) are converted to cardinal form
         key_words = []
@@ -70,29 +72,23 @@ class Roman(Processor):
             key_words.append([k_word[0].upper()])
 
         key_words = pynini.string_map(key_words).optimize()
-        graph |= (
-            pynutil.insert('key_cardinal: "') + key_words + pynutil.insert('"') + pynini.accep(" ") + default_graph
-        ).optimize()
+        graph |= (pynutil.insert('key_cardinal: "') + key_words + pynutil.insert('"') + pynini.accep(" ") +
+                  default_graph).optimize()
 
         if self.deterministic:
             # two digit roman numerals up to 49
             roman_to_cardinal = pynini.compose(
                 pynini.closure(self.ALPHA, 2),
-                (
-                    pynutil.insert('default_cardinal: "default" ')
-                    + (pynini.string_map([x[0] for x in roman_dict[:50]]).optimize()) @ default_graph
-                ),
+                (pynutil.insert('default_cardinal: "default" ') +
+                 (pynini.string_map([x[0] for x in roman_dict[:50]]).optimize()) @ default_graph),
             )
             graph |= roman_to_cardinal
         else:
             # two or more digit roman numerals
             roman_to_cardinal = pynini.compose(
                 pynini.difference(self.VCHAR.star, "I"),
-                (
-                    pynutil.insert('default_cardinal: "default" integer: "')
-                    + pynini.string_map(roman_dict).optimize()
-                    + pynutil.insert('"')
-                ),
+                (pynutil.insert('default_cardinal: "default" integer: "') + pynini.string_map(roman_dict).optimize() +
+                 pynutil.insert('"')),
             ).optimize()
             graph |= roman_to_cardinal
 
@@ -103,46 +99,32 @@ class Roman(Processor):
         )
 
         graph |= roman_to_ordinal
-        graph = self.add_tokens(graph.optimize())
-
-        self.tagger = graph.optimize()
+        self.structured_graph = graph.optimize()
+        self.tagger = self.add_tokens(self.tag_field("value", self.structured_graph))
 
     def build_verbalizer(self):
         """
         Finite state transducer for verbalizing roman numerals
-            e.g. tokens { roman { integer: "one" } } -> one
+            e.g. roman { value: "IV" } -> four
         """
         suffix = Ordinal(self.deterministic).suffix
 
         cardinal = self.NOT_QUOTE.star
         ordinal = pynini.compose(cardinal, suffix)
 
-        graph = (
-            pynutil.delete('key_cardinal: "')
-            + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
-            + pynini.accep(" ")
-            + pynutil.delete('integer: "')
-            + cardinal
-            + pynutil.delete('"')
-        ).optimize()
+        graph = (pynutil.delete('key_cardinal: "') + self.NOT_QUOTE.plus + pynutil.delete('"') + pynini.accep(" ") +
+                 pynutil.delete('integer: "') + cardinal + pynutil.delete('"')).optimize()
 
         graph |= (pynutil.delete('default_cardinal: "default" integer: "') + cardinal + pynutil.delete('"')).optimize()
 
         graph |= (pynutil.delete('default_ordinal: "default" integer: "') + ordinal + pynutil.delete('"')).optimize()
 
-        graph |= (
-            pynutil.delete('key_the_ordinal: "')
-            + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
-            + pynini.accep(" ")
-            + pynutil.delete('integer: "')
-            + pynutil.insert("the ").ques
-            + ordinal
-            + pynutil.delete('"')
-        ).optimize()
+        graph |= (pynutil.delete('key_the_ordinal: "') + self.NOT_QUOTE.plus + pynutil.delete('"') + pynini.accep(" ") +
+                  pynutil.delete('integer: "') + pynutil.insert("the ").ques + ordinal + pynutil.delete('"')).optimize()
 
-        delete_tokens = self.delete_tokens(graph)
+        self.graph = (self.structured_graph @ graph).optimize()
+        raw_value = pynutil.delete('value: "') + self.graph + pynutil.delete('"')
+        delete_tokens = self.delete_tokens(raw_value)
         self.verbalizer = delete_tokens.optimize()
 
 

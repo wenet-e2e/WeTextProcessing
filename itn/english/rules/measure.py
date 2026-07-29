@@ -19,7 +19,7 @@ from pynini.lib.pynutil import add_weight, delete, insert
 from itn.english.rules.cardinal import Cardinal
 from itn.english.rules.decimal import Decimal
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Measure(Processor):
@@ -35,7 +35,7 @@ class Measure(Processor):
         ds = delete(" ")
 
         # Load measurements: symbol\tname, invert to get name -> symbol
-        tsv_path = get_abs_path("../itn/english/data/measurements.tsv")
+        tsv_path = get_abs_path("english/data/measurements.tsv")
         units_graph = invert(string_file(tsv_path))
 
         # Handle plurals: generate plural->symbol mappings from the singular TSV entries
@@ -49,7 +49,8 @@ class Measure(Processor):
 
         plural_pairs = []
         irregular_plurals = {
-            "foot": "feet", "inch": "inches",
+            "foot": "feet",
+            "inch": "inches",
             "ounce": "ounces",
         }
         for name, symbol in singular_names.items():
@@ -75,8 +76,8 @@ class Measure(Processor):
         cardinal_value = self.cardinal.graph
 
         # Decimal value (reuse decimal's internal graph for the number)
-        decimal_digit = string_file(get_abs_path("../itn/english/data/numbers/digit.tsv"))
-        decimal_zero = string_file(get_abs_path("../itn/english/data/numbers/zero.tsv"))
+        decimal_digit = string_file(get_abs_path("english/data/numbers/digit.tsv"))
+        decimal_zero = string_file(get_abs_path("english/data/numbers/zero.tsv"))
         frac_digit = decimal_digit | decimal_zero | cross("o", "0")
         frac_graph = closure(frac_digit + ds) + frac_digit
         decimal_value = cardinal_value + ds + delete("point") + ds + insert(".") + frac_graph
@@ -90,26 +91,16 @@ class Measure(Processor):
 
         number = optional_sign + (decimal_value | cardinal_value | point_only)
 
-        value = insert('value: "') + number + insert('"')
-        units = insert('units: "') + full_unit + insert('"')
+        self.value = number
+        self.units = full_unit
+        value = self.tag_field("value", self.value)
+        units = self.tag_field("units", self.units)
 
         final_graph = value + ds + insert(" ") + units
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
-        value = (
-            delete("value:")
-            + self.DELETE_SPACE
-            + delete('"')
-            + self.NOT_QUOTE.plus
-            + delete('"')
-        )
-        units = (
-            delete("units:")
-            + self.DELETE_SPACE
-            + delete('"')
-            + self.NOT_QUOTE.plus
-            + delete('"')
-        )
+        value = self.verbalize_field("value", self.value)
+        units = self.verbalize_field("units", self.units)
         graph = value + self.DELETE_SPACE + insert(" ") + units
         self.verbalizer = self.delete_tokens(graph)

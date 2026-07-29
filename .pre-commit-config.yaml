@@ -4,12 +4,12 @@ repos:
     rev: v4.5.0
     hooks:
     - id: trailing-whitespace
-  - repo: https://github.com/pre-commit/mirrors-yapf
-    rev: 'v0.32.0'
+  - repo: https://github.com/google/yapf
+    rev: 'v0.43.0'
     hooks:
     - id: yapf
   - repo: https://github.com/pycqa/flake8
-    rev: '3.8.2'
+    rev: '7.3.0'
     hooks:
     - id: flake8
   - repo: https://github.com/pre-commit/mirrors-clang-format

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pynini import string_file
-from pynini.lib.pynutil import insert
+from pynini.lib.pynutil import delete
 
 from tn.processor import Processor
 from tn.utils import get_abs_path
@@ -21,16 +21,20 @@ from tn.utils import get_abs_path
 
 class Whitelist(Processor):
 
-    def __init__(self):
+    def __init__(self, input_normalizer=None):
         super().__init__(name="whitelist")
+        self.input_normalizer = input_normalizer
+        self.whitelist = None
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        whitelist = string_file(get_abs_path("japanese/data/default/whitelist.tsv"))
-
-        tagger = (insert('value: "') + whitelist) + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.whitelist = self.apply_input_processor(
+            string_file(get_abs_path("japanese/data/default/whitelist.tsv")),
+            self.input_normalizer,
+        )
+        self.tagger = self.add_tokens(self.tag_field("value", self.whitelist))
 
     def build_verbalizer(self):
-        super().build_verbalizer()
+        verbalizer = delete('value: "') + self.whitelist + delete('"')
+        self.verbalizer = self.delete_tokens(verbalizer)

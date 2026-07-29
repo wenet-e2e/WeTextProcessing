@@ -26,3 +26,30 @@ class TestElectronic:
     @pytest.mark.parametrize("written, spoken", electronic_cases)
     def test_electronic(self, written, spoken):
         assert self.electronic.normalize(written) == spoken
+
+    @pytest.mark.parametrize(
+        "written, tagged, spoken",
+        [
+            (
+                "www.abc.com",
+                'electronic { protocol: "www." domain: "abc.com" }',
+                "WWW dot abc dot com",
+            ),
+            (
+                "http://www.abc.com",
+                'electronic { protocol: "http://www." domain: "abc.com" }',
+                "HTTP colon slash slash WWW dot abc dot com",
+            ),
+        ],
+    )
+    def test_protocol_structure_weight_survives_raw_fields(self, written, tagged, spoken):
+        assert self.electronic.tag(written).strip() == tagged
+        assert self.electronic.normalize(written) == spoken
+
+    @pytest.mark.parametrize("written", ["cdf1@abc.edu", "http://www.abc.com"])
+    def test_nbest_has_canonical_whitespace(self, written):
+        outputs = self.electronic.normalize(written, nbest=32)
+
+        assert outputs
+        assert all(output == output.strip() for output in outputs)
+        assert all("  " not in output for output in outputs)

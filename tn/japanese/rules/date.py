@@ -22,9 +22,14 @@ from tn.utils import get_abs_path
 
 class Date(Processor):
 
-    def __init__(self, cardinal=None):
+    def __init__(self, cardinal=None, input_normalizer=None, range_tagger=None):
         super().__init__(name="date")
-        self.cardinal = cardinal or Cardinal()
+        self.input_normalizer = input_normalizer
+        self.range_tagger = range_tagger
+        self.cardinal = cardinal or Cardinal(input_normalizer=input_normalizer)
+        self.year = None
+        self.month = None
+        self.day = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -34,34 +39,44 @@ class Date(Processor):
         mm = string_file(get_abs_path("japanese/data/date/mm.tsv"))
         d = string_file(get_abs_path("japanese/data/date/d.tsv"))
         dd = string_file(get_abs_path("japanese/data/date/dd.tsv"))
-        rmsign = (delete("/") | delete("-") | delete(".")) + insert(" ")
+        rmsign = self.apply_input_processor(
+            delete("/") | delete("-") | delete("."),
+            self.input_normalizer,
+        ) + insert(" ")
 
-        year = insert('year: "') + yyyy + insert('年"')
-        month = insert('month: "') + (m | mm) + insert('"')
-        day = insert('day: "') + (d | dd) + insert('"')
+        self.year = (yyyy + insert("年")).optimize()
+        self.month = self.apply_input_processor(m | mm, self.input_normalizer)
+        self.day = self.apply_input_processor(d | dd, self.input_normalizer)
+
+        year = self.tag_field("year", self.year)
+        month = self.tag_field("month", self.month)
+        day = self.tag_field("day", self.day)
 
         # yyyy/m/d | yyyy/mm/dd | dd/mm/yyyy
         # yyyy/0m | 0m/yyyy | 0m/dd
-        mm = insert('month: "') + mm + insert('"')
-        date = (
-            (year + rmsign + month + rmsign + day)
-            | (day + rmsign + month + rmsign + year)
-            | (year + rmsign + mm)
-            | (mm + rmsign + year)
-            | (mm + rmsign + day)
+        month_two_digit = self.tag_field(
+            "month",
+            self.apply_input_processor(mm, self.input_normalizer),
         )
+        date = ((year + rmsign + month + rmsign + day)
+                | (day + rmsign + month + rmsign + year)
+                | (year + rmsign + month_two_digit)
+                | (month_two_digit + rmsign + year)
+                | (month_two_digit + rmsign + day))
         # yyyy/0m | 0m/yyyy | 0m/dd
         simple_date = (year + rmsign + month) | (month + rmsign + year) | (month + rmsign + day)
 
         tagger = self.add_tokens(date)
         simple_tagger = self.add_tokens(simple_date)
 
-        to = (delete("-") | delete("~") | delete("から")) + insert(' char { value: "から" } ')
-        self.tagger = tagger + (to + tagger).ques | simple_tagger + to + simple_tagger
+        if self.range_tagger is None:
+            self.tagger = tagger
+        else:
+            self.tagger = tagger + (self.range_tagger + tagger).ques | simple_tagger + self.range_tagger + simple_tagger
 
     def build_verbalizer(self):
-        year = delete('year: "') + self.SIGMA + delete('" ')
-        month = delete('month: "') + self.SIGMA + delete('"')
-        day = delete(' day: "') + self.SIGMA + delete('"')
+        year = delete('year: "') + self.year + delete('" ')
+        month = delete('month: "') + self.month + delete('"')
+        day = delete(' day: "') + self.day + delete('"')
         verbalizer = year.ques + month + day.ques
         self.verbalizer = self.delete_tokens(verbalizer)

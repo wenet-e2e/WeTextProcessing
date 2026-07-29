@@ -13,22 +13,24 @@
 # limitations under the License.
 
 from pynini import accep
-from pynini.lib.pynutil import insert
-
 from itn.japanese.rules.cardinal import Cardinal
 from tn.processor import Processor
 
 
 class Ordinal(Processor):
 
-    def __init__(self, cardinal=None):
+    def __init__(self, cardinal=None, input_processor=None):
         super().__init__(name="ordinal")
         self.cardinal = cardinal or Cardinal()
+        self.input_processor = input_processor
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
         cardinal = self.cardinal.number
         ordinal = (cardinal + accep("番目")) | (accep("第") + cardinal)
-        tagger = insert('value: "') + ordinal + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.graph = self.apply_input_processor(ordinal, self.input_processor)
+        self.tagger = self.add_tokens(self.tag_field("value", self.graph))
+
+    def build_verbalizer(self):
+        self.verbalizer = self.delete_tokens(self.verbalize_field("value", self.graph))

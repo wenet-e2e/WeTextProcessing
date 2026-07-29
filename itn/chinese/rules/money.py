@@ -17,7 +17,7 @@ from pynini.lib.pynutil import add_weight, delete, insert
 
 from itn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Money(Processor):
@@ -30,30 +30,24 @@ class Money(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        code = string_file(get_abs_path("../itn/chinese/data/money/code.tsv"))
-        symbol = string_file(get_abs_path("../itn/chinese/data/money/symbol.tsv"))
-        digit = string_file(get_abs_path("../itn/chinese/data/number/digit.tsv"))  # 1 ~ 9
+        code = string_file(get_abs_path("chinese/data/money/code.tsv"))
+        symbol = string_file(get_abs_path("chinese/data/money/symbol.tsv"))
+        digit = string_file(get_abs_path("chinese/data/number/digit.tsv"))  # 1 ~ 9
 
         number = self.cardinal.number if self.enable_0_to_9 else self.cardinal.number_exclude_0_to_9
         # 七八美元 => $7~8
         number |= digit + insert("~") + digit
         # 三千三百八十元五毛八分 => ¥3380.58
-        tagger = (
-            insert('value: "')
-            + number
-            + insert('"')
-            + insert(' currency: "')
-            + (symbol | add_weight(code, 1))
-            + insert('"')
-            + insert(' decimal: "')
-            + (insert(".") + digit + (delete("毛") | delete("角")) + (digit + delete("分")).ques).ques
-            + insert('"')
-        )
+        self.value = number
+        self.currency = symbol | add_weight(code, 1)
+        self.decimal = (insert(".") + digit + (delete("毛") | delete("角")) + (digit + delete("分")).ques).ques
+        tagger = (self.tag_field("value", self.value) + insert(" ") + self.tag_field("currency", self.currency) + insert(" ") +
+                  self.tag_field("decimal", self.decimal))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        currency = delete('currency: "') + self.SIGMA + delete('"')
-        value = delete(' value: "') + self.SIGMA + delete('"')
-        decimal = delete(' decimal: "') + self.SIGMA + delete('"')
+        currency = self.verbalize_field("currency", self.currency)
+        value = self.verbalize_field("value", self.value, leading_space=True)
+        decimal = self.verbalize_field("decimal", self.decimal, leading_space=True)
         verbalizer = currency + value + decimal
         self.verbalizer = self.delete_tokens(verbalizer)

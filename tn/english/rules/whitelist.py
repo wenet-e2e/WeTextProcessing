@@ -41,11 +41,11 @@ class WhiteList(Processor):
     def build_tagger(self):
         """
         Finite state transducer for classifying whitelist, e.g.
-            misses -> tokens { name: "mrs" }
-            for non-deterministic case: "Dr. Abc" ->
-                whitelist { name: "drive" } word { value: "Abc" }
-                whitelist { name: "doctor" } word { value: "Abc" }
-                whitelist { name: "Dr." } word { vale: "Abc" }
+            Mrs. -> whitelist { name: "Mrs." }
+            Dr. -> whitelist { name: "Dr." }
+
+        In the non-deterministic case, spoken alternatives such as "doctor"
+        and "drive" are produced only by the verbalizer.
         This class has highest priority among all classifier grammars. Whitelisted tokens are defined and loaded from "data/whitelist.tsv".
         """
 
@@ -70,12 +70,8 @@ class WhiteList(Processor):
 
         if self.deterministic:
             names = get_names()
-            graph |= (
-                pynini.cross(pynini.union("st", "St", "ST"), "Saint")
-                + pynutil.delete(".").star
-                + pynini.accep(" ")
-                + names
-            )
+            graph |= (pynini.cross(pynini.union("st", "St", "ST"), "Saint") + pynutil.delete(".").star + pynini.accep(" ") +
+                      names)
         else:
             graph |= _get_whitelist_graph(
                 self.input_case,
@@ -104,17 +100,11 @@ class WhiteList(Processor):
 
         self.graph = graph.optimize()
 
-        fianl_graph = (pynutil.insert('name: "') + self.graph + pynutil.insert('"')).optimize()
+        fianl_graph = self.tag_field("name", self.graph)
         self.tagger = self.add_tokens(fianl_graph)
 
     def build_verbalizer(self):
-        graph = (
-            pynutil.delete("name:")
-            + self.DELETE_SPACE
-            + pynutil.delete('"')
-            + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
-        )
+        graph = (pynutil.delete("name:") + self.DELETE_SPACE + pynutil.delete('"') + self.graph + pynutil.delete('"'))
         final_graph = graph.optimize()
         self.verbalizer = self.delete_tokens(final_graph)
 

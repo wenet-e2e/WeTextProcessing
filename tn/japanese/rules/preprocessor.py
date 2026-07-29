@@ -22,10 +22,10 @@ class PreProcessor(Processor):
 
     def __init__(self, full_to_half=True):
         super().__init__(name="preprocessor")
-        traditional2simple = string_file(get_abs_path("japanese/data/char/fullwidth_to_halfwidth.tsv"))
+        full2half = string_file(get_abs_path("japanese/data/char/fullwidth_to_halfwidth.tsv"))
 
         processor = self.build_rule("")
         if full_to_half:
-            processor @= self.build_rule(traditional2simple)
+            processor @= self.build_rule(full2half)
 
         self.processor = processor.optimize()

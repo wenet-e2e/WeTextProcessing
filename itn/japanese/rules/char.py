@@ -12,18 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini.lib.pynutil import insert
-
 from tn.processor import Processor
 
 
 class Char(Processor):
 
-    def __init__(self):
+    def __init__(self, input_processor=None):
         super().__init__(name="char")
+        self.input_processor = input_processor
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        tagger = insert('value: "') + self.CHAR + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.graph = self.apply_input_processor(self.VCHAR, self.input_processor)
+        self.tagger = self.add_tokens(self.tag_field("value", self.graph))
+
+    def build_verbalizer(self):
+        self.verbalizer = self.delete_tokens(self.verbalize_field("value", self.graph))

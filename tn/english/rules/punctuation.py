@@ -15,7 +15,7 @@
 import sys
 from unicodedata import category
 
-from pynini import accep, closure, cross, union
+from pynini import accep, closure, compose, cross, union
 from pynini.examples import plurals
 from pynini.lib.pynutil import add_weight, delete, insert
 
@@ -45,8 +45,7 @@ class Punctuation(Processor):
 
         punct_symbols_to_exclude = ["[", "]", '"', "\\"]
         punct_unicode = [
-            chr(i)
-            for i in range(sys.maxunicode)
+            chr(i) for i in range(sys.maxunicode)
             if category(chr(i)).startswith("P") and chr(i) not in punct_symbols_to_exclude
         ]
 
@@ -58,24 +57,22 @@ class Punctuation(Processor):
         punct = (self.punct | cross("\\", "\\\\\\") | cross('"', '\\"')).plus
 
         self.emphasis = (
-            accep("<")
-            + (
-                ((self.NOT_SPACE - union("<", ">")).plus + closure(accep("/"), 0, 1))  # noqa
-                | (accep("/") + (self.NOT_SPACE - union("<", ">")).plus)
-            )
-            + accep(">")
-        )  # noqa
+            accep("<") + (((self.NOT_SPACE - union("<", ">")).plus + closure(accep("/"), 0, 1))  # noqa
+                          | (accep("/") + (self.NOT_SPACE - union("<", ">")).plus)) + accep(">"))  # noqa
         punct = plurals._priority_union(self.emphasis, punct, self.VCHAR.star)
 
         self.graph = punct
-        final_graph = (
-            insert('v: "') + add_weight(accep(" "), -1.0).star + punct + add_weight(accep(" "), -1.0).star + insert('"')
-        )
+        # Adjacent punctuation is one lexical unit. Keep that classification
+        # preference in the tagger instead of relying on a downstream spoken
+        # path weight to break ties with semantic classes such as decimals.
+        grouped_punct = compose(self.VCHAR**(2, ...), punct)
+        tagger_punct = punct | add_weight(grouped_punct, -0.0001)
+        final_graph = (insert('v: "') + add_weight(accep(" "), -1.0).star + tagger_punct + add_weight(accep(" "), -1.0).star +
+                       insert('"'))
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
         punct = closure(self.punct | self.emphasis | cross("\\\\\\", "\\") | cross('\\"', '"'), 1)
-        verbalizer = (
-            delete('v: "') + add_weight(accep(" "), -1.0).star + punct + add_weight(accep(" "), -1.0).star + delete('"')
-        )
+        verbalizer = (delete('v: "') + add_weight(accep(" "), -1.0).star + punct + add_weight(accep(" "), -1.0).star +
+                      delete('"'))
         self.verbalizer = self.delete_tokens(verbalizer)

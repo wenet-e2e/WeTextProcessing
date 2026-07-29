@@ -33,50 +33,34 @@ class Ordinal(Processor):
     def build_tagger(self):
         """
         Finite state transducer for classifying ordinal, e.g.
-            13th -> ordinal { integer: "thirteen" }
+            13th -> ordinal { integer: "13th" }
         """
         cardinal_graph = self.cardinal.graph
         cardinal_format = (self.DIGIT | pynini.accep(",")).star
-        st_format = (
-            (cardinal_format + (self.DIGIT - "1")).ques
-            + pynini.accep("1")
-            + pynutil.delete(pynini.union("st", "ST", "ˢᵗ"))
-        )
-        nd_format = (
-            (cardinal_format + (self.DIGIT - "1")).ques
-            + pynini.accep("2")
-            + pynutil.delete(pynini.union("nd", "ND", "ⁿᵈ"))
-        )
-        rd_format = (
-            (cardinal_format + (self.DIGIT - "1")).ques
-            + pynini.accep("3")
-            + pynutil.delete(pynini.union("rd", "RD", "ʳᵈ"))
-        )
-        th_format = (
-            (self.DIGIT - "1" - "2" - "3")
-            | (cardinal_format + "1" + self.DIGIT)
-            | (cardinal_format + (self.DIGIT - "1") + (self.DIGIT - "1" - "2" - "3"))
-        ).plus + pynutil.delete(pynini.union("th", "TH", "ᵗʰ"))
+        st_format = ((cardinal_format + (self.DIGIT - "1")).ques + pynini.accep("1") +
+                     pynutil.delete(pynini.union("st", "ST", "ˢᵗ")))
+        nd_format = ((cardinal_format + (self.DIGIT - "1")).ques + pynini.accep("2") +
+                     pynutil.delete(pynini.union("nd", "ND", "ⁿᵈ")))
+        rd_format = ((cardinal_format + (self.DIGIT - "1")).ques + pynini.accep("3") +
+                     pynutil.delete(pynini.union("rd", "RD", "ʳᵈ")))
+        th_format = ((self.DIGIT - "1" - "2" - "3")
+                     | (cardinal_format + "1" + self.DIGIT)
+                     | (cardinal_format + (self.DIGIT - "1") +
+                        (self.DIGIT - "1" - "2" - "3"))).plus + pynutil.delete(pynini.union("th", "TH", "ᵗʰ"))
         self.graph = (st_format | nd_format | rd_format | th_format) @ cardinal_graph
-        final_graph = pynutil.insert('integer: "') + self.graph + pynutil.insert('"')
+        final_graph = self.tag_field("integer", self.graph)
         final_graph = self.add_tokens(final_graph)
         self.tagger = final_graph.optimize()
 
     def build_verbalizer(self):
         """
         Finite state transducer for verbalizing ordinal, e.g.
-            ordinal { integer: "thirteen" } } -> thirteenth
+            ordinal { integer: "13th" } -> thirteenth
         """
         graph_digit = pynini.string_file(get_abs_path("english/data/ordinal/digit.tsv")).invert()
         graph_teens = pynini.string_file(get_abs_path("english/data/ordinal/teen.tsv")).invert()
 
-        graph = (
-            pynutil.delete("integer:")
-            + self.DELETE_SPACE
-            + pynutil.delete('"')
-            + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
-        )
+        graph = pynutil.delete("integer:") + self.DELETE_SPACE + pynutil.delete('"') + self.graph + pynutil.delete('"')
         convert_rest = pynutil.insert("th")
 
         suffix = pynini.cdrewrite(

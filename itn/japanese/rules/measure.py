@@ -13,36 +13,37 @@
 # limitations under the License.
 
 from pynini import cross, string_file
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import add_weight, delete, insert
 
 from itn.japanese.rules.cardinal import Cardinal
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Measure(Processor):
 
-    def __init__(self, enable_0_to_9=True, cardinal=None):
+    def __init__(self, enable_0_to_9=True, cardinal=None, input_processor=None):
         super().__init__(name="measure")
         self.enable_0_to_9 = enable_0_to_9
         self.cardinal = cardinal or Cardinal()
+        self.input_processor = input_processor
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        unit_en = string_file(get_abs_path("../itn/japanese/data/measure/unit_en.tsv"))
-        unit_ja = string_file(get_abs_path("../itn/japanese/data/measure/unit_ja.tsv"))
+        unit_en = string_file(get_abs_path("japanese/data/measure/unit_en.tsv"))
+        unit_ja = string_file(get_abs_path("japanese/data/measure/unit_ja.tsv"))
 
         cardinal = self.cardinal.number if self.enable_0_to_9 else self.cardinal.number_exclude_0_to_9
         decimal = self.cardinal.decimal
 
-        suffix = (
-            insert("/")
-            + (delete("每") | delete("毎"))
-            + (unit_en | cross("時", "h") | cross("分", "min") | cross("秒", "s"))
-        )
+        suffix = (insert("/") + (delete("每") | delete("毎")) +
+                  (unit_en | cross("時", "h") | cross("分", "min") | cross("秒", "s")))
 
-        measure = (cardinal | decimal) + unit_en + suffix.ques | (cardinal | decimal) + unit_ja
+        measure = ((cardinal | decimal) + unit_en + suffix.ques | (cardinal | decimal) + add_weight(unit_ja, 0.001))
 
-        tagger = insert('value: "') + measure + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.graph = self.apply_input_processor(measure, self.input_processor)
+        self.tagger = self.add_tokens(self.tag_field("value", self.graph))
+
+    def build_verbalizer(self):
+        self.verbalizer = self.delete_tokens(self.verbalize_field("value", self.graph))

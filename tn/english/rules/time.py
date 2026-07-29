@@ -33,14 +33,14 @@ class Time(Processor):
     def build_tagger(self):
         """
         Finite state transducer for classifying time, e.g.
-            12:30 a.m. est -> time { hours: "twelve" minutes: "thirty" suffix: "a m" zone: "e s t" }
-            2.30 a.m. -> time { hours: "two" minutes: "thirty" suffix: "a m" }
-            02.30 a.m. -> time { hours: "two" minutes: "thirty" suffix: "a m" }
-            2.00 a.m. -> time { hours: "two" suffix: "a m" }
-            2 a.m. -> time { hours: "two" suffix: "a m" }
-            02:00 -> time { hours: "two" }
-            2:00 -> time { hours: "two" }
-            10:00:05 a.m. -> time { hours: "ten" minutes: "zero" seconds: "five" suffix: "a m" }
+            12:30 a.m. est -> time { hours: "12" minutes: "30" suffix: "a.m." zone: "est" }
+            2.30 a.m. -> time { hours: "2" minutes: "30" suffix: "a.m." }
+            02.30 a.m. -> time { hours: "02" minutes: "30" suffix: "a.m." }
+            2.00 a.m. -> time { hours: "2" minutes: "00" suffix: "a.m." }
+            2 a.m. -> time { hours: "2" suffix: "a.m." }
+            02:00 -> time { hours: "02" minutes: "00" }
+            2:00 -> time { hours: "2" minutes: "00" }
+            10:00:05 a.m. -> time { hours: "10" minutes: "00" seconds: "05" suffix: "a.m." }
         """
         suffix_labels = load_labels(get_abs_path("english/data/time/suffix.tsv"))
         suffix_labels.extend(augment_labels_with_punct_at_end(suffix_labels))
@@ -62,115 +62,64 @@ class Time(Processor):
         graph_minute_single = pynini.union(*labels_minute_single) @ cardinal
         graph_minute_double = pynini.union(*labels_minute_double) @ cardinal
 
-        final_graph_hour = pynutil.insert('hours: "') + graph_hour + pynutil.insert('"')
-        final_graph_minute = (
-            pynutil.insert('minutes: "')
-            + (pynini.cross("0", "o") + self.INSERT_SPACE + graph_minute_single | graph_minute_double)
-            + pynutil.insert('"')
-        )
-        final_graph_second = (
-            pynutil.insert('seconds: "')
-            + (pynini.cross("0", "o") + self.INSERT_SPACE + graph_minute_single | graph_minute_double)
-            + pynutil.insert('"')
-        )
-        final_suffix = pynutil.insert('suffix: "') + suffix_graph + pynutil.insert('"')
+        self.hour_graph = graph_hour
+        self.minute_graph = pynini.cross("0", "o") + self.INSERT_SPACE + graph_minute_single | graph_minute_double
+        self.minute_zero_graph = pynini.cross("00", "zero")
+        self.suffix_graph = suffix_graph
+        self.zone_graph = time_zone_graph
+
+        final_graph_hour = self.tag_field("hours", self.hour_graph)
+        final_graph_minute = self.tag_field("minutes", self.minute_graph)
+        final_graph_second = self.tag_field("seconds", self.minute_graph)
+        final_suffix = self.tag_field("suffix", self.suffix_graph)
         final_suffix_optional = (self.DELETE_SPACE + self.INSERT_SPACE + final_suffix).ques
-        final_time_zone_optional = (
-            self.DELETE_SPACE + self.INSERT_SPACE + pynutil.insert('zone: "') + time_zone_graph + pynutil.insert('"')
-        ).ques
+        final_time_zone_optional = (self.DELETE_SPACE + self.INSERT_SPACE + self.tag_field("zone", self.zone_graph)).ques
 
         # 2:30 pm, 02:30, 2:00
-        graph_hm = (
-            final_graph_hour
-            + pynutil.delete(":")
-            + (pynutil.delete("00") | self.INSERT_SPACE + final_graph_minute)
-            + final_suffix_optional
-            + final_time_zone_optional
-        )
+        graph_hm = (final_graph_hour + pynutil.delete(":") + self.INSERT_SPACE +
+                    (self.tag_field("minutes", self.minute_zero_graph) | final_graph_minute) + final_suffix_optional +
+                    final_time_zone_optional)
 
         # 10:30:05 pm,
-        graph_hms = (
-            final_graph_hour
-            + pynutil.delete(":")
-            + (pynini.cross("00", ' minutes: "zero"') | self.INSERT_SPACE + final_graph_minute)
-            + pynutil.delete(":")
-            + (pynini.cross("00", ' seconds: "zero"') | self.INSERT_SPACE + final_graph_second)
-            + final_suffix_optional
-            + final_time_zone_optional
-        )
+        graph_hms = (final_graph_hour + pynutil.delete(":") +
+                     (self.INSERT_SPACE + self.tag_field("minutes", self.minute_zero_graph)
+                      | self.INSERT_SPACE + final_graph_minute) + pynutil.delete(":") +
+                     (self.INSERT_SPACE + self.tag_field("seconds", self.minute_zero_graph)
+                      | self.INSERT_SPACE + final_graph_second) + final_suffix_optional + final_time_zone_optional)
 
         # 2.xx pm/am
-        graph_hm2 = (
-            final_graph_hour
-            + pynutil.delete(".")
-            + (pynutil.delete("00") | self.INSERT_SPACE + final_graph_minute)
-            + self.DELETE_SPACE
-            + self.INSERT_SPACE
-            + final_suffix
-            + final_time_zone_optional
-        )
+        graph_hm2 = (final_graph_hour + pynutil.delete(".") + self.INSERT_SPACE +
+                     (self.tag_field("minutes", self.minute_zero_graph) | final_graph_minute) + self.DELETE_SPACE +
+                     self.INSERT_SPACE + final_suffix + final_time_zone_optional)
         # 2 pm est
         graph_h = final_graph_hour + self.DELETE_SPACE + self.INSERT_SPACE + final_suffix + final_time_zone_optional
         final_graph = (graph_hm | graph_h | graph_hm2 | graph_hms).optimize()
 
-        final_graph = self.add_tokens(final_graph)
-        self.tagger = final_graph.optimize()
+        self.structured_graph = final_graph
+        self.tagger = self.add_tokens(self.structured_graph)
 
     def build_verbalizer(self):
         """
         Finite state transducer for verbalizing time, e.g.
-            time { hours: "twelve" minutes: "thirty" suffix: "a m" zone: "e s t" } -> twelve thirty a m e s t
-            time { hours: "twelve" } -> twelve o'clock
+            time { hours: "12" minutes: "30" suffix: "a.m." zone: "est" } -> twelve thirty a m e s t
+            time { hours: "12" minutes: "00" } -> twelve o'clock
         """
-        hour = (
-            pynutil.delete("hours:")
-            + self.DELETE_SPACE
-            + pynutil.delete('"')
-            + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
-        )
-        minute = (
-            pynutil.delete("minutes:")
-            + self.DELETE_SPACE
-            + pynutil.delete('"')
-            + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
-        )
-        suffix = (
-            pynutil.delete("suffix:")
-            + self.DELETE_SPACE
-            + pynutil.delete('"')
-            + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
-        )
+        hour = (pynutil.delete("hours:") + self.DELETE_SPACE + pynutil.delete('"') + self.hour_graph + pynutil.delete('"'))
+        minute_nonzero = (pynutil.delete("minutes:") + self.DELETE_SPACE + pynutil.delete('"') + self.minute_graph +
+                          pynutil.delete('"'))
+        minute = (pynutil.delete("minutes:") + self.DELETE_SPACE + pynutil.delete('"') +
+                  (self.minute_graph | self.minute_zero_graph) + pynutil.delete('"'))
+        zero_minute = (pynutil.delete("minutes:") + self.DELETE_SPACE + pynutil.delete('"') + pynutil.delete("00") +
+                       pynutil.delete('"'))
+        suffix = (pynutil.delete("suffix:") + self.DELETE_SPACE + pynutil.delete('"') + self.suffix_graph +
+                  pynutil.delete('"'))
         optional_suffix = (self.DELETE_SPACE + self.INSERT_SPACE + suffix).ques
-        zone = (
-            pynutil.delete("zone:")
-            + self.DELETE_SPACE
-            + pynutil.delete('"')
-            + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
-        )
+        zone = (pynutil.delete("zone:") + self.DELETE_SPACE + pynutil.delete('"') + self.zone_graph + pynutil.delete('"'))
         optional_zone = (self.DELETE_SPACE + self.INSERT_SPACE + zone).ques
-        second = (
-            pynutil.delete("seconds:")
-            + self.DELETE_SPACE
-            + pynutil.delete('"')
-            + self.NOT_QUOTE.plus
-            + pynutil.delete('"')
-        )
-        graph_hms = (
-            hour
-            + pynutil.insert(" hours ")
-            + self.DELETE_SPACE
-            + minute
-            + pynutil.insert(" minutes and ")
-            + self.DELETE_SPACE
-            + second
-            + pynutil.insert(" seconds")
-            + optional_suffix
-            + optional_zone
-        )
+        second = (pynutil.delete("seconds:") + self.DELETE_SPACE + pynutil.delete('"') +
+                  (self.minute_graph | self.minute_zero_graph) + pynutil.delete('"'))
+        graph_hms = (hour + pynutil.insert(" hours ") + self.DELETE_SPACE + minute + pynutil.insert(" minutes and ") +
+                     self.DELETE_SPACE + second + pynutil.insert(" seconds") + optional_suffix + optional_zone)
         graph_hms @= pynini.cdrewrite(
             pynutil.delete("o ")
             | pynini.cross("one minutes", "one minute")
@@ -180,9 +129,12 @@ class Time(Processor):
             "",
             self.VCHAR.star,
         )
-        graph = hour + self.DELETE_SPACE + self.INSERT_SPACE + minute + optional_suffix + optional_zone
-        graph |= hour + self.INSERT_SPACE + pynutil.insert("o'clock") + optional_zone
+        graph = hour + self.DELETE_SPACE + self.INSERT_SPACE + minute_nonzero + optional_suffix + optional_zone
+        graph |= (hour + self.DELETE_SPACE + zero_minute + self.INSERT_SPACE + pynutil.insert("o'clock") + optional_zone)
+        graph |= (hour + self.DELETE_SPACE + zero_minute + self.DELETE_SPACE + self.INSERT_SPACE + suffix + optional_zone)
         graph |= hour + self.DELETE_SPACE + self.INSERT_SPACE + suffix + optional_zone
         graph |= graph_hms
-        delete_tokens = self.delete_tokens(graph)
+        self.verbalizer_graph = graph.optimize()
+        self.graph = (self.structured_graph @ self.verbalizer_graph).optimize()
+        delete_tokens = self.delete_tokens(self.verbalizer_graph)
         self.verbalizer = delete_tokens.optimize()

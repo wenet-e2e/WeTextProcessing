@@ -13,33 +13,36 @@
 # limitations under the License.
 
 from pynini import string_file
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import insert
 
 from itn.japanese.rules.cardinal import Cardinal
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Money(Processor):
 
-    def __init__(self, enable_0_to_9=True, cardinal=None):
+    def __init__(self, enable_0_to_9=True, cardinal=None, input_processor=None):
         super().__init__(name="money")
         self.enable_0_to_9 = enable_0_to_9
         self.cardinal = cardinal or Cardinal()
+        self.input_processor = input_processor
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        symbol = string_file(get_abs_path("../itn/japanese/data/money/symbol.tsv"))
+        symbol = string_file(get_abs_path("japanese/data/money/symbol.tsv"))
 
         number = self.cardinal.number if self.enable_0_to_9 else self.cardinal.number_exclude_0_to_9
         decimal = self.cardinal.decimal
         # 三千三百八十点五八円 => ¥3380.58
-        tagger = insert('value: "') + (number | decimal) + insert('"') + insert(' currency: "') + symbol + insert('"')
+        self.value = self.apply_input_processor(number | decimal, self.input_processor)
+        self.currency = self.apply_input_processor(symbol, self.input_processor)
+        tagger = (self.tag_field("value", self.value) + insert(" ") + self.tag_field("currency", self.currency))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        currency = delete('currency: "') + self.SIGMA + delete('"')
-        value = delete(' value: "') + self.SIGMA + delete('"')
+        currency = self.verbalize_field("currency", self.currency)
+        value = self.verbalize_field("value", self.value, leading_space=True)
         verbalizer = currency + value
         self.verbalizer = self.delete_tokens(verbalizer)

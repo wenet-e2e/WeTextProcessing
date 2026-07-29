@@ -37,27 +37,26 @@ class Fraction(Processor):
         """
         Finite state transducer for classifying fraction
         "23 4/5" ->
-        fraction { integer_part: "twenty three" numerator: "four" denominator: "five" }
+        fraction { integer_part: "23" numerator: "4" denominator: "5" }
         "23 4/5th" ->
-        fraction { integer_part: "twenty three" numerator: "four" denominator: "five" }
+        fraction { integer_part: "23" numerator: "4" denominator: "5th" }
         """
         cardinal_graph = self.cardinal.graph
-        integer = pynutil.insert('integer_part: "') + cardinal_graph + pynutil.insert('"')
-        numerator = (
-            pynutil.insert('numerator: "') + cardinal_graph + (pynini.cross("/", '" ') | pynini.cross(" / ", '" '))
-        )
+        self.integer_graph = cardinal_graph
+        integer = self.tag_field("integer_part", self.integer_graph)
+        numerator = self.tag_field("numerator", cardinal_graph) + (pynini.cross("/", " ") | pynini.cross(" / ", " "))
 
         endings = ["rd", "th", "st", "nd"]
         endings += [x.upper() for x in endings]
         optional_end = pynini.cross(pynini.union(*endings), "").ques
 
-        denominator = pynutil.insert('denominator: "') + cardinal_graph + optional_end + pynutil.insert('"')
+        self.numerator_graph = cardinal_graph
+        self.denominator_graph = cardinal_graph + optional_end
+        denominator = self.tag_field("denominator", self.denominator_graph)
 
         graph = (integer + pynini.accep(" ")).ques + (numerator + denominator)
-        graph |= (integer + (pynini.accep(" ") | pynutil.insert(" "))).ques + pynini.compose(
-            pynini.string_file(get_abs_path("english/data/number/fraction.tsv")),
-            (numerator + denominator),
-        )
+        self.symbol_graph = pynini.string_file(get_abs_path("english/data/number/fraction.tsv"))
+        graph |= (integer + pynini.accep(" ")).ques + self.tag_field("value", self.symbol_graph)
 
         self.graph = graph
         final_graph = self.add_tokens(self.graph)
@@ -66,17 +65,17 @@ class Fraction(Processor):
     def build_verbalizer(self):
         """
         Finite state transducer for verbalizing fraction
-            e.g. fraction { integer_part: "twenty three" numerator: "four" denominator: "five" } ->
+            e.g. fraction { integer_part: "23" numerator: "4" denominator: "5" } ->
             twenty three and four fifth
         """
         suffix = self.ordinal.suffix
 
-        integer = pynutil.delete('integer_part: "') + self.NOT_QUOTE.star + pynutil.delete('" ')
-        denominator_one = pynini.cross('denominator: "one"', "over one")
-        denominator_half = pynini.cross('denominator: "two"', "half")
-        denominator_quarter = pynini.cross('denominator: "four"', "quarter")
-
-        denominator_rest = pynutil.delete('denominator: "') + self.NOT_QUOTE.star @ suffix + pynutil.delete('"')
+        integer = pynutil.delete('integer_part: "') + self.integer_graph + pynutil.delete('" ')
+        denominator_value = pynutil.delete('denominator: "') + self.denominator_graph + pynutil.delete('"')
+        denominator_one = denominator_value @ pynini.cross("one", "over one")
+        denominator_half = denominator_value @ pynini.cross("two", "half")
+        denominator_quarter = denominator_value @ pynini.cross("four", "quarter")
+        denominator_rest = pynutil.add_weight(denominator_value @ suffix, 0.0001)
 
         denominators = plurals._priority_union(
             denominator_one,
@@ -88,13 +87,15 @@ class Fraction(Processor):
             self.VCHAR.star,
         ).optimize()
         if not self.deterministic:
-            denominators |= pynutil.delete('denominator: "') + (pynini.accep("four") @ suffix) + pynutil.delete('"')
+            denominators |= pynutil.add_weight(
+                denominator_value @ (pynini.accep("four") @ suffix),
+                0.0001,
+            )
 
-        numerator_one = pynutil.delete('numerator: "') + pynini.accep("one") + pynutil.delete('" ')
+        numerator_value = pynutil.delete('numerator: "') + self.numerator_graph + pynutil.delete('" ')
+        numerator_one = numerator_value @ pynini.accep("one")
         numerator_one = numerator_one + self.INSERT_SPACE + denominators
-        numerator_rest = (
-            pynutil.delete('numerator: "') + (self.NOT_QUOTE.star - pynini.accep("one")) + pynutil.delete('" ')
-        )
+        numerator_rest = numerator_value @ pynini.difference(self.NOT_QUOTE.star, pynini.accep("one"))
         numerator_rest = numerator_rest + self.INSERT_SPACE + denominators
         numerator_rest @= pynini.cdrewrite(
             plurals._priority_union(pynini.cross("half", "halves"), pynutil.insert("s"), self.VCHAR.star),
@@ -117,6 +118,15 @@ class Fraction(Processor):
             self.VCHAR.star,
         )
 
+        raw_numerator = (pynutil.insert('numerator: "') + self.input_projection(self.numerator_graph) +
+                         (pynini.cross("/", '" ') | pynini.cross(" / ", '" ')))
+        raw_denominator = (pynutil.insert('denominator: "') + self.input_projection(self.denominator_graph) +
+                           pynutil.insert('"'))
+        raw_integer = (pynini.accep('integer_part: "') + self.input_projection(self.integer_graph) + pynini.accep('" '))
+        symbol_body = raw_integer.ques + (pynutil.delete('value: "') +
+                                          (self.symbol_graph @ (raw_numerator + raw_denominator)) + pynutil.delete('"'))
+        symbol = symbol_body @ graph
+        graph |= symbol
         self.graph_v = graph
         delete_tokens = self.delete_tokens(self.graph_v)
         self.verbalizer = delete_tokens.optimize()

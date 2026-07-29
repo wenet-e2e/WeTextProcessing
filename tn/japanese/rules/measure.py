@@ -22,9 +22,11 @@ from tn.utils import get_abs_path
 
 class Measure(Processor):
 
-    def __init__(self, cardinal=None):
+    def __init__(self, cardinal=None, input_normalizer=None):
         super().__init__(name="measure")
-        self.cardinal = cardinal or Cardinal()
+        self.input_normalizer = input_normalizer
+        self.cardinal = cardinal or Cardinal(input_normalizer=input_normalizer)
+        self.measure = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -42,7 +44,11 @@ class Measure(Processor):
         prefix = number + (rmspace + units).ques + to
         measure = prefix.ques + number + rmspace + units
         measure |= measure + rmspace + delete("/") + insert("毎") + rmspace + units
-        tagger = insert('value: "') + measure + insert('"')
+        self.measure = self.apply_input_processor(measure, self.input_normalizer)
 
         # 10km/h, 2m/s
-        self.tagger = self.add_tokens(tagger)
+        self.tagger = self.add_tokens(self.tag_field("value", self.measure))
+
+    def build_verbalizer(self):
+        verbalizer = delete('value: "') + self.measure + delete('"')
+        self.verbalizer = self.delete_tokens(verbalizer)

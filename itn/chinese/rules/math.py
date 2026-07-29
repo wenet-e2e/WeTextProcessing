@@ -13,11 +13,9 @@
 # limitations under the License.
 
 from pynini import string_file
-from pynini.lib.pynutil import insert
-
 from itn.chinese.rules.cardinal import Cardinal
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Math(Processor):
@@ -29,9 +27,11 @@ class Math(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        operator = string_file(get_abs_path("../itn/chinese/data/math/operator.tsv"))
+        operator = string_file(get_abs_path("chinese/data/math/operator.tsv"))
 
         number = self.cardinal.number
-        tagger = number + (operator + number).plus
-        tagger = insert('value: "') + tagger + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.graph = number + (operator + number).plus
+        self.tagger = self.add_tokens(self.tag_field("value", self.graph))
+
+    def build_verbalizer(self):
+        self.verbalizer = self.delete_tokens(self.verbalize_field("value", self.graph))

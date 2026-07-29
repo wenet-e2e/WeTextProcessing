@@ -25,6 +25,7 @@ class Cardinal(Processor):
         super().__init__("cardinal")
         self.number = None
         self.digits = None
+        self.cardinal = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -54,41 +55,28 @@ class Cardinal(Processor):
         four_any = four_nonzero | rmzero**4
 
         # 万级: 1,0000 ~ 9999,9999 (5~8位)
-        ten_thousand = (
-            (thousand | hundred | ten | digit)
-            + insert("万")
-            + four_any
-        )
+        ten_thousand = ((thousand | hundred | ten | digit) + insert("万") + four_any)
 
         # 亿级: 1,0000,0000 ~ 9999,9999,9999 (9~13位)
-        hundred_million = (
-            (thousand | hundred | ten | digit)
-            + insert("亿")
-            + (
-                four_nonzero + insert("万") + four_any
-                | rmzero**4 + (
-                    (zero + hundred)
-                    | (rmzero + zero + tens)
-                    | (rmzero**2 + zero + digit)
-                    | (insert("零") + thousand)
-                )
-                | rmzero**8
-            )
-        )
+        hundred_million = ((thousand | hundred | ten | digit) + insert("亿") + (four_nonzero + insert("万") + four_any
+                                                                               | rmzero**4 + ((zero + hundred)
+                                                                                              | (rmzero + zero + tens)
+                                                                                              | (rmzero**2 + zero + digit)
+                                                                                              | (insert("零") + thousand))
+                                                                               | rmzero**8))
 
         number = digits | ten | hundred | thousand | ten_thousand | hundred_million
         number = sign.ques + number + (dot + digits.plus).ques
-        number @= self.build_rule(
-            cross("二百", "两百") | cross("二千", "两千") | cross("二万", "两万") | cross("二亿", "两亿"), "[BOS]"
-        ).optimize()
+        number @= self.build_rule(cross("二百", "两百") | cross("二千", "两千") | cross("二万", "两万") | cross("二亿", "两亿"),
+                                  "[BOS]").optimize()
         percent = insert("百分之") + number + delete("%")
         self.number = accep("约").ques + accep("人均").ques + (number | percent)
 
         # cardinal string like 127.0.0.1, used in ID, IP, etc.
-        cardinal = digits.plus + (dot + digits.plus) ** 3
+        cardinal = digits.plus + (dot + digits.plus)**3
         cardinal |= percent
         # xxxx-xxx-xxx
-        cardinal |= digits.plus + (delete("-") + digits.plus) ** 2
+        cardinal |= digits.plus + (delete("-") + digits.plus)**2
         # xxx-xxxxxxxx
         cardinal |= digits**3 + delete("-") + digits**8
         # well-known short phone numbers (110, 12306, etc.) and 11-digit mobile
@@ -98,5 +86,9 @@ class Cardinal(Processor):
         phone |= accep("尾号") + (accep("是") | accep("为")).ques + phone_digits**4
         cardinal |= add_weight(phone, -1.0)
 
-        tagger = insert('value: "') + cardinal + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.cardinal = cardinal.optimize()
+        self.tagger = self.add_tokens(self.tag_field("value", self.cardinal))
+
+    def build_verbalizer(self):
+        verbalizer = delete('value: "') + self.cardinal + delete('"')
+        self.verbalizer = self.delete_tokens(verbalizer)

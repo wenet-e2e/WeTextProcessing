@@ -19,7 +19,7 @@ from pynini.lib.pynutil import add_weight, delete, insert
 from itn.english.rules.cardinal import Cardinal
 from itn.english.rules.ordinal import Ordinal
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Date(Processor):
@@ -33,20 +33,21 @@ class Date(Processor):
 
     def build_tagger(self):
         ds = delete(" ")
-        month_names = string_file(get_abs_path("../itn/english/data/months.tsv"))
-        month = insert('month: "') + month_names + insert('"')
+        self.month = string_file(get_abs_path("english/data/months.tsv"))
+        month = self.tag_field("month", self.month)
 
         # Day: accept ordinal words ("fifth", "twenty first") or cardinal
         # words ("thirty") -- both resolve to a number via the cardinal graph.
         # Restrict to 1-31 range via composition with DIGIT{1,2}.
         day_graph = self.ordinal.graph | self.cardinal.graph
         day_graph = pynini.compose(day_graph, self.DIGIT + closure(self.DIGIT, 0, 1))
-        day = insert('day: "') + day_graph + insert('"')
+        self.day = day_graph
+        day = self.tag_field("day", self.day)
 
         # Year graph: handles common spoken year forms
-        digit = string_file(get_abs_path("../itn/english/data/numbers/digit.tsv"))
-        teen = string_file(get_abs_path("../itn/english/data/numbers/teen.tsv"))
-        ties = string_file(get_abs_path("../itn/english/data/numbers/ties.tsv"))
+        digit = string_file(get_abs_path("english/data/numbers/digit.tsv"))
+        teen = string_file(get_abs_path("english/data/numbers/teen.tsv"))
+        ties = string_file(get_abs_path("english/data/numbers/ties.tsv"))
 
         # Two-digit: 10-99
         two_digit = teen | (ties + (ds + digit | insert("0")))
@@ -63,12 +64,7 @@ class Date(Processor):
         # Need zero-padded variants so "two thousand three" => 2003
         hundreds = digit + ds + delete("hundred") + (ds + two_digit | ds + insert("0") + digit | insert("00"))
         up_to_999_padded = hundreds | insert("0") + two_digit | insert("00") + digit
-        year_thousands = (
-            digit
-            + ds
-            + delete("thousand")
-            + (ds + up_to_999_padded | insert("000"))
-        )
+        year_thousands = (digit + ds + delete("thousand") + (ds + up_to_999_padded | insert("000")))
 
         # Year as hundreds: "nineteen oh five" => 1905
         year_hundreds = (teen | two_digit) + ds + oh_digit
@@ -81,7 +77,8 @@ class Date(Processor):
         delete_and = self.build_rule(delete("and "), " ", self.ALPHA)
         year_graph = (delete_and @ year_graph).optimize()
 
-        year = insert('year: "') + year_graph + insert('"')
+        self.year = year_graph
+        year = self.tag_field("year", self.year)
 
         # Marker to preserve field order through TokenParser
         po = insert(' preserve_order: "true"')
@@ -93,116 +90,62 @@ class Date(Processor):
         # Format: month year (no day) => "july two thousand twelve"
         graph_my = month + ds + insert(" ") + add_weight(year, -0.1) + po
         # Format: "the day of month year" => "the twenty fifth of july twenty twelve"
-        graph_dmy = (
-            delete("the")
-            + ds
-            + day
-            + ds
-            + delete("of")
-            + ds
-            + insert(" ")
-            + month
-            + ds
-            + insert(" ")
-            + year
-            + po
-        )
+        self.day_dmy = delete("the") + ds + day_graph + ds + delete("of")
+        graph_dmy = (self.tag_field("day", self.day_dmy) + ds + insert(" ") + month + ds + insert(" ") + year + po)
         # Format: "the day of month" (no year) => "the fifteenth of january"
-        graph_dm = (
-            delete("the")
-            + ds
-            + day
-            + ds
-            + delete("of")
-            + ds
-            + insert(" ")
-            + month
-            + po
-        )
+        graph_dm = self.tag_field("day", self.day_dmy) + ds + insert(" ") + month + po
         # Year only => "twenty twelve", "two thousand three"
         graph_y = year + po
 
         # Decades: "nineteen eighties" => 1980s
         decade_suffix = closure(self.ALPHA, 1) + (cross("ies", "y") | delete("s"))
         decade_word = pynini.compose(decade_suffix, ties | cross("ten", "10"))
-        graph_decade = (
-            insert('year: "') + (teen | two_digit) + ds + decade_word + insert('0s"') + po
-        )
+        self.year_decade = (teen | two_digit) + ds + decade_word + insert("0s")
+        graph_decade = self.tag_field("year", self.year_decade) + po
 
         # Quarter: "second quarter of twenty twenty two" => Q2 2022
-        quarter_num = (
-            cross("first", "1") | cross("second", "2")
-            | cross("third", "3") | cross("fourth", "4")
-        )
-        graph_quarter = (
-            insert('day: "Q') + quarter_num + insert('"')
-            + ds + delete("quarter") + ds + delete("of") + ds
-            + insert(' year: "') + year_graph + insert('"') + po
-        )
+        quarter_num = (cross("first", "1") | cross("second", "2") | cross("third", "3") | cross("fourth", "4"))
+        self.day_quarter = (insert("Q") + quarter_num + ds + delete("quarter") + ds + delete("of"))
+        graph_quarter = (self.tag_field("day", self.day_quarter) + ds + insert(" ") + year + po)
 
         # BC/AD/BCE/CE suffix
-        bc_ad = ds + (
-            cross("b c e", "BCE") | cross("before common era", "BCE")
-            | cross("b c", "BC")
-            | cross("c e", "CE") | cross("common era", "CE")
-            | cross("a d", "AD")
-        )
+        bc_ad = ds + (cross("b c e", "BCE") | cross("before common era", "BCE")
+                      | cross("b c", "BC")
+                      | cross("c e", "CE") | cross("common era", "CE")
+                      | cross("a d", "AD"))
         year_graph_with_3digit = year_graph | year_three_digit
-        graph_y_bc = insert('year: "') + year_graph_with_3digit + bc_ad + insert('"') + po
+        self.year_bc = year_graph_with_3digit + bc_ad
+        graph_y_bc = self.tag_field("year", self.year_bc) + po
 
         # Half: "first half of twenty twenty two" => H1 2022
         half_num = cross("first", "1") | cross("second", "2")
-        graph_half = (
-            insert('day: "H') + half_num + insert('"')
-            + ds + delete("half") + ds + delete("of") + ds
-            + insert(' year: "') + year_graph + insert('"') + po
-        )
+        self.day_half = insert("H") + half_num + ds + delete("half") + ds + delete("of")
+        graph_half = (self.tag_field("day", self.day_half) + ds + insert(" ") + year + po)
 
         # Century: "nineteen hundreds" => 1900s
-        graph_century = (
-            insert('year: "') + (teen | two_digit) + ds + cross("hundreds", "00s") + insert('"') + po
-        )
+        self.year_century = (teen | two_digit) + ds + cross("hundreds", "00s")
+        graph_century = self.tag_field("year", self.year_century) + po
         # Millennium: "two thousands" => 2000s
-        graph_millennium = (
-            insert('year: "') + cross("two", "2") + ds + cross("thousands", "000s") + insert('"') + po
-        )
+        self.year_millennium = cross("two", "2") + ds + cross("thousands", "000s")
+        graph_millennium = self.tag_field("year", self.year_millennium) + po
 
-        final_graph = (
-            graph_mdy | graph_md | graph_my | graph_dmy | graph_dm | graph_y
-            | graph_decade | graph_quarter | graph_half | graph_y_bc
-            | graph_century | graph_millennium
-        )
+        final_graph = (graph_mdy | graph_md | graph_my | graph_dmy | graph_dm | graph_y
+                       | graph_decade | graph_quarter | graph_half | graph_y_bc
+                       | graph_century | graph_millennium)
         self.tagger = self.add_tokens(final_graph)
 
     def build_verbalizer(self):
-        month = (
-            delete("month:")
-            + self.DELETE_SPACE
-            + delete('"')
-            + self.NOT_QUOTE.plus
-            + delete('"')
+        month = self.verbalize_field("month", self.month)
+        day = self.verbalize_field("day", self.day | self.day_dmy | self.day_quarter | self.day_half)
+        year = self.verbalize_field(
+            "year",
+            self.year
+            | self.year_decade
+            | self.year_bc
+            | self.year_century
+            | self.year_millennium,
         )
-        day = (
-            delete("day:")
-            + self.DELETE_SPACE
-            + delete('"')
-            + self.NOT_QUOTE.plus
-            + delete('"')
-        )
-        year = (
-            delete("year:")
-            + self.DELETE_SPACE
-            + delete('"')
-            + self.NOT_QUOTE.plus
-            + delete('"')
-        )
-        delete_po = (
-            delete("preserve_order:")
-            + self.DELETE_SPACE
-            + delete('"')
-            + delete("true")
-            + delete('"')
-        )
+        delete_po = (delete("preserve_order:") + self.DELETE_SPACE + delete('"') + delete("true") + delete('"'))
 
         optional_day = closure(self.DELETE_SPACE + insert(" ") + day, 0, 1)
         optional_year = closure(self.DELETE_SPACE + insert(" ") + year, 0, 1)

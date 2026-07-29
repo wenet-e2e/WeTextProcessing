@@ -13,27 +13,28 @@
 # limitations under the License.
 
 from pynini import string_file
-from pynini.lib.pynutil import insert
-
 from itn.japanese.rules.cardinal import Cardinal
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Math(Processor):
 
-    def __init__(self, cardinal=None):
+    def __init__(self, cardinal=None, input_processor=None):
         super().__init__(name="math")
         self.cardinal = cardinal or Cardinal()
+        self.input_processor = input_processor
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        operator = string_file(get_abs_path("../itn/japanese/data/math/operator.tsv"))
+        operator = string_file(get_abs_path("japanese/data/math/operator.tsv"))
 
         number = self.cardinal.big_integer
         decimal = self.cardinal.decimal
         number |= decimal
-        tagger = number + (operator + number).plus
-        tagger = insert('value: "') + tagger + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.graph = self.apply_input_processor(number + (operator + number).plus, self.input_processor)
+        self.tagger = self.add_tokens(self.tag_field("value", self.graph))
+
+    def build_verbalizer(self):
+        self.verbalizer = self.delete_tokens(self.verbalize_field("value", self.graph))

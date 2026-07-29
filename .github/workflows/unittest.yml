@@ -8,6 +8,9 @@ on:
       - '**.tsv'
       - '**.toml'
       - '**.yml'
+      - '**.yaml'
+      - '.flake8'
+      - '.style.yapf'
 
 jobs:
   unit-test:

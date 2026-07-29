@@ -16,7 +16,7 @@ from pynini import accep, string_file
 from pynini.lib.pynutil import delete, insert
 
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Date(Processor):
@@ -27,19 +27,26 @@ class Date(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        digit = string_file(get_abs_path("../itn/chinese/data/number/digit.tsv"))  # 1 ~ 9
-        zero = string_file(get_abs_path("../itn/chinese/data/number/zero.tsv"))  # 0
+        digit = string_file(get_abs_path("chinese/data/number/digit.tsv"))  # 1 ~ 9
+        zero = string_file(get_abs_path("chinese/data/number/zero.tsv"))  # 0
 
-        yyyy = digit + (digit | zero) ** 3  # 二零零八年
-        yyy = digit + (digit | zero) ** 2  # 公元一六八年
-        yy = (digit | zero) ** 2  # 零八年奥运会
-        mm = string_file(get_abs_path("../itn/chinese/data/date/mm.tsv"))
-        dd = string_file(get_abs_path("../itn/chinese/data/date/dd.tsv"))
+        yyyy = digit + (digit | zero)**3  # 二零零八年
+        yyy = digit + (digit | zero)**2  # 公元一六八年
+        yy = (digit | zero)**2  # 零八年奥运会
+        mm = string_file(get_abs_path("chinese/data/date/mm.tsv"))
+        dd = string_file(get_abs_path("chinese/data/date/dd.tsv"))
 
-        year = insert('year: "') + (yyyy | yyy | yy) + delete("年") + insert('" ')
-        year_only = insert('year: "') + (yyyy | yyy | yy) + accep("年") + insert('"')
-        month = insert('month: "') + mm + insert('"')
-        day = insert(' day: "') + dd + insert('"')
+        year_graph = (yyyy | yyy | yy) + delete("年")
+        year_only_graph = (yyyy | yyy | yy) + accep("年")
+        self.year = year_graph
+        self.year_only = year_only_graph
+        self.month = mm
+        self.day = dd
+
+        year = self.tag_field("year", year_graph) + insert(" ")
+        year_only = self.tag_field("year", year_only_graph) + insert(' preserve_order: "true"')
+        month = self.tag_field("month", self.month)
+        day = insert(" ") + self.tag_field("day", self.day)
 
         # yyyy/mm/dd | yyyy/mm | mm/dd | yyyy
         date = ((year + month + day) | (year + month) | (month + day)) | year_only
@@ -47,10 +54,10 @@ class Date(Processor):
 
     def build_verbalizer(self):
         addsign = insert("/")
-        year = delete('year: "') + self.SIGMA + delete('" ')
-        year_only = delete('year: "') + self.SIGMA + delete('"')
-        month = delete('month: "') + self.SIGMA + delete('"')
-        day = delete(' day: "') + self.SIGMA + delete('"')
+        year = self.verbalize_field("year", self.year) + delete(" ")
+        year_only = self.verbalize_field("year", self.year_only) + delete(' preserve_order: "true"')
+        month = self.verbalize_field("month", self.month)
+        day = self.verbalize_field("day", self.day, leading_space=True)
         verbalizer = (year + addsign).ques + month + (addsign + day).ques
         verbalizer |= year_only
         self.verbalizer = self.delete_tokens(verbalizer)

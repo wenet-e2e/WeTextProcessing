@@ -13,21 +13,23 @@
 # limitations under the License.
 
 from pynini import string_file
-from pynini.lib.pynutil import insert
-
 from tn.processor import Processor
-from tn.utils import get_abs_path
+from itn.utils import get_abs_path
 
 
 class Whitelist(Processor):
 
-    def __init__(self):
+    def __init__(self, input_processor=None):
         super().__init__(name="whitelist")
+        self.input_processor = input_processor
         self.build_tagger()
         self.build_verbalizer()
 
     def build_tagger(self):
-        whitelist = string_file(get_abs_path("../itn/japanese/data/default/whitelist.tsv"))
+        whitelist = string_file(get_abs_path("japanese/data/default/whitelist.tsv"))
 
-        tagger = insert('value: "') + whitelist + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.graph = self.apply_input_processor(whitelist, self.input_processor)
+        self.tagger = self.add_tokens(self.tag_field("value", self.graph))
+
+    def build_verbalizer(self):
+        self.verbalizer = self.delete_tokens(self.verbalize_field("value", self.graph))

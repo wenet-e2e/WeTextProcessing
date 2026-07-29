@@ -25,6 +25,7 @@ class Money(Processor):
     def __init__(self, cardinal=None):
         super().__init__(name="money")
         self.cardinal = cardinal or Cardinal()
+        self.currency = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -33,19 +34,12 @@ class Money(Processor):
         symbol = string_file(get_abs_path("chinese/data/money/symbol.tsv"))
 
         number = self.cardinal.number
-        tagger = (
-            insert('currency: "')
-            + (code | symbol)
-            + delete(" ").ques
-            + insert('" ')
-            + insert('value: "')
-            + number
-            + insert('"')
-        )
+        self.currency = (code | symbol).optimize()
+        tagger = (self.tag_field("currency", self.currency) + delete(" ").ques + insert(" ") + self.tag_field("value", number))
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        value = delete('value: "') + self.SIGMA + delete('" ')
-        currency = delete('currency: "') + self.SIGMA + delete('"')
+        value = delete('value: "') + self.cardinal.number + delete('" ')
+        currency = delete('currency: "') + self.currency + delete('"')
         verbalizer = value + currency
         self.verbalizer = self.delete_tokens(verbalizer)

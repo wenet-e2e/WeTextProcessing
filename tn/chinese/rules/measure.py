@@ -25,6 +25,9 @@ class Measure(Processor):
     def __init__(self, cardinal=None):
         super().__init__(name="measure")
         self.cardinal = cardinal or Cardinal()
+        self.measure = None
+        self.denominator = None
+        self.annual = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -54,16 +57,21 @@ class Measure(Processor):
         prefix = yyyy + (rmspace + unit).ques + to
         annual = prefix.ques + yyyy + unit
 
-        tagger = insert('value: "') + (measure | annual) + insert('"')
+        self.measure = measure.optimize()
+        self.annual = annual.optimize()
+        self.denominator = (measure | units).optimize()
+        tagger = self.tag_field("value", self.measure | self.annual)
 
         # 10km/h
         rmsign = rmspace + delete("/") + rmspace
-        tagger |= insert('numerator: "') + measure + rmsign + insert('" denominator: "') + (measure | units) + insert('"')
+        tagger |= self.tag_field("numerator", self.measure) + rmsign + insert(" ") + self.tag_field(
+            "denominator", self.denominator)
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        super().build_verbalizer()
-        denominator = delete('denominator: "') + self.SIGMA + delete('" ')
-        numerator = delete('numerator: "') + self.SIGMA + delete('"')
+        value = delete('value: "') + (self.measure | self.annual) + delete('"')
+        self.verbalizer = self.delete_tokens(value)
+        denominator = delete('denominator: "') + self.denominator + delete('" ')
+        numerator = delete('numerator: "') + self.measure + delete('"')
         verbalizer = insert("每") + denominator + numerator
         self.verbalizer |= self.delete_tokens(verbalizer)

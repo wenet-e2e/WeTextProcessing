@@ -30,20 +30,12 @@ class Fraction(Processor):
         rmspace = delete(" ").ques
         number = self.cardinal.number
 
-        tagger = (
-            insert('numerator: "')
-            + number
-            + rmspace
-            + delete("/")
-            + rmspace
-            + insert('" denominator: "')
-            + number
-            + insert('"')
-        ).optimize()
+        tagger = (self.tag_field("numerator", number) + rmspace + delete("/") + rmspace + insert(" ") +
+                  self.tag_field("denominator", number)).optimize()
         self.tagger = self.add_tokens(tagger)
 
     def build_verbalizer(self):
-        denominator = delete('denominator: "') + self.SIGMA + delete('" ')
-        numerator = delete('numerator: "') + self.SIGMA + delete('"')
+        denominator = delete('denominator: "') + self.cardinal.number + delete('" ')
+        numerator = delete('numerator: "') + self.cardinal.number + delete('"')
         verbalizer = denominator + insert("分之") + numerator
         self.verbalizer = self.delete_tokens(verbalizer)

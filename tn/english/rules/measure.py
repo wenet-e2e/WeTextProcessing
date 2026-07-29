@@ -57,7 +57,8 @@ graph_plural = plurals._priority_union(
     suppletive,
     plurals._priority_union(
         _ies,
-        plurals._priority_union(_es, _s, Processor("tmp").VCHAR.star),
+        plurals._priority_union(_es, _s,
+                                Processor("tmp").VCHAR.star),
         Processor("tmp").VCHAR.star,
     ),
     Processor("tmp").VCHAR.star,
@@ -80,9 +81,9 @@ class Measure(Processor):
     def build_tagger(self):
         """
         Finite state transducer for classifying measure, suppletive aware, e.g.
-            -12kg -> measure { negative: "true" integer: "twelve" units: "kilograms" }
-            1kg -> measure { integer: "one" units: "kilogram" }
-            .5kg -> measure { fractional_part: "five" units: "kilograms" }
+            -12kg -> measure { negative: "-" integer: "12" units: "kg" }
+            1kg -> measure { integer: "1" units: "kg" }
+            .5kg -> measure { fractional_part: "5" units: "kg" }
         """
         cardinal = self.cardinal
         cardinal_graph = cardinal.graph_with_and | self.get_range(cardinal.graph_with_and)
@@ -97,129 +98,80 @@ class Measure(Processor):
         ).optimize()
 
         graph_unit_plural = graph_unit @ SINGULAR_TO_PLURAL
+        self.graph_unit = graph_unit
+        self.graph_unit_plural = graph_unit_plural
 
-        optional_graph_negative = (pynutil.insert("negative: ") + pynini.cross("-", '"true" ')).ques
+        optional_graph_negative = (self.tag_field("negative", pynini.cross("-", "true")) + self.INSERT_SPACE).ques
 
         graph_unit2 = pynini.cross("/", "per") + self.DELETE_ZERO_OR_ONE_SPACE + pynutil.insert(" ") + graph_unit
 
         optional_graph_unit2 = (self.DELETE_ZERO_OR_ONE_SPACE + pynutil.insert(" ") + graph_unit2).ques
 
-        unit_plural = (
-            pynutil.insert(' units: "') + (graph_unit_plural + optional_graph_unit2 | graph_unit2) + pynutil.insert('"')
-        )
-
-        unit_singular = (
-            pynutil.insert(' units: "') + (graph_unit + optional_graph_unit2 | graph_unit2) + pynutil.insert('"')
-        )
+        self.unit_plural_graph = graph_unit_plural + optional_graph_unit2 | graph_unit2
+        self.unit_singular_graph = graph_unit + optional_graph_unit2 | graph_unit2
+        unit_plural = self.tag_field("units", self.unit_plural_graph)
+        unit_singular = self.tag_field("units", self.unit_singular_graph)
 
         decimal = self.decimal
-        subgraph_decimal = (
-            optional_graph_negative + decimal.final_graph_wo_negative + pynini.accep(" ").ques + unit_plural
-        )
+        subgraph_decimal = (optional_graph_negative + decimal.final_graph_wo_negative + pynutil.delete(" ").ques +
+                            self.INSERT_SPACE + unit_plural)
 
         # support radio FM/AM
-        subgraph_decimal |= (
-            decimal.final_graph_wo_negative
-            + pynini.accep(" ").ques
-            + pynutil.insert(' units: "')
-            + pynini.union("AM", "FM")
-            + pynutil.insert('"')
-        )
+        subgraph_decimal |= (decimal.final_graph_wo_negative + pynutil.delete(" ").ques + self.INSERT_SPACE +
+                             self.tag_field("units", pynini.union("AM", "FM")))
 
-        subgraph_cardinal = (
-            optional_graph_negative
-            + pynutil.insert('integer: "')
-            + ((self.VCHAR.star - "1") @ cardinal_graph)
-            + pynutil.insert('"')
-            + pynini.accep(" ").ques
-            + unit_plural
-        )
+        self.cardinal_other_graph = (self.VCHAR.star - "1") @ cardinal_graph
+        subgraph_cardinal = (optional_graph_negative + self.tag_field("integer", self.cardinal_other_graph) +
+                             pynutil.delete(" ").ques + self.INSERT_SPACE + unit_plural)
 
-        subgraph_cardinal |= (
-            optional_graph_negative
-            + pynutil.insert('integer: "')
-            + pynini.cross("1", "one")
-            + pynutil.insert('"')
-            + pynini.accep(" ").ques
-            + unit_singular
-        )
+        self.cardinal_one_graph = pynini.cross("1", "one")
+        subgraph_cardinal |= (optional_graph_negative + self.tag_field("integer", self.cardinal_one_graph) +
+                              pynutil.delete(" ").ques + self.INSERT_SPACE + unit_singular)
 
-        unit_graph = (
-            pynutil.insert('integer: "-" units: "')
-            + ((pynini.cross("/", "per") + self.DELETE_ZERO_OR_ONE_SPACE) | (pynini.accep("per") + pynutil.delete(" ")))
-            + pynutil.insert(" ")
-            + graph_unit
-            + pynutil.insert('"')
-        )  # noqa
+        self.unit_only_graph = ((pynini.cross("/", "per") + self.DELETE_ZERO_OR_ONE_SPACE) |
+                                (pynini.accep("per") + pynutil.delete(" "))) + pynutil.insert(" ") + graph_unit
+        unit_graph = (pynutil.insert('integer: "-" units: "') + self.input_projection(self.unit_only_graph) +
+                      pynutil.insert('"'))  # noqa
 
-        decimal_dash_alpha = (
-            decimal.final_graph_wo_negative
-            + pynini.cross("-", "")
-            + pynutil.insert(' units: "')
-            + self.ALPHA.plus
-            + pynutil.insert('"')
-        )
+        self.alpha_unit_graph = self.ALPHA.plus
+        self.dash_separator_graph = pynutil.delete("-")
+        decimal_dash_alpha = (decimal.final_graph_wo_negative + self.INSERT_SPACE +
+                              self.tag_field("separator", self.dash_separator_graph) + self.INSERT_SPACE +
+                              self.tag_field("units", self.alpha_unit_graph))
 
-        decimal_times = (
-            decimal.final_graph_wo_negative
-            + pynutil.insert(' units: "')
-            + (pynini.cross(pynini.union("x", "X"), "x") | pynini.cross(pynini.union("x", "X"), " times"))
-            + pynutil.insert('"')
-        )
+        self.times_unit_graph = pynini.cross(pynini.union("x", "X"), "x") | pynini.cross(pynini.union("x", "X"), " times")
+        decimal_times = (decimal.final_graph_wo_negative + self.INSERT_SPACE + self.tag_field("units", self.times_unit_graph))
 
-        alpha_dash_decimal = (
-            pynutil.insert('units: "')
-            + self.ALPHA.plus
-            + pynini.accep("-")
-            + pynutil.insert('"')
-            + decimal.final_graph_wo_negative
-        )
+        self.alpha_dash_unit_graph = self.ALPHA.plus + pynini.accep("-")
+        alpha_dash_decimal = (self.tag_field("units", self.alpha_dash_unit_graph) + self.INSERT_SPACE +
+                              decimal.final_graph_wo_negative)
 
         fraction = self.fraction
-        subgraph_fraction = fraction.graph + pynini.accep(" ").ques + unit_plural
+        subgraph_fraction = (fraction.graph + pynutil.delete(" ").ques + self.INSERT_SPACE + unit_plural)
 
-        address = self.get_address_graph(cardinal)
-        address = pynutil.insert('units: "address" integer: "') + address + pynutil.insert('"')
+        self.address_graph = self.get_address_graph(cardinal)
+        address = pynutil.insert('units: "address" ') + self.tag_field("integer", self.address_graph)
 
         math_operations = pynini.string_file(get_abs_path("english/data/measure/math_operation.tsv"))
         delimiter = pynini.accep(" ") | pynutil.insert(" ")
 
-        math = (
-            (cardinal_graph | self.ALPHA)
-            + delimiter
-            + math_operations
-            + (delimiter | self.ALPHA)
-            + cardinal_graph
-            + delimiter
-            + pynini.cross("=", "equals")
-            + delimiter
-            + (cardinal_graph | self.ALPHA)
-        )
+        math = ((cardinal_graph | self.ALPHA) + delimiter + math_operations + (delimiter | self.ALPHA) + cardinal_graph +
+                delimiter + pynini.cross("=", "equals") + delimiter + (cardinal_graph | self.ALPHA))
 
-        math |= (
-            (cardinal_graph | self.ALPHA)
-            + delimiter
-            + pynini.cross("=", "equals")
-            + delimiter
-            + (cardinal_graph | self.ALPHA)
-            + delimiter
-            + math_operations
-            + delimiter
-            + cardinal_graph
-        )
+        math |= ((cardinal_graph | self.ALPHA) + delimiter + pynini.cross("=", "equals") + delimiter +
+                 (cardinal_graph | self.ALPHA) + delimiter + math_operations + delimiter + cardinal_graph)
 
-        math = pynutil.insert('units: "math" integer: "') + math + pynutil.insert('"')
-        final_graph = (
-            subgraph_decimal
-            | subgraph_cardinal
-            | unit_graph
-            | decimal_dash_alpha
-            | decimal_times
-            | alpha_dash_decimal
-            | subgraph_fraction
-            | address
-            | math
-        )
+        self.math_graph = math
+        math = pynutil.insert('units: "math" ') + self.tag_field("integer", self.math_graph)
+        final_graph = (subgraph_decimal
+                       | subgraph_cardinal
+                       | unit_graph
+                       | decimal_dash_alpha
+                       | decimal_times
+                       | alpha_dash_decimal
+                       | subgraph_fraction
+                       | address
+                       | math)
 
         final_graph = self.add_tokens(final_graph)
         self.tagger = final_graph.optimize()
@@ -247,7 +199,8 @@ class Measure(Processor):
         Finite state transducer for classifying serial.
             The serial is a combination of digits, letters and dashes, e.g.:
             2788 San Tomas Expy, Santa Clara, CA 95051 ->
-                units: "address" integer: "two seven eight eight San Tomas Expressway Santa Clara California nine five zero five one"
+                units: "address"
+                integer: "2788 San Tomas Expy, Santa Clara, CA 95051"
         """
         ordinal = self.ordinal
         ordinal_verbalizer = ordinal.graph_v
@@ -257,30 +210,22 @@ class Measure(Processor):
             ordinal_verbalizer,
         )
 
-        address_num = self.DIGIT ** (1, 2) @ cardinal.graph_hundred_component_at_least_one_none_zero_digit
-        address_num += self.INSERT_SPACE + self.DIGIT**2 @ (
-            pynini.cross("0", "zero ").ques + cardinal.graph_hundred_component_at_least_one_none_zero_digit
-        )
+        address_num = self.DIGIT**(1, 2) @ cardinal.graph_hundred_component_at_least_one_none_zero_digit
+        address_num += self.INSERT_SPACE + self.DIGIT**2 @ (pynini.cross("0", "zero ").ques +
+                                                            cardinal.graph_hundred_component_at_least_one_none_zero_digit)
         # to handle the rest of the numbers
-        address_num = pynini.compose(self.DIGIT ** (3, 4), address_num)
+        address_num = pynini.compose(self.DIGIT**(3, 4), address_num)
         address_num = plurals._priority_union(address_num, cardinal.graph, self.VCHAR.star)
 
-        direction = (
-            pynini.cross("E", "East")
-            | pynini.cross("S", "South")
-            | pynini.cross("W", "West")
-            | pynini.cross("N", "North")
-        ) + pynutil.delete(".").ques
+        direction = (pynini.cross("E", "East")
+                     | pynini.cross("S", "South")
+                     | pynini.cross("W", "West")
+                     | pynini.cross("N", "North")) + pynutil.delete(".").ques
 
         direction = (pynini.accep(" ") + direction).ques
         address_words = get_formats(get_abs_path("english/data/address/address_word.tsv"))
-        address_words = (
-            pynini.accep(" ")
-            + (ordinal_num.ques | self.UPPER + self.ALPHA.plus)
-            + " "
-            + (self.UPPER + self.ALPHA.star + " ").star
-            + address_words
-        )
+        address_words = (pynini.accep(" ") + (ordinal_num.ques | self.UPPER + self.ALPHA.plus) + " " +
+                         (self.UPPER + self.ALPHA.star + " ").star + address_words)
 
         city = (self.ALPHA | pynini.accep(" ")).plus
         city = (pynini.accep(", ") + city).ques
@@ -307,47 +252,61 @@ class Measure(Processor):
     def build_verbalizer(self):
         """
         Finite state transducer for verbalizing measure, e.g.
-            measure { negative: "true" integer: "twelve" units: "kilograms" } -> minus twelve kilograms
-            measure { integer_part: "twelve" fractional_part: "five" units: "kilograms" } -> twelve point five kilograms
+            measure { negative: "-" integer: "12" units: "kg" } -> minus twelve kilograms
+            measure { integer_part: "12" fractional_part: "5" units: "kg" } -> twelve point five kilograms
         """
         cardinal = self.cardinal
-        unit = (
-            pynutil.delete('units: "')
-            + pynini.difference(self.NOT_QUOTE.plus, pynini.union("address", "math"))
-            + pynutil.delete('"')
-            + self.DELETE_SPACE
-        )
-
-        if not self.deterministic:
-            unit |= pynini.compose(unit, pynini.cross(pynini.union("inch", "inches"), '"'))
+        unit_plural = (pynutil.delete('units: "') + self.unit_plural_graph + pynutil.delete('"') + self.DELETE_SPACE)
+        unit_singular = (pynutil.delete('units: "') + self.unit_singular_graph + pynutil.delete('"') + self.DELETE_SPACE)
 
         decimal = self.decimal
         graph_decimal = decimal.numbers
 
         if not self.deterministic:
-            graph_decimal |= pynini.compose(
+            colloquial_fraction = pynini.compose(
                 graph_decimal,
-                self.VCHAR.star
-                + (
-                    pynini.cross(" point five", " and a half")
-                    | pynini.cross("zero point five", "half")
-                    | pynini.cross(" point two five", " and a quarter")
-                    | pynini.cross("zero point two five", "quarter")
-                ),
+                self.VCHAR.star + (pynini.cross(" point five", " and a half")
+                                   | pynini.cross("zero point five", "half")
+                                   | pynini.cross(" point two five", " and a quarter")
+                                   | pynini.cross("zero point two five", "quarter")),
             ).optimize()
-
-        graph_cardinal = cardinal.numbers
+            graph_decimal |= pynutil.add_weight(colloquial_fraction, 0.0001)
 
         fraction = self.fraction
         graph_fraction = fraction.graph_v
 
-        graph = (graph_cardinal | graph_decimal | graph_fraction) + pynini.accep(" ") + unit
+        optional_sign = cardinal.optional_sign
+        integer_one = (pynutil.delete("integer:") + self.DELETE_SPACE + pynutil.delete('"') + self.cardinal_one_graph +
+                       pynutil.delete('"'))
+        integer_other = (pynutil.delete("integer:") + self.DELETE_SPACE + pynutil.delete('"') + self.cardinal_other_graph +
+                         pynutil.delete('"'))
+        graph_cardinal_one = optional_sign + integer_one
+        graph_cardinal_other = optional_sign + integer_other
 
-        graph |= unit + self.INSERT_SPACE + (graph_cardinal | graph_decimal) + self.DELETE_SPACE
+        graph = graph_cardinal_one + pynini.accep(" ") + unit_singular
+        graph |= graph_cardinal_other + pynini.accep(" ") + unit_plural
+        graph |= graph_decimal + pynini.accep(" ") + unit_plural
+        graph |= graph_fraction + pynini.accep(" ") + unit_plural
+
+        radio_unit = pynutil.delete('units: "') + pynini.union("AM", "FM") + pynutil.delete('"')
+        graph |= graph_decimal + pynini.accep(" ") + radio_unit
+
+        alpha_unit = pynutil.delete('units: "') + self.alpha_unit_graph + pynutil.delete('"') + self.DELETE_SPACE
+        dash_separator = (self.DELETE_SPACE + pynutil.delete('separator: "') + self.dash_separator_graph +
+                          pynutil.delete('"') + self.DELETE_SPACE)
+        times_unit = pynutil.delete('units: "') + self.times_unit_graph + pynutil.delete('"') + self.DELETE_SPACE
+        alpha_dash_unit = (pynutil.delete('units: "') + self.alpha_dash_unit_graph + pynutil.delete('"') + self.DELETE_SPACE)
+        graph |= graph_decimal + dash_separator + self.INSERT_SPACE + alpha_unit
+        graph |= graph_decimal + pynini.accep(" ") + times_unit
+        graph |= alpha_dash_unit + self.INSERT_SPACE + graph_decimal + self.DELETE_SPACE
+
         # for only unit
-        graph |= pynutil.delete('integer: "-"') + self.DELETE_SPACE + unit
-        address = pynutil.delete('units: "address" ') + self.DELETE_SPACE + graph_cardinal + self.DELETE_SPACE
-        math = pynutil.delete('units: "math" ') + self.DELETE_SPACE + graph_cardinal + self.DELETE_SPACE
+        unit_only = pynutil.delete('units: "') + self.unit_only_graph + pynutil.delete('"') + self.DELETE_SPACE
+        graph |= pynutil.delete('integer: "-"') + self.DELETE_SPACE + unit_only
+        address = (pynutil.delete('units: "address" ') + self.DELETE_SPACE + pynutil.delete('integer: "') +
+                   self.address_graph + pynutil.delete('"') + self.DELETE_SPACE)
+        math = (pynutil.delete('units: "math" ') + self.DELETE_SPACE + pynutil.delete('integer: "') + self.math_graph +
+                pynutil.delete('"') + self.DELETE_SPACE)
         graph |= address | math
 
         delete_tokens = self.delete_tokens(graph)

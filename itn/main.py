@@ -12,56 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse
-
-from itn.chinese.inverse_normalizer import InverseNormalizer as ZhInverseNormalizer
-from itn.english.inverse_normalizer import InverseNormalizer as EnInverseNormalizer
-from itn.japanese.inverse_normalizer import InverseNormalizer as JaInverseNormalizer
-from tn.utils import str2bool
+from tn.cli import run
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--text", help="input string")
-    parser.add_argument("--file", help="input file path")
-    parser.add_argument("--cache_dir", type=str, default=None, help="cache dir containing *.fst")
-    parser.add_argument("--overwrite_cache", action="store_true", help="rebuild *.fst")
-    parser.add_argument("--enable_standalone_number", type=str, default="True", help="一百 = 100 if True else 一百")
-    parser.add_argument("--enable_0_to_9", type=str, default="False", help="零和九 = 0和9 if True else 零和九")
-    parser.add_argument("--enable_million", type=str, default="False", help="六百万 = 6000000 if True else 600万")
-    parser.add_argument("--language", type=str, default="zh", choices=["zh", "en", "ja"], help="valid languages")
-    args = parser.parse_args()
-
-    if args.language == "zh":
-        normalizer = ZhInverseNormalizer(
-            cache_dir=args.cache_dir,
-            overwrite_cache=args.overwrite_cache,
-            enable_standalone_number=str2bool(args.enable_standalone_number),
-            enable_0_to_9=str2bool(args.enable_0_to_9),
-            enable_million=str2bool(args.enable_million),
-        )
-    elif args.language == "en":
-        normalizer = EnInverseNormalizer(
-            cache_dir=args.cache_dir,
-            overwrite_cache=args.overwrite_cache,
-        )
-    elif args.language == "ja":
-        normalizer = JaInverseNormalizer(
-            cache_dir=args.cache_dir,
-            overwrite_cache=args.overwrite_cache,
-            enable_standalone_number=str2bool(args.enable_standalone_number),
-            enable_0_to_9=str2bool(args.enable_0_to_9),
-            enable_million=str2bool(args.enable_million),
-        )
-
-    if args.text:
-        print(normalizer.tag(args.text))
-        print(normalizer.normalize(args.text))
-    elif args.file:
-        with open(args.file, encoding="utf-8") as fin:
-            for line in fin:
-                print(normalizer.tag(line.strip()))
-                print(normalizer.normalize(line.strip()))
+    run("itn")
 
 
 if __name__ == "__main__":

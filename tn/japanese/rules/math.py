@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pynini import string_file
-from pynini.lib.pynutil import delete, insert
+from pynini.lib.pynutil import delete
 
 from tn.japanese.rules.cardinal import Cardinal
 from tn.processor import Processor
@@ -22,9 +22,11 @@ from tn.utils import get_abs_path
 
 class Math(Processor):
 
-    def __init__(self, cardinal=None):
+    def __init__(self, cardinal=None, input_normalizer=None):
         super().__init__(name="math")
-        self.cardinal = cardinal or Cardinal()
+        self.input_normalizer = input_normalizer
+        self.cardinal = cardinal or Cardinal(input_normalizer=input_normalizer)
+        self.math = None
         self.build_tagger()
         self.build_verbalizer()
 
@@ -32,6 +34,12 @@ class Math(Processor):
         operator = string_file(get_abs_path("japanese/data/math/operator.tsv"))
 
         number = self.cardinal.number
-        operator = number + (delete(" ").ques + operator + delete(" ").ques + number).star
-        tagger = insert('value: "') + operator + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.math = self.apply_input_processor(
+            number + (delete(" ").ques + operator + delete(" ").ques + number).star,
+            self.input_normalizer,
+        )
+        self.tagger = self.add_tokens(self.tag_field("value", self.math))
+
+    def build_verbalizer(self):
+        verbalizer = delete('value: "') + self.math + delete('"')
+        self.verbalizer = self.delete_tokens(verbalizer)

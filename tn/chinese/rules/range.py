@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Zhendong Peng (pzd17@tsinghua.org.cn)
+# Copyright (c) 2026, WENET COMMUNITY.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini import string_file
+from pynini import cross
+from pynini.lib.pynutil import delete
 
 from tn.processor import Processor
-from tn.utils import get_abs_path
 
 
-class PreProcessor(Processor):
+class Range(Processor):
+    """Tags range separators and verbalizes their spoken form."""
 
-    def __init__(self, traditional_to_simple=True):
-        super().__init__(name="preprocessor")
-        traditional2simple = string_file(get_abs_path("chinese/data/char/traditional_to_simple.tsv"))
-
-        processor = self.build_rule("")
-        if traditional_to_simple:
-            processor @= self.build_rule(traditional2simple)
-
-        self.processor = processor.optimize()
+    def __init__(self):
+        super().__init__(name="range")
+        self.range = (cross("-", "到") | cross("~", "到")).optimize()
+        self.tagger = self.add_tokens(self.tag_field("value", self.range))
+        verbalizer = delete('value: "') + self.range + delete('"')
+        self.verbalizer = self.delete_tokens(verbalizer)
