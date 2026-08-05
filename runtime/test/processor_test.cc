@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -70,6 +71,13 @@ class ProcessorTest
 
 TEST_P(ProcessorTest, NormalizeTest) {
   EXPECT_EQ(processor->Normalize(written), spoken);
+}
+
+TEST(ProcessorLoadTest, ThrowsWhenFstFilesCannotBeLoaded) {
+  EXPECT_THROW(
+      wetext::Processor("/tmp/zh_tn_missing_tagger.fst",
+                        "/tmp/zh_tn_missing_verbalizer.fst"),
+      std::runtime_error);
 }
 
 std::vector<std::pair<std::string, std::string>> test_cases =
