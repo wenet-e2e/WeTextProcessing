@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <filesystem>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -74,10 +75,23 @@ TEST_P(ProcessorTest, NormalizeTest) {
 }
 
 TEST(ProcessorLoadTest, ThrowsWhenFstFilesCannotBeLoaded) {
-  EXPECT_THROW(
-      wetext::Processor("/tmp/zh_tn_missing_tagger.fst",
-                        "/tmp/zh_tn_missing_verbalizer.fst"),
-      std::runtime_error);
+  const auto temp_dir = std::filesystem::path(testing::TempDir());
+  const auto missing_tagger = temp_dir / "missing-tagger.fst";
+  const auto missing_verbalizer = temp_dir / "missing-verbalizer.fst";
+
+  EXPECT_THROW(wetext::Processor(missing_tagger.string(),
+                                 missing_verbalizer.string()),
+               std::runtime_error);
+}
+
+TEST(ProcessorLoadTest, ThrowsWhenVerbalizerFstCannotBeLoaded) {
+  const auto missing_verbalizer =
+      std::filesystem::path(testing::TempDir()) / "missing-verbalizer.fst";
+
+  const std::string tagger_path =
+      std::string(WETEXT_TN_DIR) + "/zh_tn_tagger.fst";
+  EXPECT_THROW(wetext::Processor(tagger_path, missing_verbalizer.string()),
+               std::runtime_error);
 }
 
 std::vector<std::pair<std::string, std::string>> test_cases =
