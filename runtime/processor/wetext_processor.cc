@@ -14,13 +14,22 @@
 
 #include "processor/wetext_processor.h"
 
+#include <stdexcept>
+
 #include "utils/wetext_log.h"
 
 namespace wetext {
 Processor::Processor(const std::string& tagger_path,
                      const std::string& verbalizer_path) {
   tagger_.reset(StdVectorFst::Read(tagger_path));
+  if (tagger_ == nullptr) {
+    throw std::runtime_error("Failed to load tagger FST: " + tagger_path);
+  }
   verbalizer_.reset(StdVectorFst::Read(verbalizer_path));
+  if (verbalizer_ == nullptr) {
+    throw std::runtime_error("Failed to load verbalizer FST: " +
+                             verbalizer_path);
+  }
   compiler_ = std::make_shared<StringCompiler<StdArc>>();
   printer_ = std::make_shared<StringPrinter<StdArc>>();
 
