@@ -134,6 +134,8 @@ class Cardinal(Processor):
         # requires at least one normal digit before repeat_digit
         cardinal |= digits.plus + repeat_digit + digits.star
 
+        cardinal |= add_weight(number + dot + digits.plus + accep("亿")|accep("万"), -0.5)
+
         # 4. 特殊格式的数字 + 标准数字
         # cardinal string like 23
         if self.enable_standalone_number:
