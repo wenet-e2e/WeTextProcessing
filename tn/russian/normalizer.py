@@ -42,12 +42,9 @@ class Normalizer(Processor):
     (cases, genders and spellings) that NeMo leaves to audio-based selection.
     """
 
-    def __init__(self, cache_dir=None, overwrite_cache=False, deterministic=False):
-        if deterministic:
-            raise ValueError("Russian TN only supports non-deterministic normalization (deterministic=False).")
+    def __init__(self, cache_dir=None, overwrite_cache=False):
         super().__init__(name="ru_normalizer", token_orders=TOKEN_ORDERS)
-        self.deterministic = deterministic
-        self.build_fst("ru_tn", cache_dir, overwrite_cache, {"deterministic": deterministic})
+        self.build_fst("ru_tn", cache_dir, overwrite_cache, {})
 
     def build_tagger_and_verbalizer(self):
         cardinal = Cardinal()

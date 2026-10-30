@@ -170,11 +170,6 @@ def test_best_reading(normalizer, written, spoken):
     assert normalizer.normalize(written) == spoken
 
 
-def test_deterministic_is_not_supported():
-    with pytest.raises(ValueError):
-        Normalizer(cache_dir=False, deterministic=True)
-
-
 def test_escaped_word_round_trips(normalizer):
     written = 'путь\\a"b'
     assert members(normalizer, written) == [("word", {"value": written})]
