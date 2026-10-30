@@ -1,188 +1,247 @@
-## Text Normalization & Inverse Text Normalization
+<div align="center">
 
-### 0. Brief Introduction
+# WeTextProcessing
 
-```diff
-- **Must Read Doc** (In Chinese): https://mp.weixin.qq.com/s/q_11lck78qcjylHCi6wVsQ
-```
+**Rule-based text normalization and inverse text normalization for speech applications.**
 
-[WeTextProcessing: Production First & Production Ready Text Processing Toolkit](https://mp.weixin.qq.com/s/q_11lck78qcjylHCi6wVsQ)
+[Quick start](#quick-start) · [Languages](#supported-languages) · [Python API](#python-api) · [Rule architecture](docs/python-rule-architecture.md) · [C++ runtime](runtime/README.md)
 
-#### 0.1 Text Normalization
+[![Unit tests](https://github.com/wenet-e2e/WeTextProcessing/actions/workflows/unittest.yml/badge.svg)](https://github.com/wenet-e2e/WeTextProcessing/actions/workflows/unittest.yml)
+
+</div>
+
+WeTextProcessing converts between written and spoken text using weighted finite-state transducers (WFSTs), built with [Pynini](https://www.openfst.org/twiki/bin/view/GRM/Pynini) and [OpenFst](https://www.openfst.org/twiki/bin/view/FST/WebHome).
+
+- **TN and ITN** — normalize numbers, dates, times, currencies, units, and other structured expressions.
+- **Multilingual rules** — Chinese, English, Japanese, and Korean pipelines with language-specific grammars.
+- **Explainable output** — inspect raw tagged fields, trace input/output spans, and request unique n-best results.
+- **Reusable graphs** — automatic, configuration-aware FST caching and a separate C++ deployment runtime.
+
+For background and motivation, read [WeTextProcessing: Production First & Production Ready Text Processing Toolkit](https://mp.weixin.qq.com/s/q_11lck78qcjylHCi6wVsQ) (Chinese).
+
+## What are TN and ITN?
+
+### Text normalization
+
+TN converts written expressions into their spoken forms, for example `12` → `十二`. It is commonly used before speech synthesis.
 
 <div align=center><img src="https://user-images.githubusercontent.com/13466943/193439861-acfba531-13d1-4fca-b2f2-6e47fc10f195.png" alt="Cover" width="50%"/></div>
 
-#### 0.2 Inverse Text Normalization
+### Inverse text normalization
+
+ITN converts spoken expressions into written forms, for example `十二` → `12`. It is commonly used after speech recognition.
 
 <div align=center><img src="https://user-images.githubusercontent.com/13466943/193439870-634c44a3-bd62-4311-bcf2-1427758d5f62.png" alt="Cover" width="50%"/></div>
 
-### 1. How To Use
+## Supported languages
 
-#### 1.1 Quick Start:
+| Language | CLI code | TN | ITN | Python package |
+| --- | --- | --- | --- | --- |
+| Chinese | `zh` | Yes | Yes | `chinese` |
+| English | `en` | Yes | Yes | `english` |
+| Japanese | `ja` | Yes | Yes | `japanese` |
+| Korean | `ko` | Yes | Yes | `korean` |
+
+Chinese is the CLI default. Rule coverage and configurable options vary by language and direction.
+
+Korean support is included in this source checkout. Install from source to use it before the next package release.
+
+## Quick start
+
+### Install
+
+Install the published package:
+
 ```bash
-# install
 pip install WeTextProcessing
 ```
 
-Command-usage:
+For the latest rules, including Korean, install from source:
+
+```bash
+git clone https://github.com/wenet-e2e/WeTextProcessing.git
+cd WeTextProcessing
+pip install -e .
+```
+
+Pynini/OpenFst must be available in your Python environment. If a compatible wheel is unavailable, follow the [Pynini installation instructions](https://www.openfst.org/twiki/bin/view/GRM/Pynini). On Windows, the project's CI uses `conda install -c conda-forge pynini` before installing WeTextProcessing.
+
+### Run the CLI
 
 ```bash
 wetn --text "2.5平方电线"
 weitn --text "二点五平方电线"
+
+wetn --language en --text "13 dollars"
+weitn --language en --text "thirteen dollars"
+
+wetn --language ja --text "１２時"
+weitn --language ja --text "十二時"
+
+wetn --language ko --text "오후 3시 30분"
+weitn --language ko --text "오천원"
 ```
 
-Python usage:
+Each input produces two lines: the **tagged representation**, then the **verbalized result**. The tagger preserves raw field values; the verbalizer performs the conversion.
 
-```py
-from itn.chinese.inverse_normalizer import InverseNormalizer
-from itn.english.inverse_normalizer import InverseNormalizer as EnInverseNormalizer
-from tn.chinese.normalizer import Normalizer as ZhNormalizer
-from tn.english.normalizer import Normalizer as EnNormalizer
-
-# FST 缓存会记录构建参数及规则数据指纹；配置或规则变化时会自动重新构图。
-# 日常使用不需要 overwrite_cache；只在需要无条件重建时将它设为 True。
-
-zh_tn_text = "你好 WeTextProcessing 1.0，船新版本儿，船新体验儿，简直666，9和10"
-zh_itn_text = "你好 WeTextProcessing 一点零，船新版本儿，船新体验儿，简直六六六，九和六"
-en_tn_text = "Hello WeTextProcessing 1.0, life is short, just use wetext, 666, 9 and 10"
-en_itn_text = "call me at five five five one two three four"
-zh_tn_model = ZhNormalizer(remove_erhua=True)
-zh_itn_model = InverseNormalizer(enable_0_to_9=False)
-en_tn_model = EnNormalizer()
-en_itn_model = EnInverseNormalizer()
-print("中文 TN (去除儿化音，重新在线构图):\n\t{} => {}".format(zh_tn_text, zh_tn_model.normalize(zh_tn_text)))
-print("中文ITN (小于10的单独数字不转换，重新在线构图):\n\t{} => {}".format(zh_itn_text, zh_itn_model.normalize(zh_itn_text)))
-print("英文 TN (暂时还没有可控的选项，后面会加...):\n\t{} => {}\n".format(en_tn_text, en_tn_model.normalize(en_tn_text)))
-print("英文 ITN:\n\t{} => {}\n".format(en_itn_text, en_itn_model.normalize(en_itn_text)))
-
-zh_tn_model = ZhNormalizer(remove_erhua=False, overwrite_cache=True)
-zh_itn_model = InverseNormalizer(enable_0_to_9=True, overwrite_cache=True)
-print("中文 TN (不去除儿化音，重新在线构图):\n\t{} => {}".format(zh_tn_text, zh_tn_model.normalize(zh_tn_text)))
-print("中文ITN (小于10的单独数字也进行转换，重新在线构图):\n\t{} => {}\n".format(zh_itn_text, zh_itn_model.normalize(zh_itn_text)))
-```
-
-FST graphs are cached automatically outside the source tree. Use
-`cache_dir="/path/to/cache"` to choose another cache directory,
-`cache_dir=False` to disable persistent caching, or `overwrite_cache=True` to
-force a rebuild.
-
-To get the changed spans between the input and normalized text:
-
-```py
-result = zh_tn_model.normalize_with_mapping("今天中午12点")
-print(result.output_text)
-# 今天中午十二点
-
-for mapping in result.mappings:
-    print(mapping.token_type, mapping.input_text, "=>", mapping.output_text)
-# math 12 => 十二
-
-print(result.as_dict())
-# {
-#   "input": "今天中午12点",
-#   "output": "今天中午十二点",
-#   "mappings": [{
-#     "kind": "replace",
-#     "token_type": "math",
-#     "input": {"start": 4, "end": 6, "text": "12"},
-#     "output": {"start": 4, "end": 6, "text": "十二"}
-#   }]
-# }
-```
-
-Offsets are Unicode character offsets, and `token_type` identifies the matched
-grammar rule. Use `include_identity=True` to include unchanged tokens.
-
-Both APIs also support n-best output:
-
-```py
-outputs = zh_tn_model.normalize("输入文本", nbest=3)
-results = zh_tn_model.normalize_with_mapping("输入文本", nbest=3)
-```
-
-`nbest=1` returns a single result; `nbest>1` returns a list.
-
-#### 1.2 Advanced Usage:
-
-DIY your own rules && Deploy WeTextProcessing with cpp runtime !!
-
-For users who want modifications and adapt tn/itn rules to fix badcase, please try:
-
-``` bash
-git clone https://github.com/wenet-e2e/WeTextProcessing.git
-cd WeTextProcessing
-pip install -r requirements.txt
-pre-commit install # for clean and tidy code
-# `overwrite_cache` will rebuild all rules according to
-#   your modifications on tn/chinese/rules/xx.py (itn/chinese/rules/xx.py).
-#   The resulting content-addressed bundle is stored in your user cache.
-python -m tn --text "2.5平方电线" --overwrite_cache
-python -m itn --text "二点五平方电线" --overwrite_cache
-```
-
-Both commands also accept `--file PATH`, or read UTF-8 text from standard
-input when neither `--text` nor `--file` is supplied. Each input line produces
-two output lines: the tagged representation followed by the verbalized result.
-Only the input line ending is removed; leading, trailing, and internal spaces
-are preserved.
-
-Options are limited to the selected direction and language. For example:
+The same interfaces are available as `python -m tn` and `python -m itn`. Both accept `--text`, `--file PATH`, or UTF-8 text from standard input when neither option is supplied:
 
 ```bash
-python -m tn --language zh --no-remove-erhua --text "这儿"
-python -m tn --language ja --transliterate --text "WeNet"
-python -m itn --language zh --enable-0-to-9 --text "一二三"
-python -m itn --language ja --full-to-half True --text "１２時"
+python -m tn --language en --file input.txt
+python -m itn --language ko < input.txt
 ```
 
-Boolean options support both switch-style `--option` / `--no-option` and the
-legacy `--option True|False` form. Use `python -m tn --language LANG --help`
-or `python -m itn --language LANG --help` to see only the options supported by
-that pipeline. The installed `wetn` and `weitn` commands expose the same
-interfaces.
+Only input line endings are removed before processing. Other spaces are passed to the selected language's rules.
 
-To use an explicit Python cache root:
+### Language-specific options
 
-```py
-# tn usage
->>> from tn.chinese.normalizer import Normalizer
->>> normalizer = Normalizer(cache_dir="/path/to/wetext-cache")
->>> normalizer.normalize("2.5平方电线")
-# itn usage
->>> from itn.chinese.inverse_normalizer import InverseNormalizer
->>> invnormalizer = InverseNormalizer(cache_dir="/path/to/wetext-cache")
->>> invnormalizer.normalize("二点五平方电线")
-# Disable persistent caching:
->>> uncached = Normalizer(cache_dir=False)
+Inspect the options for the selected language and direction:
+
+```bash
+wetn --language zh --help
+weitn --language ko --help
 ```
 
-Python cache files are not C++ runtime exports. Rule contributors should read
-the [Python rule architecture guide](docs/python-rule-architecture.md).
+For example:
 
-### 2. TN Pipeline
+```bash
+wetn --language zh --no-remove-erhua --text "这儿"
+weitn --language zh --enable-0-to-9 --text "一二三"
+```
 
-Please refer to [TN.README](tn/README.md)
+Boolean options accept `--option` / `--no-option` and the legacy `--option True|False` form. Options from another language or direction are not accepted.
 
-### 3. ITN Pipeline
+## Python API
 
-Please refer to [ITN.README](itn/README.md)
+Import the normalizer for the language you need and reuse the instance:
 
-## Discussion & Communication
+```python
+from tn.chinese.normalizer import Normalizer
+from itn.chinese.inverse_normalizer import InverseNormalizer
 
-For Chinese users, you can aslo scan the QR code on the left to follow our offical account of WeNet.
-We created a WeChat group for better discussion and quicker response.
-Please scan the personal QR code on the right, and the guy is responsible for inviting you to the chat group.
+normalizer = Normalizer()
+inverse_normalizer = InverseNormalizer()
+
+print(normalizer.normalize("今天中午12点"))
+print(inverse_normalizer.normalize("二点五平方电线"))
+```
+
+Other languages use the same class names under their packages. For example, Korean:
+
+```python
+from tn.korean.normalizer import Normalizer
+from itn.korean.inverse_normalizer import InverseNormalizer
+
+normalizer = Normalizer()
+inverse_normalizer = InverseNormalizer()
+
+print(normalizer.normalize("오후 3시 30분"))
+print(inverse_normalizer.normalize("오천원"))
+```
+
+### Inspect tags
+
+Tagging and verbalization are independently accessible:
+
+```python
+tagged = normalizer.tag("오후 3시 30분")
+print(tagged)
+print(normalizer.verbalize(tagged))
+```
+
+The hours and minutes remain written values in the tags, rather than being replaced with their Korean readings.
+
+### Input/output span mapping
+
+`normalize_with_mapping()` returns normalized text and the spans matched by grammar rules:
+
+```python
+from tn.chinese.normalizer import Normalizer
+
+normalizer = Normalizer()
+result = normalizer.normalize_with_mapping("今天中午12点")
+
+print(result.output_text)
+for mapping in result.mappings:
+    print(mapping.token_type, mapping.input_text, "=>", mapping.output_text)
+```
+
+Output:
+
+```text
+今天中午十二点
+math 12 => 十二
+```
+
+Offsets are half-open Unicode character offsets, not UTF-8 byte offsets. Use `include_identity=True` to include unchanged tokens, or `result.as_dict()` to obtain a serializable representation. Mappings are traced through the WFSTs, not inferred from a text diff.
+
+### N-best results
+
+```python
+outputs = normalizer.normalize("3/4", nbest=3)
+results = normalizer.normalize_with_mapping("3/4", nbest=3)
+```
+
+`nbest=1` returns a string or a single `NormalizationResult`; `nbest>1` returns a list of up to that many unique outputs. The mapping API follows the same output ranking.
+
+## FST caching
+
+Graphs are cached automatically outside the source tree. Cache bundles record the pipeline's configuration and grammar-source fingerprint; changing either causes a new bundle to be built.
+
+| Setting | Behavior |
+| --- | --- |
+| `cache_dir=None` | Use the platform's default user cache |
+| `cache_dir="/path/to/cache"` | Choose an explicit cache root |
+| `cache_dir=False` | Build in memory without persistent caching |
+| `overwrite_cache=True` | Force rebuilding the selected bundle |
+
+```python
+from tn.chinese.normalizer import Normalizer
+
+normalizer = Normalizer(cache_dir="/path/to/wetext-cache")
+uncached = Normalizer(cache_dir=False)
+```
+
+The CLI exposes `--cache-dir PATH` and `--overwrite-cache`. Normal use does not require forced rebuilds.
+
+## Development and deployment
+
+Install development dependencies and run the tests:
+
+```bash
+pip install -e '.[dev]'
+pre-commit install
+pytest -q
+```
+
+Before adding or changing a language rule, read the [Python rule architecture guide](docs/python-rule-architecture.md). Rules preserve raw fields in the tagger, apply semantic conversion in the verbalizer, and use pipeline-owned rule inventories and field-order schemas.
+
+| Guide | Scope |
+| --- | --- |
+| [TN rules](tn/README.md) | Text normalization rules and examples |
+| [ITN rules](itn/README.md) | Inverse text normalization rules and examples |
+| [Python rule architecture](docs/python-rule-architecture.md) | Tagging, verbalization, registration, and span mapping contracts |
+| [C++ runtime](runtime/README.md) | Native build and deployment instructions |
+
+Python cache bundles are **not** C++ runtime exports. Follow the runtime's model and build instructions for native deployment.
+
+## Community
+
+Use [GitHub Issues](https://github.com/wenet-e2e/WeTextProcessing/issues) for questions, bug reports, and feature requests.
+
+For Chinese users, follow the WeNet official account using the QR code on the left. Scan the personal QR code on the right to contact the person who can invite you to the WeChat discussion group.
 
 | <img src="https://github.com/robin1001/qr/blob/master/wenet.jpeg" width="250px"> | <img src="https://user-images.githubusercontent.com/13466943/203046432-f637180e-4c87-40cc-be05-ce48c65dd1ef.jpg" width="250px"> |
 | ---- | ---- |
 
-Or you can directly discuss on [Github Issues](https://github.com/wenet-e2e/WeTextProcessing/issues).
+## Acknowledgments
 
-## Acknowledge
+- [OpenFst](https://www.openfst.org/twiki/bin/view/FST/WebHome) and [Pynini](https://www.openfst.org/twiki/bin/view/GRM/Pynini) for the finite-state toolkit.
+- The [NeMo Text Processing](https://github.com/NVIDIA/NeMo-text-processing) team and community for text-processing grammars and resources, including the [Chinese TN reference](https://github.com/NVIDIA/NeMo-text-processing/tree/main/nemo_text_processing/text_normalization/zh).
+- [Zhenxiang Ma](https://github.com/mzxcpp), [Jiayu Du](https://github.com/dophist), and [SpeechColab](https://github.com/SpeechColab) for their contributions.
+- [Pynini](https://github.com/kylebgorman/pynini) for reference implementations of FAR loading and shortest-path decoding in the C++ runtime.
+- [chinese_text_normalization](https://github.com/speechio/chinese_text_normalization/tree/master/thrax/src/cn) for Chinese ITN grammar resources.
 
-1. Thank the authors of foundational libraries like [OpenFst](https://www.openfst.org/twiki/bin/view/FST/WebHome) & [Pynini](https://www.openfst.org/twiki/bin/view/GRM/Pynini).
-3. Thank [NeMo](https://github.com/NVIDIA/NeMo) team & NeMo open-source community.
-2. Thank [Zhenxiang Ma](https://github.com/mzxcpp), [Jiayu Du](https://github.com/dophist), and [SpeechColab](https://github.com/SpeechColab) organization.
-3. Referred [Pynini](https://github.com/kylebgorman/pynini) for reading the FAR, and printing the shortest path of a lattice in the C++ runtime.
-4. Referred [TN of NeMo](https://github.com/NVIDIA/NeMo/tree/main/nemo_text_processing/text_normalization/zh) for the data to build the tagger graph.
-5. Referred [ITN of chinese_text_normalization](https://github.com/speechio/chinese_text_normalization/tree/master/thrax/src/cn) for the data to build the tagger graph.
+## License
+
+[Apache License 2.0](LICENSE).
