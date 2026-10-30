@@ -3,11 +3,13 @@ import json
 import pytest
 from pynini import cross
 
+from itn.arabic.inverse_normalizer import InverseNormalizer as ArInverseNormalizer
 from itn.chinese.inverse_normalizer import InverseNormalizer as ZhInverseNormalizer
 from itn.english.inverse_normalizer import InverseNormalizer as EnInverseNormalizer
 from itn.german.inverse_normalizer import InverseNormalizer as DeInverseNormalizer
 from itn.japanese.inverse_normalizer import InverseNormalizer as JaInverseNormalizer
 from itn.korean.inverse_normalizer import InverseNormalizer as KoInverseNormalizer
+from tn.arabic.normalizer import Normalizer as ArNormalizer
 from tn.chinese.normalizer import Normalizer as ZhNormalizer
 from tn.english.normalizer import Normalizer as EnNormalizer
 from tn.german.normalizer import Normalizer as DeNormalizer
@@ -67,6 +69,7 @@ def _build_small_graphs(processor):
         (KoNormalizer, "ko_tn", "tn", {}, {}),
         (DeNormalizer, "de_tn", "tn", {}, {"deterministic": True}),
         (DeNormalizer, "de_tn", "tn", {"deterministic": False}, {"deterministic": False}),
+        (ArNormalizer, "ar_tn", "tn", {}, {}),
         (
             ZhInverseNormalizer,
             "zh_itn",
@@ -104,6 +107,7 @@ def _build_small_graphs(processor):
         (EnInverseNormalizer, "en_itn", "itn", {}, {}),
         (KoInverseNormalizer, "ko_itn", "itn", {}, {}),
         (DeInverseNormalizer, "de_itn", "itn", {}, {}),
+        (ArInverseNormalizer, "ar_itn", "itn", {}, {}),
     ],
 )
 def test_all_pipeline_configs_are_part_of_manifest(
