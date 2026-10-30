@@ -1,0 +1,13 @@
+test@gmail.com~t e s t arroba gmail ponto com
+a.bc@gmail.com~a ponto b c arroba gmail ponto com
+admin@company.com.br~a d m i n arroba c o m p a n y ponto com ponto br
+www.google.com~w w w ponto google ponto com
+https://www.nvidia.com~h t t p s dois pontos barra barra w w w ponto nvidia ponto com
+http://site.com.br~h t t p dois pontos barra barra s i t e ponto com ponto br
+nvidia.com~nvidia ponto com
+@usuario~arroba usuario
+mail@google.com~m a i l arroba google ponto com
+support@microsoft.com~s u p p o r t arroba microsoft ponto com
+https://www.amazon.com.br~h t t p s dois pontos barra barra w w w ponto amazon ponto com ponto br
+u.s.e.r@facebook.com~u ponto s ponto e ponto r arroba facebook ponto com
+api.netflix.com~a p i ponto netflix ponto com
