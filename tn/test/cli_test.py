@@ -51,6 +51,7 @@ class FakeProcessor:
         ("tn", "en", "tn.english.normalizer", "Normalizer", [], {}),
         ("tn", "ko", "tn.korean.normalizer", "Normalizer", [], {}),
         ("tn", "de", "tn.german.normalizer", "Normalizer", ["--no-deterministic"], {"deterministic": False}),
+        ("tn", "hy", "tn.armenian.normalizer", "Normalizer", [], {}),
         (
             "itn",
             "zh",
@@ -76,6 +77,7 @@ class FakeProcessor:
         ("itn", "en", "itn.english.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "ko", "itn.korean.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "de", "itn.german.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "hy", "itn.armenian.inverse_normalizer", "InverseNormalizer", [], {}),
     ],
 )
 def test_create_processor_uses_language_capabilities(
@@ -146,10 +148,12 @@ def test_registered_pipeline_drives_language_options_and_factory(monkeypatch, di
 
 
 @pytest.mark.parametrize("direction", ["tn", "itn"])
-@pytest.mark.parametrize("language", ["zh", "en", "ja", "ko", "de"])
+@pytest.mark.parametrize("language", ["zh", "en", "ja", "ko", "de", "hy"])
 def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, direction, language):
     args = parse_args(direction, ["--language", language])
-    package = {"zh": "chinese", "en": "english", "ja": "japanese", "ko": "korean", "de": "german"}[language]
+    package = {
+        "zh": "chinese", "en": "english", "ja": "japanese", "ko": "korean", "de": "german", "hy": "armenian",
+    }[language]
     module_suffix, class_name = ("normalizer", "Normalizer") if direction == "tn" else (
         "inverse_normalizer", "InverseNormalizer")
     module = __import__("{}.{}.{}".format(direction, package, module_suffix), fromlist=[class_name])
@@ -181,6 +185,8 @@ def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, dire
         ("itn", "ja", "--full-to-half", "--remove-interjections"),
         ("itn", "ko", "--cache-dir", "--enable-million"),
         ("itn", "de", "--cache-dir", "--enable-million"),
+        ("tn", "hy", "--cache-dir", "--deterministic"),
+        ("itn", "hy", "--cache-dir", "--enable-million"),
     ],
 )
 def test_help_only_exposes_selected_pipeline_options(direction, language, present, absent):
