@@ -1,0 +1,12 @@
+a.bc@gmail.com~a punkt b c snabel-a g mail punkt com
+cdf@abc.edu~c d f snabel-a a b c punkt e d u
+abc@gmail.abc~a b c snabel-a g mail punkt a b c
+abc@abc.com~a b c snabel-a a b c punkt com
+asdf123@abc.com~a s d f ett två tre snabel-a a b c punkt com
+a1b2@abc.com~a ett b två snabel-a a b c punkt com
+ab3.sdd.3@gmail.com~a b tre punkt s d d punkt tre snabel-a g mail punkt com
+https://www.nvidia.com~h t t p s kolon dubbla snedstreck w w w punkt nvidia punkt com
+www.nvidia.com~w w w punkt nvidia punkt com
+www.abc.es/efg~w w w punkt a b c punkt e s snedstreck e f g
+www.abc.es~w w w punkt a b c punkt e s
+http://www.ourdailynews.com.sm~h t t p kolon dubbla snedstreck w w w punkt o u r d a i l y n e w s punkt com punkt s m
