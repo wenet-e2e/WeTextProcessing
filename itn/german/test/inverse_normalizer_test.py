@@ -29,8 +29,8 @@ def test_native_pipeline_exists():
 
 
 @pytest.fixture(scope="module")
-def inverse_normalizer():
-    return import_module("itn.german.inverse_normalizer").InverseNormalizer(cache_dir=False)
+def inverse_normalizer(shared_pipeline):
+    return shared_pipeline(import_module("itn.german.inverse_normalizer").InverseNormalizer)
 
 
 @pytest.mark.parametrize("spoken,written", CASES)

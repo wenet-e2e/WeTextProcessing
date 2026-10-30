@@ -37,10 +37,10 @@ def date():
 
 
 @pytest.fixture(scope="module")
-def inverse_normalizer():
+def inverse_normalizer(shared_pipeline):
     from itn.german.inverse_normalizer import InverseNormalizer
 
-    return InverseNormalizer(cache_dir=False)
+    return shared_pipeline(InverseNormalizer)
 
 
 @pytest.mark.parametrize("spoken,written", source_pairs())

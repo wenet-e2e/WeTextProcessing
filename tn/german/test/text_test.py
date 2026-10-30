@@ -16,7 +16,7 @@ NAMES = ("electronic", "telephone", "whitelist", "word", "punctuation")
 
 
 @lru_cache(maxsize=None)
-def text_rules(deterministic=True):
+def text_rules(deterministic):
     modules = {}
     for name in NAMES:
         assert util.find_spec(ROOT + name) is not None, "missing German rule: " + name
@@ -90,21 +90,21 @@ def test_raw_fields_semantics_and_mapping(deterministic, name, written, spoken, 
 
 @pytest.mark.parametrize("spoken,written", source_pairs("electronic"))
 def test_source_electronic(spoken, written):
-    rules = text_rules()
+    rules = text_rules(True)
     name = "electronic" if "." in written or "@" in written else "whitelist"
     assert rules[name].normalize(written) == spoken
 
 
 @pytest.mark.parametrize("spoken,written", source_pairs("telephone"))
 def test_source_telephone(spoken, written):
-    assert text_rules()["telephone"].normalize(written) == spoken
+    assert text_rules(True)["telephone"].normalize(written) == spoken
 
 
 @pytest.mark.parametrize("spoken,written", [
     (spoken, written) for spoken, written in source_pairs("word") if spoken == written
 ])
 def test_source_identity_word_tokens(spoken, written):
-    rules = text_rules()
+    rules = text_rules(True)
     is_punct = pynini.compose(pynini.accep(pynini.escape(written)), rules["punctuation"].graph).start()
     rule = rules["punctuation"] if is_punct != pynini.NO_STATE_ID else rules["word"]
     assert rule.normalize(written) == spoken
@@ -112,7 +112,7 @@ def test_source_identity_word_tokens(spoken, written):
 
 @pytest.mark.parametrize("written,spoken", load_labels(get_abs_path("german/data/whitelist.tsv")))
 def test_source_whitelist_map(written, spoken):
-    rule = text_rules()["whitelist"]
+    rule = text_rules(True)["whitelist"]
     assert rule.normalize(written) == spoken
     assert rewrite.one_top_rewrite(written, rule.graph) == spoken
 
@@ -129,7 +129,7 @@ def test_source_whitelist_map(written, spoken):
     ("whitelist", "graph", "z.B.", "zum beispiel"),
 ])
 def test_public_bare_semantic_graphs(name, attribute, written, spoken):
-    assert spoken in rewrite.top_rewrites(written, getattr(text_rules()[name], attribute), 20)
+    assert spoken in rewrite.top_rewrites(written, getattr(text_rules(True)[name], attribute), 20)
 
 
 @pytest.mark.parametrize("name,written", [
@@ -144,11 +144,11 @@ def test_public_bare_semantic_graphs(name, attribute, written, spoken):
     ("punctuation", "! "), ("punctuation", "&"), ("punctuation", "§"), ("punctuation", "a!"),
 ])
 def test_source_character_and_length_exclusions(name, written):
-    assert pynini.compose(pynini.accep(pynini.escape(written)), text_rules()[name].tagger).start() == pynini.NO_STATE_ID
+    assert pynini.compose(pynini.accep(pynini.escape(written)), text_rules(True)[name].tagger).start() == pynini.NO_STATE_ID
 
 
 def test_punctuation_inventory_matches_source_exclusions():
-    punctuation = text_rules()["punctuation"]
+    punctuation = text_rules(True)["punctuation"]
     for mark in ["!", '"', "—", "。", "[", "]", "\\"]:
         assert rewrite.one_top_rewrite(pynini.escape(mark), punctuation.punct) == mark
     for mark in ["&", "#", "@", "§", "™", "_"]:
@@ -169,18 +169,18 @@ def test_whitelist_false_only_adds_source_alternatives():
 def test_word_verbalizer_decodes_then_replaces_nbsp():
     token = Token("word")
     token.append("value", 'grün\u00a0"\\中文')
-    assert text_rules()["word"].verbalize(token.string({})) == 'grün "\\中文'
+    assert text_rules(True)["word"].verbalize(token.string({})) == 'grün "\\中文'
 
 
 @pytest.mark.parametrize("written", [" ", "\t", "\n", " \t\n ", "\u00a0"])
 def test_word_verbalizer_deletes_pure_whitespace(written):
     token = Token("word")
     token.append("value", written)
-    assert text_rules()["word"].verbalize(token.string({})) == ""
+    assert text_rules(True)["word"].verbalize(token.string({})) == ""
 
 
 def test_electronic_bare_terminal_period_not_postprocessed():
-    rule = text_rules()["electronic"]
+    rule = text_rules(True)["electronic"]
     assert rewrite.one_top_rewrite("abc.com.", rule.domain_graph) == "a b c punkt com punkt"
     assert rule.normalize("abc.com.") == "a b c punkt com."
 
@@ -198,7 +198,7 @@ def test_domain_known_and_spelled_candidates_keep_raw():
 @pytest.mark.parametrize("name", NAMES)
 def test_explicit_empty_token_orders(name):
     assert import_module(ROOT + name).TOKEN_ORDER == {}
-    assert text_rules()[name].token_orders == {}
+    assert text_rules(True)[name].token_orders == {}
 
 
 def test_shared_byte_graphs_are_not_modified():
@@ -221,7 +221,7 @@ def test_source_fixture_empty_and_leading_space_are_retained():
     ("09", "null neun"), ("(012)", "null eins zwei"),
 ])
 def test_telephone_leading_zero_roundtrip(country, spoken):
-    rule = text_rules()["telephone"]
+    rule = text_rules(True)["telephone"]
     written = country + " 2345678"
     expected = spoken + " zwei drei vier fünf sechs sieben acht"
     assert rule.normalize(written) == expected

@@ -36,8 +36,8 @@ CASES = original_cases()
 
 
 @pytest.fixture(scope="module")
-def normalizer():
-    return Normalizer(cache_dir=False)
+def normalizer(shared_pipeline):
+    return shared_pipeline(Normalizer)
 
 
 def test_original_fixture_count_and_trailing_spaces():
