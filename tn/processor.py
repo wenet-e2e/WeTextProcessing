@@ -416,6 +416,11 @@ class Processor:
                     continue
 
             _, _, _, serial, candidate, verbalizer_stream = heapq.heappop(frontier)
+            if candidate.output not in seen_outputs:
+                seen_outputs.add(candidate.output)
+                candidates.append(candidate)
+                if len(candidates) == nbest:
+                    break
             next_verbalized = verbalizer_stream.pop()
             if next_verbalized is not None:
                 next_candidate = _NormalizationCandidate(
@@ -438,10 +443,6 @@ class Processor:
                         verbalizer_stream,
                     ),
                 )
-            if candidate.output in seen_outputs:
-                continue
-            seen_outputs.add(candidate.output)
-            candidates.append(candidate)
 
         if not candidates:
             raise RuntimeError("no normalization path for the requested input")
