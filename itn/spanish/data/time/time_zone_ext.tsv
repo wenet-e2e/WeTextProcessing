@@ -1,0 +1,105 @@
+# Additional time zones are listed below.
+# To use them, simply copy them to the main time_zone.tsv file.
+
+acdt	hora de verano de australia central
+acst	hora estándar de australia central
+act	hora de acre
+acwst	hora estándar de australia centroccidental
+aedt	hora de verano de australia oriental
+aest	hora estándar de australia oriental
+aft	hora de afganistán
+akdt	tiempo de verano de alaska
+akst	tiempo estándar de alaska
+almt	hora de almá-atá
+aqtt	hora de aktobé
+awst	hora estándar de australia occidental
+azost	hora de verano de las azores
+azot	hora estándar de las azores
+azt	hora estándar de azerbaiyán
+bdt	hora de brunéi
+bnt	hora de brunéi darussalam
+bst	hora de verano británica
+btt	hora de bután
+cast	hora de casey
+cat	hora de áfrica central
+cct	hora de las islas cocos
+cest	hora de verano de europa central
+chut	hora de chuuk
+cvt	hora estándar de cabo verde
+cxt	hora de la isla de navidad
+chst	hora estándar de chamorro
+eat	hora de áfrica oriental
+egst	hora de verano de groenlandia oriental
+egt	hora estándar de groenlandia oriental
+fjst	hora de verano de fiyi
+fjt	hora estándar de fiyi
+gamt	hora de gambier
+ict	hora de indochina
+idt	hora de verano de israel
+iot	hora del océano índico
+irdt	hora de verano de irán
+irst	hora estándar de irán
+ist	i s t
+kgt	hora de kirguistán
+krat	hora estándar de krasnoyarsk
+lint	hora de las espóradas ecuatoriales
+magt	hora estándar de magadán
+mart	hora de las islas marquesas
+mmt	hora de birmania
+msk	hora estándar de moscú
+mut	hora estándar de mauricio
+mvt	hora de maldivas
+myt	hora de malasia
+nct	hora estándar de nueva caledonia
+ndt	hora de verano de terranova
+nft	hora de las islas norfolk
+vot	hora estándar de novosibirsk
+npt	hora de nepal
+nrt	hora de nauru
+nst	hora estándar de terranova
+nzdt	hora de verano de nueva zelanda
+hzst	hora estándar de nueva zelanda
+omst	hora estándar de omsk
+orat	hora de kazajistán occidental
+pett	hora de kamchatka
+pgt	hora de papúa nueva guinea
+phot	hora de las islas fénix
+pkt	hora estándar de pakistán
+pmdt	hora de verano de san pedro y miquelón
+pmst	hora estándar de san predo y miquelón
+pont	hora de pohnpei
+pwt	hora de palaos
+qyzt	hora de quizilordá
+ret	hora de reunión
+sakt	hora estándar de sajalín
+samt	hora de samara
+sast	hora de sudáfrica
+sbt	hora de las islas salomón
+sret	hora de srednekolimsk
+srt	hora de surinam
+sst	hora estándar de samoa
+taht	hora de tahití
+tft	hora de las tierras australes y antárticas francesas
+tjt	hora de tayikistán
+tkt	hora de tokelau
+tlt	hora de timor oriental
+tmt	hora estándar de turkmenistán
+tot	hora estándar de tonga
+trt	hora estándar de turquía
+tvt	hora de tuvalu
+ulat	hora estándar de ulán bator
+uzt	hora estándar de uzbekistán
+vlat	hora estándar de vladivostok
+volt	hora estándar de volgogrado
+vost	hora de vostok
+vut	hora estándar de vanuatu
+wakt	hora de la isla wake
+wat	hora estándar de áfrica occidental
+wgst	hora de verano de groenlandia occidental
+wgt	hora estándar de groenlandia occidental
+wib	hora de indonesia occidental
+wit	hora de indonesia oriental
+wita	hora de indonesia central
+wst	hora de samoa occidental
+yakt	hora estándar de yakutsk
+yekt	hora estándar de ekaterimburgo

@@ -1,0 +1,15 @@
+123-123-5678~uno dos tres uno dos tres cinco seis siete ocho
+123-456-789~uno dos tres cuatro cinco seis siete ocho nueve
+1234-5678~uno dos tres cuatro cinco seis siete ocho
++1 123-123-5678~más uno uno dos tres uno dos tres cinco seis siete ocho
++593 123-123-5678~más cinco nueve tres uno dos tres uno dos tres cinco seis siete ocho
++1-123-123-5678~más uno uno dos tres uno dos tres cinco seis siete ocho
++1 (123) 123-5678~más uno uno dos tres uno dos tres cinco seis siete ocho
+1-800-go-u-haul~uno ochocientos go u haul
+llámame al 123-123-5678~llámame al uno dos tres uno dos tres cinco seis siete ocho
+la dirección de ip es 123.123.0.40~la dirección de i p es uno dos tres punto uno dos tres punto cero punto cuatro cero
+0-800-hermano~cero ochocientos hermano
++58 (123) 123-5678 ext. 12~más cincuenta y ocho uno dos tres uno dos tres cinco seis siete ocho extensión uno dos
++58 (123) 123-5678-12~más cincuenta y ocho uno dos tres uno dos tres cinco seis siete ocho extensión uno dos
++54 911 1234-5678~más cincuenta y cuatro nueve uno uno uno dos tres cuatro cinco seis siete ocho
+123.123.0.40~doce tres punto uno dos tres punto cero punto cuatro cero~uno dos tres punto uno dos tres punto cero punto cuatro cero

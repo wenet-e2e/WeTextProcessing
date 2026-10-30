@@ -1,0 +1,6 @@
+Uno dos tres uno dos tres cinco seis siete ocho~123-123-5678
+uno veintitrés uno veintitrés cincuenta y seis setenta y ocho~123-123-5678
+Uno Dos Tres Cuatro Cinco Seis Siete Ocho Nueve~123-456-789
+Triple tres uno dos tres cinco seis siete ocho~333-123-5678
+Más uno uno dos tres uno dos tres cinco seis siete ocho~+1-123-123-5678
+más cincuenta y cuatro uno dos tres uno dos tres cinco seis siete ocho Extensión doce~+54-123-123-5678 ext. 12

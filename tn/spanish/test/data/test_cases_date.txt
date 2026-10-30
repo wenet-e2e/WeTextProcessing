@@ -1,0 +1,21 @@
+1 enero~primero de enero
+5 febrero~cinco de febrero
+20 de marzo~veinte de marzo
+abril 30~treinta de abril
+31 marzo~treinta y uno de marzo
+10 mayo 1990~diez de mayo de mil novecientos noventa
+junio 11 2000~once de junio de dos mil
+30 julio del 2020~treinta de julio del dos mil veinte
+30-2-1990~treinta de febrero de mil novecientos noventa
+30/2/1990~treinta de febrero de mil novecientos noventa
+30.2.1990~treinta de febrero de mil novecientos noventa
+1990-2-30~treinta de febrero de mil novecientos noventa
+1990-02-30~treinta de febrero de mil novecientos noventa
+abr. 22~veintidós de abril
+siglo xix~siglo diecinueve
+año mcmlxxxix~año mil novecientos ochenta y nueve
+vier. 10 de mayo~viernes diez de mayo
+10/10/1989~diez de octubre de mil novecientos ochenta y nueve
+10.000 a. c.~diez mil antes de cristo
+siglo x ec~siglo diez era común
+junio 21 2021~veintiuno de junio de dos mil veintiuno

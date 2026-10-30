@@ -1,0 +1,5 @@
+usted~Ud.
+ustedes~Uds.
+habla usted español~habla Ud. español
+hablan ustedes español~hablan Uds. español
+estados unidos~EE. UU.
