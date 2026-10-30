@@ -15,9 +15,9 @@
 import sys
 from unicodedata import category
 
-from pynini import accep, closure, compose, cross, union
+from pynini import accep, closure, compose, union
 from pynini.examples import plurals
-from pynini.lib.pynutil import add_weight, delete, insert
+from pynini.lib.pynutil import add_weight
 
 from tn.processor import Processor
 from tn.utils import get_abs_path, load_labels
@@ -54,7 +54,7 @@ class Punctuation(Processor):
         self.punct_marks = [p for p in punct_unicode + list(s) if p not in whitelist_symbols]
 
         self.punct = union(*self.punct_marks)
-        punct = (self.punct | cross("\\", "\\\\\\") | cross('"', '\\"')).plus
+        punct = (self.punct | accep("\\") | accep('"')).plus
 
         self.emphasis = (
             accep("<") + (((self.NOT_SPACE - union("<", ">")).plus + closure(accep("/"), 0, 1))  # noqa
@@ -67,12 +67,9 @@ class Punctuation(Processor):
         # path weight to break ties with semantic classes such as decimals.
         grouped_punct = compose(self.VCHAR**(2, ...), punct)
         tagger_punct = punct | add_weight(grouped_punct, -0.0001)
-        final_graph = (insert('v: "') + add_weight(accep(" "), -1.0).star + tagger_punct + add_weight(accep(" "), -1.0).star +
-                       insert('"'))
-        self.tagger = self.add_tokens(final_graph)
+        graph = add_weight(accep(" "), -1.0).star + tagger_punct + add_weight(accep(" "), -1.0).star
+        self.tagger = self.add_tokens(self.tag_field("v", graph))
 
     def build_verbalizer(self):
-        punct = closure(self.punct | self.emphasis | cross("\\\\\\", "\\") | cross('\\"', '"'), 1)
-        verbalizer = (delete('v: "') + add_weight(accep(" "), -1.0).star + punct + add_weight(accep(" "), -1.0).star +
-                      delete('"'))
-        self.verbalizer = self.delete_tokens(verbalizer)
+        graph = accep(" ").star + self.graph + accep(" ").star
+        self.verbalizer = self.delete_tokens(self.verbalize_field("v", graph))

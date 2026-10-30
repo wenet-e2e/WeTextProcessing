@@ -15,6 +15,9 @@
 import pytest
 
 from tn.english.normalizer import Normalizer
+from tn.english.rules.date import Date
+from tn.english.rules.punctuation import Punctuation
+from tn.english.rules.serial import Serial
 from tn.english.test.utils import parse_test_case
 from tn.token_parser import TokenParser
 
@@ -164,3 +167,41 @@ class TestNormalizer:
         assert mapping.output_text == spoken
         assert (mapping.input_start, mapping.input_end) == (0, len(written))
         assert (mapping.output_start, mapping.output_end) == (0, len(spoken))
+
+
+@pytest.mark.parametrize(
+    "rule_type,written,spoken,fields",
+    [
+        (Punctuation, '<">', '<">', {"v": '<">'}),
+        (Punctuation, r'<a\\b>', r'<a\\b>', {"v": r'<a\\b>'}),
+        (Serial, 'a"^2', 'a" squared', {"name": 'a"^2'}),
+        (Date, 'Jan" 5', "the fifth of january", {"month": 'Jan"', "day": "5"}),
+    ],
+)
+def test_escaped_rule_fields_round_trip_and_map(written, spoken, fields, rule_type):
+    rule = rule_type()
+    tagged = rule.tag(written)
+    parser = rule.token_parser()
+    parser.parse(tagged)
+
+    assert len(parser.tokens) == 1
+    for key, value in fields.items():
+        assert parser.tokens[0].members[key] == value
+    assert rule.verbalize(tagged) == spoken
+    result = rule.normalize_with_mapping(written, include_identity=True)
+    assert result.output_text == spoken
+    assert [(mapping.input_text, mapping.output_text) for mapping in result.mappings] == [(written, spoken)]
+
+
+@pytest.mark.parametrize(
+    "written,spoken",
+    [('<">', '<">'), (r'<a\\b>', r'<a\\b>'), ('a"^2', 'a" squared'), ('Jan" 5', "the fifth of january")],
+)
+def test_escaped_fields_work_in_full_pipeline(normalizer, written, spoken):
+    tagged = normalizer.tag(written)
+    parser = normalizer.token_parser()
+    parser.parse(tagged)
+
+    assert normalizer.verbalize(tagged) == spoken
+    assert normalizer.normalize(written) == spoken
+    assert normalizer.normalize_with_mapping(written, include_identity=True).output_text == spoken

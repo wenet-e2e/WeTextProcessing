@@ -59,10 +59,14 @@ tn = [
     "english/data/*.tsv",
     "english/data/*/*.far",
     "japanese/data/*/*.tsv",
+    "korean/data/*.tsv",
+    "korean/data/*/*.tsv",
 ]
 itn = [
     "chinese/data/*/*.tsv",
     "english/data/*.tsv",
     "english/data/*/*.tsv",
     "japanese/data/*/*.tsv",
+    "korean/data/*.tsv",
+    "korean/data/*/*.tsv",
 ]
