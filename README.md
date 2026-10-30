@@ -13,7 +13,7 @@
 WeTextProcessing converts between written and spoken text using weighted finite-state transducers (WFSTs), built with [Pynini](https://www.openfst.org/twiki/bin/view/GRM/Pynini) and [OpenFst](https://www.openfst.org/twiki/bin/view/FST/WebHome).
 
 - **TN and ITN** — normalize numbers, dates, times, currencies, units, and other structured expressions.
-- **Multilingual rules** — Chinese, English, German, Japanese, and Korean pipelines with language-specific grammars.
+- **Multilingual rules** — Chinese, English, German, Japanese, Korean, and Russian pipelines with language-specific grammars.
 - **Explainable output** — inspect raw tagged fields, trace input/output spans, and request unique n-best results.
 - **Reusable graphs** — automatic, configuration-aware FST caching and a separate C++ deployment runtime.
 
@@ -42,10 +42,11 @@ ITN converts spoken expressions into written forms, for example `十二` → `12
 | German | `de` | Yes | Yes | `german` |
 | Japanese | `ja` | Yes | Yes | `japanese` |
 | Korean | `ko` | Yes | Yes | `korean` |
+| Russian | `ru` | Yes | Yes | `russian` |
 
 Chinese is the CLI default. Rule coverage and configurable options vary by language and direction.
 
-German and Korean support are included in this source checkout. Install from source to use them before the next package release.
+German, Korean, and Russian support are included in this source checkout. Install from source to use them before the next package release.
 
 ## Quick start
 
@@ -57,7 +58,7 @@ Install the published package:
 pip install WeTextProcessing
 ```
 
-For the latest rules, including German and Korean, install from source:
+For the latest rules, including German, Korean, and Russian, install from source:
 
 ```bash
 git clone https://github.com/wenet-e2e/WeTextProcessing.git
