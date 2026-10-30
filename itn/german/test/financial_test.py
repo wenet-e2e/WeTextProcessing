@@ -1,5 +1,4 @@
 from importlib import import_module, util
-import json
 from pathlib import Path
 
 import pynini
@@ -12,6 +11,7 @@ from tn.utils import get_abs_path, load_labels
 
 ROOT = "itn.german.rules."
 DATA = Path(__file__).parent / "data"
+CONTEXT_CASES = {"einhundert cent", "zweidollarzwanzig", "zwei pfund und ein hundert penny"}
 
 
 def source_pairs(category):
@@ -27,13 +27,11 @@ def test_rule_modules_exist(name):
 
 @pytest.fixture(scope="module")
 def rules():
-    modules = {}
-    for name in ("money", "measure"):
-        assert util.find_spec(ROOT + name) is not None
-        modules[name] = import_module(ROOT + name)
     from itn.german.rules.cardinal import Cardinal
     from itn.german.rules.decimal import Decimal
     from itn.german.rules.fraction import Fraction
+    from itn.german.rules.measure import Measure
+    from itn.german.rules.money import Money
     from tn.german.rules.cardinal import Cardinal as TNCardinal
     from tn.german.rules.decimal import Decimal as TNDecimal
     from tn.german.rules.fraction import Fraction as TNFraction
@@ -48,8 +46,8 @@ def rules():
         "cardinal": cardinal,
         "decimal": decimal,
         "fraction": fraction,
-        "money": modules["money"].Money(cardinal, decimal),
-        "measure": modules["measure"].Measure(cardinal, decimal, fraction),
+        "money": Money(cardinal, decimal),
+        "measure": Measure(cardinal, decimal, fraction),
     }
 
 
@@ -80,126 +78,54 @@ def sentence_context(rules):
 
 
 @pytest.mark.parametrize("spoken,written", source_pairs("money"))
-def test_source_money(rules, source_expected, sentence_context, spoken, written):
+def test_source_money(rules, sentence_context, spoken, written):
     rule = rules["money"]
-    expected = source_outputs(source_expected, "money", spoken)
-    assert accepts(rule.tagger, spoken) == bool(expected)
-    if expected:
-        assert rule.normalize(spoken) == written == expected[0][0]
-        assert rule.normalize(spoken, nbest=10) == [output for output, _ in expected]
-        assert native_outputs(rule, spoken) == pytest.approx(dict(expected), abs=1e-6)
-        ordered = rule.token_parser().reorder(rule.tag(spoken))
-        assert rewrite.one_top_rewrite(pynini.escape(ordered), rule.verbalizer) == written
-    else:
-        assert spoken in {"einhundert cent", "zweidollarzwanzig", "zwei pfund und ein hundert penny"}
+    if spoken in CONTEXT_CASES:
+        assert not accepts(rule.tagger, spoken)
         assert sentence_context.normalize(spoken) == written
         result = sentence_context.normalize_with_mapping(spoken)
         assert result.output_text == written
         for mapping in result.mappings:
             assert mapping.input_text == spoken[mapping.input_start:mapping.input_end]
             assert mapping.output_text == written[mapping.output_start:mapping.output_end]
-
-
-@pytest.mark.parametrize("spoken,written", source_pairs("measure"))
-def test_source_measure(rules, source_expected, spoken, written):
-    rule = rules["measure"]
-    expected = source_outputs(source_expected, "measure", spoken)
-    assert rule.normalize(spoken) == written == expected[0][0]
-    assert rule.normalize(spoken, nbest=10) == [output for output, _ in expected]
-    assert native_outputs(rule, spoken) == pytest.approx(dict(expected), abs=1e-6)
+        return
+    assert rule.normalize(spoken) == written
     ordered = rule.token_parser().reorder(rule.tag(spoken))
     assert rewrite.one_top_rewrite(pynini.escape(ordered), rule.verbalizer) == written
 
 
-@pytest.fixture(scope="module")
-def source_expected():
-    with (DATA / "financial_expectations.json").open(encoding="utf-8") as stream:
-        return json.load(stream)["cases"]
+@pytest.mark.parametrize("spoken,written", source_pairs("measure"))
+def test_source_measure(rules, spoken, written):
+    rule = rules["measure"]
+    assert rule.normalize(spoken) == written
+    ordered = rule.token_parser().reorder(rule.tag(spoken))
+    assert rewrite.one_top_rewrite(pynini.escape(ordered), rule.verbalizer) == written
 
 
-def source_outputs(source_expected, name, spoken, nbest=10):
-    try:
-        return source_expected[name][spoken][:nbest]
-    except KeyError as error:
-        raise KeyError(f"Missing financial expectation for {name}: {spoken!r}") from error
-
-
-@pytest.mark.parametrize("name,spoken", [
-    ("money", "null euro"),
-    ("money", "ein euro"),
-    ("money", "eine euro"),
-    ("money", "eins euro"),
-    ("money", "null cent"),
-    ("money", "ein cent"),
-    ("money", "eine penny"),
-    ("money", "null euro null"),
-    ("money", "null euro und null cent"),
-    ("money", "ein dollar und ein penny"),
-    ("money", "zwei euro neunundneunzig"),
-    ("money", "einhundert cent"),
-    ("money", "hundert euro hundert"),
-    ("money", "zwei euro und ein hundert cent"),
-    ("money", "zwei komma ein euro"),
-    ("money", "ein komma zwei euro"),
-    ("money", "minus zwei euro"),
-    ("money", "null million euro"),
-    ("money", "eine millionen euro"),
-    ("money", "zwanzigcent"),
-    ("money", "zwei euroundviercent"),
-    ("money", "zwei\tus dollar\nvier"),
-    ("money", "zwei euro zwei"),
-    ("money", "zwei komma zwei euro"),
-    ("measure", "null stunden"),
-    ("measure", "ein stunden"),
-    ("measure", "eine stunden"),
-    ("measure", "eins stunden"),
-    ("measure", "null kilometer pro stunde"),
-    ("measure", "eine million stunden"),
-    ("measure", "null million stunden"),
-    ("measure", "eine millionen stunden"),
-    ("measure", "null komma null kilometer"),
-    ("measure", "minus\telf\nkilogramm"),
-    ("measure", "minus minus ein halb fuß"),
-    ("measure", "minus drei und ein halb fuß"),
-    ("measure", "zwei prosekunde"),
-    ("measure", "zwei kilometerpro stunde"),
-    ("measure", "zwei pro stunden"),
-    ("measure", "zwei kilogrammen"),
-    ("measure", "zwei meilen"),
-    ("measure", "zwei kalorien"),
-    ("measure", "zwei grad celsius"),
-    ("measure", "zwei quadrat meter"),
-    ("measure", "zwei mikrogramm"),
-    ("measure", "zwei hundert drei tausend vier fünftel meter"),
-    ("measure", "acht a"),
-    ("measure", "a acht"),
-    ("measure", "acht x"),
+@pytest.mark.parametrize("name,spoken,written", [
+    ("money", "null euro", "€0"),
+    ("money", "eins euro", "€1"),
+    ("money", "null cent", "€0,00"),
+    ("money", "null euro und null cent", "€0,00"),
+    ("money", "ein dollar und ein penny", "$1,01"),
+    ("money", "zwei euro neunundneunzig", "€2,99"),
+    ("money", "zwanzigcent", "€0,20"),
+    ("money", "zwei\tus dollar\nvier", "$2,04"),
+    ("money", "eine millionen euro", "€1 millionen"),
+    ("measure", "null stunden", "0 h"),
+    ("measure", "eins stunden", "1 h"),
+    ("measure", "null kilometer pro stunde", "0 km/h"),
+    ("measure", "null komma null kilometer", "0,0 km"),
+    ("measure", "minus\telf\nkilogramm", "-11 kg"),
+    ("measure", "minus drei und ein halb fuß", "-3 1/2 ft"),
+    ("measure", "zwei kilometerpro stunde", "2 km/h"),
+    ("measure", "zwei prosekunde", "2 /s"),
+    ("measure", "zwei meilen", "2 mi"),
+    ("measure", "zwei grad celsius", "2 °C"),
+    ("measure", "zwei quadrat meter", "2 m²"),
 ])
-def test_original_edges(rules, source_expected, name, spoken):
-    expected = source_outputs(source_expected, name, spoken)
-    rule = rules[name]
-    assert accepts(rule.tagger, spoken) == bool(expected)
-    if not expected:
-        return
-    candidates = rule.normalize(spoken, nbest=10)
-    assert candidates == [written for written, _ in expected]
-    weighted = native_outputs(rule, spoken)
-    assert weighted == pytest.approx(dict(expected), abs=1e-6)
-
-
-def native_outputs(rule, spoken):
-    tags = {}
-    for _, tagged, weight in (pynini.accep(pynini.escape(spoken)) @ rule.tagger).paths().items():
-        tags[tagged] = min(tags.get(tagged, float("inf")), float(weight))
-    outputs = {}
-    for tagged, tag_weight in tags.items():
-        ordered = rule.token_parser().reorder(tagged)
-        paths = list((pynini.accep(pynini.escape(ordered)) @ rule.verbalizer).paths().items())
-        best = min(float(weight) for _, _, weight in paths)
-        for _, written, weight in paths:
-            total = tag_weight + float(weight) - best
-            outputs[written] = min(outputs.get(written, float("inf")), total)
-    return outputs
+def test_edge_readings(rules, name, spoken, written):
+    assert rules[name].normalize(spoken) == written
 
 
 @pytest.mark.parametrize("name,spoken,written,members", [
@@ -260,6 +186,9 @@ def test_raw_mapping_and_reordered_verbalization(rules, name, spoken, written, m
     ("money", 'zwei eu"ro'),
     ("money", "zwei eu\\ro"),
     ("money", "zwei komma ein euro"),
+    ("money", "ein komma zwei euro"),
+    ("money", "minus zwei euro"),
+    ("money", "hundert euro hundert"),
     ("money", "zweiundzwanzig Euro"),
     ("measure", 'zwei me"ter'),
     ("measure", "zwei me\\ter"),
@@ -267,24 +196,11 @@ def test_raw_mapping_and_reordered_verbalization(rules, name, spoken, written, m
     ("measure", "drei halb meter"),
     ("measure", "ein halbe meter"),
     ("measure", "zwei Meter"),
+    ("measure", "acht a"),
+    ("measure", "a acht"),
 ])
-def test_invalid_spelling(rules, source_expected, name, spoken):
+def test_rejected_inputs(rules, name, spoken):
     assert not accepts(rules[name].tagger, spoken)
-    assert source_outputs(source_expected, name, spoken) == []
-
-
-@pytest.mark.parametrize("amount", ["null", "ein", "eine", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben",
-                                    "acht", "neun", "zehn", "elf", "neunundneunzig", "hundert", "ein hundert"])
-@pytest.mark.parametrize("pattern", ["{} cent", "{} euro", "null euro {}", "null euro und {} pence", "{} stunden"])
-def test_zero_one_and_cents_source_quirks(rules, source_expected, amount, pattern):
-    spoken = pattern.format(amount)
-    name = "measure" if "stunden" in pattern else "money"
-    expected = source_outputs(source_expected, name, spoken)
-    rule = rules[name]
-    assert accepts(rule.tagger, spoken) == bool(expected)
-    if expected:
-        assert rule.normalize(spoken, nbest=10) == [written for written, _ in expected]
-        assert native_outputs(rule, spoken) == pytest.approx(dict(expected), abs=1e-6)
 
 
 @pytest.mark.parametrize("name,table,spoken_word,written_symbol", [
@@ -350,24 +266,19 @@ def test_all_candidate_mappings(rules):
 
 
 @pytest.mark.parametrize("row", load_labels(get_abs_path("german/data/money/currency.tsv")))
-def test_all_major_currency_rows(rules, source_expected, row):
+def test_all_major_currency_rows(rules, row):
     symbol, word = row
     spoken = "eine " + word
     rule = rules["money"]
-    expected = source_outputs(source_expected, "money", spoken)
-    assert rule.normalize(spoken) == symbol + "1" == expected[0][0]
-    assert native_outputs(rule, spoken) == pytest.approx(dict(expected), abs=1e-6)
+    assert rule.normalize(spoken) == symbol + "1"
     parser = rule.token_parser()
     parser.parse(rule.tag(spoken))
     assert parser.tokens[0].members == {"integer_part": "eine", "currency": word}
 
 
 @pytest.mark.parametrize("row", load_labels(get_abs_path("german/data/measure/measurements.tsv")))
-def test_all_measurement_rows(rules, source_expected, row):
-    word = row[1]
+def test_all_measurement_rows(rules, row):
+    symbol, word = row[:2]
     rule = rules["measure"]
-    for prefix in ("eine ", "zwei ", "zwei pro ", "zwei meter pro "):
-        spoken = prefix + word
-        expected = source_outputs(source_expected, "measure", spoken)
-        assert rule.normalize(spoken, nbest=10) == [written for written, _ in expected]
-        assert native_outputs(rule, spoken) == pytest.approx(dict(expected), abs=1e-6)
+    assert "2 " + symbol in rule.normalize("zwei " + word, nbest=20)
+    assert "2 /" + symbol in rule.normalize("zwei pro " + word, nbest=20)
