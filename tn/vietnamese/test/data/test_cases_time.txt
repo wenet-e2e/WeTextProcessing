@@ -1,0 +1,117 @@
+1h~một giờ
+2h~hai giờ
+3h~ba giờ
+4h~bốn giờ
+5h~năm giờ
+6h~sáu giờ
+7h~bảy giờ
+8h~tám giờ
+9h~chín giờ
+10h~mười giờ
+11h~mười một giờ
+12h~mười hai giờ
+13h~mười ba giờ
+14h~mười bốn giờ
+15h~mười lăm giờ
+16h~mười sáu giờ
+17h~mười bảy giờ
+18h~mười tám giờ
+19h~mười chín giờ
+20h~hai mươi giờ
+21h~hai mươi mốt giờ
+22h~hai mươi hai giờ
+23h~hai mươi ba giờ
+24h~hai mươi tư giờ
+0h~không giờ
+01h~một giờ
+02h~hai giờ
+03h~ba giờ
+04h~bốn giờ
+05h~năm giờ
+06h~sáu giờ
+07h~bảy giờ
+08h~tám giờ
+09h~chín giờ
+8:00~tám giờ
+8:05~tám giờ năm phút
+8:10~tám giờ mười phút
+8:15~tám giờ mười lăm phút
+8:20~tám giờ hai mươi phút
+8:25~tám giờ hai mươi lăm phút
+8:30~tám giờ ba mươi phút
+8:35~tám giờ ba mươi lăm phút
+8:40~tám giờ bốn mươi phút
+8:45~tám giờ bốn mươi lăm phút
+8:50~tám giờ năm mươi phút
+8:55~tám giờ năm mươi lăm phút
+8:01~tám giờ một phút
+8:02~tám giờ hai phút
+8:03~tám giờ ba phút
+8:07~tám giờ bảy phút
+8:09~tám giờ chín phút
+01:00~một giờ
+01:05~một giờ năm phút
+01:30~một giờ ba mươi phút
+02:15~hai giờ mười lăm phút
+03:45~ba giờ bốn mươi lăm phút
+14:30~mười bốn giờ ba mươi phút
+15:45~mười lăm giờ bốn mươi lăm phút
+23:59~hai mươi ba giờ năm mươi chín phút
+00:00~không giờ
+00:30~không giờ ba mươi phút
+5:20:35~năm giờ hai mươi phút ba mươi lăm giây
+6:10:05~sáu giờ mười phút năm giây
+1:01:01~một giờ một phút một giây
+8:00:00~tám giờ
+12:30:45~mười hai giờ ba mươi phút bốn mươi lăm giây
+23:59:59~hai mươi ba giờ năm mươi chín phút năm mươi chín giây
+01:01:01~một giờ một phút một giây
+02:02:02~hai giờ hai phút hai giây
+03:00:03~ba giờ ba giây
+04:30:00~bốn giờ ba mươi phút
+1p~một phút
+3p~ba phút
+5p~năm phút
+10p~mười phút
+30p~ba mươi phút
+59p~năm mươi chín phút
+1s~một giây
+30s~ba mươi giây
+59s~năm mươi chín giây
+3p20s~ba phút hai mươi giây
+4p30s~bốn phút ba mươi giây
+12p03s~mười hai phút ba giây
+59p59s~năm mươi chín phút năm mươi chín giây
+8p45s~tám phút bốn mươi lăm giây
+01p01s~một phút một giây
+02p30s~hai phút ba mươi giây
+05p00s~năm phút
+8:23 gmt~tám giờ hai mươi ba phút GMT
+15h cst~mười lăm giờ CST
+9:00 utc~chín giờ UTC
+14:30 pst~mười bốn giờ ba mươi phút PST
+20:15 est~hai mươi giờ mười lăm phút EST
+12h jst~mười hai giờ JST
+14g30~mười bốn giờ ba mươi phút
+14h30~mười bốn giờ ba mươi phút
+09g05~chín giờ năm phút
+09h05~chín giờ năm phút
+1 giờ~một giờ
+2 giờ~hai giờ
+10 giờ~mười giờ
+14 giờ~mười bốn giờ
+1 giờ 30 phút~một giờ ba mươi phút
+14 giờ 30 phút~mười bốn giờ ba mươi phút
+2 giờ 15 phút~hai giờ mười lăm phút
+2 giờ 15 phút 10 giây~hai giờ mười lăm phút mười giây
+14 giờ 30 phút 45 giây~mười bốn giờ ba mươi phút bốn mươi lăm giây
+5 phút~năm phút
+10 phút~mười phút
+30 phút~ba mươi phút
+5 phút 30 giây~năm phút ba mươi giây
+10 phút 15 giây~mười phút mười lăm giây
+10 giây~mười giây
+30 giây~ba mươi giây
+45 giây~bốn mươi lăm giây
+14 giờ 30 phút UTC~mười bốn giờ ba mươi phút UTC
+2 giờ 15 phút GMT~hai giờ mười lăm phút GMT
