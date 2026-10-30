@@ -55,6 +55,8 @@ namespaces = false
 [tool.setuptools.package-data]
 tn = [
     "chinese/data/*/*.tsv",
+    "german/data/*.tsv",
+    "german/data/*/*.tsv",
     "english/data/*/*.tsv",
     "english/data/*.tsv",
     "english/data/*/*.far",
