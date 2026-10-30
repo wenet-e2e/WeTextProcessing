@@ -49,6 +49,7 @@ class FakeProcessor:
             },
         ),
         ("tn", "en", "tn.english.normalizer", "Normalizer", [], {}),
+        ("tn", "ko", "tn.korean.normalizer", "Normalizer", [], {}),
         (
             "itn",
             "zh",
@@ -72,6 +73,7 @@ class FakeProcessor:
             },
         ),
         ("itn", "en", "itn.english.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "ko", "itn.korean.inverse_normalizer", "InverseNormalizer", [], {}),
     ],
 )
 def test_create_processor_uses_language_capabilities(
@@ -142,10 +144,10 @@ def test_registered_pipeline_drives_language_options_and_factory(monkeypatch, di
 
 
 @pytest.mark.parametrize("direction", ["tn", "itn"])
-@pytest.mark.parametrize("language", ["zh", "en", "ja"])
+@pytest.mark.parametrize("language", ["zh", "en", "ja", "ko"])
 def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, direction, language):
     args = parse_args(direction, ["--language", language])
-    package = {"zh": "chinese", "en": "english", "ja": "japanese"}[language]
+    package = {"zh": "chinese", "en": "english", "ja": "japanese", "ko": "korean"}[language]
     module_suffix, class_name = ("normalizer", "Normalizer") if direction == "tn" else (
         "inverse_normalizer", "InverseNormalizer")
     module = __import__("{}.{}.{}".format(direction, package, module_suffix), fromlist=[class_name])
@@ -170,9 +172,11 @@ def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, dire
         ("tn", "zh", "--remove-erhua", "--transliterate"),
         ("tn", "en", "--cache-dir", "--remove-puncts"),
         ("tn", "ja", "--transliterate", "--remove-erhua"),
+        ("tn", "ko", "--cache-dir", "--full-to-half"),
         ("itn", "zh", "--remove-interjections", "--full-to-half"),
         ("itn", "en", "--cache-dir", "--enable-million"),
         ("itn", "ja", "--full-to-half", "--remove-interjections"),
+        ("itn", "ko", "--cache-dir", "--enable-million"),
     ],
 )
 def test_help_only_exposes_selected_pipeline_options(direction, language, present, absent):

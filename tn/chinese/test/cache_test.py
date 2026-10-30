@@ -6,9 +6,11 @@ from pynini import cross
 from itn.chinese.inverse_normalizer import InverseNormalizer as ZhInverseNormalizer
 from itn.english.inverse_normalizer import InverseNormalizer as EnInverseNormalizer
 from itn.japanese.inverse_normalizer import InverseNormalizer as JaInverseNormalizer
+from itn.korean.inverse_normalizer import InverseNormalizer as KoInverseNormalizer
 from tn.chinese.normalizer import Normalizer as ZhNormalizer
 from tn.english.normalizer import Normalizer as EnNormalizer
 from tn.japanese.normalizer import Normalizer as JaNormalizer
+from tn.korean.normalizer import Normalizer as KoNormalizer
 
 
 def _build_small_graphs(processor):
@@ -60,6 +62,7 @@ def _build_small_graphs(processor):
             },
         ),
         (EnNormalizer, "en_tn", "en_tn", {}, {}),
+        (KoNormalizer, "ko_tn", "tn", {}, {}),
         (
             ZhInverseNormalizer,
             "zh_itn",
@@ -95,6 +98,7 @@ def _build_small_graphs(processor):
             },
         ),
         (EnInverseNormalizer, "en_itn", "itn", {}, {}),
+        (KoInverseNormalizer, "ko_itn", "itn", {}, {}),
     ],
 )
 def test_all_pipeline_configs_are_part_of_manifest(
