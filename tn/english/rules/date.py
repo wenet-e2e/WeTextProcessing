@@ -249,16 +249,12 @@ class Date(Processor):
             date { day: "5" month: "february" year: "2012" } -> the fifth of february twenty twelve
         """
         ordinal = self.ordinal
-        day_cardinal = (pynutil.delete("day:") + self.DELETE_SPACE + pynutil.delete('"') + self.day_graph +
-                        pynutil.delete('"'))
+        day_cardinal = self.verbalize_field("day", self.day_graph)
         day = day_cardinal @ ordinal.suffix
-        period = (pynutil.delete("text:") + self.DELETE_SPACE + pynutil.delete('"') + self.period_graph + pynutil.delete('"'))
-        month = (pynutil.delete("month:") + self.DELETE_SPACE + pynutil.delete('"') +
-                 (self.month_graph | self.month_numbers_graph) + pynutil.delete('"'))
-
-        year = (pynutil.delete("year:") + self.DELETE_SPACE + pynutil.delete('"') +
-                (self.year_graph | self.year_after_graph | self.two_digit_year_graph) + self.DELETE_SPACE +
-                pynutil.delete('"'))
+        period = self.verbalize_field("text", self.period_graph)
+        month = self.verbalize_field("month", self.month_graph | self.month_numbers_graph)
+        year = self.verbalize_field(
+            "year", (self.year_graph | self.year_after_graph | self.two_digit_year_graph) + self.DELETE_SPACE)
 
         # financial period
         graph_fy = pynutil.insert("the ") + period + pynutil.insert(" of") + (self.DELETE_EXTRA_SPACE + year).ques

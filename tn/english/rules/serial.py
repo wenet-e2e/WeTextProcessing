@@ -85,5 +85,4 @@ class Serial(Processor):
         self.tagger = self.add_tokens(graph)
 
     def build_verbalizer(self):
-        graph = (pynutil.delete("name:") + self.DELETE_SPACE + pynutil.delete('"') + self.graph + pynutil.delete('"'))
-        self.verbalizer = self.delete_tokens(graph)
+        self.verbalizer = self.delete_tokens(self.verbalize_field("name", self.graph))
