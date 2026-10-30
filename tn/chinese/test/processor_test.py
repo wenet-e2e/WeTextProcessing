@@ -7,6 +7,8 @@ import pytest
 from pynini import accep, cross, escape, union
 from pynini.lib.pynutil import add_weight
 
+import tn.processor as processor_module
+from tn.alignment import AlignmentError
 from tn.cache import CacheBundle, default_cache_dir, production_source_fingerprint
 from tn.processor import Processor, _UniqueOutputPathStream
 
@@ -352,6 +354,76 @@ def test_nbest_combines_raw_tagger_with_verbalizer_paths():
     results = processor.normalize_with_mapping("input", nbest=2)
     assert [result.output_text for result in results] == ["FIRST", "SECOND"]
     assert [result.mappings[0].output_text for result in results] == ["FIRST", "SECOND"]
+
+
+@pytest.mark.parametrize("nbest,expected_calls", [(1, [1, 1, 2]), (2, [1, 1, 2, 2])])
+@pytest.mark.parametrize("with_mapping", [False, True])
+def test_nbest_stops_expanding_once_enough_outputs_are_selected(monkeypatch, nbest, expected_calls, with_mapping):
+    processor = RawAmbiguousProcessor()
+    calls = []
+    original = processor_module.shortestpath
+
+    def counted_shortestpath(*args, **kwargs):
+        calls.append(kwargs["nshortest"])
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(processor_module, "shortestpath", counted_shortestpath)
+    if with_mapping:
+        results = processor.normalize_with_mapping("input", nbest=nbest)
+        outputs = [results.output_text] if nbest == 1 else [result.output_text for result in results]
+    else:
+        result = processor.normalize("input", nbest=nbest)
+        outputs = [result] if nbest == 1 else result
+
+    assert outputs == ["FIRST", "SECOND"][:nbest]
+    assert calls == expected_calls
+
+
+@pytest.mark.parametrize("nbest", [2, 3, 8])
+def test_nbest_continues_past_outputs_duplicated_across_tags(nbest):
+    processor = WeightedJointProcessor()
+    first = 'counting { value: "first" }'
+    second = 'counting { value: "second" }'
+    processor.verbalizer = union(
+        cross(first, "SAME"),
+        add_weight(cross(first, "FIRST_ALT"), 2.0),
+        cross(second, "SAME"),
+        add_weight(cross(second, "SECOND_ALT"), 1.0),
+    )
+
+    assert processor.normalize("input", nbest=nbest) == ["SAME", "FIRST_ALT", "SECOND_ALT"][:nbest]
+
+
+def test_nbest_skips_tags_without_a_verbalizer_path():
+    processor = WeightedJointProcessor()
+    second = 'counting { value: "second" }'
+    processor.verbalizer = cross(second, "SECOND")
+
+    assert processor.normalize("input", nbest=2) == ["SECOND"]
+
+
+@pytest.mark.parametrize("written", ['你好 "[x]"\\\\', "", "１２時😀"])
+def test_verbalize_preserves_unicode_and_escaped_fields(written):
+    processor = Processor("identity")
+    processor.tagger = processor.add_tokens(processor.tag_field("value", accep(escape(written))))
+    processor.build_verbalizer()
+    tagged = processor.tag(written) if written else 'identity { value: "" }'
+
+    assert processor.verbalize(tagged) == written
+
+
+def test_verbalize_reorders_pipeline_fields():
+    processor = Processor("schema", token_orders={"custom": ["second", "first"]})
+    processor.verbalizer = cross('custom { second: "2" first: "1" }', "21")
+
+    assert processor.verbalize('custom { first: "1" second: "2" }') == "21"
+
+
+def test_verbalize_without_a_path_keeps_alignment_error():
+    processor = RawAmbiguousProcessor()
+
+    with pytest.raises(AlignmentError, match="no WFST path"):
+        processor.verbalize('counting { value: "missing" }')
 
 
 def test_nbest_combines_tagger_weight_with_per_tag_verbalizer_delta():

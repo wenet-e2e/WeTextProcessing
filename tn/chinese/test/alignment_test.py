@@ -1,9 +1,10 @@
 import pytest
-from pynini import cross
+from pynini import cross, escape
 from pynini import union
 from pynini.lib.pynutil import add_weight, delete, insert
 
-from tn.alignment import NormalizationMapping, trace_input_spans, transduce_with_spans
+import tn.alignment as alignment
+from tn.alignment import AlignmentError, NormalizationMapping, trace_input_spans, transduce_with_spans
 
 
 def test_trace_input_spans_uses_the_wfst_path():
@@ -114,3 +115,40 @@ def test_transduce_with_spans_traces_the_selected_non_shortest_output():
 
     assert output == "ALT"
     assert spans == ((0, 3), )
+
+
+@pytest.mark.parametrize("helper", ["_linear_arcs", "_text_boundaries"])
+@pytest.mark.parametrize("selected_output", [None, '别名 "[x]"\\\\'])
+def test_transduce_without_spans_skips_tracking_helpers(monkeypatch, helper, selected_output):
+    source = '原文 "[x]"\\\\'
+    best = "规范化😀"
+    alternate = '别名 "[x]"\\\\'
+    graph = union(
+        cross(escape(source), escape(best)),
+        add_weight(cross(escape(source), escape(alternate)), 1.0),
+    )
+    calls = []
+    original = getattr(alignment, helper)
+
+    def counted_helper(*args, **kwargs):
+        calls.append(args)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(alignment, helper, counted_helper)
+    output, spans = transduce_with_spans(source, graph, output_text=selected_output)
+
+    assert output == (best if selected_output is None else selected_output)
+    assert spans == ()
+    assert calls == []
+
+
+def test_transduce_without_spans_preserves_empty_output():
+    assert transduce_with_spans("a", delete("a")) == ("", ())
+
+
+@pytest.mark.parametrize("selected_output", [None, "missing"])
+def test_transduce_without_spans_rejects_missing_paths(selected_output):
+    source = "missing" if selected_output is None else "a"
+
+    with pytest.raises(AlignmentError, match="no WFST path"):
+        transduce_with_spans(source, cross("a", "A"), output_text=selected_output)

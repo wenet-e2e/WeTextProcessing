@@ -15,8 +15,82 @@
 
 import argparse
 import sys
+from dataclasses import dataclass
+from importlib import import_module
+from typing import Tuple
 
-LANGUAGES = ("zh", "en", "ja")
+
+@dataclass(frozen=True)
+class BooleanOption:
+    name: str
+    default: bool
+    help: str
+
+
+@dataclass(frozen=True)
+class PipelineSpec:
+    module: str
+    class_name: str
+    options: Tuple[BooleanOption, ...] = ()
+
+
+PIPELINES = {
+    "tn": {
+        "zh": PipelineSpec(
+            "tn.chinese.normalizer",
+            "Normalizer",
+            (
+                BooleanOption("remove_interjections", True, 'remove interjections such as "啊"'),
+                BooleanOption("remove_erhua", True, 'remove "儿" where the whitelist permits'),
+                BooleanOption("traditional_to_simple", True, 'convert traditional characters, e.g. "喆" to "哲"'),
+                BooleanOption("remove_puncts", False, "remove punctuation"),
+                BooleanOption("full_to_half", True, 'convert full-width characters, e.g. "Ａ" to "A"'),
+                BooleanOption("tag_oov", False, 'tag out-of-vocabulary characters with "OOV"'),
+            ),
+        ),
+        "en": PipelineSpec("tn.english.normalizer", "Normalizer"),
+        "ja": PipelineSpec(
+            "tn.japanese.normalizer",
+            "Normalizer",
+            (
+                BooleanOption("transliterate", False, "enable Japanese transliteration"),
+                BooleanOption("remove_interjections", False, "remove interjections"),
+                BooleanOption("remove_puncts", False, "remove punctuation"),
+                BooleanOption("full_to_half", True, "convert full-width characters to half-width"),
+                BooleanOption("tag_oov", False, 'tag out-of-vocabulary characters with "OOV"'),
+            ),
+        ),
+    },
+    "itn": {
+        "zh": PipelineSpec(
+            "itn.chinese.inverse_normalizer",
+            "InverseNormalizer",
+            (
+                BooleanOption("enable_standalone_number", True, "convert standalone numbers"),
+                BooleanOption("enable_0_to_9", False, "convert standalone digits from zero to nine"),
+                BooleanOption("enable_million", False, "write million-scale values entirely in digits"),
+                BooleanOption("remove_interjections", True, "remove interjections"),
+            ),
+        ),
+        "en": PipelineSpec("itn.english.inverse_normalizer", "InverseNormalizer"),
+        "ja": PipelineSpec(
+            "itn.japanese.inverse_normalizer",
+            "InverseNormalizer",
+            (
+                BooleanOption("enable_standalone_number", True, "convert standalone numbers"),
+                BooleanOption("enable_0_to_9", False, "convert standalone digits from zero to nine"),
+                BooleanOption("enable_million", False, "write million-scale values entirely in digits"),
+                BooleanOption("full_to_half", False, "convert full-width characters to half-width"),
+            ),
+        ),
+    },
+}
+
+
+def _pipelines(direction):
+    if direction not in PIPELINES:
+        raise ValueError("direction must be 'tn' or 'itn'")
+    return PIPELINES[direction]
 
 
 def _parse_bool(value):
@@ -58,7 +132,7 @@ def _add_boolean(parser, name, default, help):
     )
 
 
-def _add_common_arguments(parser):
+def _add_common_arguments(parser, languages):
     inputs = parser.add_mutually_exclusive_group()
     inputs.add_argument("--text", help="input string; read stdin when omitted")
     inputs.add_argument("--file", help="input file path; read stdin when omitted")
@@ -69,114 +143,45 @@ def _add_common_arguments(parser):
         action="store_true",
         help="rebuild the selected FST cache bundle",
     )
-    parser.add_argument("--language", choices=LANGUAGES, default="zh", help="input language (default: zh)")
-
-
-def _add_tn_arguments(parser, language):
-    if language == "zh":
-        _add_boolean(parser, "remove_interjections", True, 'remove interjections such as "啊"')
-        _add_boolean(parser, "remove_erhua", True, 'remove "儿" where the whitelist permits')
-        _add_boolean(parser, "traditional_to_simple", True, 'convert traditional characters, e.g. "喆" to "哲"')
-        _add_boolean(parser, "remove_puncts", False, "remove punctuation")
-        _add_boolean(parser, "full_to_half", True, 'convert full-width characters, e.g. "Ａ" to "A"')
-        _add_boolean(parser, "tag_oov", False, 'tag out-of-vocabulary characters with "OOV"')
-    elif language == "ja":
-        _add_boolean(parser, "transliterate", False, "enable Japanese transliteration")
-        _add_boolean(parser, "remove_interjections", False, "remove interjections")
-        _add_boolean(parser, "remove_puncts", False, "remove punctuation")
-        _add_boolean(parser, "full_to_half", True, "convert full-width characters to half-width")
-        _add_boolean(parser, "tag_oov", False, 'tag out-of-vocabulary characters with "OOV"')
-
-
-def _add_itn_arguments(parser, language):
-    if language in ("zh", "ja"):
-        _add_boolean(parser, "enable_standalone_number", True, "convert standalone numbers")
-        _add_boolean(parser, "enable_0_to_9", False, "convert standalone digits from zero to nine")
-        _add_boolean(parser, "enable_million", False, "write million-scale values entirely in digits")
-    if language == "zh":
-        _add_boolean(parser, "remove_interjections", True, "remove interjections")
-    elif language == "ja":
-        _add_boolean(parser, "full_to_half", False, "convert full-width characters to half-width")
+    parser.add_argument("--language", choices=languages, default="zh", help="input language (default: zh)")
 
 
 def create_parser(direction, language="zh"):
     """Builds the parser for one direction/language capability set."""
 
-    if direction not in ("tn", "itn"):
-        raise ValueError("direction must be 'tn' or 'itn'")
-    if language not in LANGUAGES:
+    pipelines = _pipelines(direction)
+    if language not in pipelines:
         raise ValueError("unsupported language: {}".format(language))
     label = "text normalization" if direction == "tn" else "inverse text normalization"
     parser = argparse.ArgumentParser(description="WeTextProcessing {}".format(label))
-    _add_common_arguments(parser)
-    if direction == "tn":
-        _add_tn_arguments(parser, language)
-    else:
-        _add_itn_arguments(parser, language)
+    _add_common_arguments(parser, tuple(pipelines))
+    for option in pipelines[language].options:
+        _add_boolean(parser, option.name, option.default, option.help)
     return parser
 
 
-def _selected_language(argv):
+def _selected_language(direction, argv):
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument("--language", choices=LANGUAGES, default="zh")
+    parser.add_argument("--language", choices=tuple(_pipelines(direction)), default="zh")
     args, _ = parser.parse_known_args(argv)
     return args.language
 
 
 def parse_args(direction, argv=None):
     argv = sys.argv[1:] if argv is None else argv
-    language = _selected_language(argv)
+    language = _selected_language(direction, argv)
     return create_parser(direction, language).parse_args(argv)
 
 
 def create_processor(direction, args):
-    common = {
+    pipeline = PIPELINES[direction][args.language]
+    kwargs = {
         "cache_dir": args.cache_dir,
         "overwrite_cache": args.overwrite_cache,
     }
-    if direction == "tn":
-        if args.language == "zh":
-            from tn.chinese.normalizer import Normalizer
-
-            return Normalizer(remove_interjections=args.remove_interjections,
-                              remove_erhua=args.remove_erhua,
-                              traditional_to_simple=args.traditional_to_simple,
-                              remove_puncts=args.remove_puncts,
-                              full_to_half=args.full_to_half,
-                              tag_oov=args.tag_oov,
-                              **common)
-        if args.language == "ja":
-            from tn.japanese.normalizer import Normalizer
-
-            return Normalizer(transliterate=args.transliterate,
-                              remove_interjections=args.remove_interjections,
-                              remove_puncts=args.remove_puncts,
-                              full_to_half=args.full_to_half,
-                              tag_oov=args.tag_oov,
-                              **common)
-        from tn.english.normalizer import Normalizer
-
-        return Normalizer(**common)
-
-    if args.language == "zh":
-        from itn.chinese.inverse_normalizer import InverseNormalizer
-
-        return InverseNormalizer(remove_interjections=args.remove_interjections,
-                                 enable_standalone_number=args.enable_standalone_number,
-                                 enable_0_to_9=args.enable_0_to_9,
-                                 enable_million=args.enable_million,
-                                 **common)
-    if args.language == "ja":
-        from itn.japanese.inverse_normalizer import InverseNormalizer
-
-        return InverseNormalizer(full_to_half=args.full_to_half,
-                                 enable_standalone_number=args.enable_standalone_number,
-                                 enable_0_to_9=args.enable_0_to_9,
-                                 enable_million=args.enable_million,
-                                 **common)
-    from itn.english.inverse_normalizer import InverseNormalizer
-
-    return InverseNormalizer(**common)
+    kwargs.update({option.name: getattr(args, option.name) for option in pipeline.options})
+    processor_class = getattr(import_module(pipeline.module), pipeline.class_name)
+    return processor_class(**kwargs)
 
 
 def _without_line_ending(line):

@@ -1,8 +1,11 @@
+import inspect
 import io
+from types import SimpleNamespace
 
 import pytest
 
-from tn.cli import create_processor, parse_args, run
+import tn.cli as cli
+from tn.cli import create_parser, create_processor, parse_args, run
 
 
 class FakeProcessor:
@@ -97,6 +100,85 @@ def test_create_processor_uses_language_capabilities(
     assert captured["overwrite_cache"] is False
     for name, value in expected.items():
         assert captured[name] is value
+
+
+@pytest.mark.parametrize("direction", ["tn", "itn"])
+def test_registered_pipeline_drives_language_options_and_factory(monkeypatch, direction):
+    captured = {}
+    imports = []
+
+    class CustomNormalizer:
+
+        def __init__(self, **kwargs):
+            captured.update(kwargs)
+
+    option = SimpleNamespace(name="custom_option", default=True, help="custom language option")
+    pipeline = SimpleNamespace(module="custom.normalizer", class_name="CustomNormalizer", options=(option,))
+    pipelines = {"tn": {"zh": pipeline}, "itn": {"zh": pipeline}}
+    pipelines[direction]["xx"] = pipeline
+    monkeypatch.setattr(cli, "PIPELINES", pipelines, raising=False)
+
+    def import_module(name):
+        imports.append(name)
+        return SimpleNamespace(CustomNormalizer=CustomNormalizer)
+
+    monkeypatch.setattr(cli, "import_module", import_module, raising=False)
+    parser = create_parser(direction, "xx")
+    assert "--custom-option" in parser.format_help()
+    assert "custom language option" in parser.format_help()
+    assert imports == []
+
+    defaults = parse_args(direction, ["--language", "xx"])
+    assert defaults.custom_option is True
+    args = parse_args(direction, ["--language", "xx", "--no-custom-option", "--overwrite-cache"])
+    processor = create_processor(direction, args)
+
+    assert isinstance(processor, CustomNormalizer)
+    assert captured == {"cache_dir": None, "overwrite_cache": True, "custom_option": False}
+    assert imports == ["custom.normalizer"]
+    other_direction = "itn" if direction == "tn" else "tn"
+    with pytest.raises(SystemExit):
+        parse_args(other_direction, ["--language", "xx"])
+
+
+@pytest.mark.parametrize("direction", ["tn", "itn"])
+@pytest.mark.parametrize("language", ["zh", "en", "ja"])
+def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, direction, language):
+    args = parse_args(direction, ["--language", language])
+    package = {"zh": "chinese", "en": "english", "ja": "japanese"}[language]
+    module_suffix, class_name = ("normalizer", "Normalizer") if direction == "tn" else (
+        "inverse_normalizer", "InverseNormalizer")
+    module = __import__("{}.{}.{}".format(direction, package, module_suffix), fromlist=[class_name])
+    parameters = inspect.signature(getattr(module, class_name)).parameters
+    expected = {name: parameter.default for name, parameter in parameters.items()}
+    assert {name: getattr(args, name) for name in expected} == expected
+    captured = {}
+
+    class FakeNormalizer:
+
+        def __init__(self, **kwargs):
+            captured.update(kwargs)
+
+    monkeypatch.setattr(module, class_name, FakeNormalizer)
+    create_processor(direction, args)
+    assert captured == expected
+
+
+@pytest.mark.parametrize(
+    "direction,language,present,absent",
+    [
+        ("tn", "zh", "--remove-erhua", "--transliterate"),
+        ("tn", "en", "--cache-dir", "--remove-puncts"),
+        ("tn", "ja", "--transliterate", "--remove-erhua"),
+        ("itn", "zh", "--remove-interjections", "--full-to-half"),
+        ("itn", "en", "--cache-dir", "--enable-million"),
+        ("itn", "ja", "--full-to-half", "--remove-interjections"),
+    ],
+)
+def test_help_only_exposes_selected_pipeline_options(direction, language, present, absent):
+    help_text = create_parser(direction, language).format_help()
+    assert present in help_text
+    assert absent not in help_text
 
 
 def test_boolean_options_support_switches_and_legacy_values():

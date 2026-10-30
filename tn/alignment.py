@@ -178,13 +178,14 @@ def transduce_with_spans(
     """
 
     character_spans = tuple(input_spans)
-    input_character_to_byte, _, _ = _text_boundaries(input_text)
-    input_byte_spans = _character_spans_to_byte_spans(
-        input_text,
-        input_character_to_byte,
-        character_spans,
-        reject_empty=True,
-    )
+    if character_spans:
+        input_character_to_byte, _, _ = _text_boundaries(input_text)
+        input_byte_spans = _character_spans_to_byte_spans(
+            input_text,
+            input_character_to_byte,
+            character_spans,
+            reject_empty=True,
+        )
     lattice = accep(escape(input_text)) @ fst
     if output_text is not None:
         lattice @= accep(escape(output_text))
@@ -192,6 +193,8 @@ def transduce_with_spans(
     if path.start() == -1:
         raise AlignmentError("no WFST path for the requested input")
     selected_output = path.string()
+    if not character_spans:
+        return selected_output, ()
     output_character_to_byte, output_byte_to_character, output_byte_is_whitespace = _text_boundaries(selected_output)
     emitted_starts = [None] * len(input_byte_spans)
     emitted_ends = [None] * len(input_byte_spans)
