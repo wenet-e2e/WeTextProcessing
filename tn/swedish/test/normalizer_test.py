@@ -86,14 +86,24 @@ def test_original_mapping(normalizer, written, spoken):
         assert spoken[mapping.output_start:mapping.output_end] == mapping.output_text
 
 
+def within_top_candidates(normalizer, written, expected, limit=1000):
+    # Widening the n-best list stops early for the common case without changing the limit checked.
+    nbest = 10
+    while True:
+        outputs = set(normalizer.normalize(written, nbest=min(nbest, limit)))
+        if expected <= outputs or nbest >= limit:
+            return expected <= outputs
+        nbest *= 10
+
+
 @pytest.mark.parametrize("written, spoken", CASES)
 def test_original_nondeterministic(nondeterministic, written, spoken):
-    assert spoken in nondeterministic.normalize(written, nbest=1000)
+    assert within_top_candidates(nondeterministic, written, {spoken})
 
 
 @pytest.mark.parametrize("written, expected", MULTIPLE_CASES)
 def test_original_multiple_candidates(nondeterministic, written, expected):
-    assert set(expected) <= set(nondeterministic.normalize(written, nbest=1000))
+    assert within_top_candidates(nondeterministic, written, set(expected))
 
 
 @pytest.mark.parametrize("written", ["21", "3. dec. 2022", "$20,50", "kl. 12.34 e.m.", "abc@gmail.com"])
