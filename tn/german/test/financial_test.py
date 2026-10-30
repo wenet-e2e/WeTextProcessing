@@ -14,7 +14,7 @@ DATA = Path(__file__).parent / "data"
 
 
 @lru_cache(maxsize=None)
-def financial_rules(deterministic=True):
+def financial_rules(deterministic):
     modules = {}
     for name in ("cardinal", "decimal", "ordinal", "fraction", "money", "measure"):
         assert util.find_spec(ROOT + name) is not None, "missing German rule: " + name
@@ -110,7 +110,7 @@ def test_money_nbest_minor_alternatives_and_mapping():
 
 @pytest.mark.parametrize("name", ["money", "measure"])
 def test_long_amount_schema_reordering(name):
-    rule = financial_rules()[name]
+    rule = financial_rules(True)[name]
     number = "999999999999999999999999"
     written = "€" + number if name == "money" else "a-" + number
     members = {"currency": "€", "kind": "major", "integer_part": number} if name == "money" else {
@@ -142,7 +142,7 @@ def test_long_amount_schema_reordering(name):
     ("units_graph", "oz", "unzen"),
 ])
 def test_bare_unit_semantic_api(attribute, written, spoken):
-    rule = financial_rules()["measure"]
+    rule = financial_rules(True)["measure"]
     assert spoken in rewrite.top_rewrites(written, getattr(rule, attribute), 20)
 
 
@@ -151,7 +151,7 @@ def test_bare_unit_semantic_api(attribute, written, spoken):
     ("measure", "a--8"), ("measure", "-8-a"), ("measure", "8/"), ("measure", "2  kg"),
 ])
 def test_source_unsupported_inputs(name, written):
-    rule = financial_rules()[name]
+    rule = financial_rules(True)[name]
     assert pynini.compose(pynini.accep(pynini.escape(written)), rule.tagger).start() == pynini.NO_STATE_ID
 
 

@@ -14,7 +14,7 @@ DATA = Path(__file__).parent / "data"
 
 
 @lru_cache(maxsize=None)
-def numeric_rules(deterministic=True):
+def numeric_rules(deterministic):
     modules = {}
     for name in ("cardinal", "decimal", "ordinal", "fraction"):
         assert util.find_spec(ROOT + name) is not None, "missing German rule: " + name
@@ -75,12 +75,12 @@ def test_raw_fields_and_mapping(deterministic, name, written, spoken, members):
 
 @pytest.mark.parametrize("spoken,written", source_pairs("cardinal"))
 def test_source_cardinal(spoken, written):
-    assert numeric_rules()["cardinal"].normalize(written) == spoken
+    assert numeric_rules(True)["cardinal"].normalize(written) == spoken
 
 
 @pytest.mark.parametrize("spoken,written", source_pairs("fraction"))
 def test_source_fraction(spoken, written):
-    assert numeric_rules()["fraction"].normalize(written) == spoken
+    assert numeric_rules(True)["fraction"].normalize(written) == spoken
 
 
 @pytest.mark.parametrize("deterministic", [True, False])
@@ -120,7 +120,7 @@ def test_ordinal_all_endings_and_raw_integer(deterministic, written, base):
     ("fraction", "denominator_graph", "22", "zwei und zwanzigstel"),
 ])
 def test_public_semantic_graphs(name, attribute, written, spoken):
-    rule = numeric_rules()[name]
+    rule = numeric_rules(True)[name]
     assert spoken in rewrite.top_rewrites(written, getattr(rule, attribute), 20)
 
 
@@ -129,7 +129,7 @@ def test_public_semantic_graphs(name, attribute, written, spoken):
     ("fraction", "-3 1/2", "minus drei ein halb"),
 ])
 def test_flat_raw_fields(name, written, spoken):
-    rule = numeric_rules()[name]
+    rule = numeric_rules(True)[name]
     fields = rewrite.one_top_rewrite(written, rule.fields_tagger)
     assert "{" not in fields and "preserve_order" not in fields
     assert rewrite.one_top_rewrite(fields, rule.fields_verbalizer) == spoken
@@ -145,7 +145,7 @@ def test_fraction_mixed_optional_und_weight():
 
 
 def test_cardinal_upper_bound_and_compound_groups():
-    rule = numeric_rules()["cardinal"]
+    rule = numeric_rules(True)["cardinal"]
     written = "999999999999999999999999"
     group = "neun hundert neun und neunzig"
     spoken = " ".join(group + " " + quantity for quantity in (
@@ -160,7 +160,7 @@ def test_cardinal_upper_bound_and_compound_groups():
 @pytest.mark.parametrize("name", ["cardinal", "decimal", "ordinal", "fraction"])
 def test_no_default_field_reordering(name):
     module = import_module(ROOT + name)
-    rule = numeric_rules()[name]
+    rule = numeric_rules(True)[name]
     assert module.TOKEN_ORDER == {}
     assert rule.token_orders == {}
 
@@ -182,4 +182,4 @@ def test_shared_digit_graph_is_unchanged():
     ("fraction", "1/"),
 ])
 def test_unsupported_numeric_inputs_are_rejected(name, written):
-    assert pynini.compose(pynini.accep(pynini.escape(written)), numeric_rules()[name].tagger).start() == pynini.NO_STATE_ID
+    assert pynini.compose(pynini.accep(pynini.escape(written)), numeric_rules(True)[name].tagger).start() == pynini.NO_STATE_ID

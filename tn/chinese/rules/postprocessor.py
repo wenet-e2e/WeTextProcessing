@@ -37,23 +37,27 @@ class PostProcessor(Processor):
         zh_charset_std = string_file(get_abs_path("chinese/data/char/charset_national_standard_2013_8105.tsv"))
         zh_charset_ext = string_file(get_abs_path("chinese/data/char/charset_extension.tsv"))
 
-        processor = self.build_rule("")
+        rules = []
         if traditional_to_simple:
-            traditional2simple = string_file(get_abs_path("chinese/data/char/traditional_to_simple.tsv"))
-            processor @= self.build_rule(traditional2simple)
+            rules.append(self.build_rule(string_file(get_abs_path("chinese/data/char/traditional_to_simple.tsv"))))
 
         if remove_interjections:
-            processor @= self.build_rule(delete(blacklist))
+            rules.append(self.build_rule(delete(blacklist)))
 
         if remove_puncts:
-            processor @= self.build_rule(delete(puncts | self.PUNCT))
+            rules.append(self.build_rule(delete(puncts | self.PUNCT)))
 
         if full_to_half:
-            processor @= self.build_rule(full2half)
+            rules.append(self.build_rule(full2half))
 
         if tag_oov:
             charset = zh_charset_std | zh_charset_ext | puncts | self.DIGIT | self.ALPHA | self.PUNCT | self.SPACE
             oov = difference(self.VCHAR, charset)
-            processor @= Tagger("oov", oov, self.VSIGMA)._tagger
+            rules.append(Tagger("oov", oov, self.VSIGMA)._tagger)
 
-        self.processor = processor.optimize()
+        # Every rule rewrites single characters without context; composing whole-string
+        # rewrites multiplies their UTF-8 byte states, so compose one character and close it.
+        char = self.VCHAR
+        for rule in rules:
+            char = (char @ rule).optimize()
+        self.processor = char.star.optimize()

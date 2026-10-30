@@ -41,13 +41,13 @@ MULTIPLE_CASES = multiple_cases()
 
 
 @pytest.fixture(scope="module")
-def normalizer():
-    return import_module("tn.german.normalizer").Normalizer(cache_dir=False)
+def normalizer(shared_pipeline):
+    return shared_pipeline(import_module("tn.german.normalizer").Normalizer)
 
 
 @pytest.fixture(scope="module")
-def nondeterministic():
-    return import_module("tn.german.normalizer").Normalizer(cache_dir=False, deterministic=False)
+def nondeterministic(shared_pipeline):
+    return shared_pipeline(import_module("tn.german.normalizer").Normalizer, deterministic=False)
 
 
 def test_original_fixture_counts():

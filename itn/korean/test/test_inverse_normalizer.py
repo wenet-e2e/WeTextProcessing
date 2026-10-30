@@ -23,8 +23,8 @@ CASES = [
 
 
 @pytest.fixture(scope="module")
-def normalizer():
-    return InverseNormalizer(cache_dir=False)
+def normalizer(shared_pipeline):
+    return shared_pipeline(InverseNormalizer)
 
 
 @pytest.mark.parametrize("category,source,expected", CASES)

@@ -21,19 +21,13 @@ from tn.japanese.test.utils import parse_test_case
 
 
 @pytest.fixture(scope="module")
-def normalizer(tmp_path_factory):
-    cache_dir = tmp_path_factory.mktemp("ja_tn")
-    return Normalizer(cache_dir=cache_dir, overwrite_cache=True)
+def normalizer(shared_pipeline):
+    return shared_pipeline(Normalizer)
 
 
 @pytest.fixture(scope="module")
-def normalizer_without_full_to_half(tmp_path_factory):
-    cache_dir = tmp_path_factory.mktemp("ja_tn_no_full_to_half")
-    return Normalizer(
-        cache_dir=cache_dir,
-        overwrite_cache=True,
-        full_to_half=False,
-    )
+def normalizer_without_full_to_half(shared_pipeline):
+    return shared_pipeline(Normalizer, full_to_half=False)
 
 
 class TestNormalizer:

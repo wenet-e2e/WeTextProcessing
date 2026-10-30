@@ -26,9 +26,8 @@ from tn.token_parser import TokenParser
 
 
 @pytest.fixture(scope="class")
-def normalizer(request, tmp_path_factory):
-    cache_dir = tmp_path_factory.mktemp("zh_itn")
-    return InverseNormalizer(cache_dir=cache_dir, overwrite_cache=True, **request.param)
+def normalizer(request, shared_pipeline):
+    return shared_pipeline(InverseNormalizer, **request.param)
 
 
 @pytest.mark.parametrize(

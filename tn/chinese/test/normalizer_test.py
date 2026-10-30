@@ -21,9 +21,8 @@ from tn.chinese.test.utils import parse_test_case
 
 
 @pytest.fixture(scope="module")
-def normalizer(tmp_path_factory):
-    cache_dir = tmp_path_factory.mktemp("zh_tn")
-    return Normalizer(cache_dir=cache_dir, overwrite_cache=True, tag_oov=True)
+def normalizer(shared_pipeline):
+    return shared_pipeline(Normalizer, tag_oov=True)
 
 
 class TestNormalizer:

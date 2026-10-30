@@ -23,9 +23,8 @@ from tn.token_parser import TokenParser
 
 
 @pytest.fixture(scope="module")
-def normalizer(tmp_path_factory):
-    cache_dir = tmp_path_factory.mktemp("en_tn")
-    return Normalizer(cache_dir=cache_dir, overwrite_cache=True)
+def normalizer(shared_pipeline):
+    return shared_pipeline(Normalizer)
 
 
 class TestNormalizer:

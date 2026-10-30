@@ -27,3 +27,19 @@ class TestPostProcessor:
     def test_processor(self, written, spoken):
         print((written @ self.processor).string())
         assert (written @ self.processor).string() == spoken
+
+    @pytest.mark.parametrize(
+        "written, spoken",
+        [
+            ("說好啊！", "说好!"),
+            ("國語안녕", "国语<oov>안</oov><oov>녕</oov>"),
+        ],
+    )
+    def test_all_rules(self, written, spoken):
+        processor = PostProcessor(traditional_to_simple=True, tag_oov=True).processor
+        assert (written @ processor).string() == spoken
+
+    @pytest.mark.parametrize("tag_oov", [False, True])
+    def test_processor_stays_compact(self, tag_oov):
+        processor = PostProcessor(traditional_to_simple=True, remove_puncts=True, tag_oov=tag_oov).processor
+        assert processor.num_states() < 20000

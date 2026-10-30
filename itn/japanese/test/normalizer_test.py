@@ -22,19 +22,13 @@ from tn.token_parser import TokenParser
 
 
 @pytest.fixture(scope="class")
-def normalizer(request, tmp_path_factory):
-    cache_dir = tmp_path_factory.mktemp("ja_itn")
-    return InverseNormalizer(cache_dir=cache_dir, overwrite_cache=True, **request.param)
+def normalizer(request, shared_pipeline):
+    return shared_pipeline(InverseNormalizer, **request.param)
 
 
 @pytest.fixture(scope="module")
-def fullwidth_normalizer(tmp_path_factory):
-    cache_dir = tmp_path_factory.mktemp("ja_itn_fullwidth")
-    return InverseNormalizer(
-        cache_dir=cache_dir,
-        overwrite_cache=True,
-        full_to_half=True,
-    )
+def fullwidth_normalizer(shared_pipeline):
+    return shared_pipeline(InverseNormalizer, full_to_half=True)
 
 
 @pytest.mark.parametrize(

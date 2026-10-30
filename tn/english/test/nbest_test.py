@@ -77,8 +77,8 @@ def test_deterministic_rules_do_not_expand_spoken_alternatives():
     assert cardinal.normalize("100", nbest=8) == ["one hundred"]
 
 
-def test_full_normalizer_electronic_nbest_has_canonical_whitespace(tmp_path):
-    normalizer = Normalizer(cache_dir=tmp_path)
+def test_full_normalizer_electronic_nbest_has_canonical_whitespace(shared_pipeline):
+    normalizer = shared_pipeline(Normalizer)
 
     for written in ["cdf1@abc.edu", "http://www.abc.com"]:
         outputs = normalizer.normalize(written, nbest=32)
