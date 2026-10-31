@@ -107,6 +107,10 @@ PIPELINES = {
             (BooleanOption("cased", False, 'also accept capitalized spoken words, e.g. "Doce Dólares"'),),
         ),
         "hi": PipelineSpec("itn.hindi.inverse_normalizer", "InverseNormalizer"),
+        "es_en": PipelineSpec(
+            "itn.spanish_english.inverse_normalizer", "InverseNormalizer",
+            (BooleanOption("cased", False, "also accept capitalized Spanish or English words"),),
+        ),
         "ja": PipelineSpec(
             "itn.japanese.inverse_normalizer",
             "InverseNormalizer",
