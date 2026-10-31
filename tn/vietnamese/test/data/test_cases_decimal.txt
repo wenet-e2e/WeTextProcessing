@@ -1,0 +1,29 @@
+0,2 triệu~không phẩy hai triệu
+18 vạn~mười tám vạn
+818,303~tám trăm mười tám phẩy ba không ba
+-99,95 tỷ~âm chín mươi chín phẩy chín năm tỷ
+60,240~sáu mươi phẩy hai bốn không
+-0,007~âm không phẩy không không bảy
+123,000~một trăm hai mươi ba phẩy không không không
+1,5 triệu~một phẩy năm triệu
+3,14 tỷ~ba phẩy một bốn tỷ
+10,01 vạn~mười phẩy không một vạn
+-12,5~âm mười hai phẩy năm
+0,0001~không phẩy không không không một
+999,999~chín trăm chín mươi chín phẩy chín chín chín
+1,01~một phẩy không một
+-1,01~âm một phẩy không một
+15,6~mười lăm phẩy sáu
+1k~một nghìn
+10k~mười nghìn
+100k~một trăm nghìn
+1tr~một triệu
+10tr~mười triệu
+100tr~một trăm triệu
+1tr2~một triệu hai trăm nghìn
+2tr5~hai triệu năm trăm nghìn
+1t~một tỷ
+10t~mười tỷ
+100t~một trăm tỷ
+2t3~hai tỷ ba trăm triệu
+1 tỉ~một tỉ

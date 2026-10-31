@@ -1,0 +1,63 @@
+204m~hai trăm linh bốn mét
+12kg~mười hai ki lô gam
+1kg~một ki lô gam
+100g~một trăm gam
+500mg~năm trăm mi li gam
+175cm~một trăm bảy mươi lăm xăng ti mét
+2m~hai mét
+100mm~một trăm mi li mét
+5km~năm ki lô mét
+1inch~một inch
+500ml~năm trăm mi li lít
+2l~hai lít
+1m³~một mét khối
+100cm³~một trăm xăng ti mét khối
+2gb~hai gi ga bai
+1tb~một terabyte
+512Mb~năm trăm mười hai mê ga bai
+64kb~sáu mươi tư ki lô bai
+25°c~hai mươi lăm độ c
+100°f~một trăm độ f
+273°k~hai trăm bảy mươi ba độ k
+50%~năm mươi phần trăm
+100%~một trăm phần trăm
+25%~hai mươi lăm phần trăm
+220v~hai trăm hai mươi vôn
+1kw~một ki lô oát
+500mV~năm trăm mi li vôn
+1000mA~một nghìn mi li am pe
+50hz~năm mươi hẹc
+2ghz~hai gi ga hẹc
+100Mhz~một trăm mê ga hẹc
+1000kw~một nghìn ki lô oát
+5hp~năm mã lực
+1tw~một tê ra oát
+100m²~một trăm mét vuông
+5km²~năm ki lô mét vuông
+1km2~một ki lô mét vuông
+8,5m2~tám phẩy năm mét vuông
+1ha~một héc ta
+1/2kg~một phần hai ki lô gam
+3/4m~ba phần tư mét
+1/3l~một phần ba lít
+Tôi có 12kg gạo~Tôi có mười hai ki lô gam gạo
+Chiều cao 175cm~Chiều cao một trăm bảy mươi lăm xăng ti mét
+Dung lượng 2gb~Dung lượng hai gi ga bai
+Nhiệt độ 25°c~Nhiệt độ hai mươi lăm độ c
+Cân nặng 1/2kg~Cân nặng một phần hai ki lô gam
+Điện áp 220v~Điện áp hai trăm hai mươi vôn
+Tỷ lệ 50%~Tỷ lệ năm mươi phần trăm
+Bộ nhớ 1tb~Bộ nhớ một terabyte
+Thể tích 500ml~Thể tích năm trăm mi li lít
+1234kg~một nghìn hai trăm ba mươi tư ki lô gam
+2500m~hai nghìn năm trăm mét
+10000gb~mười nghìn gi ga bai
+Kích thước 100cm x 50cm~Kích thước một trăm xăng ti mét x năm mươi xăng ti mét
+1,5m2~một phẩy năm mét vuông
+1,5m~một phẩy năm mét
+120km/h~một trăm hai mươi ki lô mét trên giờ
+100 km/h~một trăm ki lô mét trên giờ
+50m/s~năm mươi mét trên giây
+30 m/min~ba mươi mét trên phút
+5cm/s~năm xăng ti mét trên giây
+200mg/ml~hai trăm mi li gam trên mi li lít

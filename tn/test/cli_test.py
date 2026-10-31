@@ -51,6 +51,13 @@ class FakeProcessor:
         ("tn", "en", "tn.english.normalizer", "Normalizer", [], {}),
         ("tn", "ko", "tn.korean.normalizer", "Normalizer", [], {}),
         ("tn", "de", "tn.german.normalizer", "Normalizer", ["--no-deterministic"], {"deterministic": False}),
+        ("tn", "hy", "tn.armenian.normalizer", "Normalizer", [], {}),
+        ("tn", "ar", "tn.arabic.normalizer", "Normalizer", [], {}),
+        ("tn", "fr", "tn.french.normalizer", "Normalizer", [], {}),
+        ("tn", "pt", "tn.portuguese.normalizer", "Normalizer", [], {}),
+        ("tn", "vi", "tn.vietnamese.normalizer", "Normalizer", [], {}),
+        ("tn", "ru", "tn.russian.normalizer", "Normalizer", [], {}),
+        ("tn", "sv", "tn.swedish.normalizer", "Normalizer", ["--no-deterministic"], {"deterministic": False}),
         ("tn", "es", "tn.spanish.normalizer", "Normalizer", ["--no-deterministic"], {"deterministic": False}),
         (
             "itn",
@@ -77,6 +84,13 @@ class FakeProcessor:
         ("itn", "en", "itn.english.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "ko", "itn.korean.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "de", "itn.german.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "hy", "itn.armenian.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "ar", "itn.arabic.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "fr", "itn.french.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "pt", "itn.portuguese.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "vi", "itn.vietnamese.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "ru", "itn.russian.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "sv", "itn.swedish.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "es", "itn.spanish.inverse_normalizer", "InverseNormalizer", ["--cased"], {"cased": True}),
     ],
 )
@@ -148,11 +162,15 @@ def test_registered_pipeline_drives_language_options_and_factory(monkeypatch, di
 
 
 @pytest.mark.parametrize("direction", ["tn", "itn"])
-@pytest.mark.parametrize("language", ["zh", "en", "ja", "ko", "de", "es"])
+@pytest.mark.parametrize("language", [
+    "zh", "en", "ja", "ko", "de", "hy", "ar", "fr", "pt", "vi", "ru", "sv", "es",
+])
 def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, direction, language):
     args = parse_args(direction, ["--language", language])
     package = {
-        "zh": "chinese", "en": "english", "ja": "japanese", "ko": "korean", "de": "german", "es": "spanish",
+        "zh": "chinese", "en": "english", "ja": "japanese", "ko": "korean", "de": "german", "hy": "armenian",
+        "ar": "arabic", "fr": "french", "pt": "portuguese", "vi": "vietnamese", "ru": "russian",
+        "sv": "swedish", "es": "spanish",
     }[language]
     module_suffix, class_name = ("normalizer", "Normalizer") if direction == "tn" else (
         "inverse_normalizer", "InverseNormalizer")
@@ -185,6 +203,20 @@ def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, dire
         ("itn", "ja", "--full-to-half", "--remove-interjections"),
         ("itn", "ko", "--cache-dir", "--enable-million"),
         ("itn", "de", "--cache-dir", "--enable-million"),
+        ("tn", "hy", "--cache-dir", "--deterministic"),
+        ("itn", "hy", "--cache-dir", "--enable-million"),
+        ("tn", "ar", "--cache-dir", "--deterministic"),
+        ("itn", "ar", "--cache-dir", "--enable-million"),
+        ("tn", "fr", "--cache-dir", "--deterministic"),
+        ("itn", "fr", "--cache-dir", "--enable-million"),
+        ("tn", "pt", "--cache-dir", "--deterministic"),
+        ("itn", "pt", "--cache-dir", "--enable-million"),
+        ("tn", "vi", "--cache-dir", "--deterministic"),
+        ("itn", "vi", "--cache-dir", "--enable-million"),
+        ("tn", "ru", "--cache-dir", "--deterministic"),
+        ("itn", "ru", "--cache-dir", "--enable-million"),
+        ("tn", "sv", "--deterministic", "--remove-erhua"),
+        ("itn", "sv", "--cache-dir", "--enable-million"),
         ("tn", "es", "--deterministic", "--remove-erhua"),
         ("itn", "es", "--cased", "--enable-million"),
     ],

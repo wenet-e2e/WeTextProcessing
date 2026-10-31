@@ -1,0 +1,109 @@
+1~một
+2~hai
+3~ba
+4~bốn
+5~năm
+6~sáu
+7~bảy
+8~tám
+9~chín
+10~mười
+11~mười một
+12~mười hai
+15~mười lăm
+18~mười tám
+19~mười chín
+20~hai mươi
+21~hai mươi mốt
+25~hai mươi lăm
+30~ba mươi
+34~ba mươi tư
+44~bốn mươi tư
+55~năm mươi lăm
+67~sáu mươi bảy
+70~bảy mươi
+80~tám mươi
+95~chín mươi lăm
+100~một trăm
+101~một trăm linh một
+102~một trăm linh hai
+104~một trăm linh bốn
+105~một trăm linh năm
+110~một trăm mười
+111~một trăm mười một
+120~một trăm hai mươi
+123~một trăm hai mươi ba
+200~hai trăm
+201~hai trăm linh một
+500~năm trăm
+999~chín trăm chín mươi chín
+1000~một nghìn
+1001~một nghìn linh một
+1020~một nghìn hai mươi
+1095~một nghìn chín mươi lăm
+1100~một nghìn một trăm
+2000~hai nghìn
+10000~mười nghìn
+100000~một trăm nghìn
+1000000~một triệu
+2000000~hai triệu
+1000000000~một tỷ
+-1~âm một
+-25~âm hai mươi lăm
+-100~âm một trăm
+-1000~âm một nghìn
+0~không
+24~hai mươi tư
+35~ba mươi lăm
+41~bốn mươi mốt
+55~năm mươi lăm
+91~chín mươi mốt
+14~mười bốn
+16~mười sáu
+17~mười bảy
+37~ba mươi bảy
+47~bốn mươi bảy
+57~năm mươi bảy
+63~sáu mươi ba
+79~bảy mươi chín
+84~tám mươi tư
+98~chín mươi tám
+-123~âm một trăm hai mươi ba
+-1001~âm một nghìn linh một
+-104~âm một trăm linh bốn
+1000001~một triệu linh một
+1001001~một triệu một nghìn linh một
+1050003~một triệu năm mươi nghìn linh ba
+1000000001~một tỷ linh một
+1001001101~một tỷ một triệu một nghìn một trăm linh một
+300~ba trăm
+400~bốn trăm
+500~năm trăm
+6000~sáu nghìn
+7000~bảy nghìn
+15000~mười lăm nghìn
+300000~ba trăm nghìn
+450000~bốn trăm năm mươi nghìn
+5000000~năm triệu
+700000000~bảy trăm triệu
+31~ba mươi mốt
+41~bốn mươi mốt
+51~năm mươi mốt
+61~sáu mươi mốt
+71~bảy mươi mốt
+81~tám mươi mốt
+91~chín mươi mốt
+5500000~năm triệu năm trăm nghìn
+1000010~một triệu mười
+1000100~một triệu một trăm
+1000101~một triệu một trăm linh một
+1010001~một triệu mười nghìn linh một
+10000000000~mười tỷ
+150~một trăm năm mươi
+1000000000000~một nghìn tỷ
+1234567890123~một nghìn hai trăm ba mươi tư tỷ năm trăm sáu mươi bảy triệu tám trăm chín mươi nghìn một trăm hai mươi ba
+9876543210987~chín nghìn tám trăm bảy mươi sáu tỷ năm trăm bốn mươi ba triệu hai trăm mười nghìn chín trăm tám mươi bảy
+1000000000000000~một triệu tỷ
+1111111111111111~một triệu một trăm mười một nghìn một trăm mười một tỷ một trăm mười một triệu một trăm mười một nghìn một trăm mười một
+5432109876543210~năm triệu bốn trăm ba mươi hai nghìn một trăm linh chín tỷ tám trăm bảy mươi sáu triệu năm trăm bốn mươi ba nghìn hai trăm mười
+1000000000000000000~một tỷ tỷ
