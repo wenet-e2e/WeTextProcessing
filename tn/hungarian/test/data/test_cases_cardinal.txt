@@ -1,0 +1,69 @@
+2~kettő
+3~három
+4~négy
+5~öt
+6~hat
+7~hét
+8~nyolc
+9~kilenc
+10~tíz
+11~tizenegy
+12~tizenkettő
+13~tizenhárom
+14~tizennégy
+15~tizenöt
+16~tizenhat
+17~tizenhét
+18~tizennyolc
+19~tizenkilenc
+20~húsz
+22~huszonkettő
+23~huszonhárom
+24~huszonnégy
+25~huszonöt
+26~huszonhat
+27~huszonhét
+28~huszonnyolc
+29~huszonkilenc
+30~harminc
+40~negyven
+50~ötven
+60~hatvan
+70~hetven
+80~nyolcvan
+90~kilencven
+100~száz
+102~százkettő
+120~százhúsz
+130~százharminc
+1000~ezer
+1 000~ezer
+1.000~ezer
+1010~ezertíz
+1020~ezerhúsz
+1100~ezerszáz
+1110~ezerszáztíz
+1111~ezerszáztizenegy
+2000~kettőezer
+2002~kettőezer-kettő
+2010~kettőezer-tíz
+2020~kettőezer-húsz
+2100~kettőezer-száz
+2110~kettőezer-száztíz
+2111~kettőezer-száztizenegy
+10000~tízezer
+10 000~tízezer
+10.000~tízezer
+100000~százezer
+100 000~százezer
+100.000~százezer
+1 000 000~millió
+1.000.000~millió
+1 034 068~millió-harmincnégyezer-hatvannyolc
+2.000.000~kettőmillió
+1.000.000.000~milliárd
+2.000.000.000~kettőmilliárd
+3 000 000 000 000~hárombillió
+3.000.000.000.000~hárombillió
+100 000 000 000 000 000 000 000~száztrilliárd
+100 000 000 000 000 000 000 002~száztrilliárd-kettő
