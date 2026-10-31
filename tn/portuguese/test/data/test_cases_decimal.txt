@@ -1,0 +1,58 @@
+0,1~zero vírgula um
+0,2~zero vírgula dois
+0,5~zero vírgula cinco
+0,9~zero vírgula nove
+0,01~zero vírgula zero um
+0,02~zero vírgula zero dois
+0,05~zero vírgula zero cinco
+0,10~zero vírgula um zero
+0,11~zero vírgula um um
+0,15~zero vírgula um cinco
+0,20~zero vírgula dois zero
+0,25~zero vírgula dois cinco
+0,50~zero vírgula cinco zero
+0,99~zero vírgula nove nove
+1,1~um vírgula um
+1,2~um vírgula dois
+1,5~um vírgula cinco
+1,10~um vírgula um zero
+1,15~um vírgula um cinco
+1,20~um vírgula dois zero
+1,26~um vírgula dois seis
+1,33~um vírgula três três
+1,50~um vírgula cinco zero
+3,141~três vírgula um quatro um
+3,256~três vírgula dois cinco seis
+3,999~três vírgula nove nove nove
+3,1415~três vírgula um quatro um cinco
+3,1001~três vírgula um zero zero um
+3,014~três vírgula zero um quatro
+3,0141~três vírgula zero um quatro um
+3,1005~três vírgula um zero zero cinco
+3,1050~três vírgula um zero cinco zero
+-1,2~menos um vírgula dois
+-1,26~menos um vírgula dois seis
+-3,5~menos três vírgula cinco
+-0,5~menos zero vírgula cinco
+1,2 milhões~um vírgula dois milhões
+1,5 milhões~um vírgula cinco milhões
+1,25 milhões~um vírgula dois cinco milhões
+2,5 bilhões~dois vírgula cinco bilhões
+3,75 bilhões~três vírgula sete cinco bilhões
+0,001~zero vírgula zero zero um
+0,0001~zero vírgula zero zero zero um
+1,001~um vírgula zero zero um
+1,010~um vírgula zero um zero
+1,100~um vírgula um zero zero
+10,01~dez vírgula zero um
+10,001~dez vírgula zero zero um
+100,5~cem vírgula cinco
+100,05~cem vírgula zero cinco
+3,14~três vírgula um quatro
+3,141~três vírgula um quatro um
+3,1415~três vírgula um quatro um cinco
+3,14159~três vírgula um quatro um cinco nove
+1,1234567~um vírgula um dois três quatro cinco seis sete
+3,1415926535~três vírgula um quatro um cinco nove dois seis cinco três cinco
+12,27~doze vírgula dois sete
+87,69~oitenta e sete vírgula seis nove

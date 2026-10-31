@@ -1,0 +1,121 @@
+0~zero
+1~um
+2~dois
+3~três
+4~quatro
+5~cinco
+6~seis
+7~sete
+8~oito
+9~nove
+10~dez
+11~onze
+12~doze
+13~treze
+14~catorze
+15~quinze
+16~dezesseis
+17~dezessete
+18~dezoito
+19~dezenove
+20~vinte
+21~vinte e um
+22~vinte e dois
+23~vinte e três
+24~vinte e quatro
+25~vinte e cinco
+26~vinte e seis
+27~vinte e sete
+28~vinte e oito
+29~vinte e nove
+30~trinta
+40~quarenta
+50~cinquenta
+60~sessenta
+70~setenta
+80~oitenta
+90~noventa
+100~cem
+101~cento e um
+102~cento e dois
+110~cento e dez
+120~cento e vinte
+130~cento e trinta
+200~duzentos
+300~trezentos
+400~quatrocentos
+500~quinhentos
+600~seiscentos
+700~setecentos
+800~oitocentos
+900~novecentos
+1000~mil
+1 000~mil
+1.000~mil
+1010~mil e dez
+1020~mil e vinte
+1100~mil e cem
+1110~mil cento e dez
+1111~mil cento e onze
+2000~dois mil
+2002~dois mil e dois
+2010~dois mil e dez
+2020~dois mil e vinte
+2100~dois mil e cem
+2110~dois mil cento e dez
+2111~dois mil cento e onze
+10000~dez mil
+10 000~dez mil
+10.000~dez mil
+100000~cem mil
+100 000~cem mil
+100.000~cem mil
+1 000 000~um milhão
+1.000.000~um milhão
+2.000.000~dois milhões
+1.000.000.000~um bilhão
+1000000000~um bilhão
+2.000.000.000~dois bilhões
+2000000000~dois bilhões
+3 000 000 000 000~três trilhões
+3.000.000.000.000~três trilhões
+1001~mil e um
+1010~mil e dez
+1100~mil e cem
+1101~mil cento e um
+1111~mil cento e onze
+1999~mil novecentos e noventa e nove
+100000~cem mil
+100001~cem mil e um
+101000~cento e um mil
+101001~cento e um mil e um
+110000~cento e dez mil
+111000~cento e onze mil
+111111~cento e onze mil cento e onze
+1001000~um milhão e mil
+1001001~um milhão mil e um
+1010000~um milhão e dez mil
+1010101~um milhão dez mil cento e um
+1100000~um milhão e cem mil
+1110000~um milhão cento e dez mil
+1001010101~um bilhão um milhão dez mil cento e um
+1010101010~um bilhão dez milhões cento e um mil e dez
+1234567890~um bilhão duzentos e trinta e quatro milhões quinhentos e sessenta e sete mil oitocentos e noventa
+987654321~novecentos e oitenta e sete milhões seiscentos e cinquenta e quatro mil trezentos e vinte e um
+999999999~novecentos e noventa e nove milhões novecentos e noventa e nove mil novecentos e noventa e nove
+2000000001~dois bilhões e um
+3000001000~três bilhões e mil
+4000100000~quatro bilhões e cem mil
+5000000100~cinco bilhões e cem
+6001000000~seis bilhões e um milhão
+1000000000000~um trilhão
+1000000000001~um trilhão e um
+1230000000000~um trilhão duzentos e trinta bilhões
+3004005006007~três trilhões quatro bilhões cinco milhões seis mil e sete
+1000001~um milhão e um
+1001100~um milhão mil e cem
+1001110~um milhão mil cento e dez
+47701~quarenta e sete mil setecentos e um
+394506~trezentos e noventa e quatro mil quinhentos e seis
+3022110709~três bilhões vinte e dois milhões cento e dez mil setecentos e nove
+302210709~trezentos e dois milhões duzentos e dez mil setecentos e nove

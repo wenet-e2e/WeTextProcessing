@@ -1,0 +1,25 @@
+R$ 1~um real
+R$ 12~doze reais
+R$ 100~cem reais
+R$ 200~duzentos reais
+R$ 12,05~doze reais e cinco centavos
+R$ 1,01~um real e um centavo
+R$ 199,99~cento e noventa e nove reais e noventa e nove centavos
+R$ 0,20~vinte centavos
+R$ 0,25~vinte e cinco centavos
+R$ 0,50~cinquenta centavos
+$ 1~um dólar
+$ 12~doze dólares
+$ 12,05~doze dólares e cinco centavos
+$ 29,50~vinte e nove dólares e cinquenta centavos
+$ 75,63~setenta e cinco dólares e sessenta e três centavos~setenta e cinco dólares com sessenta e três centavos
+€ 1~um euro
+€ 12~doze euros
+€ 12,05~doze euros e cinco centavos
+R$ 1000~mil reais
+R$ 1000000~um milhão de reais
+$ 1000~mil dólares
+$ 1000000~um milhão de dólares
+R$ 181809~cento e oitenta e um mil oitocentos e nove reais
+R$ 181819~cento e oitenta e um mil oitocentos e dezenove reais
+R$ 1811605~um milhão oitocentos e onze mil seiscentos e cinco reais
