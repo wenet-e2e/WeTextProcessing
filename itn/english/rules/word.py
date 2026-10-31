@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini import difference, union
-from pynini.lib.pynutil import insert
-
 from tn.processor import Processor
 
 
@@ -26,6 +23,4 @@ class Word(Processor):
         self.build_verbalizer()
 
     def build_tagger(self):
-        valid_char = difference(self.NOT_SPACE, union('"', "\\"))
-        tagger = insert('value: "') + valid_char.plus + insert('"')
-        self.tagger = self.add_tokens(tagger)
+        self.tagger = self.add_tokens(self.tag_field("value", self.NOT_SPACE.plus))

@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pynini import difference
+from pynini.lib.pynutil import add_weight
+
 from tn.korean.rules import date, fraction, measure, money, time
 from tn.korean.rules.cardinal import Cardinal
 from tn.korean.rules.date import Date
@@ -52,7 +55,7 @@ class Normalizer(Processor):
             RuleSpec(fraction, 1.0),
             RuleSpec(Ordinal(cardinal), 1.1),
             RuleSpec(decimal, 1.05),
-            RuleSpec(word, 100),
+            RuleSpec(word, 100, verbalize=False),
             RuleSpec(Money(cardinal), 1.1),
             RuleSpec(Measure(cardinal, decimal, fraction), 1.1),
             RuleSpec(Punctuation(), 1.0),
@@ -60,10 +63,17 @@ class Normalizer(Processor):
             RuleSpec(Telephone(), 1.1),
             RuleSpec(Electronic(cardinal), 1.11),
         )
-        classify = self.tagger_union(rules)
+        comma_number = self.VSIGMA + "," + self.VSIGMA
+        cardinal_tagger = add_weight(cardinal.tagger, 1.1)
+        grouped = (comma_number @ cardinal_tagger).optimize()
+        regular = self.tagger_union([spec for spec in rules if spec.rule is not cardinal])
+        regular |= difference(self.VSIGMA, comma_number) @ cardinal_tagger
+        nonnumeric_start = ((self.NOT_SPACE - self.DIGIT) + self.VSIGMA) @ regular
         separator = self.DELETE_EXTRA_SPACE.ques
-        self.tagger = self.DELETE_SPACE + classify + (separator + classify).star + self.DELETE_SPACE
+        # A grouped number cannot end inside another run of digits.
+        loop = (regular + separator | grouped + nonnumeric_start + separator
+                | grouped + self.DELETE_EXTRA_SPACE).star
+        tokens = loop + (regular | grouped | grouped + nonnumeric_start)
+        self.tagger = self.DELETE_SPACE + tokens + self.DELETE_SPACE
         self.tagger |= word.add_tokens(word.tag_field("value", self.SPACE.plus))
-        # Spoken forms keep the trailing spaces some verbalizers emit (e.g. "이천이십사년 ").
-        verbalize = self.verbalizer_union(rules)
-        self.verbalizer = verbalize + (self.SPACE.plus + verbalize).star
+        self.verbalizer = self.join_tokens(self.verbalizer_union(rules), (word.verbalizer,))

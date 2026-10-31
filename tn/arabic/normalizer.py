@@ -48,15 +48,14 @@ class Normalizer(Processor):
             RuleSpec(fraction, 1.0),
             RuleSpec(Money(cardinal), 1.0),
             RuleSpec(Measure(cardinal, decimal, fraction), 1.0),
-            RuleSpec(word, 100),
-            RuleSpec(punctuation),
+            RuleSpec(word, 100, verbalize=False),
+            RuleSpec(punctuation, verbalize=False),
         )
         classify = self.tagger_union(rules)
         punct = pynutil.add_weight(punctuation.tagger, 1.1)
         token = punct.star + classify + punct.star
         separator = pynutil.add_weight(self.DELETE_EXTRA_SPACE, 1.1)
-        self.tagger = self.DELETE_SPACE + token + (separator + token).star + self.DELETE_SPACE
+        self.tagger = self.DELETE_SPACE + token + (separator.ques + token).star + self.DELETE_SPACE
         self.tagger |= punct.plus
         self.tagger |= word.add_tokens(word.tag_field("value", self.SPACE.plus))
-        verbalize = self.verbalizer_union(rules)
-        self.verbalizer = verbalize + (self.INSERT_SPACE + verbalize).star
+        self.verbalizer = self.join_tokens(self.verbalizer_union(rules), (word.verbalizer, punctuation.verbalizer))

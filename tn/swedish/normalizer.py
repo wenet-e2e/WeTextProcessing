@@ -62,14 +62,14 @@ class Normalizer(Processor):
             RuleSpec(Telephone(cardinal, deterministic), 1.1),
             RuleSpec(Electronic(deterministic), 1.1),
             RuleSpec(fraction, 1.1),
-            RuleSpec(word, 100),
-            RuleSpec(punctuation),
+            RuleSpec(word, 100, verbalize=False),
+            RuleSpec(punctuation, verbalize=False),
         )
         classify = self.tagger_union(rules)
         punct = pynutil.add_weight(punctuation.tagger, 2.1)
-        token = punct.star + classify + punct.star
-        self.tagger = self.DELETE_SPACE + token + (self.DELETE_EXTRA_SPACE.ques + token).star + self.DELETE_SPACE
+        separator = self.DELETE_EXTRA_SPACE | punct.plus
+        tokens = punct.star + classify + (separator + classify).star + punct.star
+        self.tagger = self.DELETE_SPACE + tokens + self.DELETE_SPACE
         self.tagger |= punct.plus
         self.tagger |= word.add_tokens(word.tag_field("value", self.SPACE.plus))
-        verbalize = self.verbalizer_union(rules)
-        self.verbalizer = verbalize + (self.INSERT_SPACE + verbalize).star
+        self.verbalizer = self.join_tokens(self.verbalizer_union(rules), (word.verbalizer, punctuation.verbalizer))

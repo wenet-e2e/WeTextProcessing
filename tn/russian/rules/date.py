@@ -49,15 +49,17 @@ class Date(Processor):
 
         zero = pynutil.add_weight(pynini.cross("0", ""), -0.1) | pynutil.add_weight(pynini.cross("0", "ноль "), 0.1)
         zero_digit = zero + (DIGIT @ ordinal)
+        valid_days = pynini.union(*[str(day) for day in range(1, 32)], *[f"0{day}" for day in range(1, 10)])
         digit_day = ((pynini.union("1", "2", "3") + DIGIT) | DIGIT) @ ordinal
-        day = (zero_digit | digit_day) @ without(ending("ой", "ая", "ых", "ые", "ыми"))
+        day = valid_days @ (zero_digit | digit_day) @ without(ending("ой", "ая", "ых", "ые", "ыми"))
         self.day = (day @ prefer(ending("ое", "ье"))).optimize()
 
         abbr_to_name = ordered_map("months/abbr_to_name.tsv")
         number_to_abbr = ordered_map("months/numbers.tsv")
+        valid_months = pynini.union(*[str(month) for month in range(1, 13)], *[f"0{month}" for month in range(1, 10)])
         month_digits = (pynutil.add_weight(pynini.cross("0", ""), -0.1) | "1") + DIGIT | DIGIT
         month_name = (month_digits @ number_to_abbr @ abbr_to_name) | pynutil.add_weight(abbr_to_name, 0.1)
-        digit_month = zero_digit | (pynini.accep("1") + DIGIT) @ ordinal
+        digit_month = valid_months @ (zero_digit | (pynini.accep("1") + DIGIT) @ ordinal)
         self.month = (month_name | pynutil.add_weight(digit_month, 0.5)).optimize()
 
         year = ((DIGIT ** 4 | DIGIT ** 2) @ ordinal) | zero_digit
