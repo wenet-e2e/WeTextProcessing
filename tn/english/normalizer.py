@@ -30,7 +30,7 @@ from tn.english.rules.serial import Serial
 from tn.english.rules.telephone import Telephone
 from tn.english.rules.time import Time
 from tn.english.rules.whitelist import WhiteList
-from tn.english.rules.word import Word
+from tn.english.rules.word import Verbatim, Word
 from tn.processor import Processor, RuleSpec
 
 TOKEN_ORDERS = {
@@ -77,12 +77,13 @@ class Normalizer(Processor):
             RuleSpec(serial, 1.01),
             RuleSpec(whitelist, 1.0),
             RuleSpec(rang, 1.0),
+            RuleSpec(Verbatim(), 1000),
         )
         classify = self.tagger_union(rules)
 
         punct = pynutil.add_weight(punctuation.tagger, 2.00)
         token = pynini.closure(punct) + classify + pynini.closure(punct)
-        separator = pynutil.delete(self.SPACE) | punct
+        separator = pynutil.delete(self.SPACE.plus) | punct
         graph = (self.DELETE_SPACE + token + pynini.closure(separator + token) + self.DELETE_SPACE) | punct
         self.tagger = graph.optimize() @ self.build_rule(pynutil.delete(" "), r="[EOS]")
 

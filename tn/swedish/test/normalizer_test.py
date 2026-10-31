@@ -172,3 +172,24 @@ def test_empty_input(normalizer):
     assert normalizer.normalize("") == ""
     assert normalizer.normalize("", nbest=3) == [""]
     assert normalizer.normalize_with_mapping("").output_text == ""
+
+
+@pytest.mark.parametrize("prefix, suffix", [("(", ")"), ("", ","), ("", " !"), ("( ", " )")])
+def test_punctuation_spacing_raw_fields_and_mapping(normalizer, prefix, suffix):
+    written = prefix + "5" + suffix
+    spoken = prefix + "fem" + suffix
+    tagged = normalizer.tag(written)
+    parser = normalizer.token_parser()
+    parser.parse(tagged)
+    expected = [("punctuation", {"value": prefix})] if prefix else []
+    expected += [("cardinal", {"integer": "5"}), ("punctuation", {"value": suffix})]
+    assert [(token.name, token.members) for token in parser.tokens] == expected
+    assert normalizer.normalize(written) == spoken
+    assert normalizer.verbalize(tagged) == spoken
+    results = normalizer.normalize_with_mapping(written, nbest=3, include_identity=True)
+    assert [result.output_text for result in results] == normalizer.normalize(written, nbest=3)
+    assert results[0].output_text == spoken
+    for result in results:
+        for mapping in result.mappings:
+            assert written[mapping.input_start:mapping.input_end] == mapping.input_text
+            assert result.output_text[mapping.output_start:mapping.output_end] == mapping.output_text

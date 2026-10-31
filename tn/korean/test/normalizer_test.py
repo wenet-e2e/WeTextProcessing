@@ -82,6 +82,49 @@ def test_escaped_word_round_trips(normalizer):
     assert normalizer.normalize(written) == written
 
 
+@pytest.mark.parametrize("written, spoken", [
+    ("1,000", "천"),
+    ("1,000,000", "백만"),
+    ("-1,234", "마이너스 천이백삼십사"),
+    ("1.000", "일점영영영"),
+])
+def test_grouped_cardinals_and_decimal_punctuation(normalizer, written, spoken):
+    assert normalizer.normalize(written) == spoken
+    assert normalizer.verbalize(normalizer.tag(written)) == spoken
+    assert normalizer.normalize_with_mapping(written, include_identity=True).output_text == spoken
+
+
+def test_grouped_cardinal_raw_field(normalizer):
+    parser = normalizer.token_parser()
+    parser.parse(normalizer.tag("1,000,000"))
+    assert [(token.name, token.members) for token in parser.tokens] == [
+        ("cardinal", {"integer": "1,000,000"})
+    ]
+
+
+@pytest.mark.parametrize("written", ["1,0000", "12,3456", "1,234567"])
+def test_grouped_cardinals_do_not_consume_numeric_prefixes(normalizer, written):
+    parser = normalizer.token_parser()
+    parser.parse(normalizer.tag(written))
+    assert all(
+        "," not in token.members.get("integer", "")
+        for token in parser.tokens if token.name == "cardinal"
+    )
+    assert "," in normalizer.normalize(written)
+
+
+@pytest.mark.parametrize("written, spoken", [
+    ("20 !", "이십 !"),
+    ("20!", "이십!"),
+    ("20 , 30", "이십 , 삼십"),
+    ("[ 20 ]", "[ 이십 ]"),
+])
+def test_explicit_punctuation_spacing_is_preserved(normalizer, written, spoken):
+    assert normalizer.normalize(written) == spoken
+    assert normalizer.verbalize(normalizer.tag(written)) == spoken
+    assert normalizer.normalize_with_mapping(written, include_identity=True).output_text == spoken
+
+
 def test_empty_input(normalizer):
     assert normalizer.normalize("") == ""
     assert normalizer.normalize("", nbest=3) == [""]
