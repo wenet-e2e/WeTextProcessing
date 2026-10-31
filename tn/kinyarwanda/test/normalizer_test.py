@@ -104,15 +104,50 @@ def test_raw_fields(normalizer, written, kind, members, spoken):
 
 
 @pytest.mark.parametrize("written, spoken", [
-    ("(5)", "( gatanu )"),
-    ("5,", "gatanu ,"),
-    ("12:31.", "saa sita n'iminota mirongo itatu n'umwe ."),
+    ("(5)", "(gatanu)"),
+    ("5,", "gatanu,"),
+    ("12:31.", "saa sita n'iminota mirongo itatu n'umwe."),
     ("Chris na 3:05", "kiris na saa cyenda n'iminota itanu"),
     ("2,345", "kabiri gatatu kane gatanu"),
     ("X!", "X!"),
+    ("Nzaza 1:00 ejo", "Nzaza saa saba ejo"),
+    ("11:00, 12:00", "saa tanu , saa sita "),
 ])
 def test_additional_semantics(normalizer, written, spoken):
     assert normalizer.normalize(written) == spoken
+
+
+@pytest.mark.parametrize("written, spoken, punctuation", [
+    ("(5)", "(gatanu)", ["(", ")"]),
+    ("5,", "gatanu,", [","]),
+    ("5 !", "gatanu !", [" !"]),
+    ("( 5 )", "( gatanu )", ["( ", " )"]),
+])
+def test_cardinal_punctuation_spacing(normalizer, written, spoken, punctuation):
+    assert normalizer.normalize(written) == spoken
+    tagged = normalizer.tag(written)
+    parser = normalizer.token_parser()
+    parser.parse(tagged)
+    assert [token.members for token in parser.tokens if token.name == "cardinal"] == [{"integer": "5"}]
+    assert [token.members for token in parser.tokens if token.name == "punctuation"] == [
+        {"value": value} for value in punctuation
+    ]
+    assert normalizer.verbalize(tagged) == spoken
+    mapped = normalizer.normalize_with_mapping(written, include_identity=True)
+    assert mapped.output_text == spoken
+    assert [mapping.input_text for mapping in mapped.mappings if mapping.token_type == "punctuation"] == punctuation
+    for mapping in mapped.mappings:
+        assert written[mapping.input_start:mapping.input_end] == mapping.input_text
+        assert spoken[mapping.output_start:mapping.output_end] == mapping.output_text
+
+
+@pytest.mark.parametrize("written", ["Nzaza 1:00 ejo", "11:00, 12:00", "1:00"])
+def test_whole_hour_mapping_is_consistent(normalizer, written):
+    result = normalizer.normalize_with_mapping(written, include_identity=True)
+    assert result.output_text == normalizer.normalize(written)
+    for mapping in result.mappings:
+        assert written[mapping.input_start:mapping.input_end] == mapping.input_text
+        assert result.output_text[mapping.output_start:mapping.output_end] == mapping.output_text
 
 
 @pytest.mark.parametrize("written", ["123", "2,3,4,5", "12:31", "maroc", "(5)"])

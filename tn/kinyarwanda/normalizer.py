@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini.lib.pynutil import add_weight
+from pynini import cdrewrite
+from pynini.lib.pynutil import add_weight, delete
 
 from tn.kinyarwanda.rules.cardinal import Cardinal
 from tn.kinyarwanda.rules.punctuation import Punctuation
@@ -41,14 +42,15 @@ class Normalizer(Processor):
             RuleSpec(WhiteList(), 1.01),
             RuleSpec(Time(), 1.05),
             RuleSpec(Cardinal(), 1.1),
-            RuleSpec(word, 100),
-            RuleSpec(punctuation),
+            RuleSpec(word, 100, verbalize=False),
+            RuleSpec(punctuation, verbalize=False),
         )
         classify = self.tagger_union(rules)
-        # Punctuation splits off only when attached to another token.
         punct = add_weight(punctuation.tagger, 1.1)
         token = punct.star + classify + punct.star
         self.tagger = self.DELETE_SPACE + token + (self.DELETE_EXTRA_SPACE + token).star + self.DELETE_SPACE
         self.tagger |= word.add_tokens(word.tag_field("value", self.SPACE.plus))
-        verbalize = self.verbalizer_union(rules)
-        self.verbalizer = verbalize + (self.INSERT_SPACE + verbalize).star
+        verbalize = self.join_tokens(self.verbalizer_union(rules), (word.verbalizer, punctuation.verbalizer))
+        # Whole hours read with a trailing space (fixture "1:00~saa saba "); drop the joining space after it.
+        squeeze = cdrewrite(delete(" "), " ", self.NOT_SPACE, self.VSIGMA)
+        self.verbalizer = (verbalize @ squeeze).optimize()

@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import pynini
+from pynini.lib.pynutil import add_weight
 
 from tn.processor import Processor
 
@@ -25,5 +26,6 @@ class Punctuation(Processor):
     def __init__(self):
         super().__init__("punctuation", token_orders={})
         graph = pynini.union(*[pynini.escape(mark) for mark in "!#$%&'()*+,-./:;<=>?@^_`{|}~"]).optimize()
-        self.tagger = self.add_tokens(self.tag_field("value", graph))
-        self.verbalizer = self.delete_tokens(self.verbalize_field("value", graph))
+        space = add_weight(self.SPACE, -0.0001).star
+        self.tagger = self.add_tokens(self.tag_field("value", space + graph + space))
+        self.verbalizer = self.delete_tokens(self.verbalize_field("value", self.SPACE.star + graph + self.SPACE.star))
