@@ -73,6 +73,8 @@ tn = [
     "vietnamese/data/*/*.tsv",
     "russian/data/*.tsv",
     "russian/data/*/*.tsv",
+    "swedish/data/*.tsv",
+    "swedish/data/*/*.tsv",
 ]
 itn = [
     "armenian/data/*.tsv",
@@ -92,4 +94,6 @@ itn = [
     "vietnamese/data/*/*.tsv",
     "russian/data/*.tsv",
     "russian/data/*/*.tsv",
+    "swedish/data/*.tsv",
+    "swedish/data/*/*.tsv",
 ]
