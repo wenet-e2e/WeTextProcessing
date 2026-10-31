@@ -1,0 +1,57 @@
+1~rimwe
+2~kabiri
+3~gatatu
+4~kane
+5~gatanu
+6~gatandatu
+7~karindwi
+8~umunani
+9~icyenda
+10~icumi
+002~zeru zeru kabiri
+11~cumi na rimwe
+12~cumi na kabiri
+13~cumi na gatatu
+2,3,4,5~kabiri gatatu kane gatanu
+14~cumi na kane
+15~cumi na gatanu
+16~cumi na gatandatu
+17~cumi na karindwi
+18~cumi n'umunani
+19~cumi n'icyenda
+20~makumyabiri
+89~mirongo inani n'icyenda
+123~ijana na makumyabiri na gatatu
+730~magana arindwi na mirongo itatu
+100~ijana
+2004~ibihumbi bibiri na kane
+9041~ibihumbi icyenda na mirongo ine na rimwe
+5324~ibihumbi bitanu na magana atatu na makumyabiri na kane
+8567~ibihumbi umunani na magana atanu na mirongo itandatu na karindwi
+10000~ibihumbi icumi
+14000~ibihumbi cumi na bine
+24404~ibihumbi makumyabiri na bine na magana ane na kane
+9000~ibihumbi icyenda
+9700~ibihumbi icyenda na magana arindwi
+250~magana abiri na mirongo itanu
+367~magana atatu na mirongo itandatu na karindwi
+90104~ibihumbi mirongo icyenda n'ijana na kane
+111001~ibihumbi ijana na cumi na kimwe na rimwe
+10999~ibihumbi icumi na magana cyenda na mirongo icyenda n'icyenda
+100000~ibihumbi ijana
+200000~ibihumbi magana abiri
+101000~ibihumbi ijana na kimwe
+130000~ibihumbi ijana na mirongo itatu
+531000~ibihumbi magana atanu na mirongo itatu na kimwe
+2200345~miliyoni ebyiri n'ibihumbi magana abiri na magana atatu na mirongo ine na gatanu
+7000000~miliyoni zirindwi
+9101100~miliyoni icyenda n'ibihumbi ijana na kimwe n'ijana
+19034004~miliyoni cumi n'icyenda n'ibihumbi mirongo itatu na bine na kane
+29000000~miliyoni makumyabiri n'icyenda
+40000000~miliyoni mirongo ine
+400000000~miliyoni magana ane
+100000001~miliyoni ijana na rimwe
+340000000~miliyoni magana atatu na mirongo ine
+783100000~miliyoni magana arindwi na mirongo inani n'eshatu n'ibihumbi ijana
+340010010~miliyoni magana atatu na mirongo ine n'ibihumbi icumi n'icumi
+9374514510~tiriyoni icyenda na miliyoni magana atatu na mirongo irindwi n'enye n'ibihumbi magana atanu na cumi na bine na magana atanu n'icumi
