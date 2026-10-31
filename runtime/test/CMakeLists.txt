@@ -20,3 +20,15 @@ target_link_libraries(processor_test PUBLIC wetext_processor)
 target_compile_definitions(processor_test PRIVATE
   WETEXT_TN_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../tn")
 gtest_discover_tests(processor_test)
+
+# Host-side JNI regression tests exercise the same native entry points as the
+# Android shared library. They are optional when a host-only build has no JDK.
+find_package(JNI QUIET)
+if(JNI_FOUND)
+  add_executable(android_jni_test
+    android_jni_test.cc
+    ../bindings/android/wetextprocessing.cc)
+  target_include_directories(android_jni_test PRIVATE ${JNI_INCLUDE_DIRS})
+  target_link_libraries(android_jni_test PUBLIC wetext_processor)
+  gtest_discover_tests(android_jni_test)
+endif()

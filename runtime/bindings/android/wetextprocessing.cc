@@ -13,6 +13,10 @@
 // limitations under the License.
 #include <jni.h>
 
+#include <exception>
+#include <string>
+#include <utility>
+
 #include "processor/wetext_processor.h"
 #include "utils/wetext_flags.h"
 #include "utils/wetext_string.h"
@@ -22,32 +26,128 @@ namespace wetextprocessing {
 std::shared_ptr<wetext::Processor> processorTN;
 std::shared_ptr<wetext::Processor> processorITN;
 
+namespace {
+class UtfStringChars {
+ public:
+  UtfStringChars(JNIEnv* env, jstring string)
+      : env_(env),
+        string_(string),
+        chars_(env->GetStringUTFChars(string, nullptr)) {}
+
+  UtfStringChars(const UtfStringChars&) = delete;
+  UtfStringChars& operator=(const UtfStringChars&) = delete;
+
+  ~UtfStringChars() {
+    if (chars_ != nullptr) {
+      env_->ReleaseStringUTFChars(string_, chars_);
+    }
+  }
+
+  const char* get() const { return chars_; }
+
+ private:
+  JNIEnv* env_;
+  jstring string_;
+  const char* chars_;
+};
+
+bool CopyJString(JNIEnv* env, jstring string, std::string* output) {
+  UtfStringChars chars(env, string);
+  if (chars.get() == nullptr) {
+    return false;
+  }
+  *output = chars.get();
+  return true;
+}
+
+void ThrowJavaException(JNIEnv* env, const char* class_name,
+                        const char* message) {
+  jclass exception_class = env->FindClass(class_name);
+  if (exception_class != nullptr) {
+    env->ThrowNew(exception_class, message);
+  }
+}
+
+void ThrowIllegalState(JNIEnv* env, const char* message) {
+  ThrowJavaException(env, "java/lang/IllegalStateException", message);
+}
+
+void ThrowRuntimeException(JNIEnv* env, const char* message) {
+  ThrowJavaException(env, "java/lang/RuntimeException", message);
+}
+}
+
 void init(JNIEnv* env, jobject, jstring jModelDir) {
-  const char* pModelDir = env->GetStringUTFChars(jModelDir, nullptr);
+  try {
+    std::string model_dir;
+    if (!CopyJString(env, jModelDir, &model_dir)) {
+      return;
+    }
 
-  std::string tnTagger = std::string(pModelDir) + "/zh_tn_tagger.fst";
-  std::string tnVerbalizer = std::string(pModelDir) + "/zh_tn_verbalizer.fst";
-  processorTN = std::make_shared<wetext::Processor>(tnTagger, tnVerbalizer);
+    std::string tnTagger = model_dir + "/zh_tn_tagger.fst";
+    std::string tnVerbalizer = model_dir + "/zh_tn_verbalizer.fst";
+    auto tn_processor =
+        std::make_shared<wetext::Processor>(tnTagger, tnVerbalizer);
 
-  std::string itnTagger = std::string(pModelDir) + "/zh_itn_tagger.fst";
-  std::string itnVerbalizer = std::string(pModelDir) + "/zh_itn_verbalizer.fst";
-  processorITN = std::make_shared<wetext::Processor>(itnTagger, itnVerbalizer);
+    std::string itnTagger = model_dir + "/zh_itn_tagger.fst";
+    std::string itnVerbalizer = model_dir + "/zh_itn_verbalizer.fst";
+    auto itn_processor =
+        std::make_shared<wetext::Processor>(itnTagger, itnVerbalizer);
+
+    processorTN = std::move(tn_processor);
+    processorITN = std::move(itn_processor);
+  } catch (const std::exception& error) {
+    ThrowIllegalState(env, error.what());
+  } catch (...) {
+    ThrowIllegalState(env, "Failed to initialize text processors");
+  }
 }
 
 jstring normalize(JNIEnv* env, jobject, jstring input) {
-  std::string input_text = std::string(env->GetStringUTFChars(input, nullptr));
-  std::string tagged_text = processorTN->Tag(input_text);
-  std::string normalized_text = processorTN->Verbalize(tagged_text);
+  try {
+    if (processorTN == nullptr) {
+      ThrowIllegalState(env, "Text normalization processor is not initialized");
+      return nullptr;
+    }
 
-  return env->NewStringUTF(normalized_text.c_str());
+    std::string input_text;
+    if (!CopyJString(env, input, &input_text)) {
+      return nullptr;
+    }
+    std::string tagged_text = processorTN->Tag(input_text);
+    std::string normalized_text = processorTN->Verbalize(tagged_text);
+
+    return env->NewStringUTF(normalized_text.c_str());
+  } catch (const std::exception& error) {
+    ThrowRuntimeException(env, error.what());
+  } catch (...) {
+    ThrowRuntimeException(env, "Text normalization failed");
+  }
+  return nullptr;
 }
 
 jstring inverse_normalize(JNIEnv* env, jobject, jstring input) {
-  std::string input_text = std::string(env->GetStringUTFChars(input, nullptr));
-  std::string tagged_text = processorITN->Tag(input_text);
-  std::string normalized_text = processorITN->Verbalize(tagged_text);
+  try {
+    if (processorITN == nullptr) {
+      ThrowIllegalState(env,
+                        "Inverse text normalization processor is not initialized");
+      return nullptr;
+    }
 
-  return env->NewStringUTF(normalized_text.c_str());
+    std::string input_text;
+    if (!CopyJString(env, input, &input_text)) {
+      return nullptr;
+    }
+    std::string tagged_text = processorITN->Tag(input_text);
+    std::string normalized_text = processorITN->Verbalize(tagged_text);
+
+    return env->NewStringUTF(normalized_text.c_str());
+  } catch (const std::exception& error) {
+    ThrowRuntimeException(env, error.what());
+  } catch (...) {
+    ThrowRuntimeException(env, "Inverse text normalization failed");
+  }
+  return nullptr;
 }
 }  // namespace wetextprocessing
 
