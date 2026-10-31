@@ -69,6 +69,7 @@ PIPELINES = {
             (BooleanOption("deterministic", True, "use deterministic Spanish readings"),),
         ),
         "hi": PipelineSpec("tn.hindi.normalizer", "Normalizer"),
+        "he": PipelineSpec("tn.hebrew.normalizer", "Normalizer"),
         "it": PipelineSpec("tn.italian.normalizer", "Normalizer"),
         "mr": PipelineSpec("tn.marathi.normalizer", "Normalizer"),
         "rw": PipelineSpec("tn.kinyarwanda.normalizer", "Normalizer"),
@@ -110,6 +111,7 @@ PIPELINES = {
             (BooleanOption("cased", False, 'also accept capitalized spoken words, e.g. "Doce Dólares"'),),
         ),
         "hi": PipelineSpec("itn.hindi.inverse_normalizer", "InverseNormalizer"),
+        "he": PipelineSpec("itn.hebrew.inverse_normalizer", "InverseNormalizer"),
         "it": PipelineSpec("itn.italian.inverse_normalizer", "InverseNormalizer"),
         "hi_en": PipelineSpec(
             "itn.hindi_english.inverse_normalizer", "InverseNormalizer",

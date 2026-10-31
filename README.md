@@ -43,6 +43,7 @@ ITN converts spoken expressions into written forms, for example `十二` → `12
 | English | `en` | Yes | Yes | `english` |
 | French | `fr` | Yes | Yes | `french` |
 | German | `de` | Yes | Yes | `german` |
+| Hebrew | `he` | Yes | Yes | `hebrew` |
 | Hindi | `hi` | Yes | Yes | `hindi` |
 | Hindi–English (code-mixed) | `hi_en` | No | Yes | `hindi_english` |
 | Italian | `it` | Yes | Yes | `italian` |
