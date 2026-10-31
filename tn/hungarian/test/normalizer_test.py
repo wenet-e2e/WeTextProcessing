@@ -119,8 +119,10 @@ def test_raw_fields(normalizer, written, kind, members, spoken):
 
 
 @pytest.mark.parametrize("written, spoken", [
-    ("(5)", "( öt )"),
-    ("5,", "öt ,"),
+    ("(5)", "(öt)"),
+    ("5,", "öt,"),
+    ("100-200", "száz-kétszáz"),
+    ("100 - 200", "száz - kétszáz"),
     ("1 034 068", "millió-harmincnégyezer-hatvannyolc"),
     ("Április 5.", "április ötödike"),
     ("2010. május", "kettőezer-tíz május"),
@@ -136,6 +138,34 @@ def test_raw_fields(normalizer, written, kind, members, spoken):
 ])
 def test_additional_semantics(normalizer, written, spoken):
     assert normalizer.normalize(written) == spoken
+    assert normalizer.verbalize(normalizer.tag(written)) == spoken
+    assert normalizer.normalize_with_mapping(written, include_identity=True).output_text == spoken
+
+
+@pytest.mark.parametrize("written, spoken, fields", [
+    ("(5)", "(öt)", [("punctuation", {"value": "("}), ("cardinal", {"integer": "5"}),
+                     ("punctuation", {"value": ")"})]),
+    ("5,", "öt,", [("cardinal", {"integer": "5"}), ("punctuation", {"value": ","})]),
+    ("5 !", "öt !", [("cardinal", {"integer": "5"}), ("punctuation", {"value": " !"})]),
+    ("( 5 )", "( öt )", [("punctuation", {"value": "( "}), ("cardinal", {"integer": "5"}),
+                         ("punctuation", {"value": " )"})]),
+])
+def test_punctuation_spacing(normalizer, written, spoken, fields):
+    assert normalizer.normalize(written) == spoken
+    tagged = normalizer.tag(written)
+    parser = normalizer.token_parser()
+    parser.parse(tagged)
+    assert [(token.name, token.members) for token in parser.tokens] == fields
+    assert normalizer.verbalize(tagged) == spoken
+    outputs = normalizer.normalize(written, nbest=3)
+    mapped = normalizer.normalize_with_mapping(written, nbest=3, include_identity=True)
+    assert outputs[0] == spoken
+    assert len(outputs) == len(set(outputs))
+    assert [result.output_text for result in mapped] == outputs
+    for result in mapped:
+        for mapping in result.mappings:
+            assert written[mapping.input_start:mapping.input_end] == mapping.input_text
+            assert result.output_text[mapping.output_start:mapping.output_end] == mapping.output_text
 
 
 @pytest.mark.parametrize("written", ["1/2", "15:52", "$1,01", "131 111.", "2010. 04. 1-jén", "tv.-nyel"])

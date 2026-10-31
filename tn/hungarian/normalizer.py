@@ -62,8 +62,8 @@ class Normalizer(Processor):
             # Slightly above cardinal: "1 034 068" is also a valid local number.
             RuleSpec(Telephone(cardinal), 1.105),
             RuleSpec(Electronic(), 1.11),
-            RuleSpec(word, 200),
-            RuleSpec(punctuation),
+            RuleSpec(word, 200, verbalize=False),
+            RuleSpec(punctuation, verbalize=False),
         )
         classify = self.tagger_union(rules)
         # Classified tokens are separated by spaces or punctuation; punctuation
@@ -75,5 +75,6 @@ class Normalizer(Processor):
         tokens = (punct + space.ques).ques + classify + (separator + classify).star + (space.ques + punct).ques
         self.tagger = self.DELETE_SPACE + (tokens | punct) + self.DELETE_SPACE
         self.tagger |= word.add_tokens(word.tag_field("value", self.SPACE.plus))
-        verbalize = self.verbalizer_union(rules)
-        self.verbalizer = verbalize + (self.INSERT_SPACE + verbalize).star
+        self.verbalizer = self.join_tokens(
+            self.verbalizer_union(rules), (word.verbalizer, punctuation.verbalizer),
+            opening=self.OPENING_MARKS + ("-",), closing=self.CLOSING_MARKS + ("-",))

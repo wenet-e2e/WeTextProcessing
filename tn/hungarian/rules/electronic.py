@@ -49,7 +49,8 @@ class Electronic(Processor):
 
         known = data_map("electronic/domain.tsv") | data_keys("electronic/server_name.tsv")
         piece = add_weight(spelled_char, 0.0001) | known
-        self.domain = (domain @ (piece + (insert(" ") + piece).star)).optimize()
+        terminal_dot = pynini.cross(".", " .").ques
+        self.domain = ((domain @ (piece + (insert(" ") + piece).star)) + terminal_dot).optimize()
         self.username = spell(all_chars)
         self.handle = spell(accepted + ("." + accepted).star)
         self.protocol = spell(protocol)
