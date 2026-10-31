@@ -80,6 +80,9 @@ tn = [
     "hindi/data/*/*.tsv",
     "hebrew/data/*.tsv",
     "hebrew/data/*/*.tsv",
+    "italian/data/*.tsv",
+    "italian/data/*/*.tsv",
+    "marathi/data/*/*.tsv",
     "kinyarwanda/data/*.tsv",
     "kinyarwanda/data/*/*.tsv",
 ]
@@ -108,6 +111,10 @@ itn = [
     "hindi/data/*/*.tsv",
     "hebrew/data/*.tsv",
     "hebrew/data/*/*.tsv",
+    "italian/data/*.tsv",
+    "italian/data/*/*.tsv",
+    "hindi_english/data/*.tsv",
+    "marathi/data/*/*.tsv",
     "kinyarwanda/data/*.tsv",
     "kinyarwanda/data/*/*.tsv",
 ]

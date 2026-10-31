@@ -1,0 +1,39 @@
+एक एक एक एक एक एक~११११११
+पाँच शून्य शून्य शून्य एक दो~५०००१२
+एक दो तीन चार पाँच छह~१२३४५६
+चार शून्य शून्य शून्य एक शून्य~४०००१०
+सात पाँच शून्य शून्य शून्य दो~७५०००२
+आठ आठ शून्य नौ नौ शून्य~८८०९९०
+नौ आठ सात छह पाँच चार तीन दो एक शून्य~९८७६५४३२१०
+सात शून्य एक दो तीन चार पाँच छह सात आठ~७०१२३४५६७८
+आठ आठ आठ सात सात सात छह छह छह छह~८८८७७७६६६६
+छह दो नौ शून्य एक पाँच सात तीन चार आठ~६२९०१५७३४८
+नौ नौ आठ आठ सात सात छह छह पाँच पाँच~९९८८७७६६५५
+प्लस नौ एक नौ आठ सात छह पाँच चार तीन दो एक शून्य~+९१ ९८७६५४३२१०
+प्लस नौ एक सात शून्य एक दो तीन चार पाँच छह सात आठ~+९१ ७०१२३४५६७८
+प्लस नौ एक आठ आठ आठ सात सात सात छह छह छह छह~+९१ ८८८७७७६६६६
+प्लस नौ एक एक एक एक एक एक एक एक एक एक एक~+९१ ११११११११११
+शून्य दो शून्य दो चार तीन सात एक पाँच चार दो~०२०२४३७१५४२
+शून्य एक एक दो छह एक दो तीन चार पाँच छह~०११२६१२३४५६
+चार चार दो दो आठ आठ छह छह चार चार~४४२२८८६६४४
+शून्य आठ शून्य चार एक दो तीन चार पाँच छह सात~०८०४१२३४५६७
+दो दो छह छह पांच चार तीन दो एक शून्य~२२६६५४३२१०
+पाँच शून्य शून्य नौ~५००९
+एक शून्य दो शून्य~१०२०
+one two three one two three five six seven eight~123-123-5678
+plus nine one one two three one two three five six seven eight~+91 123-123-5678
+plus forty four one two three one two three five six seven eight~+44 123-123-5678
+o two three one two three five six seven eight~023-123-5678
+oh two three one two three five six seven eight~023-123-5678
+double oh three one two three five six seven eight~003-123-5678
+two two five dot double five dot o dot four o~225.55.0.40
+two two five dot double five dot o dot forty five~225.55.0.45
+ssn is seven double nine one two three double one three~ssn is 799-12-3113
+seven nine nine~799
+a b nine~ab9
+a b c~a b c
+five w k r a three one~5wkra31
+नंबर nine eight seven six five four three two one zero~नंबर 987-654-3210
+मोबाइल one two three four five six seven eight nine zero~मोबाइल 123-456-7890
+मोबाइल nine eight seven six five four three two one zero~मोबाइल 987-654-3210
+phone एक एक एक एक एक एक एक एक एक एक~phone ११११११११११
