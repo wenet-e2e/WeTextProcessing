@@ -13,6 +13,7 @@ from itn.hindi.inverse_normalizer import InverseNormalizer as HiInverseNormalize
 from itn.kinyarwanda.inverse_normalizer import InverseNormalizer as RwInverseNormalizer
 from itn.japanese.inverse_normalizer import InverseNormalizer as JaInverseNormalizer
 from itn.korean.inverse_normalizer import InverseNormalizer as KoInverseNormalizer
+from itn.marathi.inverse_normalizer import InverseNormalizer as MrInverseNormalizer
 from itn.portuguese.inverse_normalizer import InverseNormalizer as PtInverseNormalizer
 from itn.russian.inverse_normalizer import InverseNormalizer as RuInverseNormalizer
 from itn.spanish.inverse_normalizer import InverseNormalizer as EsInverseNormalizer
@@ -28,6 +29,7 @@ from tn.hindi.normalizer import Normalizer as HiNormalizer
 from tn.kinyarwanda.normalizer import Normalizer as RwNormalizer
 from tn.japanese.normalizer import Normalizer as JaNormalizer
 from tn.korean.normalizer import Normalizer as KoNormalizer
+from tn.marathi.normalizer import Normalizer as MrNormalizer
 from tn.portuguese.normalizer import Normalizer as PtNormalizer
 from tn.russian.normalizer import Normalizer as RuNormalizer
 from tn.spanish.normalizer import Normalizer as EsNormalizer
@@ -98,6 +100,7 @@ def _build_small_graphs(processor):
         (EsNormalizer, "es_tn", "tn", {}, {"deterministic": True}),
         (EsNormalizer, "es_tn", "tn", {"deterministic": False}, {"deterministic": False}),
         (HiNormalizer, "hi_tn", "tn", {}, {}),
+        (MrNormalizer, "mr_tn", "tn", {}, {}),
         (RwNormalizer, "rw_tn", "tn", {}, {}),
         (
             ZhInverseNormalizer,
@@ -146,6 +149,7 @@ def _build_small_graphs(processor):
         (EsInverseNormalizer, "es_itn", "itn", {}, {"cased": False}),
         (EsInverseNormalizer, "es_itn", "itn", {"cased": True}, {"cased": True}),
         (HiInverseNormalizer, "hi_itn", "itn", {}, {}),
+        (MrInverseNormalizer, "mr_itn", "itn", {}, {}),
         (RwInverseNormalizer, "rw_itn", "itn", {}, {}),
     ],
 )

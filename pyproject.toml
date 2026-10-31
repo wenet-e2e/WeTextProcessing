@@ -78,6 +78,7 @@ tn = [
     "spanish/data/*.tsv",
     "spanish/data/*/*.tsv",
     "hindi/data/*/*.tsv",
+    "marathi/data/*/*.tsv",
     "kinyarwanda/data/*.tsv",
     "kinyarwanda/data/*/*.tsv",
 ]
@@ -104,6 +105,7 @@ itn = [
     "spanish/data/*.tsv",
     "spanish/data/*/*.tsv",
     "hindi/data/*/*.tsv",
+    "marathi/data/*/*.tsv",
     "kinyarwanda/data/*.tsv",
     "kinyarwanda/data/*/*.tsv",
 ]
