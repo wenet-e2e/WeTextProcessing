@@ -1,0 +1,13 @@
+2~due
+3~tre
+4~quattro
+5~cinque
+15~quindici
+155~cento cinquantacinque
+369~trecento sessantanove
+3544~tremila cinquecento quarantaquattro
+1000~mille
+1034500~un milione trentaquattromila cinquecento
+3453243534~tremila quattrocento cinquantatre milioni duecento quarantatremila cinquecento trentaquattro
+38~trentotto
+7 giorni sono una settimana~sette giorni sono una settimana

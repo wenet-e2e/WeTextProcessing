@@ -11,6 +11,7 @@ from itn.french.inverse_normalizer import InverseNormalizer as FrInverseNormaliz
 from itn.german.inverse_normalizer import InverseNormalizer as DeInverseNormalizer
 from itn.hindi.inverse_normalizer import InverseNormalizer as HiInverseNormalizer
 from itn.hindi_english.inverse_normalizer import InverseNormalizer as HiEnInverseNormalizer
+from itn.italian.inverse_normalizer import InverseNormalizer as ItInverseNormalizer
 from itn.kinyarwanda.inverse_normalizer import InverseNormalizer as RwInverseNormalizer
 from itn.japanese.inverse_normalizer import InverseNormalizer as JaInverseNormalizer
 from itn.korean.inverse_normalizer import InverseNormalizer as KoInverseNormalizer
@@ -27,6 +28,7 @@ from tn.english.normalizer import Normalizer as EnNormalizer
 from tn.french.normalizer import Normalizer as FrNormalizer
 from tn.german.normalizer import Normalizer as DeNormalizer
 from tn.hindi.normalizer import Normalizer as HiNormalizer
+from tn.italian.normalizer import Normalizer as ItNormalizer
 from tn.kinyarwanda.normalizer import Normalizer as RwNormalizer
 from tn.japanese.normalizer import Normalizer as JaNormalizer
 from tn.korean.normalizer import Normalizer as KoNormalizer
@@ -101,6 +103,7 @@ def _build_small_graphs(processor):
         (EsNormalizer, "es_tn", "tn", {}, {"deterministic": True}),
         (EsNormalizer, "es_tn", "tn", {"deterministic": False}, {"deterministic": False}),
         (HiNormalizer, "hi_tn", "tn", {}, {}),
+        (ItNormalizer, "it_tn", "tn", {}, {}),
         (MrNormalizer, "mr_tn", "tn", {}, {}),
         (RwNormalizer, "rw_tn", "tn", {}, {}),
         (
@@ -150,6 +153,7 @@ def _build_small_graphs(processor):
         (EsInverseNormalizer, "es_itn", "itn", {}, {"cased": False}),
         (EsInverseNormalizer, "es_itn", "itn", {"cased": True}, {"cased": True}),
         (HiInverseNormalizer, "hi_itn", "itn", {}, {}),
+        (ItInverseNormalizer, "it_itn", "itn", {}, {}),
         (HiEnInverseNormalizer, "hi_en_itn", "itn", {}, {"cased": False}),
         (HiEnInverseNormalizer, "hi_en_itn", "itn", {"cased": True}, {"cased": True}),
         (MrInverseNormalizer, "mr_itn", "itn", {}, {}),
