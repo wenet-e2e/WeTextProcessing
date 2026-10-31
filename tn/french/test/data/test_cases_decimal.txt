@@ -1,0 +1,7 @@
+0,2 million~zéro virgule deux million
+18,2 milliards~dix-huit virgule deux milliards
+460,3 millions~quatre cent soixante virgule trois millions
+10 billions~dix billions
+818,303~huit cent dix-huit virgule trois cent trois
+1 818,303~mille huit cent dix-huit virgule trois cent trois
+24,1313~vingt-quatre virgule treize treize

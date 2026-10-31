@@ -1,0 +1,18 @@
+200 g~duzentos gramas
+1 kg~um quilo~um quilograma
+5 kg~cinco quilos~cinco quilogramas
+200 m~duzentos metros
+1 km~um quilômetro
+5 km~cinco quilômetros
+100 m~cem metros
+1 l~um litro
+2 l~dois litros
+500 ml~quinhentos mililitros
+1 m²~um metro quadrado
+10 m²~dez metros quadrados
+25°C~vinte e cinco graus celsius
+-5°C~menos cinco graus celsius
+1 h~uma hora
+2 h~duas horas
+30 min~trinta minutos
+45 s~quarenta e cinco segundos
