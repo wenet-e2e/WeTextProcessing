@@ -146,6 +146,8 @@ HAND_WRITTEN = [
     ("chiocciola m a r i o", "@mario"),
     ("s i t o punto i t", "sito.it"),
     ("i n f o trattino basso uno chiocciola s i t o punto net", "info_1@sito.net"),
+    ("a chiocciola b punto com e poi", "a@b.com e poi"),
+    ("w w w punto nvidia punto com e poi", "www.nvidia.com e poi"),
     # whitelist
     ("Dottor Rossi", "Dott. Rossi"),
     ("professoressa Bianchi", "prof.ssa Bianchi"),
@@ -171,6 +173,27 @@ HAND_WRITTEN = [
 @pytest.mark.parametrize("spoken, written", HAND_WRITTEN)
 def test_hand_written(normalizer, spoken, written):
     assert normalizer.normalize(spoken) == written
+
+
+@pytest.mark.parametrize("spoken, members, written", [
+    ("a chiocciola b punto com e poi", {"username": "a", "domain": "b punto com"}, "a@b.com e poi"),
+    ("w w w punto nvidia punto com e poi", {"protocol": "w w w punto", "domain": "nvidia punto com"},
+     "www.nvidia.com e poi"),
+])
+def test_electronic_boundaries_and_mapping(normalizer, spoken, members, written):
+    tagged = normalizer.tag(spoken)
+    parser = normalizer.token_parser()
+    parser.parse(tagged)
+    assert parser.tokens[0].name == "electronic"
+    assert parser.tokens[0].members == members
+    assert normalizer.verbalize(tagged) == written
+    results = normalizer.normalize_with_mapping(spoken, nbest=3, include_identity=True)
+    assert [result.output_text for result in results] == normalizer.normalize(spoken, nbest=3)
+    assert results[0].output_text == written
+    for result in results:
+        for mapping in result.mappings:
+            assert spoken[mapping.input_start:mapping.input_end] == mapping.input_text
+            assert result.output_text[mapping.output_start:mapping.output_end] == mapping.output_text
 
 
 @pytest.mark.parametrize("spoken, kind, members, written", [

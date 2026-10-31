@@ -63,15 +63,16 @@ class Electronic(Processor):
         item = symbol_words | unit + space + symbol_words
         domain_verb = ((item + space).star + (item | unit)).optimize()
 
-        domain_tag = self.tag_field("domain", url_domain @ domain_verb)
+        terminal_dot = pynini.cross(".", " .").ques
+        domain_tag = self.tag_field("domain", (url_domain @ domain_verb) + terminal_dot)
         url = self.tag_field("protocol", protocol) + insert(" ") + domain_tag
         email = self.tag_field("username", every @ spelled) + delete("@") + insert(" ") + domain_tag
         handle = delete("@") + self.tag_field("username", (accepted + segment.star) @ spelled)
-        bare = self.tag_field("domain", domain @ domain_verb)
+        bare = self.tag_field("domain", (domain @ domain_verb) + terminal_dot)
         self.tagger = self.add_tokens(url | email | handle | bare)
 
         protocol_verb = self.verbalize_field("protocol", protocol @ spelled) + delete(" ") + insert(" ")
-        domain_field = self.verbalize_field("domain", domain_verb)
+        domain_field = self.verbalize_field("domain", (url_domain @ domain_verb) + terminal_dot)
         username = self.verbalize_field("username", spelled)
         verbalizer = protocol_verb.ques + domain_field
         verbalizer |= username + delete(" ") + insert(" chiocciola ") + domain_field

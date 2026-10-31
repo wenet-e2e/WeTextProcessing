@@ -41,13 +41,10 @@ class Electronic(Processor):
         tlds = string_map([(row[0], "punto " + row[1]) for row in load_rows("italian/data/electronic/domain.tsv")])
 
         start = content | names
-        item = start | others | dot | tlds
-        domain = (start + (sep + item).star).optimize()
         segment = start + (sep + (start | others)).star
         long_segment = start + (sep + (start | others)).plus | names
-        bare = segment + (sep + (dot + sep + segment | tlds)).star + sep + (tlds | dot + sep + long_segment)
-        self.domain = domain
-        bare = bare.optimize()
+        domain = segment + (sep + (dot + sep + segment | tlds)).star + sep + (tlds | dot + sep + long_segment)
+        domain = domain.optimize()
         user = (content + (sep + (start | others | dot)).star).optimize()
         handle_user = (content + (sep + (start | others | dot)).plus).optimize()
 
@@ -55,17 +52,19 @@ class Electronic(Processor):
         scheme = pynini.cross("h t t p s" + slashes, "https://") | pynini.cross("h t t p" + slashes, "http://")
         www = pynini.cross("w w w punto", "www.")
         protocol = (scheme | www | scheme + sep + www).optimize()
+        path_item = start | others | dot | tlds
+        path = sep + (others @ pynini.accep("/")) + (sep + path_item).plus
         # Prefer the ``www.`` reading of the protocol over spelling it in the domain.
-        url_domain = (self.VSIGMA - ("w w w punto" + self.VSIGMA).optimize()) @ domain
+        url_domain = (self.VSIGMA - ("w w w punto" + self.VSIGMA).optimize()) @ (domain + path.ques)
 
         space = pynini.accep(" ")
         url = self.tag_field("protocol", protocol) + space + self.tag_field("domain", url_domain)
         email = self.tag_field("username", user) + delete(" chiocciola") + space + self.tag_field("domain", domain)
         handle = delete("chiocciola ") + self.tag_field("username", handle_user)
-        self.tagger = self.add_tokens(url | email | handle | self.tag_field("domain", bare))
+        self.tagger = self.add_tokens(url | email | handle | self.tag_field("domain", domain))
 
         url_verb = self.verbalize_field("protocol", protocol) + sep + self.verbalize_field("domain", url_domain)
         email_verb = self.verbalize_field("username", user) + sep + insert("@") + self.verbalize_field("domain", domain)
         handle_verb = insert("@") + self.verbalize_field("username", handle_user)
-        bare_verb = self.verbalize_field("domain", bare)
+        bare_verb = self.verbalize_field("domain", domain)
         self.verbalizer = self.delete_tokens(url_verb | email_verb | handle_verb | bare_verb)

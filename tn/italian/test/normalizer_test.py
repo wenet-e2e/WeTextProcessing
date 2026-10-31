@@ -114,7 +114,7 @@ def test_raw_fields(normalizer, written, kind, members, spoken):
 
 
 @pytest.mark.parametrize("written, spoken", [
-    ("(5)", "( cinque )"),
+    ("(5)", "(cinque)"),
     ("21000", "ventunomila"),
     ("1001", "mille uno"),
     ("1000000000000", "un miliardo"),
@@ -128,6 +128,32 @@ def test_raw_fields(normalizer, written, kind, members, spoken):
 ])
 def test_additional_semantics(normalizer, written, spoken):
     assert normalizer.normalize(written) == spoken
+
+
+@pytest.mark.parametrize("written, spoken, fields", [
+    ("(5)", "(cinque)", [("punctuation", {"value": "("}), ("cardinal", {"integer": "5"}),
+                         ("punctuation", {"value": ")"})]),
+    ("5,", "cinque,", [("cardinal", {"integer": "5"}), ("punctuation", {"value": ","})]),
+    ("5 !", "cinque !", [("cardinal", {"integer": "5"}), ("punctuation", {"value": " !"})]),
+    ("( 5 )", "( cinque )", [("punctuation", {"value": "( "}), ("cardinal", {"integer": "5"}),
+                             ("punctuation", {"value": " )"})]),
+])
+def test_punctuation_spacing(normalizer, written, spoken, fields):
+    assert normalizer.normalize(written) == spoken
+    tagged = normalizer.tag(written)
+    parser = normalizer.token_parser()
+    parser.parse(tagged)
+    assert [(token.name, token.members) for token in parser.tokens] == fields
+    assert normalizer.verbalize(tagged) == spoken
+    outputs = normalizer.normalize(written, nbest=3)
+    mapped = normalizer.normalize_with_mapping(written, nbest=3, include_identity=True)
+    assert outputs[0] == spoken
+    assert len(outputs) == len(set(outputs))
+    assert [result.output_text for result in mapped] == outputs
+    for result in mapped:
+        for mapping in result.mappings:
+            assert written[mapping.input_start:mapping.input_end] == mapping.input_text
+            assert result.output_text[mapping.output_start:mapping.output_end] == mapping.output_text
 
 
 def test_idiomatic_times_are_alternatives(normalizer):

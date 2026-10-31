@@ -18,7 +18,7 @@ import string
 from dataclasses import dataclass
 from typing import Optional
 
-from pynini import accep, cdrewrite, cross, difference, escape, invert, shortestpath, union
+from pynini import accep, cdrewrite, cross, difference, escape, intersect, invert, shortestpath, union
 from pynini.lib import byte, utf8
 from pynini.lib.pynutil import add_weight, delete, insert
 
@@ -164,6 +164,35 @@ class Processor:
         if not verbalizers:
             raise ValueError("rule inventory must contain at least one verbalizer")
         return union(*verbalizers).optimize()
+
+    OPENING_MARKS = ("(", "[", "{", "¿", "¡", "«")
+    CLOSING_MARKS = (",", ".", "!", "?", ":", ";", ")", "]", "}", "»", "%", "،", "؛", "؟")
+
+    def join_tokens(self, semantic, plain, opening=OPENING_MARKS, closing=CLOSING_MARKS):
+        """Joins semantic and plain tokens without spacing inside punctuation pairs."""
+
+        closing = union(*map(escape, closing)) | self.SPACE
+        opening = union(*map(escape, opening)) | self.SPACE
+        starts = (closing + self.VSIGMA).optimize()
+        ends = (self.VSIGMA + opening).optimize()
+        neither = difference(self.VSIGMA, starts | ends).optimize()
+        both = intersect(starts, ends).optimize()
+        plain = union(*plain).optimize()
+
+        def outputs(acceptor):
+            return (plain @ acceptor).optimize()
+
+        nn = (semantic | outputs(neither)).optimize()
+        sn = outputs(difference(starts, ends))
+        ne = outputs(difference(ends, starts))
+        se = outputs(both)
+        space = self.INSERT_SPACE
+        # After an opening mark (or at the start) no space is inserted; otherwise
+        # a space separates tokens unless the next one starts with a closing mark.
+        glued_n, glued_e = nn | sn, ne | se
+        spaced_n, spaced_e = space + nn | sn, space + ne | se
+        after_space = (spaced_n | spaced_e + glued_e.star + glued_n).star + (spaced_e + glued_e.star).ques
+        return (glued_e.star + (glued_n + after_space).ques).optimize()
 
     def token_parser(self):
         """Returns a parser configured by the owning pipeline."""
