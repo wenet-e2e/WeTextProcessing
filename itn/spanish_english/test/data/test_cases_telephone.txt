@@ -1,0 +1,32 @@
+uno dos tres uno dos tres cinco seis siete ocho~123-123-5678
+uno veintitrés uno veintitrés cincuenta y seis setenta y ocho~123-123-5678
+uno dos tres cuatro cinco seis siete ocho nueve~123-456-789
+uno veintitrés cuatro cincuenta y seis siete ochenta y nueve~123-456-789
+uno dos tres cuatro cinco seis siete ocho~1234-5678
+doce treinta y cuatro cincuenta y seis setenta y ocho~1234-5678
+triple tres uno dos tres cinco seis siete ocho~333-123-5678
+más uno uno dos tres uno dos tres cinco seis siete ocho~+1-123-123-5678
+más cincuenta y cuatro uno dos tres uno dos tres cinco seis siete ocho extensión doce~+54-123-123-5678 ext. 12
+one two three one two three five six seven eight~123-123-5678
+plus nine one one two three one two three five six seven eight~+91 123-123-5678
+plus forty four one two three one two three five six seven eight~+44 123-123-5678
+four one two three one two three five six seven eight~4 123-123-5678
+zero two three one two three five six seven eight~023-123-5678
+o two three one two three five six seven eight~023-123-5678
+oh two three one two three five six seven eight~023-123-5678
+double oh three one two three five six seven eight~003-123-5678
+four three two double seven three two one four three two one four three double zero five~432 7732 143214 3005
+one two three dot one two three dot o dot four o~123.123.0.40
+one twenty three dot one two three dot o dot four o~123.123.0.40
+two two five dot double five dot o dot four o~225.55.0.40
+two two five dot double five dot o dot forty five~225.55.0.45
+ssn is seven double nine one two three double one three~ssn is 799-12-3113
+seven nine nine~799
+a b nine~ab9
+a b c~a b c
+five w k r a three one~5wkra31
+x eighty six~x86
+x three eighty six~x386
+a thirty six~a 36
+a ten eighty p display~a 1080p display
+r t x forty fifty t i~RTX 4050ti

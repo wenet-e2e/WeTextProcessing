@@ -99,6 +99,8 @@ class FakeProcessor:
         ("itn", "sv", "itn.swedish.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "es", "itn.spanish.inverse_normalizer", "InverseNormalizer", ["--cased"], {"cased": True}),
         ("itn", "hi", "itn.hindi.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "es_en", "itn.spanish_english.inverse_normalizer", "InverseNormalizer", [], {"cased": False}),
+        ("itn", "es_en", "itn.spanish_english.inverse_normalizer", "InverseNormalizer", ["--cased"], {"cased": True}),
         ("itn", "hu", "itn.hungarian.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "he", "itn.hebrew.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "it", "itn.italian.inverse_normalizer", "InverseNormalizer", [], {}),
@@ -197,6 +199,11 @@ def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, dire
     assert captured == expected
 
 
+def test_es_en_is_registered_for_itn_only():
+    assert "es_en" in cli.PIPELINES["itn"]
+    assert "es_en" not in cli.PIPELINES["tn"]
+
+
 @pytest.mark.parametrize("language", sorted(set(cli.PIPELINES["itn"]) - set(cli.PIPELINES["tn"])))
 def test_itn_only_languages_are_rejected_for_tn(language):
     with pytest.raises(SystemExit):
@@ -234,6 +241,7 @@ def test_itn_only_languages_are_rejected_for_tn(language):
         ("itn", "es", "--cased", "--enable-million"),
         ("tn", "hi", "--cache-dir", "--deterministic"),
         ("itn", "hi", "--cache-dir", "--enable-million"),
+        ("itn", "es_en", "--cased", "--enable-million"),
         ("tn", "hu", "--cache-dir", "--deterministic"),
         ("itn", "hu", "--cache-dir", "--enable-million"),
         ("tn", "he", "--cache-dir", "--deterministic"),

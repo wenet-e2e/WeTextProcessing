@@ -21,6 +21,7 @@ from itn.marathi.inverse_normalizer import InverseNormalizer as MrInverseNormali
 from itn.portuguese.inverse_normalizer import InverseNormalizer as PtInverseNormalizer
 from itn.russian.inverse_normalizer import InverseNormalizer as RuInverseNormalizer
 from itn.spanish.inverse_normalizer import InverseNormalizer as EsInverseNormalizer
+from itn.spanish_english.inverse_normalizer import InverseNormalizer as EsEnInverseNormalizer
 from itn.swedish.inverse_normalizer import InverseNormalizer as SvInverseNormalizer
 from itn.vietnamese.inverse_normalizer import InverseNormalizer as ViInverseNormalizer
 from tn.arabic.normalizer import Normalizer as ArNormalizer
@@ -159,6 +160,8 @@ def _build_small_graphs(processor):
         (EsInverseNormalizer, "es_itn", "itn", {}, {"cased": False}),
         (EsInverseNormalizer, "es_itn", "itn", {"cased": True}, {"cased": True}),
         (HiInverseNormalizer, "hi_itn", "itn", {}, {}),
+        (EsEnInverseNormalizer, "es_en_itn", "itn", {}, {"cased": False}),
+        (EsEnInverseNormalizer, "es_en_itn", "itn", {"cased": True}, {"cased": True}),
         (HuInverseNormalizer, "hu_itn", "itn", {}, {}),
         (HeInverseNormalizer, "he_itn", "itn", {}, {}),
         (ItInverseNormalizer, "it_itn", "itn", {}, {}),

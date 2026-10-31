@@ -55,6 +55,7 @@ ITN converts spoken expressions into written forms, for example `十二` → `12
 | Portuguese | `pt` | Yes | Yes | `portuguese` |
 | Russian | `ru` | Yes | Yes | `russian` |
 | Spanish | `es` | Yes | Yes | `spanish` |
+| Spanish–English (code-mixed) | `es_en` | No | Yes | `spanish_english` |
 | Swedish | `sv` | Yes | Yes | `swedish` |
 | Vietnamese | `vi` | Yes | Yes | `vietnamese` |
 

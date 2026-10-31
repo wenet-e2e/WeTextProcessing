@@ -1,0 +1,64 @@
+primero~primero
+tercera~tercera
+primer~primer
+tercer~tercer
+noveno~noveno
+novena~novena
+décimo~10.º
+décima~10.ª
+undécimo~11.º
+undécima~11.ª
+decimoprimero~11.º
+décimo primero~11.º
+decimoprimer~11.ᵉʳ
+décimo primer~11.ᵉʳ
+decimoprimera~11.ª
+décima primera~11.ª
+(technically ungrammatical) décimo primera~(technically ungrammatical) 11.ª
+decimotercero~13.º
+vigésimo primero~21.º
+vigésima primera~21.ª
+(technically ungrammatical) vigésimo primera~(technically ungrammatical) 21.ª
+vigésimo primer~21.ᵉʳ
+vigesimosegundo~22.º
+vigésimo segundo~22.º
+vigesimosegunda~22.ª
+vigésima segunda~22.ª
+vigésimo tercero~23.º
+centésimo undécimo~111.º
+centésimo trigésimo cuarto~134.º
+vigesimoctavo~28.º
+one hundredth~100th
+twenty five thousand one hundred eleventh~25111th
+second~2nd
+zeroth~0th
+first~1st
+second~2nd
+third~3rd
+fourth~4th
+eleventh~11th
+twelfth~12th
+thirteenth~13th
+twenty first~21st
+twenty third~23rd
+one hundred eleventh~111th
+one thousandth~1000th
+one hundred twenty first~121st
+eleven hundred twenty first~1121st
+second~2nd
+tenth~10th
+sixth~6th
+third~3rd
+nineteenth~19th
+third~3rd
+twelfth~12th
+forty eighth~48th
+seventy first~71st
+third~3rd
+forty second~42nd
+seventeenth~17th
+twentieth~20th
+twenty first~21st
+seventh~7th
+second~2nd
+fifth~5th
