@@ -69,6 +69,7 @@ PIPELINES = {
             (BooleanOption("deterministic", True, "use deterministic Spanish readings"),),
         ),
         "hi": PipelineSpec("tn.hindi.normalizer", "Normalizer"),
+        "mr": PipelineSpec("tn.marathi.normalizer", "Normalizer"),
         "rw": PipelineSpec("tn.kinyarwanda.normalizer", "Normalizer"),
         "ja": PipelineSpec(
             "tn.japanese.normalizer",
@@ -112,6 +113,7 @@ PIPELINES = {
             "itn.hindi_english.inverse_normalizer", "InverseNormalizer",
             (BooleanOption("cased", False, 'also accept capitalized English words, e.g. "July"'),),
         ),
+        "mr": PipelineSpec("itn.marathi.inverse_normalizer", "InverseNormalizer"),
         "rw": PipelineSpec("itn.kinyarwanda.inverse_normalizer", "InverseNormalizer"),
         "ja": PipelineSpec(
             "itn.japanese.inverse_normalizer",
