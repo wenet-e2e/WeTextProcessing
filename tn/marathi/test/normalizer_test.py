@@ -125,7 +125,7 @@ def test_raw_fields(normalizer, written, kind, members, spoken):
 
 
 @pytest.mark.parametrize("written, spoken", [
-    ("(५)", "( पाच )"),
+    ("(५)", "(पाच)"),
     ("५।", "पाच ।"),
     ("१००", "शंभर"),
     ("११००", "एक हजार एकशे"),
@@ -143,6 +143,30 @@ def test_raw_fields(normalizer, written, kind, members, spoken):
 ])
 def test_additional_semantics(normalizer, written, spoken):
     assert normalizer.normalize(written) == spoken
+
+
+@pytest.mark.parametrize("written, spoken, punctuation", [
+    ("(5)", "(पाच)", ["(", ")"]),
+    ("5,", "पाच,", [","]),
+    ("5 !", "पाच !", [" !"]),
+    ("( 5 )", "( पाच )", ["( ", " )"]),
+])
+def test_cardinal_punctuation_spacing(normalizer, written, spoken, punctuation):
+    assert normalizer.normalize(written) == spoken
+    tagged = normalizer.tag(written)
+    parser = normalizer.token_parser()
+    parser.parse(tagged)
+    assert [token.members for token in parser.tokens if token.name == "cardinal"] == [{"integer": "5"}]
+    assert [token.members for token in parser.tokens if token.name == "punctuation"] == [
+        {"value": value} for value in punctuation
+    ]
+    assert normalizer.verbalize(tagged) == spoken
+    mapped = normalizer.normalize_with_mapping(written, include_identity=True)
+    assert mapped.output_text == spoken
+    assert [mapping.input_text for mapping in mapped.mappings if mapping.token_type == "punctuation"] == punctuation
+    for mapping in mapped.mappings:
+        assert written[mapping.input_start:mapping.input_end] == mapping.input_text
+        assert spoken[mapping.output_start:mapping.output_end] == mapping.output_text
 
 
 def test_quarter_times_keep_plain_reading_as_alternative(normalizer):
