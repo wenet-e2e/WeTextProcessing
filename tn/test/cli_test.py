@@ -60,6 +60,7 @@ class FakeProcessor:
         ("tn", "sv", "tn.swedish.normalizer", "Normalizer", ["--no-deterministic"], {"deterministic": False}),
         ("tn", "es", "tn.spanish.normalizer", "Normalizer", ["--no-deterministic"], {"deterministic": False}),
         ("tn", "hi", "tn.hindi.normalizer", "Normalizer", [], {}),
+        ("tn", "rw", "tn.kinyarwanda.normalizer", "Normalizer", [], {}),
         (
             "itn",
             "zh",
@@ -96,6 +97,7 @@ class FakeProcessor:
         ("itn", "hi", "itn.hindi.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "es_en", "itn.spanish_english.inverse_normalizer", "InverseNormalizer", [], {"cased": False}),
         ("itn", "es_en", "itn.spanish_english.inverse_normalizer", "InverseNormalizer", ["--cased"], {"cased": True}),
+        ("itn", "rw", "itn.kinyarwanda.inverse_normalizer", "InverseNormalizer", [], {}),
     ],
 )
 def test_create_processor_uses_language_capabilities(
@@ -231,6 +233,8 @@ def test_itn_only_languages_are_rejected_for_tn(language):
         ("tn", "hi", "--cache-dir", "--deterministic"),
         ("itn", "hi", "--cache-dir", "--enable-million"),
         ("itn", "es_en", "--cased", "--enable-million"),
+        ("tn", "rw", "--cache-dir", "--deterministic"),
+        ("itn", "rw", "--cache-dir", "--enable-million"),
     ],
 )
 def test_help_only_exposes_selected_pipeline_options(direction, language, present, absent):
