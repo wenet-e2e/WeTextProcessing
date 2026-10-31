@@ -54,6 +54,9 @@ namespaces = false
 
 [tool.setuptools.package-data]
 tn = [
+    "armenian/data/*.tsv",
+    "armenian/data/*/*.tsv",
+    "arabic/data/*/*.tsv",
     "chinese/data/*/*.tsv",
     "german/data/*.tsv",
     "german/data/*/*.tsv",
@@ -67,6 +70,9 @@ tn = [
     "korean/data/*/*.tsv",
 ]
 itn = [
+    "armenian/data/*.tsv",
+    "armenian/data/*/*.tsv",
+    "arabic/data/*/*.tsv",
     "chinese/data/*/*.tsv",
     "english/data/*.tsv",
     "english/data/*/*.tsv",
