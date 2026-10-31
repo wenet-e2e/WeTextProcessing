@@ -9,11 +9,15 @@ from itn.chinese.inverse_normalizer import InverseNormalizer as ZhInverseNormali
 from itn.english.inverse_normalizer import InverseNormalizer as EnInverseNormalizer
 from itn.french.inverse_normalizer import InverseNormalizer as FrInverseNormalizer
 from itn.german.inverse_normalizer import InverseNormalizer as DeInverseNormalizer
+from itn.hebrew.inverse_normalizer import InverseNormalizer as HeInverseNormalizer
 from itn.hindi.inverse_normalizer import InverseNormalizer as HiInverseNormalizer
+from itn.hindi_english.inverse_normalizer import InverseNormalizer as HiEnInverseNormalizer
 from itn.hungarian.inverse_normalizer import InverseNormalizer as HuInverseNormalizer
+from itn.italian.inverse_normalizer import InverseNormalizer as ItInverseNormalizer
 from itn.kinyarwanda.inverse_normalizer import InverseNormalizer as RwInverseNormalizer
 from itn.japanese.inverse_normalizer import InverseNormalizer as JaInverseNormalizer
 from itn.korean.inverse_normalizer import InverseNormalizer as KoInverseNormalizer
+from itn.marathi.inverse_normalizer import InverseNormalizer as MrInverseNormalizer
 from itn.portuguese.inverse_normalizer import InverseNormalizer as PtInverseNormalizer
 from itn.russian.inverse_normalizer import InverseNormalizer as RuInverseNormalizer
 from itn.spanish.inverse_normalizer import InverseNormalizer as EsInverseNormalizer
@@ -25,11 +29,14 @@ from tn.chinese.normalizer import Normalizer as ZhNormalizer
 from tn.english.normalizer import Normalizer as EnNormalizer
 from tn.french.normalizer import Normalizer as FrNormalizer
 from tn.german.normalizer import Normalizer as DeNormalizer
+from tn.hebrew.normalizer import Normalizer as HeNormalizer
 from tn.hindi.normalizer import Normalizer as HiNormalizer
 from tn.hungarian.normalizer import Normalizer as HuNormalizer
+from tn.italian.normalizer import Normalizer as ItNormalizer
 from tn.kinyarwanda.normalizer import Normalizer as RwNormalizer
 from tn.japanese.normalizer import Normalizer as JaNormalizer
 from tn.korean.normalizer import Normalizer as KoNormalizer
+from tn.marathi.normalizer import Normalizer as MrNormalizer
 from tn.portuguese.normalizer import Normalizer as PtNormalizer
 from tn.russian.normalizer import Normalizer as RuNormalizer
 from tn.spanish.normalizer import Normalizer as EsNormalizer
@@ -101,6 +108,9 @@ def _build_small_graphs(processor):
         (EsNormalizer, "es_tn", "tn", {"deterministic": False}, {"deterministic": False}),
         (HiNormalizer, "hi_tn", "tn", {}, {}),
         (HuNormalizer, "hu_tn", "tn", {}, {}),
+        (HeNormalizer, "he_tn", "tn", {}, {}),
+        (ItNormalizer, "it_tn", "tn", {}, {}),
+        (MrNormalizer, "mr_tn", "tn", {}, {}),
         (RwNormalizer, "rw_tn", "tn", {}, {}),
         (
             ZhInverseNormalizer,
@@ -150,6 +160,11 @@ def _build_small_graphs(processor):
         (EsInverseNormalizer, "es_itn", "itn", {"cased": True}, {"cased": True}),
         (HiInverseNormalizer, "hi_itn", "itn", {}, {}),
         (HuInverseNormalizer, "hu_itn", "itn", {}, {}),
+        (HeInverseNormalizer, "he_itn", "itn", {}, {}),
+        (ItInverseNormalizer, "it_itn", "itn", {}, {}),
+        (HiEnInverseNormalizer, "hi_en_itn", "itn", {}, {"cased": False}),
+        (HiEnInverseNormalizer, "hi_en_itn", "itn", {"cased": True}, {"cased": True}),
+        (MrInverseNormalizer, "mr_itn", "itn", {}, {}),
         (RwInverseNormalizer, "rw_itn", "itn", {}, {}),
     ],
 )

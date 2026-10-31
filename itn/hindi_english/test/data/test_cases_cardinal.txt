@@ -1,0 +1,61 @@
+शून्य~०
+एक~१
+दो~२
+तीन~३
+दस~१०
+ग्यारह~११
+बारह~१२
+तेरह~१३
+चौदह~१४
+पन्द्रह~१५
+सोलह~१६
+बीस~२०
+तेईस~२३
+पचास~५०
+सत्तर~७०
+नब्बे~९०
+सौ~१००
+दो सौ~२००
+एक सौ दस~११०
+तीन सौ पचास~३५०
+हज़ार~१०००
+एक हज़ार~१०००
+दो हज़ार~२०००
+दस हज़ार~१००००
+एक लाख~१०००००
+दो लाख~२०००००
+एक करोड़~१०००००००
+पाँच करोड़~५०००००००
+साढ़े तीन सौ~३५०
+सवा दो सौ~२२५
+डेढ़ सौ~१५०
+ढाई सौ~२५०
+साढ़े तीन हज़ार~३५००
+सवा दो हज़ार~२२५०
+ढाई हज़ार~२५००
+पौने चार सौ~३७५
+पौने दो सौ~१७५
+zero~zero
+sixty~60
+nineteen~19
+two hundred and fifty four~254
+one hundred forty seven thousand four hundred fifty one~147451
+one million one hundred fifty six thousand one hundred seventy three~1156173
+one billion five hundred ninety three million seventy two thousand nine hundred sixty one~1593072961
+minus twenty five thousand thirty seven~-25037
+minus sixty~-60
+forty six thousand six hundred sixty four~46664
+two million three~2000003
+one thousand thirteen~1013
+one thousand one~1001
+one thousand one hundred~1100
+one thousand twenty six~1026
+one thousand one hundred twenty six~1126
+eleven hundred~1100
+twenty one hundred~2100
+twenty one hundred and eleven~2111
+eleven hundred twenty one~1121
+twenty one crore ninety eight lakh thirty six thousand five hundred and ninety three~219836593
+दस and twenty~१० and 20
+सौ and one hundred~१०० and 100
+two hundred और तीन सौ~200 और ३००
