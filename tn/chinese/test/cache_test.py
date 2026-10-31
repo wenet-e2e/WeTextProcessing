@@ -4,12 +4,14 @@ import pytest
 from pynini import cross
 
 from itn.arabic.inverse_normalizer import InverseNormalizer as ArInverseNormalizer
+from itn.armenian.inverse_normalizer import InverseNormalizer as HyInverseNormalizer
 from itn.chinese.inverse_normalizer import InverseNormalizer as ZhInverseNormalizer
 from itn.english.inverse_normalizer import InverseNormalizer as EnInverseNormalizer
 from itn.german.inverse_normalizer import InverseNormalizer as DeInverseNormalizer
 from itn.japanese.inverse_normalizer import InverseNormalizer as JaInverseNormalizer
 from itn.korean.inverse_normalizer import InverseNormalizer as KoInverseNormalizer
 from tn.arabic.normalizer import Normalizer as ArNormalizer
+from tn.armenian.normalizer import Normalizer as HyNormalizer
 from tn.chinese.normalizer import Normalizer as ZhNormalizer
 from tn.english.normalizer import Normalizer as EnNormalizer
 from tn.german.normalizer import Normalizer as DeNormalizer
@@ -69,6 +71,7 @@ def _build_small_graphs(processor):
         (KoNormalizer, "ko_tn", "tn", {}, {}),
         (DeNormalizer, "de_tn", "tn", {}, {"deterministic": True}),
         (DeNormalizer, "de_tn", "tn", {"deterministic": False}, {"deterministic": False}),
+        (HyNormalizer, "hy_tn", "tn", {}, {}),
         (ArNormalizer, "ar_tn", "tn", {}, {}),
         (
             ZhInverseNormalizer,
@@ -107,6 +110,7 @@ def _build_small_graphs(processor):
         (EnInverseNormalizer, "en_itn", "itn", {}, {}),
         (KoInverseNormalizer, "ko_itn", "itn", {}, {}),
         (DeInverseNormalizer, "de_itn", "itn", {}, {}),
+        (HyInverseNormalizer, "hy_itn", "itn", {}, {}),
         (ArInverseNormalizer, "ar_itn", "itn", {}, {}),
     ],
 )

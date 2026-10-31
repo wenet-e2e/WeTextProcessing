@@ -50,6 +50,7 @@ PIPELINES = {
         ),
         "en": PipelineSpec("tn.english.normalizer", "Normalizer"),
         "ko": PipelineSpec("tn.korean.normalizer", "Normalizer"),
+        "hy": PipelineSpec("tn.armenian.normalizer", "Normalizer"),
         "ar": PipelineSpec("tn.arabic.normalizer", "Normalizer"),
         "de": PipelineSpec(
             "tn.german.normalizer", "Normalizer",
@@ -81,6 +82,7 @@ PIPELINES = {
         "en": PipelineSpec("itn.english.inverse_normalizer", "InverseNormalizer"),
         "ko": PipelineSpec("itn.korean.inverse_normalizer", "InverseNormalizer"),
         "de": PipelineSpec("itn.german.inverse_normalizer", "InverseNormalizer"),
+        "hy": PipelineSpec("itn.armenian.inverse_normalizer", "InverseNormalizer"),
         "ar": PipelineSpec("itn.arabic.inverse_normalizer", "InverseNormalizer"),
         "ja": PipelineSpec(
             "itn.japanese.inverse_normalizer",
