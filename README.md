@@ -13,7 +13,7 @@
 WeTextProcessing converts between written and spoken text using weighted finite-state transducers (WFSTs), built with [Pynini](https://www.openfst.org/twiki/bin/view/GRM/Pynini) and [OpenFst](https://www.openfst.org/twiki/bin/view/FST/WebHome).
 
 - **TN and ITN** — normalize numbers, dates, times, currencies, units, and other structured expressions.
-- **Multilingual rules** — Armenian, Chinese, English, German, Japanese, and Korean pipelines with language-specific grammars.
+- **Multilingual rules** — Arabic, Armenian, Chinese, English, German, Japanese, and Korean pipelines with language-specific grammars.
 - **Explainable output** — inspect raw tagged fields, trace input/output spans, and request unique n-best results.
 - **Reusable graphs** — automatic, configuration-aware FST caching and a separate C++ deployment runtime.
 
@@ -37,6 +37,7 @@ ITN converts spoken expressions into written forms, for example `十二` → `12
 
 | Language | CLI code | TN | ITN | Python package |
 | --- | --- | --- | --- | --- |
+| Arabic | `ar` | Yes | Yes | `arabic` |
 | Armenian | `hy` | Yes | Yes | `armenian` |
 | Chinese | `zh` | Yes | Yes | `chinese` |
 | English | `en` | Yes | Yes | `english` |
@@ -46,7 +47,7 @@ ITN converts spoken expressions into written forms, for example `十二` → `12
 
 Chinese is the CLI default. Rule coverage and configurable options vary by language and direction.
 
-Armenian, German, and Korean support are included in this source checkout. Install from source to use them before the next package release.
+Arabic, Armenian, German, and Korean support are included in this source checkout. Install from source to use them before the next package release.
 
 ## Quick start
 
@@ -58,7 +59,7 @@ Install the published package:
 pip install WeTextProcessing
 ```
 
-For the latest rules, including Armenian, German, and Korean, install from source:
+For the latest rules, including Arabic, Armenian, German, and Korean, install from source:
 
 ```bash
 git clone https://github.com/wenet-e2e/WeTextProcessing.git

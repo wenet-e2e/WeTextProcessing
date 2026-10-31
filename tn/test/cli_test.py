@@ -52,6 +52,7 @@ class FakeProcessor:
         ("tn", "ko", "tn.korean.normalizer", "Normalizer", [], {}),
         ("tn", "de", "tn.german.normalizer", "Normalizer", ["--no-deterministic"], {"deterministic": False}),
         ("tn", "hy", "tn.armenian.normalizer", "Normalizer", [], {}),
+        ("tn", "ar", "tn.arabic.normalizer", "Normalizer", [], {}),
         (
             "itn",
             "zh",
@@ -78,6 +79,7 @@ class FakeProcessor:
         ("itn", "ko", "itn.korean.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "de", "itn.german.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "hy", "itn.armenian.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "ar", "itn.arabic.inverse_normalizer", "InverseNormalizer", [], {}),
     ],
 )
 def test_create_processor_uses_language_capabilities(
@@ -148,11 +150,12 @@ def test_registered_pipeline_drives_language_options_and_factory(monkeypatch, di
 
 
 @pytest.mark.parametrize("direction", ["tn", "itn"])
-@pytest.mark.parametrize("language", ["zh", "en", "ja", "ko", "de", "hy"])
+@pytest.mark.parametrize("language", ["zh", "en", "ja", "ko", "de", "hy", "ar"])
 def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, direction, language):
     args = parse_args(direction, ["--language", language])
     package = {
         "zh": "chinese", "en": "english", "ja": "japanese", "ko": "korean", "de": "german", "hy": "armenian",
+        "ar": "arabic",
     }[language]
     module_suffix, class_name = ("normalizer", "Normalizer") if direction == "tn" else (
         "inverse_normalizer", "InverseNormalizer")
@@ -187,6 +190,8 @@ def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, dire
         ("itn", "de", "--cache-dir", "--enable-million"),
         ("tn", "hy", "--cache-dir", "--deterministic"),
         ("itn", "hy", "--cache-dir", "--enable-million"),
+        ("tn", "ar", "--cache-dir", "--deterministic"),
+        ("itn", "ar", "--cache-dir", "--enable-million"),
     ],
 )
 def test_help_only_exposes_selected_pipeline_options(direction, language, present, absent):
