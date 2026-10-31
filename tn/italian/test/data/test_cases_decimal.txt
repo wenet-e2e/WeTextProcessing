@@ -1,0 +1,4 @@
+33,32~trentatre virgola trentadue
+5,342~cinque virgola trecento quarantadue
+4,56 milioni~quattro virgola cinquantasei milioni
+3,55 miliardi~tre virgola cinquantacinque miliardi
