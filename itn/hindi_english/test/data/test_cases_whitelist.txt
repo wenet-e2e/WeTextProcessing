@@ -1,0 +1,17 @@
+डॉक्टर~डॉ.
+श्रीमती~स्मि.
+श्री~श्री.
+श्रीमान~श्री.
+कुमारी~कु.
+मास्टर~मा.
+पाव~१/४
+doctor dao~dr. dao
+misses smith~mrs. smith
+mister dao~mr. dao
+saint george~st. george
+i like for example ice cream~i like e.g. ice cream
+s and p five hundred~S&P 500
+seven eleven stores~7-eleven stores
+r t x~RTX
+nvidia a one hundred~Nvidia A100
+c u d n n~cuDNN

@@ -44,6 +44,7 @@ ITN converts spoken expressions into written forms, for example `十二` → `12
 | French | `fr` | Yes | Yes | `french` |
 | German | `de` | Yes | Yes | `german` |
 | Hindi | `hi` | Yes | Yes | `hindi` |
+| Hindi–English (code-mixed) | `hi_en` | No | Yes | `hindi_english` |
 | Japanese | `ja` | Yes | Yes | `japanese` |
 | Kinyarwanda | `rw` | Yes | Yes | `kinyarwanda` |
 | Korean | `ko` | Yes | Yes | `korean` |

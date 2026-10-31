@@ -10,6 +10,7 @@ from itn.english.inverse_normalizer import InverseNormalizer as EnInverseNormali
 from itn.french.inverse_normalizer import InverseNormalizer as FrInverseNormalizer
 from itn.german.inverse_normalizer import InverseNormalizer as DeInverseNormalizer
 from itn.hindi.inverse_normalizer import InverseNormalizer as HiInverseNormalizer
+from itn.hindi_english.inverse_normalizer import InverseNormalizer as HiEnInverseNormalizer
 from itn.kinyarwanda.inverse_normalizer import InverseNormalizer as RwInverseNormalizer
 from itn.japanese.inverse_normalizer import InverseNormalizer as JaInverseNormalizer
 from itn.korean.inverse_normalizer import InverseNormalizer as KoInverseNormalizer
@@ -149,6 +150,8 @@ def _build_small_graphs(processor):
         (EsInverseNormalizer, "es_itn", "itn", {}, {"cased": False}),
         (EsInverseNormalizer, "es_itn", "itn", {"cased": True}, {"cased": True}),
         (HiInverseNormalizer, "hi_itn", "itn", {}, {}),
+        (HiEnInverseNormalizer, "hi_en_itn", "itn", {}, {"cased": False}),
+        (HiEnInverseNormalizer, "hi_en_itn", "itn", {"cased": True}, {"cased": True}),
         (MrInverseNormalizer, "mr_itn", "itn", {}, {}),
         (RwInverseNormalizer, "rw_itn", "itn", {}, {}),
     ],
