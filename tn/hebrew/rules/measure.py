@@ -15,6 +15,7 @@
 import pynini
 from pynini.lib.pynutil import delete, insert
 
+from tn.hebrew.rules import numbers
 from tn.hebrew.rules.utils import SPACE, next_field, string_file
 from tn.processor import Processor
 
@@ -45,3 +46,11 @@ class Measure(Processor):
         one = (self.verbalize_field("integer", pynini.cross("1", "")) + delete(" ")
                + self.verbalize_field("units", units + insert(" אחד")))
         self.verbalizer = self.delete_tokens(cardinal.verbalize_prefix.ques + ((negative | positive) + unit | one))
+
+        people = (numbers.grouped_digits() @ ((cardinal.digits - "1" - "2") @ numbers.masculine_graph(999))).optimize()
+        people_t = (self.tag_field("integer", people) + delete(SPACE.plus) + insert(" ")
+                    + self.tag_field("units", pynini.accep("איש")))
+        self.tagger |= self.add_tokens(cardinal.prefix.ques + cardinal.negative.ques + people_t)
+        people_v = self.verbalize_field("integer", people) + next_field(self, "units", insert(" ") + pynini.accep("איש"))
+        self.verbalizer |= self.delete_tokens(
+            cardinal.verbalize_prefix.ques + cardinal.verbalize_negative.ques + people_v)

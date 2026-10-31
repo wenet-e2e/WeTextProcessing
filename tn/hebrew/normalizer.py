@@ -47,14 +47,12 @@ class Normalizer(Processor):
             RuleSpec(decimal, 1.1),
             RuleSpec(Measure(cardinal, decimal), 1.1),
             RuleSpec(cardinal, 1.1),
-            RuleSpec(word, 100),
-            RuleSpec(punctuation),
+            RuleSpec(word, 100, verbalize=False),
+            RuleSpec(punctuation, verbalize=False),
         )
         classify = self.tagger_union(rules)
-        # Punctuation splits off only when attached to another token.
         punct = add_weight(punctuation.tagger, 1.1)
         token = punct.star + classify + punct.star
         self.tagger = self.DELETE_SPACE + token + (self.DELETE_EXTRA_SPACE + token).star + self.DELETE_SPACE
         self.tagger |= word.add_tokens(word.tag_field("value", self.SPACE.plus))
-        verbalize = self.verbalizer_union(rules)
-        self.verbalizer = verbalize + (self.INSERT_SPACE + verbalize).star
+        self.verbalizer = self.join_tokens(self.verbalizer_union(rules), (word.verbalizer, punctuation.verbalizer))

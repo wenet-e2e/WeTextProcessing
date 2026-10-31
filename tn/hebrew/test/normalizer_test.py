@@ -37,7 +37,6 @@ EXCLUDED = {
     "-101,220": "feminine one before אלף; 101,000 and 101,200 use ואחד אלף",
     "-101,229": "feminine one before אלף; 101,000 and 101,200 use ואחד אלף",
     "3,001,005": "the only spoken form glues מיליוןאלף without a space",
-    "אנחנו היינו איזה 15 איש": "masculine teen (חמישה עשר); counting is feminine elsewhere",
     "1,000%": "plural אחוזים; every other percentage uses אחוז",
     "79.5": "fraction word for an integer above 9; 12.5 and 18.25 use נקודה",
     "10.2": "fraction word for .2; 5.2 and 60.2 use נקודה",
@@ -53,9 +52,6 @@ EXCLUDED = {
     "18.1": "day.month without year or prefix is a decimal (1.1, 18.6)",
     "אני מדבר על 18.4": "day.month without year or prefix is a decimal (1.1, 18.6)",
     "אמרתי לו שיש לי כאבים ביד, אז הוא בדק אותי": "the spoken form ends with a space",
-    "בכל כיתה יש 20 , 22 תלמידים": "the written comma is a separate token; the spoken one is attached",
-    "מחר ב-6:30 בבוקר נעלה על האוטובוסים ונצא לטיול השנתי. בשעה שמונה נגיע למצדה ונתחיל לטפס למעלה, נהיה שם עד "
-    "13:30 בצהריים , אולי 1:45 , ונרד בשביל הנחש": "the written commas are separate tokens; the spoken ones are attached",
 }
 
 
@@ -86,7 +82,7 @@ def test_reversed_fixture_count():
     assert sum(len(spoken) for spoken in CANDIDATES.values()) == 330
     assert len(CANDIDATES) == 296
     assert set(EXCLUDED) <= set(CANDIDATES)
-    assert len(CASES) == 296 - len(EXCLUDED) == 268
+    assert len(CASES) == 296 - len(EXCLUDED) == 271
 
 
 @pytest.mark.parametrize("written, spoken", CASES)
@@ -130,6 +126,7 @@ def test_tag_then_verbalize_matches_normalize(normalizer):
     ("1 ס״מ", "measure", {"integer": "1", "units": "ס״מ"}, "סנטימטר אחד"),
     ("ל-4 ס״מ", "measure", {"prefix": "ל", "integer": "4", "units": "ס״מ"}, "לארבע סנטימטר"),
     ("3.5 ק״ג", "measure", {"integer_part": "3", "fractional_part": "5", "units": "ק״ג"}, "שלוש וחצי קילוגרם"),
+    ("15 איש", "measure", {"integer": "15", "units": "איש"}, "חמישה עשר איש"),
     ("12:35 בצהריים", "time", {"hours": "12", "minutes": "35", "suffix": "בצהריים"},
      "עשרים וחמישה לאחת בצהריים"),
     ("ב-18:20 בערב", "time", {"prefix": "ב", "hours": "18", "minutes": "20", "suffix": "בערב"},
@@ -157,8 +154,11 @@ def test_raw_fields(normalizer, written, kind, members, spoken):
 
 
 @pytest.mark.parametrize("written, spoken", [
-    ("(5)", "( חמש )"),
-    ("20,", "עשרים ,"),
+    ("(5)", "(חמש)"),
+    ("20,", "עשרים,"),
+    ("5 איש", "חמישה איש"),
+    ("15 איש", "חמישה עשר איש"),
+    ("אנחנו היינו איזה 15 איש", "אנחנו היינו איזה חמישה עשר איש"),
     ("0", "אפס"),
     ("1 מיליון", "מיליון"),
     (".5", "נקודה חמש"),
@@ -171,6 +171,30 @@ def test_raw_fields(normalizer, written, kind, members, spoken):
 ])
 def test_additional_semantics(normalizer, written, spoken):
     assert normalizer.normalize(written) == spoken
+
+
+@pytest.mark.parametrize("written, spoken, punctuation", [
+    ("(5)", "(חמש)", ["(", ")"]),
+    ("5,", "חמש,", [","]),
+    ("5 !", "חמש !", [" !"]),
+    ("( 5 )", "( חמש )", ["( ", " )"]),
+])
+def test_cardinal_punctuation_spacing(normalizer, written, spoken, punctuation):
+    assert normalizer.normalize(written) == spoken
+    tagged = normalizer.tag(written)
+    parser = normalizer.token_parser()
+    parser.parse(tagged)
+    assert [token.members for token in parser.tokens if token.name == "cardinal"] == [{"integer": "5"}]
+    assert [token.members for token in parser.tokens if token.name == "punctuation"] == [
+        {"value": value} for value in punctuation
+    ]
+    assert normalizer.verbalize(tagged) == spoken
+    mapped = normalizer.normalize_with_mapping(written, include_identity=True)
+    assert mapped.output_text == spoken
+    assert [mapping.input_text for mapping in mapped.mappings if mapping.token_type == "punctuation"] == punctuation
+    for mapping in mapped.mappings:
+        assert written[mapping.input_start:mapping.input_end] == mapping.input_text
+        assert spoken[mapping.output_start:mapping.output_end] == mapping.output_text
 
 
 @pytest.mark.parametrize("written", ["2.5", "17:45 בערב", "ה-10.4", "1 ס״מ", "ארה״ב"])
