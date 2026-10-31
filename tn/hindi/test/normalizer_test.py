@@ -96,6 +96,26 @@ def test_escaped_word_round_trips(normalizer):
     assert normalizer.normalize(written) == written
 
 
+@pytest.mark.parametrize("written, spoken", [
+    ("50%", "पचास प्रतिशत"),
+    ("५०%", "पचास प्रतिशत"),
+    ("-50.5%", "ऋणात्मक पचास दशमलव पाँच प्रतिशत"),
+    ("%", "%"),
+])
+def test_percentages_preserve_unit_semantics(normalizer, written, spoken):
+    assert normalizer.normalize(written) == spoken
+    assert normalizer.verbalize(normalizer.tag(written)) == spoken
+    assert normalizer.normalize_with_mapping(written, include_identity=True).output_text == spoken
+
+
+def test_percentage_raw_fields(normalizer):
+    parser = normalizer.token_parser()
+    parser.parse(normalizer.tag("५०%"))
+    assert [(token.name, token.members) for token in parser.tokens] == [
+        ("measure", {"integer": "५०", "units": "%"})
+    ]
+
+
 def test_empty_input(normalizer):
     assert normalizer.normalize("") == ""
     assert normalizer.normalize("", nbest=3) == [""]

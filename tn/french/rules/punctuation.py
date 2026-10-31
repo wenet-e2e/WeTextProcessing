@@ -17,6 +17,7 @@ import sys
 from unicodedata import category
 
 import pynini
+from pynini.lib.pynutil import add_weight
 
 from tn.processor import Processor
 from tn.utils import get_abs_path, load_labels
@@ -35,5 +36,8 @@ class Punctuation(Processor):
         text = (self.NOT_SPACE - pynini.union("<", ">")).plus
         emphasis = pynini.accep("<") + (text + pynini.accep("/").ques | pynini.accep("/") + text) + ">"
         self.graph = (punct.plus | emphasis).optimize()
-        self.tagger = self.add_tokens(self.tag_field("value", self.graph))
-        self.verbalizer = self.delete_tokens(self.verbalize_field("value", self.graph))
+        # Whitespace written around a mark stays in the raw value.
+        space = add_weight(self.SPACE, -0.0001).star
+        self.tagger = self.add_tokens(self.tag_field("value", space + self.graph + space))
+        graph = self.SPACE.star + self.graph + self.SPACE.star
+        self.verbalizer = self.delete_tokens(self.verbalize_field("value", graph))
