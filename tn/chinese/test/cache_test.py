@@ -9,6 +9,7 @@ from itn.chinese.inverse_normalizer import InverseNormalizer as ZhInverseNormali
 from itn.english.inverse_normalizer import InverseNormalizer as EnInverseNormalizer
 from itn.french.inverse_normalizer import InverseNormalizer as FrInverseNormalizer
 from itn.german.inverse_normalizer import InverseNormalizer as DeInverseNormalizer
+from itn.hindi.inverse_normalizer import InverseNormalizer as HiInverseNormalizer
 from itn.japanese.inverse_normalizer import InverseNormalizer as JaInverseNormalizer
 from itn.korean.inverse_normalizer import InverseNormalizer as KoInverseNormalizer
 from itn.portuguese.inverse_normalizer import InverseNormalizer as PtInverseNormalizer
@@ -22,6 +23,7 @@ from tn.chinese.normalizer import Normalizer as ZhNormalizer
 from tn.english.normalizer import Normalizer as EnNormalizer
 from tn.french.normalizer import Normalizer as FrNormalizer
 from tn.german.normalizer import Normalizer as DeNormalizer
+from tn.hindi.normalizer import Normalizer as HiNormalizer
 from tn.japanese.normalizer import Normalizer as JaNormalizer
 from tn.korean.normalizer import Normalizer as KoNormalizer
 from tn.portuguese.normalizer import Normalizer as PtNormalizer
@@ -93,6 +95,7 @@ def _build_small_graphs(processor):
         (SvNormalizer, "sv_tn", "tn", {"deterministic": False}, {"deterministic": False}),
         (EsNormalizer, "es_tn", "tn", {}, {"deterministic": True}),
         (EsNormalizer, "es_tn", "tn", {"deterministic": False}, {"deterministic": False}),
+        (HiNormalizer, "hi_tn", "tn", {}, {}),
         (
             ZhInverseNormalizer,
             "zh_itn",
@@ -139,6 +142,7 @@ def _build_small_graphs(processor):
         (SvInverseNormalizer, "sv_itn", "itn", {}, {}),
         (EsInverseNormalizer, "es_itn", "itn", {}, {"cased": False}),
         (EsInverseNormalizer, "es_itn", "itn", {"cased": True}, {"cased": True}),
+        (HiInverseNormalizer, "hi_itn", "itn", {}, {}),
     ],
 )
 def test_all_pipeline_configs_are_part_of_manifest(

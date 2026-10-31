@@ -1,0 +1,16 @@
+.	email,url,unix,windows
+-	email,url,unix,windows,chem
+_	email,url,unix,windows
+/	url,unix
+$	unix
+\	windows
+(	windows,chem
+)	windows,chem
++	url,chem
+–	chem
+#	url
+?	url
+&	url
+=	url
+%	url
+:	url,windows
