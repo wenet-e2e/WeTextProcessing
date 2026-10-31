@@ -1,0 +1,39 @@
+1º~primeiro
+2º~segundo
+3º~terceiro
+4º~quarto
+5º~quinto
+6º~sexto
+7º~sétimo
+8º~oitavo
+9º~nono
+10º~décimo
+11º~décimo primeiro
+12º~décimo segundo
+13º~décimo terceiro
+20º~vigésimo
+21º~vigésimo primeiro
+22º~vigésimo segundo
+23º~vigésimo terceiro
+100º~centésimo
+111º~centésimo décimo primeiro
+134º~centésimo trigésimo quarto
+1ª~primeira
+2ª~segunda
+3ª~terceira
+4ª~quarta
+5ª~quinta
+6ª~sexta
+7ª~sétima
+8ª~oitava
+9ª~nona
+10ª~décima
+11ª~décima primeira
+12ª~décima segunda
+13ª~décima terceira
+20ª~vigésima
+21ª~vigésima primeira
+22ª~vigésima segunda
+23ª~vigésima terceira
+100ª~centésima
+11ª casa~décima primeira casa
