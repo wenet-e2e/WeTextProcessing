@@ -51,6 +51,8 @@ class Electronic(Processor):
         default = pynutil.add_weight(char, 0.0001) | data_file("electronic/domain.tsv")
         default |= data_file("electronic/server_name.tsv")
         self.domain_graph = (domain @ (default + pynini.closure(pynutil.insert(" ") + default)) @ expand).optimize()
+        # The original fixtures read a sentence-final dot after a domain as " .".
+        self.domain_graph = (self.domain_graph + pynini.cross(".", " .").ques).optimize()
 
         space = pynutil.insert(" ")
         domain_t = self.tag_field("domain", self.domain_graph)
