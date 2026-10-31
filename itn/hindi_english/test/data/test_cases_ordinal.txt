@@ -1,0 +1,26 @@
+पहला~पहला
+दूसरा~दूसरा
+तीसरा~तीसरा
+चौथा~चौथा
+दसवां~१०वां
+ग्यारहवां~११वां
+बीसवां~२०वां
+तेईसवां~२३वां
+पचासवां~५०वां
+नब्बेवाँ~९०वाँ
+दसवीं~१०वीं
+बीसवीं~२०वीं
+first~1st
+second~2nd
+third~3rd
+fourth~4th
+eleventh~11th
+twelfth~12th
+thirteenth~13th
+twenty first~21st
+twenty third~23rd
+one hundredth~100th
+one hundred eleventh~111th
+one thousandth~1000th
+forty second~42nd
+seventy first~71st

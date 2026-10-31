@@ -1,0 +1,29 @@
+एक बजे~१:००
+दो बजे~२:००
+दस बजे~१०:००
+बारह बजे~१२:००
+एक बजके सात मिनट~१:०७
+चार बजे चवालीस मिनट~४:४४
+दस बजके तीस मिनट~१०:३०
+तीन बजके पन्द्रह मिनट~३:१५
+एक बजके दस मिनट दो सेकंड~१:१०:०२
+साढ़े तीन बजे~३:३०
+सवा चार बजे~४:१५
+पौने पाँच बजे~४:४५
+डेढ़ बजे~१:३०
+ढाई बजे~२:३०
+eight oclock g m t~08:00 gmt
+seven a m e s t~07:00 a.m. est
+two p m~02:00 p.m.
+two thirty~02:30
+three o'clock~03:00
+quarter past one~01:15
+half past three~03:30
+eight fifty one~08:51
+eight forty~08:40
+eleven fifty five p m~11:55 p.m.
+eleven forty five a m~11:45 a.m.
+eleven forty six a m~11:46 a.m.
+quarter to twelve~11:45
+set alarm at ten to eleven pm~set alarm at 10:50 p.m.
+one min to one am~12:59 a.m.
