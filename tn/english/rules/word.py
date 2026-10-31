@@ -50,3 +50,12 @@ class Word(Processor):
         graph = pynutil.delete("v: ") + pynutil.delete('"') + self.char.plus + pynutil.delete('"')
         final_graph = self.delete_tokens(graph)
         self.verbalizer = final_graph.optimize()
+
+
+class Verbatim(Processor):
+    """Keeps any run the other rules cannot read, so every input has a path."""
+
+    def __init__(self):
+        super().__init__("w", ordertype="en_tn")
+        self.tagger = self.add_tokens(self.tag_field("v", self.NOT_SPACE.plus)).optimize()
+        self.verbalizer = self.delete_tokens(self.verbalize_field("v", self.NOT_SPACE.plus)).optimize()

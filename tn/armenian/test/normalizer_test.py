@@ -98,8 +98,8 @@ def test_raw_fields(normalizer, written, kind, members, spoken):
 
 
 @pytest.mark.parametrize("written, spoken", [
-    ("(5)", "( հինգ )"),
-    ("5,", "հինգ ,"),
+    ("(5)", "(հինգ)"),
+    ("5,", "հինգ,"),
     ("1 000 000", "մեկ միլիոն"),
     ("1/1-ին", "մեկ առաջին"),
     ("10 միլիարդ $", "տասը միլիարդ դոլար"),
