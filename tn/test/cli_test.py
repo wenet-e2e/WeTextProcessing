@@ -60,6 +60,7 @@ class FakeProcessor:
         ("tn", "sv", "tn.swedish.normalizer", "Normalizer", ["--no-deterministic"], {"deterministic": False}),
         ("tn", "es", "tn.spanish.normalizer", "Normalizer", ["--no-deterministic"], {"deterministic": False}),
         ("tn", "hi", "tn.hindi.normalizer", "Normalizer", [], {}),
+        ("tn", "he", "tn.hebrew.normalizer", "Normalizer", [], {}),
         (
             "itn",
             "zh",
@@ -94,6 +95,7 @@ class FakeProcessor:
         ("itn", "sv", "itn.swedish.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "es", "itn.spanish.inverse_normalizer", "InverseNormalizer", ["--cased"], {"cased": True}),
         ("itn", "hi", "itn.hindi.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "he", "itn.hebrew.inverse_normalizer", "InverseNormalizer", [], {}),
     ],
 )
 def test_create_processor_uses_language_capabilities(
@@ -163,20 +165,14 @@ def test_registered_pipeline_drives_language_options_and_factory(monkeypatch, di
         parse_args(other_direction, ["--language", "xx"])
 
 
-@pytest.mark.parametrize("direction", ["tn", "itn"])
-@pytest.mark.parametrize("language", [
-    "zh", "en", "ja", "ko", "de", "hy", "ar", "fr", "pt", "vi", "ru", "sv", "es", "hi",
+@pytest.mark.parametrize("direction, language", [
+    (direction, language) for direction, languages in cli.PIPELINES.items() for language in languages
 ])
 def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, direction, language):
     args = parse_args(direction, ["--language", language])
-    package = {
-        "zh": "chinese", "en": "english", "ja": "japanese", "ko": "korean", "de": "german", "hy": "armenian",
-        "ar": "arabic", "fr": "french", "pt": "portuguese", "vi": "vietnamese", "ru": "russian",
-        "sv": "swedish", "es": "spanish", "hi": "hindi",
-    }[language]
-    module_suffix, class_name = ("normalizer", "Normalizer") if direction == "tn" else (
-        "inverse_normalizer", "InverseNormalizer")
-    module = __import__("{}.{}.{}".format(direction, package, module_suffix), fromlist=[class_name])
+    spec = cli.PIPELINES[direction][language]
+    module = __import__(spec.module, fromlist=[spec.class_name])
+    class_name = spec.class_name
     parameters = inspect.signature(getattr(module, class_name)).parameters
     expected = {name: parameter.default for name, parameter in parameters.items()}
     assert {name: getattr(args, name) for name in expected} == expected
@@ -223,6 +219,8 @@ def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, dire
         ("itn", "es", "--cased", "--enable-million"),
         ("tn", "hi", "--cache-dir", "--deterministic"),
         ("itn", "hi", "--cache-dir", "--enable-million"),
+        ("tn", "he", "--cache-dir", "--deterministic"),
+        ("itn", "he", "--cache-dir", "--enable-million"),
     ],
 )
 def test_help_only_exposes_selected_pipeline_options(direction, language, present, absent):
