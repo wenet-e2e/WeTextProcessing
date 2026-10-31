@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pynini import accep
+from pynini.lib import pynutil
+
 from tn.french.rules import cardinal, date, decimal, fraction, ordinal
 from tn.french.rules.cardinal import Cardinal
 from tn.french.rules.date import Date
@@ -40,20 +43,24 @@ class Normalizer(Processor):
         cardinal = Cardinal()
         ordinal = Ordinal(cardinal)
         word = Word()
+        punctuation = Punctuation()
+        whitelist = WhiteList()
         rules = (
-            RuleSpec(WhiteList(), 1.01),
+            RuleSpec(whitelist, 1.01),
             RuleSpec(Date(cardinal), 1.1),
             RuleSpec(cardinal, 1.1),
             RuleSpec(Fraction(cardinal, ordinal), 1.09),
             RuleSpec(ordinal, 1.1),
             RuleSpec(Decimal(cardinal), 1.1),
-            RuleSpec(word, 200),
-            RuleSpec(Punctuation(), 2.1),
+            RuleSpec(word, 200, verbalize=False),
+            RuleSpec(punctuation, verbalize=False),
         )
-        # Tokens may touch ("18%", "20!") or be separated by any whitespace.
         classify = self.tagger_union(rules)
-        separator = self.DELETE_EXTRA_SPACE.ques
-        self.tagger = self.DELETE_SPACE + classify + (separator + classify).star + self.DELETE_SPACE
+        punct = pynutil.add_weight(punctuation.tagger, 2.1)
+        percent = pynutil.add_weight(accep("%") @ whitelist.tagger, 1.01)
+        separator = self.DELETE_EXTRA_SPACE | punct.plus | percent
+        tokens = punct.star + classify + (separator + classify).star + percent.ques + punct.star
+        self.tagger = self.DELETE_SPACE + tokens + self.DELETE_SPACE
+        self.tagger |= punct.plus
         self.tagger |= word.add_tokens(word.tag_field("value", self.SPACE.plus))
-        verbalize = self.verbalizer_union(rules)
-        self.verbalizer = verbalize + (self.INSERT_SPACE + verbalize).star
+        self.verbalizer = self.join_tokens(self.verbalizer_union(rules), (word.verbalizer, punctuation.verbalizer))

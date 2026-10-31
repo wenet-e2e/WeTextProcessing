@@ -73,7 +73,7 @@ class InverseNormalizer(Processor):
             RuleSpec(Telephone(tn_cardinal), 1.1),
             RuleSpec(Electronic(TNElectronic(False)), 1.1),
             RuleSpec(word, 100),
-            RuleSpec(punctuation),
+            RuleSpec(punctuation, 1.1),
         )
         classify = self.tagger_union(rules)
         punct = pynutil.add_weight(punctuation.tagger, 1.1)

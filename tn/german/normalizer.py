@@ -68,9 +68,9 @@ class Normalizer(Processor):
         )
         classify = self.tagger_union(rules)
         punct = pynutil.add_weight(punctuation.tagger, 1.1)
-        token = punct.star + classify + punct.star
+        # Free-standing marks ("hello , world .") are tokens of their own.
+        token = punct.star + classify + punct.star | punct.plus
         self.tagger = self.DELETE_SPACE + token + (self.DELETE_EXTRA_SPACE.ques + token).star + self.DELETE_SPACE
-        self.tagger |= punct.plus
         self.tagger |= word.add_tokens(word.tag_field("value", self.SPACE.plus))
         verbalize = self.verbalizer_union(rules)
         self.verbalizer = verbalize + (self.INSERT_SPACE + verbalize).star
