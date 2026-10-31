@@ -1,0 +1,6 @@
+Uno coma dos seis~1,26
+Menos uno coma dos seis~-1,26
+Uno Coma Veintiséis~1,26
+Cero coma Dos seis~0,26
+cero coma veintiséis~0,26
+tres coma ciento cuarenta y uno~3,141

@@ -1,0 +1,7 @@
+(11) 99999-8888~um um nove nove nove nove nove oito oito oito oito
+11 3333-4444~um um três três três três quatro quatro quatro quatro
+555-1234~cinco cinco cinco um dois três quatro
+99999-1234~nove nove nove nove nove um dois três quatro
++55 (11) 3333-4444~mais cinco cinco um um três três três três quatro quatro quatro quatro
+192.168.1.1~um nove dois ponto um seis oito ponto um ponto um
+(11) 3333-4444 ext. 12~um um três três três três quatro quatro quatro quatro extensão um dois

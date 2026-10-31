@@ -50,9 +50,23 @@ PIPELINES = {
         ),
         "en": PipelineSpec("tn.english.normalizer", "Normalizer"),
         "ko": PipelineSpec("tn.korean.normalizer", "Normalizer"),
+        "hy": PipelineSpec("tn.armenian.normalizer", "Normalizer"),
+        "ar": PipelineSpec("tn.arabic.normalizer", "Normalizer"),
+        "fr": PipelineSpec("tn.french.normalizer", "Normalizer"),
+        "pt": PipelineSpec("tn.portuguese.normalizer", "Normalizer"),
+        "vi": PipelineSpec("tn.vietnamese.normalizer", "Normalizer"),
+        "ru": PipelineSpec("tn.russian.normalizer", "Normalizer"),
         "de": PipelineSpec(
             "tn.german.normalizer", "Normalizer",
             (BooleanOption("deterministic", True, "use deterministic German whitelist readings"),),
+        ),
+        "sv": PipelineSpec(
+            "tn.swedish.normalizer", "Normalizer",
+            (BooleanOption("deterministic", True, "use deterministic Swedish readings"),),
+        ),
+        "es": PipelineSpec(
+            "tn.spanish.normalizer", "Normalizer",
+            (BooleanOption("deterministic", True, "use deterministic Spanish readings"),),
         ),
         "hi": PipelineSpec("tn.hindi.normalizer", "Normalizer"),
         "ja": PipelineSpec(
@@ -81,6 +95,17 @@ PIPELINES = {
         "en": PipelineSpec("itn.english.inverse_normalizer", "InverseNormalizer"),
         "ko": PipelineSpec("itn.korean.inverse_normalizer", "InverseNormalizer"),
         "de": PipelineSpec("itn.german.inverse_normalizer", "InverseNormalizer"),
+        "hy": PipelineSpec("itn.armenian.inverse_normalizer", "InverseNormalizer"),
+        "ar": PipelineSpec("itn.arabic.inverse_normalizer", "InverseNormalizer"),
+        "fr": PipelineSpec("itn.french.inverse_normalizer", "InverseNormalizer"),
+        "pt": PipelineSpec("itn.portuguese.inverse_normalizer", "InverseNormalizer"),
+        "vi": PipelineSpec("itn.vietnamese.inverse_normalizer", "InverseNormalizer"),
+        "ru": PipelineSpec("itn.russian.inverse_normalizer", "InverseNormalizer"),
+        "sv": PipelineSpec("itn.swedish.inverse_normalizer", "InverseNormalizer"),
+        "es": PipelineSpec(
+            "itn.spanish.inverse_normalizer", "InverseNormalizer",
+            (BooleanOption("cased", False, 'also accept capitalized spoken words, e.g. "Doce Dólares"'),),
+        ),
         "hi": PipelineSpec("itn.hindi.inverse_normalizer", "InverseNormalizer"),
         "ja": PipelineSpec(
             "itn.japanese.inverse_normalizer",

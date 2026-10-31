@@ -1,0 +1,15 @@
+tre komma femton~3,15
+tre komma hundrafemton~3,115
+tre komma ett ett ett fem~3,1115
+tre komma fem~3,5
+en miljon~1 miljon
+en triljon~1 triljon
+tre miljoner~3 miljoner
+tre miljon~3 miljoner
+minus tre miljon~-3 miljoner
+en komma fem miljoner~1,5 miljoner
+tre komma fem miljoner~3,5 miljoner
+tre komma fem miljon~3,5 miljoner
+tre komma ett ett ett fem miljoner~3,1115 miljoner
+minus tre komma ett ett ett fem miljoner~-3,1115 miljoner
+tre komma fem unvigintillioner~3,5 unvigintiljoner

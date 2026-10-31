@@ -1,0 +1,18 @@
+a chấm b c a còng g mail chấm com~a.bc@gmail.com
+a chấm b c a móc g mail chấm com~a.bc@gmail.com
+c d f a móc a b c chấm e d u~cdf@abc.edu
+a b c a móc g mail chấm a b c~abc@gmail.abc
+a b c a vòng g mail chấm a b c~abc@gmail.abc
+a b c a móc a b c chấm com~abc@abc.com
+a s d f một hai ba a móc a b c chấm com~asdf123@abc.com
+a một b hai a vòng a b c chấm com~a1b2@abc.com
+a b ba chấm s d d chấm ba a móc g mail chấm com~ab3.sdd.3@gmail.com
+a b ba chấm s d d chấm ba a còng g mail chấm com~ab3.sdd.3@gmail.com
+a b ba gạch s d d gạch ba a móc g mail chấm com~ab3-sdd-3@gmail.com
+w w w chấm nvidia chấm com~www.nvidia.com
+nvidia chấm com~nvidia.com
+h t t p hai chấm sẹc sẹc w w w chấm nvidia chấm com~http://www.nvidia.com
+h t t p s hai chấm sẹc sẹc w w w chấm nvidia chấm com~https://www.nvidia.com
+google chấm com chấm v n~google.com.vn
+w w w chấm google chấm com chấm v n~www.google.com.vn
+nvidia chấm a i~nvidia.ai

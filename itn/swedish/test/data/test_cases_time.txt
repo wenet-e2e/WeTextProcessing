@@ -1,0 +1,14 @@
+tolv trettio eftermiddag e s t~12:30 e.m. est
+två trettio eftermiddag~02:30 e.m.
+två eftermiddag~2 e.m.
+klockan tolv~kl. 12
+klockan tolv eftermiddag~kl. 12 e.m.
+klockan tolv eftermiddag c e t~kl. 12 e.m. cet
+klockan tolv c e t~kl. 12 cet
+klockan tolv trettiofyra eftermiddag c e t~kl. 12:34 e.m. cet
+tolv eftermiddag~12 e.m.
+tolv eftermiddag e s t~12 e.m. est
+kvart i tolv~11:45
+kvart över tolv~12:15
+tre i kvart i tolv~11:42
+tre över kvart i tolv~11:48
