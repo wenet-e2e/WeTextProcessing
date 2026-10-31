@@ -58,6 +58,7 @@ class FakeProcessor:
         ("tn", "vi", "tn.vietnamese.normalizer", "Normalizer", [], {}),
         ("tn", "ru", "tn.russian.normalizer", "Normalizer", [], {}),
         ("tn", "sv", "tn.swedish.normalizer", "Normalizer", ["--no-deterministic"], {"deterministic": False}),
+        ("tn", "es", "tn.spanish.normalizer", "Normalizer", ["--no-deterministic"], {"deterministic": False}),
         (
             "itn",
             "zh",
@@ -90,6 +91,7 @@ class FakeProcessor:
         ("itn", "vi", "itn.vietnamese.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "ru", "itn.russian.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "sv", "itn.swedish.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "es", "itn.spanish.inverse_normalizer", "InverseNormalizer", ["--cased"], {"cased": True}),
     ],
 )
 def test_create_processor_uses_language_capabilities(
@@ -160,13 +162,15 @@ def test_registered_pipeline_drives_language_options_and_factory(monkeypatch, di
 
 
 @pytest.mark.parametrize("direction", ["tn", "itn"])
-@pytest.mark.parametrize("language", ["zh", "en", "ja", "ko", "de", "hy", "ar", "fr", "pt", "vi", "ru", "sv"])
+@pytest.mark.parametrize("language", [
+    "zh", "en", "ja", "ko", "de", "hy", "ar", "fr", "pt", "vi", "ru", "sv", "es",
+])
 def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, direction, language):
     args = parse_args(direction, ["--language", language])
     package = {
         "zh": "chinese", "en": "english", "ja": "japanese", "ko": "korean", "de": "german", "hy": "armenian",
         "ar": "arabic", "fr": "french", "pt": "portuguese", "vi": "vietnamese", "ru": "russian",
-        "sv": "swedish",
+        "sv": "swedish", "es": "spanish",
     }[language]
     module_suffix, class_name = ("normalizer", "Normalizer") if direction == "tn" else (
         "inverse_normalizer", "InverseNormalizer")
@@ -213,6 +217,8 @@ def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, dire
         ("itn", "ru", "--cache-dir", "--enable-million"),
         ("tn", "sv", "--deterministic", "--remove-erhua"),
         ("itn", "sv", "--cache-dir", "--enable-million"),
+        ("tn", "es", "--deterministic", "--remove-erhua"),
+        ("itn", "es", "--cased", "--enable-million"),
     ],
 )
 def test_help_only_exposes_selected_pipeline_options(direction, language, present, absent):

@@ -1,0 +1,69 @@
+$1~un dólar
+1 $~un dólar
+$1,50~un dólar cincuenta centavos
+1,50 $~un dólar cincuenta centavos
+£200.000.001~doscientos millones una libras
+200.000.001 £~doscientos millones una libras
+2 billones de euros~dos billones de euros
+€2 billones~dos billones de euros
+€ 2 billones~dos billones de euros
+€ 2,3 billones~dos coma tres billones de euros
+2,3 billones de euros~dos coma tres billones de euros
+€5,50~cinco euros cincuenta céntimos
+5,50 €~cinco euros cincuenta céntimos
+5,01 €~cinco euros un céntimo
+5,01 £~cinco libras un penique
+21 nio~veintiuna córdobas
+nio21~veintiuna córdobas
+nio21,1 millones~veintiuno coma un millones de córdobas
+pab 5,50 billones~cinco coma cincuenta billones de balboas
+rs 5,50 billones~cinco coma cincuenta billones de rupias
+pab5,50 billones~cinco coma cincuenta billones de balboas
+0,55 $~cincuenta y cinco centavos
+1,01 $~un dólar un centavo
+¥12,05~doce yenes cinco centavos
+£200.000.001~doscientos millones una libras
+crc 2~dos colones costarricenses
+₡ 3~tres colones
+4 ttd~cuatro dólares de trinidad y tobago
+€ 1~un euro
+1 £~una libra
+1 ₩~un won
+bop 1~un peso boliviano
+1 rs~una rupia
+1 chf~un franco suizo
+fr 1~un franco
+1 hnl~un lempira
+1 kr~una corona
+1 jpy~un yen
+1 mk~un marco
+1 gtq~un quetzal
+1 ¥~un yen
+1 crc~un colón costarricense
+1 ₡~un colón
+1 hkd~un dólar de hong kong
+1 ₧~una peseta
+1 ptas~una peseta
+0,01 $~un centavo
+$0,1~diez centavos
+$ 0,10~diez centavos
+€ 0,01~un céntimo
+£ 0,01~un penique
+¥ 0,01~un centavo
+2 rs~dos rupias
+3 kr~tres coronas
+7 ₧~siete pesetas
+usd 2~dos dólares estadounidenses
+5 us$~cinco dólares estadounidenses
+3 ₩~tres wones
+5 chf~cinco francos suizos
+6 fr~seis francos
+8 mk~ocho marcos
+10 ¥~diez yenes
+13hkd~trece dólares de hong kong
+5,02 £~cinco libras dos peniques
+awg 1~un florín arubeño
+1 r$~un real
+brl 1~un real brasileño
+mex$100~cien pesos mexicanos
+q50,10~cincuenta quetzales diez centavos

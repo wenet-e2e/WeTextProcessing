@@ -1,0 +1,24 @@
+33,32~treinta y tres coma treinta y dos
+32,22 millones~treinta y dos coma veintidós millones
+320 320,22 millones~trescientos veinte mil trescientos veinte coma veintidós millones
+5.002,132~cinco mil dos coma ciento treinta y dos
+3,2 trillones~tres coma dos trillones
+3 millones~tres millones
+3 000 millones~tres mil millones
+3000 millones~tres mil millones
+3.000 millones~tres mil millones
+3.001 millones~tres mil un millones
+1 millón~un millón
+1 000 millones~mil millones
+1000 millones~mil millones
+1.000 millones~mil millones
+2,33302 millones~dos coma treinta y tres treinta dos millones
+1,5332~una coma cincuenta y tres treinta y dos~uno coma cincuenta y tres treinta y dos
+1,53322 millones~uno coma cincuenta y tres treinta y dos dos millones
+1,53321 millones~uno coma cincuenta y tres treinta y dos un millones
+101,010101 millones~ciento uno coma cero uno cero uno cero un millones
+3,1415~tres coma catorce quince
+60,2400~sesenta coma veinticuatro cero cero
+1,002~una coma cero cero dos~uno coma cero cero dos
+1,25300~una coma veinticinco treinta cero~uno coma veinticinco treinta cero
+1,253002~uno coma veinticinco treinta cero dos
