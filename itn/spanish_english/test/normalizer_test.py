@@ -63,6 +63,12 @@ def test_original_cased(cased_normalizer, spoken, written):
     assert cased_normalizer.verbalize(cased_normalizer.tag(spoken)) == written
 
 
+@pytest.mark.parametrize("spoken,written", CASES)
+def test_original_plain_with_cased_pipeline(cased_normalizer, spoken, written):
+    # cased=True only adds capitalized alternatives; lower-case input is unchanged.
+    assert cased_normalizer.normalize(spoken) == written
+
+
 @pytest.mark.parametrize("spoken,written", CASED_CASES)
 def test_original_cased_mapping(cased_normalizer, spoken, written):
     result = cased_normalizer.normalize_with_mapping(spoken, include_identity=True)
@@ -164,3 +170,38 @@ def test_code_mixed_sentence(normalizer):
 def test_cased_option(normalizer, cased_normalizer):
     assert normalizer.normalize("Doce Dólares") == "Doce Dólares"
     assert cased_normalizer.normalize("Doce Dólares") == "$12"
+
+
+def test_raw_indian_numbering_fields(normalizer):
+    assert parse(normalizer, "two lakh five thousand") == [("en_cardinal", {"integer": "two lakh five thousand"})]
+    assert normalizer.normalize("two lakh five thousand") == "205000"
+    assert normalizer.normalize("three crore") == "30000000"
+
+
+def test_raw_english_measure_units(normalizer):
+    assert parse(normalizer, "nine gigabits per second") == [
+        ("en_measure", {"value": "nine", "units": "gigabits per second"}),
+    ]
+    assert normalizer.normalize("nine gigabits per second") == "9 gbps"
+    assert normalizer.normalize("five degrees celsius") == "5 °C"
+    assert normalizer.normalize("seventy two degrees fahrenheit") == "72 °F"
+
+
+def test_raw_english_cased_fields(cased_normalizer):
+    # Capitalized raw text stays in the tag; the verbalizer restores the capital on words.
+    assert parse(cased_normalizer, "Thirty Billion") == [
+        ("en_decimal", {"integer_part": "Thirty", "quantity": "Billion"}),
+    ]
+    assert cased_normalizer.normalize("Thirty Billion") == "30 Billion"
+    assert parse(cased_normalizer, "Two dollars") == [("en_money", {"value": "Two", "currency": "dollars"})]
+    assert parse(cased_normalizer, "Seven A M E S T") == [
+        ("en_time", {"hour": "Seven", "minute": "", "noon": "A M", "zone": "E S T"}),
+    ]
+    assert cased_normalizer.normalize("Seven A M E S T") == "07:00 A.M. EST"
+    assert parse(cased_normalizer, "Nine GigaBits per second") == [
+        ("en_measure", {"value": "Nine", "units": "GigaBits per second"}),
+    ]
+    assert cased_normalizer.normalize("Nine GigaBits per second") == "9 gbps"
+    assert parse(cased_normalizer, "N vidia dot com") == [("en_electronic", {"protocol": "N vidia dot com"})]
+    assert cased_normalizer.normalize("W W W. A B C dot com") == "www.ABC.com"
+    assert cased_normalizer.normalize("Zero") == "Zero"

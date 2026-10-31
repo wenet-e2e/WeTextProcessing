@@ -16,15 +16,6 @@
 from pynini.lib import pynutil
 
 from itn.english import inverse_normalizer as english
-from itn.english.rules.cardinal import Cardinal as EnCardinal
-from itn.english.rules.date import Date as EnDate
-from itn.english.rules.decimal import Decimal as EnDecimal
-from itn.english.rules.electronic import Electronic as EnElectronic
-from itn.english.rules.measure import Measure as EnMeasure
-from itn.english.rules.money import Money as EnMoney
-from itn.english.rules.ordinal import Ordinal as EnOrdinal
-from itn.english.rules.telephone import Telephone as EnTelephone
-from itn.english.rules.time import Time as EnTime
 from itn.spanish import inverse_normalizer as spanish
 from itn.spanish.rules.cardinal import Cardinal
 from itn.spanish.rules.date import Date
@@ -37,6 +28,7 @@ from itn.spanish.rules.ordinal import Ordinal
 from itn.spanish.rules.punctuation import Punctuation
 from itn.spanish.rules.telephone import Telephone
 from itn.spanish.rules.word import Word
+from itn.spanish_english.rules import english as en_rules
 from itn.spanish_english.rules.prefixed import Prefixed
 from itn.spanish_english.rules.time import Time
 from itn.spanish_english.rules.whitelist import Whitelist
@@ -62,9 +54,9 @@ class InverseNormalizer(Processor):
         decimal = Decimal(cardinal, cased)
         fraction = Fraction(cardinal, ordinal, cased)
 
-        en_cardinal = EnCardinal()
-        en_ordinal = EnOrdinal(cardinal=en_cardinal)
-        en_decimal = EnDecimal(cardinal=en_cardinal)
+        en_cardinal = en_rules.Cardinal(cased=cased)
+        en_ordinal = en_rules.Ordinal(cardinal=en_cardinal, cased=cased)
+        en_decimal = en_rules.Decimal(cardinal=en_cardinal, cased=cased)
 
         def en(rule):
             return Prefixed(rule, PREFIX)
@@ -76,24 +68,24 @@ class InverseNormalizer(Processor):
             RuleSpec(Whitelist("whitelist", "es_whitelist.tsv"), 1.011),
             RuleSpec(Whitelist(PREFIX + "whitelist", "en_whitelist.tsv"), 1.01),
             RuleSpec(Time(cased), 1.08),
-            RuleSpec(en(EnTime(cardinal=en_cardinal)), 1.1),
+            RuleSpec(en(en_rules.Time(cardinal=en_cardinal, cased=cased)), 1.1),
             RuleSpec(Date(cardinal, cased), 1.09),
-            RuleSpec(en(EnDate(cardinal=en_cardinal, ordinal=en_ordinal)), 1.09),
+            RuleSpec(en(en_rules.Date(cardinal=en_cardinal, ordinal=en_ordinal, cased=cased)), 1.09),
             RuleSpec(decimal, 1.09),
             RuleSpec(en(en_decimal), 1.09),
             RuleSpec(fraction, 1.09),
             RuleSpec(Measure(cardinal, decimal, fraction, cased), 1.6),
-            RuleSpec(en(EnMeasure(cardinal=en_cardinal, decimal=en_decimal)), 1.1),
+            RuleSpec(en(en_rules.Measure(cardinal=en_cardinal, decimal=en_decimal, cased=cased)), 1.1),
             RuleSpec(cardinal, 1.6),
             RuleSpec(en(en_cardinal), 1.1),
             RuleSpec(ordinal, 1.6),
             RuleSpec(en(en_ordinal), 1.09),
             RuleSpec(Money(cardinal, decimal, cased), 1.6),
-            RuleSpec(en(EnMoney(cardinal=en_cardinal, decimal=en_decimal)), 1.1),
+            RuleSpec(en(en_rules.Money(cardinal=en_cardinal, decimal=en_decimal, cased=cased)), 1.1),
             RuleSpec(Telephone(cased), 1.6),
-            RuleSpec(en(EnTelephone(cardinal=en_cardinal)), 1.1),
+            RuleSpec(en(en_rules.Telephone(cardinal=en_cardinal, cased=cased)), 1.1),
             RuleSpec(Electronic(cased), 2.96),
-            RuleSpec(en(EnElectronic()), 1.1),
+            RuleSpec(en(en_rules.Electronic(cased=cased)), 1.1),
             RuleSpec(word, 100),
             RuleSpec(punctuation),
         )
