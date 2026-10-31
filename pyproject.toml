@@ -102,4 +102,5 @@ itn = [
     "spanish/data/*.tsv",
     "spanish/data/*/*.tsv",
     "hindi/data/*/*.tsv",
+    "hindi_english/data/*.tsv",
 ]
