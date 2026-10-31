@@ -1,0 +1,19 @@
+Uno coma dos seis~1,26
+Menos uno coma dos seis~-1,26
+Uno Coma Veintiséis~1,26
+Cero coma Dos seis~0,26
+cero coma veintiséis~0,26
+tres coma ciento cuarenta y uno~3,141
+One point two five billion~1.25 billion
+Thirteen billion~13 billion
+Thirty billion~30 billion
+Thirty Billion~30 Billion
+Two thousand eight hundred five point eight seven three billion~2805.873 billion
+Eighteen~18
+Eighteen point eight five~18.85
+Eighteen point five o~18.50
+Eighteen point five six~18.56
+Eighteen point nine~18.9
+Eighteen point o five~18.05
+Eighteen point one two~18.12
+Eighteen point o one~18.01

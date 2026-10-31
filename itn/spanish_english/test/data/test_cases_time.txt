@@ -1,0 +1,54 @@
+las dieciséis cincuenta~las 16:50
+la una~la una
+las dos~las dos
+las tres personas~las tres personas
+las dos a eme~las 2:00 a.m.
+la una pe eme~la 1:00 p.m.
+la una y diez~la 1:10
+la una y diez a eme~la 1:10 a.m.
+la una y diez pe eme~la 1:10 p.m.
+la una diez~la 1:10
+la una con diez~la 1:10
+la una y cuarto~la 1:15
+la una y media~la 1:30
+las dos menos veinte~la 1:40
+las dos menos cuarto~la 1:45
+cuarto para las dos~la 1:45
+un cuarto para las dos~la 1:45
+las veintitrés y media~las 23:30
+las veintitrés y cincuenta y nueve~las 23:59
+las dos de la tarde~las 2:00 p.m.
+cuarto para las cero~las 23:45
+cuarto para las veinticuatro~las 23:45
+diez para las doce~las 11:50
+dos y media de la tarde~02:30 p.m.
+la una de la tarde u t c más cuatro~la 1:00 p.m. UTC+4
+eight oclock g m t~08:00 gmt
+seven a m e s t~07:00 a.m. est
+two p m~02:00 p.m.
+two thirty~02:30
+three o'clock~03:00
+quarter past one~01:15
+half past three~03:30
+eight fifty one~08:51
+eight fifty two~08:52
+eight forty~08:40
+eight nineteen~08:19
+eight o six~08:06
+eight thirty eight~08:38
+eight thirty two~08:32
+eight twenty nine~08:29
+eleven fifty five p m~11:55 p.m.
+eleven fifty three p m~11:53 p.m.
+eleven forty a m~11:40 a.m.
+eleven forty five a m~11:45 a.m.
+eleven forty p m~11:40 p.m.
+eleven forty six a m~11:46 a.m.
+eleven o six p m~11:06 p.m.
+eleven thirteen a m~11:13 a.m.
+half past twelve~12:30
+quarter past one~01:15
+quarter to one~12:45
+quarter to twelve~11:45
+set alarm at ten to eleven pm~set alarm at 10:50 p.m.
+one min to one am~12:59 a.m.

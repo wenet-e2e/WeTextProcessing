@@ -1,0 +1,14 @@
+A punto B C Arroba G mail punto com~A.BC@gmail.com
+c d f Arroba a b c Punto e d u~cdf@abc.edu
+W W W Punto N vidia Punto com~www.nvidia.com
+Doble ve doble ve doble ve punto a b c punto es barra e f g~www.abc.es/efg
+Doble Ve Doble Ve Doble Ve Punto a b c Punto e s~www.abc.es
+N vidia dot com~nvidia.com
+Abc at gmail dot com~Abc@gmail.com
+Athreed at gmail dot com~Athreed@gmail.com
+Kore dot ai~Kore.ai
+NVIDIA dot com~NVIDIA.com
+NVIDIA dot COM~NVIDIA.COM
+WWW.A B C at A B C dot com~WWW.A BC@ABC.com
+W W W. A B C dot com~www.ABC.com
+w w w . o u r d a i l y n e w s dot com . s m~www.ourdailynews.com . s m
