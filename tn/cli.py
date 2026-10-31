@@ -54,6 +54,7 @@ PIPELINES = {
         "ar": PipelineSpec("tn.arabic.normalizer", "Normalizer"),
         "fr": PipelineSpec("tn.french.normalizer", "Normalizer"),
         "pt": PipelineSpec("tn.portuguese.normalizer", "Normalizer"),
+        "vi": PipelineSpec("tn.vietnamese.normalizer", "Normalizer"),
         "de": PipelineSpec(
             "tn.german.normalizer", "Normalizer",
             (BooleanOption("deterministic", True, "use deterministic German whitelist readings"),),
@@ -88,6 +89,7 @@ PIPELINES = {
         "ar": PipelineSpec("itn.arabic.inverse_normalizer", "InverseNormalizer"),
         "fr": PipelineSpec("itn.french.inverse_normalizer", "InverseNormalizer"),
         "pt": PipelineSpec("itn.portuguese.inverse_normalizer", "InverseNormalizer"),
+        "vi": PipelineSpec("itn.vietnamese.inverse_normalizer", "InverseNormalizer"),
         "ja": PipelineSpec(
             "itn.japanese.inverse_normalizer",
             "InverseNormalizer",
