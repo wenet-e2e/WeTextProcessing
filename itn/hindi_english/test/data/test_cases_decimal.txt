@@ -1,0 +1,25 @@
+एक दशमलव दो छह~१.२६
+शून्य दशमलव पाँच~०.५
+ऋण एक दशमलव दो छह~-१.२६
+दो दशमलव तीन चार~२.३४
+पाँच दशमलव शून्य एक~५.०१
+five point two million~5.2 million
+one hundred sixty four point five eight thousand~164.58 thousand
+four hundred million~400 million
+fifty billion~50 billion
+one point two five billion~1.25 billion
+thirteen billion~13 billion
+thirty billion~30 billion
+two thousand eight hundred five point eight seven three billion~2805.873 billion
+eighteen~18
+eighteen point eight five~18.85
+eighteen point five o~18.50
+eighteen point five six~18.56
+eighteen point nine~18.9
+eighteen point o five~18.05
+eighteen point one two~18.12
+eighteen point o one~18.01
+zero point two six~0.26
+point zero two~.02
+sixty point two~60.2
+minus sixty point two four zero zero~-60.2400
