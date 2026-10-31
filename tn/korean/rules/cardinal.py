@@ -56,7 +56,9 @@ class Cardinal(Processor):
                 forms.append(top + lower)
             block = padded + insert(scale) | delete("0000")
             lower = block + lower
-        self.graph = pynini.union(*forms).optimize()
+        number = pynini.union(*forms).optimize()
+        grouped = self.DIGIT ** (1, 3) + (delete(",") + self.DIGIT ** 3).plus
+        self.graph = (number | grouped @ number).optimize()
         self.digits = (digit | zero).optimize()
         native_ones = pynini.string_file(get_abs_path("korean/data/number/native_ones.tsv"))
         native_tens = pynini.string_file(get_abs_path("korean/data/ordinal/tens.tsv"))
