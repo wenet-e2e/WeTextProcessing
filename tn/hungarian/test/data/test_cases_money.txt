@@ -1,0 +1,9 @@
+$1~egy dollár
+$1,00~egy dollár
+$2~kettő dollár
+$2,00~kettő dollár
+$1,01~egy dollár egy cent
+$1 mrd~egy milliárd dollár
+1 mrd GBP-t~egy milliárd angol fontot
+1,32 GBP-t~egy egész harminckettő század angol fontot
+2,32 GBP-t~kettő egész harminckettő század angol fontot

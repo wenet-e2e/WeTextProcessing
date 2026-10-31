@@ -1,0 +1,10 @@
+08:00~nyolc óra
+08:05~nyolc óra öt perc
+8 ó-ban~nyolc órában
+8 ó 5 p-cel~nyolc óra öt perccel
+08:00:05~nyolc óra öt masodperc
+08:05:00~nyolc óra öt perc
+08:05:05~nyolc óra öt perc öt masodperc
+00:00~nulla óra
+00:00 cet~nulla óra c e t
+00:00 cet-t~nulla óra c e t-t
