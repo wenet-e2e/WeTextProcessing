@@ -1,0 +1,15 @@
+1er~premier
+1ère~première
+3e~troisième
+8ème~huitième
+6°~sixième
+21e~vingt et unième
+5e~cinquième
+9e~neuvième
+10°~dixième
+4e~quatrième
+90e~quatre-vingt-dixième
+100e~centième
+1000e~millième
+2540e~deux mille cinq cent quarantième
+1 000 000 000e~un milliardième
