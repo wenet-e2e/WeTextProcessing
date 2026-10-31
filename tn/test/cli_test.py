@@ -61,6 +61,7 @@ class FakeProcessor:
         ("tn", "es", "tn.spanish.normalizer", "Normalizer", ["--no-deterministic"], {"deterministic": False}),
         ("tn", "hi", "tn.hindi.normalizer", "Normalizer", [], {}),
         ("tn", "mr", "tn.marathi.normalizer", "Normalizer", [], {}),
+        ("tn", "rw", "tn.kinyarwanda.normalizer", "Normalizer", [], {}),
         (
             "itn",
             "zh",
@@ -96,6 +97,7 @@ class FakeProcessor:
         ("itn", "es", "itn.spanish.inverse_normalizer", "InverseNormalizer", ["--cased"], {"cased": True}),
         ("itn", "hi", "itn.hindi.inverse_normalizer", "InverseNormalizer", [], {}),
         ("itn", "mr", "itn.marathi.inverse_normalizer", "InverseNormalizer", [], {}),
+        ("itn", "rw", "itn.kinyarwanda.inverse_normalizer", "InverseNormalizer", [], {}),
     ],
 )
 def test_create_processor_uses_language_capabilities(
@@ -221,6 +223,8 @@ def test_cli_defaults_and_forwarding_match_processor_signature(monkeypatch, dire
         ("itn", "hi", "--cache-dir", "--enable-million"),
         ("tn", "mr", "--cache-dir", "--deterministic"),
         ("itn", "mr", "--cache-dir", "--enable-million"),
+        ("tn", "rw", "--cache-dir", "--deterministic"),
+        ("itn", "rw", "--cache-dir", "--enable-million"),
     ],
 )
 def test_help_only_exposes_selected_pipeline_options(direction, language, present, absent):
