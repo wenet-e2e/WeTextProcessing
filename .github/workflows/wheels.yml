@@ -4,18 +4,24 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (optional, will be determined by setuptools_scm if not provided)'
-        required: false
+        description: 'Existing release tag version, without the v prefix (for example, 1.3.0)'
+        required: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
     strategy:
       matrix:
         python-version: [3.9]
     steps:
+      - name: Validate version
+        run: |
+          [[ "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
       - uses: actions/checkout@v4
         with:
+          ref: v${{ inputs.version }}
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -29,41 +35,49 @@ jobs:
 
       - name: Build Graph
         run: |
-          python -m tn --text "2.5平方电线" --overwrite_cache --language "zh"
-          python -m tn --text "2010-03-21" --overwrite_cache --language "en"
-          python -m itn --text "二点五平方电线" --overwrite_cache
-          python -m itn --text "one two three" --overwrite_cache --language "en"
-
-      - name: Prepare Graph
-        run: |
-          mkdir graph
-          cp tn/*.fst graph
-          cp itn/*.fst graph
-          cp tn/*_cache.json graph
-          cp itn/*_cache.json graph
-
-      - name: Get version from setuptools_scm
-        id: scm_version
-        run: |
-          # Check if version is provided as input
-          if [ -n "${{ github.event.inputs.version }}" ]; then
-            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-          else
-            # Get version from setuptools_scm
-            pip install setuptools_scm
-            VERSION=$(python -m setuptools_scm | tail -1)
-            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          fi
+          python -m tn --text "2.5平方电线" --overwrite_cache --language "zh" --cache_dir graph
+          python -m tn --text "2010-03-21" --overwrite_cache --language "en" --cache_dir graph
+          python -m itn --text "二点五平方电线" --overwrite_cache --cache_dir graph
+          python -m itn --text "one two three" --overwrite_cache --language "en" --cache_dir graph
 
       - name: Upload Graph
         uses: actions/upload-artifact@v4
         with:
-          name: release-graph-v${{ steps.scm_version.outputs.VERSION }}
+          name: release-graph-v${{ inputs.version }}
           path: graph
+          if-no-files-found: error
 
       - name: Build package
         run: |
           python -m build
+          python -m twine check dist/*
+
+      - name: Verify package version and resources
+        run: |
+          python - <<'PY'
+          from email.parser import BytesParser
+          import os
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          wheels = list(Path("dist").glob("*.whl"))
+          assert len(wheels) == 1, wheels
+          with ZipFile(wheels[0]) as wheel:
+              names = set(wheel.namelist())
+              metadata_name = next(name for name in names if name.endswith(".dist-info/METADATA"))
+              metadata = BytesParser().parsebytes(wheel.read(metadata_name))
+              assert metadata["Version"] == os.environ["RELEASE_VERSION"], metadata["Version"]
+              resources = {
+                  path.as_posix()
+                  for package in ("tn", "itn")
+                  for path in Path(package).rglob("*")
+                  if path.is_file() and path.suffix in (".tsv", ".far")
+                  and "test" not in path.parts
+              }
+              missing = resources - names
+              assert not missing, sorted(missing)
+              print("Verified version", metadata["Version"], "and", len(resources), "resources")
+          PY
 
       - name: Publish on pypi.org
         if: github.ref == 'refs/heads/master' && github.repository == 'wenet-e2e/WeTextProcessing'
