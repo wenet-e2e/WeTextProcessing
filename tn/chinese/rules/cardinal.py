@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pynini import accep, cross, string_file
+from pynini import accep, closure, cross, string_file
 from pynini.lib.pynutil import add_weight, delete, insert
 
 from tn.processor import Processor
@@ -66,6 +66,10 @@ class Cardinal(Processor):
                                                                                | rmzero**8))
 
         number = digits | ten | hundred | thousand | ten_thousand | hundred_million
+        # 15,000 => 一万五千, 1,000,000 => 一百万. It costs more than a comma between
+        # two numbers (100), so that 1,2345 doesn't become 1,234 followed by 5.
+        grouped = closure(self.DIGIT, 1, 3) + (accep(",") + self.DIGIT**3).plus
+        number |= add_weight(grouped @ self.build_rule(delete(","), self.DIGIT, self.DIGIT) @ number, 120)
         number = sign.ques + number + (dot + digits.plus).ques
         number @= self.build_rule(cross("二百", "两百") | cross("二千", "两千") | cross("二万", "两万") | cross("二亿", "两亿"),
                                   "[BOS]").optimize()
