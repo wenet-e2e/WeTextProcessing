@@ -79,12 +79,20 @@ class Cardinal(Processor):
         cardinal |= digits.plus + (delete("-") + digits.plus)**2
         # xxx-xxxxxxxx
         cardinal |= digits**3 + delete("-") + digits**8
-        # well-known short phone numbers (110, 12306, etc.) and 11-digit mobile
+        # well-known 5-digit service numbers (12306, etc.) and 11-digit mobile
         phone_digits = digits @ self.build_rule(cross("一", "幺"))
-        phone = string_file(get_abs_path("chinese/data/cardinal/phone.tsv"))
+        known_phones = string_file(get_abs_path("chinese/data/cardinal/phone.tsv"))
+        phone = self.DIGIT**5 @ known_phones
         phone |= phone_digits**11
         phone |= accep("尾号") + (accep("是") | accep("为")).ques + phone_digits**4
         cardinal |= add_weight(phone, -1.0)
+        # 110, 120, etc. are also ordinary quantities (120题, 110公尺), so read them
+        # as phone numbers only next to a word that says so (拨打120, 120急救)
+        emergency = self.DIGIT**3 @ known_phones
+        rmspace = delete(" ").ques
+        before = string_file(get_abs_path("chinese/data/cardinal/phone_before.tsv"))
+        after = string_file(get_abs_path("chinese/data/cardinal/phone_after.tsv"))
+        cardinal |= before + rmspace + emergency | emergency + rmspace + after
 
         self.cardinal = cardinal.optimize()
         self.tagger = self.add_tokens(self.tag_field("value", self.cardinal))
